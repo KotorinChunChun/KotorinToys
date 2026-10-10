@@ -1,0 +1,41 @@
+# 開発資料は追跡し、版別の実行結果だけを除外する
+/dev/history/*/logs/
+
+# リリース成果物
+release/
+
+# ビルド成果物・中間生成物
+target/
+node_modules/
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.pdb
+
+# ローカル環境変数・認証情報
+.env
+.env.local
+secrets.json
+*.pfx
+*.p12
+*.key
+*.pem
+
+# 大容量モデル・OS・エディタのキャッシュ
+*.onnx
+*.gguf
+*.bin
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ログ・実行時一時データ
+*.log
+*.sqlite
+tmp/
+.claude/
