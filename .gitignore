@@ -9,6 +9,8 @@ target/
 node_modules/
 dist/
 build/
+bin/
+obj/
 *.exe
 *.dll
 *.so

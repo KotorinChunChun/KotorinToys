@@ -2,4 +2,4 @@
 
 本体ソースの配置先です。
 
-技術言語、UIフレームワーク、常駐管理部とダッシュボードのプロセス分割は、既存ツールとの適合性を確認してから決定します。
+C# / .NET 10 / Windows Formsの本体は `KotorinToys/` にあります。開発用起動は `pwsh -File dev/scripts/start.ps1` です。

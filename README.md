@@ -4,7 +4,16 @@ KotoriChunが開発・管理するWindows向けデスクトップ便利ツール
 
 ## プロジェクトの状態
 
-現在は、プロジェクト定義 v0.1.0 に基づく開発環境と共通資料の初期構成を準備した段階です。収録対象の既存ツール、インストーラー、実行方式、ランタイム、連携方法は、各ツールの実物確認後に登録します。
+LiveTextMarker、SmartPaste、SSCaptureを登録し、本体の一覧から起動、既存画面の表示、正常停止、状態確認、使い方の表示を行えます。現在は開発用のローカル構成です。
+
+## 開発版の起動
+
+```powershell
+cd C:\develop\KotorinToys
+pwsh -File dev/scripts/start.ps1
+```
+
+初回のビルドは `pwsh -File dev/scripts/build.ps1` です。本体を閉じても各ツールは動作を続けます。
 
 ## 対応環境
 
