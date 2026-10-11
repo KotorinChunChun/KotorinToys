@@ -12,7 +12,7 @@ internal sealed class Dashboard : Form
     public Dashboard(string root)
     {
         manager = new(root); tools=manager.Load();
-        Text="KotorinToys — KotoriChun"; Size=new Size(880,480); MinimumSize=new Size(650,350);
+        Text=WindowTitle.Create(); Size=new Size(880,480); MinimumSize=new Size(650,350);
         Font=new Font("Yu Gothic UI",11); StartPosition=FormStartPosition.CenterScreen;
         grid.Columns.Add("tool","ツール"); grid.Columns.Add("state","現在の状態"); grid.Columns.Add("detail","詳細");
         foreach(var tool in tools) grid.Rows.Add(tool.Name,"確認中","");
