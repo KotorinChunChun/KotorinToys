@@ -14,8 +14,16 @@ internal sealed class Dashboard : Form
         manager = new(root); tools=manager.Load();
         Text=WindowTitle.Create(); Size=new Size(880,480); MinimumSize=new Size(650,350);
         Font=new Font("Yu Gothic UI",11); StartPosition=FormStartPosition.CenterScreen;
+        grid.ColumnHeadersHeightSizeMode=DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        grid.ColumnHeadersDefaultCellStyle.Padding=new Padding(4,8,4,8);
         grid.Columns.Add("tool","ツール"); grid.Columns.Add("state","現在の状態"); grid.Columns.Add("detail","詳細");
         foreach(var tool in tools) grid.Rows.Add(tool.Name,"確認中","");
+        grid.CellDoubleClick += async (_, e) =>
+        {
+            if(e.RowIndex < 0 || busy) return;
+            grid.CurrentCell=grid.Rows[e.RowIndex].Cells[0];
+            await Execute("start");
+        };
         foreach(var (label, command) in new[] { ("起動 / 画面を開く","start"),("正常停止","stop"),("状態を更新","refresh"),("使い方","manual") })
         {
             var button = new Button { Text=label, AutoSize=true, Height=35, Name=command };

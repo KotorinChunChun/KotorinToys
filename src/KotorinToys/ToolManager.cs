@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO.Pipes;
 using System.Security.Principal;
 using System.Text.Json;
+using System.Runtime.InteropServices;
 
 namespace KotorinToys;
 internal sealed record ToolDefinition(string Id, string Name, string Executable, string Manual);
@@ -11,6 +12,16 @@ internal sealed record Reply(int Pid, bool Ready);
 
 internal sealed class ToolManager(string root)
 {
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool AllowSetForegroundWindow(int processId);
+
+    private async Task Show(ToolDefinition tool, ToolState state)
+    {
+        // ユーザーが操作した本体から対象プロセスへ前面化の権限を渡す。
+        if (state.Pid is int pid) AllowSetForegroundWindow(pid);
+        await Send(tool, "show");
+    }
     private readonly Dictionary<string,int> pendingStops = new();
     public ToolDefinition[] Load()
     {
@@ -78,11 +89,11 @@ internal sealed class ToolManager(string root)
     public async Task<ToolState> Start(ToolDefinition tool)
     {
         var state = await Status(tool);
-        if (state.State == "実行中") { await Send(tool, "show"); return state; }
+        if (state.State == "実行中") { await Show(tool, state); return state; }
         if (state.State != "停止中") return state;
         var path = Resolve(tool.Executable);
         Process.Start(new ProcessStartInfo(path) { WorkingDirectory = Path.GetDirectoryName(path), UseShellExecute = true });
-        for (int i=0; i<10; i++) { await Task.Delay(250); state=await Status(tool); if(state.State=="実行中") return state; }
+        for (int i=0; i<10; i++) { await Task.Delay(250); state=await Status(tool); if(state.State=="実行中") { await Show(tool, state); return state; } }
         return new("確認できない", Detail:"起動後の準備完了を確認できませんでした。");
     }
     public async Task<ToolState> Stop(ToolDefinition tool)
