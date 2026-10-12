@@ -5,6 +5,30 @@ using KotorinToys;
 internal static class ReleaseAcceptance
 {
     static string Hash(string path)=>Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
+    public static async Task<int> Host(string catalog)
+    {
+        var root=KotorinToys.Program.FindRoot();var manager=new ToolManager(root);var tools=manager.Load();
+        var host=new ToolDefinition("host","KotorinToys","KotorinToys.exe","README.md",AppId:"KotorinToys",InstalledExecutable:"KotorinToys.exe");
+        var installation=manager.Installation(host);if(installation.State!="導入済み")throw new IOException("正式本体が必要です。");
+        var dashboard=host with{Id="dashboard",AppId=""};var hostManager=new ToolManager(installation.Directory!);
+        var before=await hostManager.Status(dashboard);var children=await Task.WhenAll(tools.Select(t=>manager.Status(t)));
+        var directory=Path.Combine(root,"dev","history","v0.1.0","logs","release-host-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(directory);
+        try
+        {
+            if(before.State is not ("実行中" or "停止中"))throw new IOException("本体の安全な状態を確認できません。");
+            var code=await InstalledStartupTests.NativeInstall(catalog);if(code!=0)throw new IOException("正式本体更新の終了コード："+code);
+            var store=new HostSettingsStore(HostSettingsStore.DefaultDirectory);var own=store.Load().OwnedTasks["host"];
+            if(Hash(Path.Combine(installation.Directory!,"catalog","releases.json"))!=Hash(Path.Combine(root,"catalog","releases.json")))throw new IOException("正式本体の固定公開台帳が不一致です。");
+            new TaskSchedulerGateway().RunOwned(own.Name,own.Fingerprint);
+            var deadline=DateTime.UtcNow.AddSeconds(45);ToolState state=new("停止中");
+            while(DateTime.UtcNow<deadline){state=await hostManager.Status(dashboard);if(state.State=="実行中")break;await Task.Delay(500);}
+            if(state.State!="実行中")throw new IOException("更新した正式本体の準備完了を確認できません。");
+            for(int i=0;i<tools.Length;i++)if((await manager.Status(tools[i])).Pid!=children[i].Pid)throw new IOException("本体更新が子PIDを変更しました。");
+            if(before.State=="停止中" && (await hostManager.Stop(dashboard)).State!="停止中")throw new IOException("元の本体停止状態へ戻せません。");
+            File.WriteAllText(Path.Combine(directory,"result.json"),JsonSerializer.Serialize(new{Outcome="pass",Host=state,ChildPids=children.Select(s=>s.Pid),PinnedCatalog="同梱hash一致",Launch="所有照合付き実タスク手動開始。サインイン試験ではない。"},ToolCatalog.Json));return 0;
+        }
+        catch(Exception ex){File.WriteAllText(Path.Combine(directory,"failure.txt"),ex.ToString());return 1;}
+    }
     public static async Task<int> Run()
     {
         var root=KotorinToys.Program.FindRoot();var manager=new ToolManager(root);var tools=manager.Load();

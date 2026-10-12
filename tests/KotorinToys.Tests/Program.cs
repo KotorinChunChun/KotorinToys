@@ -23,6 +23,8 @@ internal static class Program
     {
         try
         {
+            if(args.Length==2 && args[0]=="--run-native-release-host")return InstalledStartupTests.NativeTask("--release-host "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--release-host")return ReleaseAcceptance.Host(args[1]).GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--run-native-release-install")return InstalledStartupTests.NativeTask("--release-install").GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--release-install")return ReleaseAcceptance.Run().GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--run-native-release-ui")return InstalledStartupTests.NativeTask("--release-ui").GetAwaiter().GetResult();
