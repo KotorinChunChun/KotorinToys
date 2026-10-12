@@ -52,4 +52,10 @@ pwsh -File dev/scripts/start.ps1
 
 ## 独立Git管理
 
-親リポジトリのtools内3フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親で採用コミットを記録します。現構成には.gitmodulesがないため、クローンによる自動取得方式は未整備です。
+親リポジトリのtools内3フォルダーは独立したGitリポジトリです。まず子で変更をコミット・pushし、親で採用コミットを記録します。`.gitmodules`に各公開先を登録し、次の操作で採用版をまとめて取得できます。
+
+```powershell
+git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.git
+```
+
+本体だけを取得済みの場合は、本体フォルダーで`git submodule update --init --recursive`を実行します。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソースの公開と製品インストーラーのReleases公開は別です。

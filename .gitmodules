@@ -1,0 +1,9 @@
+[submodule "tools/LiveTextMarker"]
+	path = tools/LiveTextMarker
+	url = https://github.com/KotorinChunChun/LiveTextMarker.git
+[submodule "tools/SmartPaste"]
+	path = tools/SmartPaste
+	url = https://github.com/KotorinChunChun/SmartPaste.git
+[submodule "tools/SSCapture"]
+	path = tools/SSCapture
+	url = https://github.com/KotorinChunChun/SSCapture.git

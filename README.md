@@ -4,7 +4,15 @@ KotoriChunが開発・管理するWindows向けデスクトップ便利ツール
 
 ## プロジェクトの状態
 
-LiveTextMarker、SmartPaste、SSCaptureを登録し、本体の一覧から起動、既存画面の表示、正常停止、状態確認、使い方の表示を行えます。現在は開発用のローカル構成です。
+LiveTextMarker、SmartPaste、SSCaptureを登録し、本体の一覧から起動、既存画面の表示、正常停止、状態確認、使い方の表示を行えます。現在は開発中です。ソース公開は製品の正式リリースや全機能の受入完了を意味しません。
+
+## ソースの取得
+
+```powershell
+git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.git
+```
+
+収録3ツールも、それぞれの独立リポジトリから本体が採用した版を取得します。製品インストーラーのGitHub Releases公開はまだ行っていません。
 
 ## 開発版の起動
 
