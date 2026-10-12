@@ -12,7 +12,13 @@ LiveTextMarker、SmartPaste、SSCaptureを登録し、本体の一覧から起�
 git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.git
 ```
 
-収録3ツールも、それぞれの独立リポジトリから本体が採用した版を取得します。製品インストーラーのGitHub Releases公開はまだ行っていません。
+収録3ツールも、それぞれの独立リポジトリから本体が採用した版を取得します。
+
+## インストーラー（開発版）
+
+[本体のReleases](https://github.com/KotorinChunChun/KotorinToys/releases)から`KotorinToys-0.1.0-setup.exe`を取得してください。Windows 11 x64・利用者単位・ランタイム同梱の未署名開発版です。全機能の受入完了版ではありません。
+
+本体の「導入・削除」で対象ツールを選択し「選択をインストール」を押すと、GitHub Releasesから本体に登録された固定版を取得し、製品・版・容量・SHA-256を照合して導入します。ローカル配布台帳からの導入も使用できます。設定・保存データは保持し、正常終了を拒否したツールは更新・削除しません。SSCaptureの録画用FFmpeg／FFprobeとOneOCR外部ファイルは別途必要です。
 
 ## 開発版の起動
 

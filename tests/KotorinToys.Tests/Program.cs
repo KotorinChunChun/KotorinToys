@@ -23,6 +23,8 @@ internal static class Program
     {
         try
         {
+            if(args.Length==1 && args[0]=="--run-native-release-install")return InstalledStartupTests.NativeTask("--release-install").GetAwaiter().GetResult();
+            if(args.Length==1 && args[0]=="--release-install")return ReleaseAcceptance.Run().GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--run-native-release-ui")return InstalledStartupTests.NativeTask("--release-ui").GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--release-ui") { Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Application.Run(new InstallationForm(new(KotorinToys.Program.FindRoot())));return 0; }
             if(args.Contains("--foreground-pid")) { GetWindowThreadProcessId(GetForegroundWindow(),out var pid); Console.WriteLine(pid); return 0; }
@@ -85,7 +87,7 @@ internal static class Program
     {
         var tools = ToolCatalog.Load(root);
         Check(tools.Length == 3, "schema 2で3ツールを解決する");
-        Check(tools.All(t => t.DistributionStatus == "unpublished"), "未公開を架空URLで埋めない");
+        Check(tools.All(t => t.DistributionStatus == "published"), "公開した3ツールを配布状態へ反映");
         Check(tools.All(t => t.Runtimes?.Length > 0), "3ツールの依存情報を持つ");
         Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"3ツールの確認済み能力と環境");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs"));

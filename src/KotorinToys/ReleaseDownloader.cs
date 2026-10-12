@@ -64,7 +64,13 @@ internal sealed class ReleaseDownloader : IDisposable
             for(int hops=0;hops<=4;hops++)
             {
                 if(!Allowed(uri))throw new IOException("許可外の配布先へ移動しません。");
-                response=await client.GetAsync(uri,HttpCompletionOption.ResponseHeadersRead,token);
+                for(int attempt=0;;attempt++)
+                {
+                    response=await client.GetAsync(uri,HttpCompletionOption.ResponseHeadersRead,token);
+                    if((int)response.StatusCode is >=500 and <=599 && attempt<2)
+                    {response.Dispose();response=null;await Task.Delay(TimeSpan.FromSeconds(attempt+1),token);continue;}
+                    break;
+                }
                 if((int)response.StatusCode is >=300 and <400)
                 {
                     var location=response.Headers.Location??throw new IOException("リダイレクト先がありません。");

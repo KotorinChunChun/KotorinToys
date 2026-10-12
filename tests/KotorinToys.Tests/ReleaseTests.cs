@@ -14,6 +14,8 @@ internal static class ReleaseTests
         var package=new LocalPackage(tool.Id,tool.Name,tool.Version,tool.AppId,$"{tool.Name}-{tool.Version}-setup.exe",Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant(),"unsigned-public-build");
         var item=new ReleasePackage(package,bytes.Length);var catalog=new ReleaseCatalog(1,[item]);
         var cache=Path.Combine(fixtures,"release-cache");Directory.CreateDirectory(cache);
+        var pinned=ReleaseDownloader.Load(root);
+        check(ToolCatalog.Load(root).All(t=>pinned.Packages.Any(p=>p.Package.Id==t.Id && p.Package.Version==t.Version && p.Package.AppId==t.AppId)),"公開固定台帳と3ツールの採用版・製品識別が一致");
         HttpResponseMessage Ok(byte[] data)=>new(HttpStatusCode.OK){Content=new ByteArrayContent(data)};
         using(var downloader=new ReleaseDownloader(new Handler((request,_)=>
         {
@@ -49,5 +51,9 @@ internal static class ReleaseTests
             ?new HttpResponseMessage(HttpStatusCode.Redirect){Headers={Location=new("https://release-assets.githubusercontent.com/test")}}:Ok(bytes)))))
             check(File.Exists(await downloader.Prepare(catalog,[tool],cache)),"GitHubの許可されたassetホストへの移動は検証付きで許可");
         check(!ReleaseDownloader.Allowed(new("http://github.com/test")) && !ReleaseDownloader.Allowed(new("https://github.com:8443/test")) && !ReleaseDownloader.Allowed(new("https://user@github.com/test")),"非HTTPS・特殊ポート・ユーザー情報付き配布先を拒否");
+        int attempts=0;
+        using(var downloader=new ReleaseDownloader(new Handler((_,_)=>Task.FromResult(++attempts<3?new HttpResponseMessage(HttpStatusCode.InternalServerError):Ok(bytes)))))
+            check(File.Exists(await downloader.Prepare(catalog,[tool],cache)) && attempts==3,"一時的な5xxは回数制限付きで再取得しハッシュを検証");
+        await Reject(catalog,(_,_)=>Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)),"継続する5xxは上限後に失敗し無限再試行しない");
     }
 }

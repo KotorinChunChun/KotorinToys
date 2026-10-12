@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "packages": [
+    {
+      "package": {
+        "id": "live-text-marker",
+        "name": "LiveTextMarker",
+        "version": "1.1.0",
+        "appId": "KotorinToys.LiveTextMarker",
+        "file": "LiveTextMarker-1.1.0-setup.exe",
+        "sha256": "80c6233975d9e4b56e5e14933e864f3c47e2d1ecf9d45a8ca96b975c7d3d98b6",
+        "signature": "unsigned-public-build"
+      },
+      "length": 102243306
+    },
+    {
+      "package": {
+        "id": "smart-paste",
+        "name": "SmartPaste",
+        "version": "0.1.4",
+        "appId": "KotorinToys.SmartPaste",
+        "file": "SmartPaste-0.1.4-setup.exe",
+        "sha256": "f93ea90123628c7586ba9aa0ccda57a9052f873b9f72a3dd965149d71d9dfd0b",
+        "signature": "unsigned-public-build"
+      },
+      "length": 162004997
+    },
+    {
+      "package": {
+        "id": "ss-capture",
+        "name": "SSCapture",
+        "version": "0.1.0",
+        "appId": "KotorinToys.SSCapture",
+        "file": "SSCapture-0.1.0-setup.exe",
+        "sha256": "14c5e23bad58691b329d26644d940f90046d1ba853a2acf3656f815753a658c7",
+        "signature": "unsigned-public-build"
+      },
+      "length": 76355650
+    }
+  ]
+}

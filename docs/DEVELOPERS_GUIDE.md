@@ -59,3 +59,11 @@ git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.gi
 ```
 
 本体だけを取得済みの場合は、本体フォルダーで`git submodule update --init --recursive`を実行します。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソースの公開と製品インストーラーのReleases公開は別です。
+
+## Releases配布
+
+本体と3ツールは`KotorinChunChun`配下の各Releasesへ、未署名の開発版インストーラー・SHA256SUMS・製品別台帳を公開します。本体の`catalog/releases.json`は対象製品・版・サイズ・固定SHA-256を記録します。任意の最新配布物に自動追従せず、採用版の変更時に検証して更新します。同じタグのassetを差し替えると旧本体はハッシュ不一致で拒否します。新しい配布物は新しい版へ進め、旧assetを上書きしないでください。
+
+公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。公開版SSCaptureは`publish-packages.ps1 -ExcludeFFmpeg`を指定し、FFmpeg／FFprobeと利用者dataを含めません。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
+
+ダウンロードはGitHubと指定されたGitHub assetホストのHTTPSだけ許可し、時間・容量・サイズ・SHA-256を検査します。SHA-256は本体に同梱した固定値であり、通信相手が返すハッシュで任意ファイルを信用しません。ただしコード署名による発行者検証ではありません。未署名の注意と配布元を利用者へ表示します。

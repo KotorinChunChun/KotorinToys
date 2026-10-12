@@ -1,6 +1,7 @@
 param(
     [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')]
-    [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')
+    [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
+    [switch]$ExcludeFFmpeg
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot)
@@ -82,12 +83,14 @@ foreach ($product in $Products | Select-Object -Unique) {
         }
         'SSCapture' {
             $mediaRoot = Join-Path $projectRoot 'tools/SSCapture/.tools/ffmpeg/ffmpeg-9.0.2-essentials_build'
-            Assert-Files $mediaRoot @('bin/ffmpeg.exe','bin/ffprobe.exe','LICENSE','README.txt')
+            if(-not $ExcludeFFmpeg){Assert-Files $mediaRoot @('bin/ffmpeg.exe','bin/ffprobe.exe','LICENSE','README.txt')}
             Publish-Application 'tools/SSCapture/src/SSCapture/SSCapture.csproj' $output $product
-            $mediaOutput = Join-Path $output 'tools'
-            New-Item -ItemType Directory -Path $mediaOutput | Out-Null
-            foreach ($file in @('bin/ffmpeg.exe','bin/ffprobe.exe','LICENSE','README.txt')) {
-                Copy-Required (Join-Path $mediaRoot $file) $mediaOutput
+            if(-not $ExcludeFFmpeg){
+                $mediaOutput = Join-Path $output 'tools'
+                New-Item -ItemType Directory -Path $mediaOutput | Out-Null
+                foreach ($file in @('bin/ffmpeg.exe','bin/ffprobe.exe','LICENSE','README.txt')) {
+                    Copy-Required (Join-Path $mediaRoot $file) $mediaOutput
+                }
             }
             Copy-Required (Join-Path $projectRoot 'tools/SSCapture/licenses/NAudio-LICENSE.txt') $output
             Copy-Required (Join-Path $projectRoot 'tools/SSCapture/THIRD_PARTY.md') $output

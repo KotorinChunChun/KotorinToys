@@ -1,0 +1,60 @@
+using System.Security.Cryptography;
+using System.Text.Json;
+using KotorinToys;
+
+internal static class ReleaseAcceptance
+{
+    static string Hash(string path)=>Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
+    public static async Task<int> Run()
+    {
+        var root=KotorinToys.Program.FindRoot();var manager=new ToolManager(root);var tools=manager.Load();
+        var directory=Path.Combine(root,"dev","history","v0.1.0","logs","release-acceptance-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(directory);
+        var states=await Task.WhenAll(tools.Select(t=>manager.Status(t)));var changed=new List<int>();
+        var installed=tools.Select(manager.Installation).ToArray();
+        var receipts=new List<object>();var outcome=0;
+        try
+        {
+            if(states.Any(s=>s.State is not ("実行中" or "停止中")) || installed.Any(i=>i.State!="導入済み"))throw new IOException("正式導入と安全な現在状態が必要です。");
+            using var downloader=new ReleaseDownloader();
+            var catalog=await downloader.Prepare(ReleaseDownloader.Load(root),tools,Path.Combine(directory,"downloads"));
+            for(int i=0;i<tools.Length;i++)
+            {
+                if((await manager.Stop(tools[i])).State!="停止中")throw new IOException("正常終了を拒否しました。導入しません："+tools[i].Name);
+                changed.Add(i);
+            }
+            var local=Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var known=new List<string>{Path.Combine(local,"KotorinToys","settings.json")};
+            for(int i=0;i<tools.Length;i++)known.AddRange(new[]{Path.Combine(local,tools[i].Name,"settings.json"),Path.Combine(installed[i].Directory!,"data","settings.json"),Path.Combine(installed[i].Directory!,"data","last-region.json")});
+            known.Add(Path.Combine(root,"tools","SSCapture","src","SSCapture","bin","Release","net10.0-windows","data","last-region.json"));
+            var preserved=known.Distinct().Where(File.Exists).ToDictionary(p=>p,Hash);
+            var adapter=new InstallerAdapter(manager);
+            for(int i=0;i<tools.Length;i++)
+            {
+                var result=await adapter.Install(tools[i],catalog,installed[i].Directory);
+                if(result.State!="成功")throw new IOException(tools[i].Name+"の公開取得後導入："+result.State+" / "+result.Detail);
+                foreach(var file in preserved)if(!File.Exists(file.Key) || Hash(file.Key)!=file.Value)throw new IOException("既知設定・履歴の保持ハッシュが不一致です。");
+                if((await manager.Start(tools[i],false,"standalone")).State!="実行中" || (await manager.Stop(tools[i])).State!="停止中")throw new IOException("公開版の単独準備完了・正常終了が不一致です。");
+                receipts.Add(new {ToolId=tools[i].Id,Installation=result,Verification="公開HTTP取得・固定ハッシュ・正式導入・単独準備完了・正常終了"});
+            }
+            File.WriteAllText(Path.Combine(directory,"result.json"),JsonSerializer.Serialize(new{Outcome="pass",Results=receipts,PreservedHashes=preserved},ToolCatalog.Json));
+        }
+        catch(Exception ex){File.WriteAllText(Path.Combine(directory,"failure.txt"),ex.ToString());outcome=1;}
+        finally
+        {
+            var restoration=new List<object>();
+            foreach(var i in changed)
+            {
+                try
+                {
+                    var result=states[i].State=="実行中"?await manager.Start(tools[i],false,states[i].LaunchOrigin):await manager.Stop(tools[i]);
+                    restoration.Add(new {ToolId=tools[i].Id,Expected=states[i].State,Actual=result});
+                    if(result.State!=states[i].State)outcome=1;
+                }
+                catch(Exception ex){restoration.Add(new {ToolId=tools[i].Id,Error=ex.Message});outcome=1;}
+            }
+            File.WriteAllText(Path.Combine(directory,"restoration.json"),JsonSerializer.Serialize(restoration,ToolCatalog.Json));
+            if(outcome!=0 && File.Exists(Path.Combine(directory,"result.json")))File.WriteAllText(Path.Combine(directory,"result.json"),JsonSerializer.Serialize(new{Outcome="fail",Detail="導入または元の起動状態復帰が未完了。failure.txt／restoration.json参照。"},ToolCatalog.Json));
+        }
+        return outcome;
+    }
+}
