@@ -7,6 +7,7 @@ internal sealed class HostApplicationContext : ApplicationContext
     readonly Control dispatcher = new();
     readonly ManagementEndpoint management;
     readonly NotifyIcon tray;
+    readonly Icon icon = AppIcon.Create();
     readonly Dashboard dashboard;
     internal Dashboard Dashboard => dashboard;
     bool exiting;
@@ -22,7 +23,8 @@ internal sealed class HostApplicationContext : ApplicationContext
         var menu = new ContextMenuStrip();
         menu.Items.Add("管理画面を開く", null, (_, _) => ShowDashboard());
         menu.Items.Add("KotorinToysを終了", null, (_, _) => ExitThread());
-        tray = new NotifyIcon { Text = "KotorinToys", Icon = SystemIcons.Application, ContextMenuStrip = menu, Visible = true };
+        dashboard.Icon = icon;
+        tray = new NotifyIcon { Text = "KotorinToys", Icon = icon, ContextMenuStrip = menu, Visible = true };
         tray.MouseDoubleClick += (_, _) => ShowDashboard();
         management = new("dashboard", dispatcher, ShowDashboard, ExitThread);
         if (!startup) ShowDashboard();
@@ -54,6 +56,7 @@ internal sealed class HostApplicationContext : ApplicationContext
         tray.ContextMenuStrip?.Dispose();
         tray.Dispose();
         dashboard.Close();
+        icon.Dispose();
         dispatcher.Dispose();
         base.ExitThreadCore();
     }

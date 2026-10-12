@@ -5,6 +5,46 @@ using KotorinToys;
 internal static class ReleaseAcceptance
 {
     static string Hash(string path)=>Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
+    public static async Task<int> UpdateTool(string catalog)
+    {
+        var root=KotorinToys.Program.FindRoot();var manager=new ToolManager(root);
+        var packages=InstallerAdapter.Load(catalog);
+        if(packages.Packages.Length!=1 || packages.Packages[0].Id=="host")throw new IOException("単一ツールの更新台帳が必要です。");
+        var tool=manager.Load().Single(t=>t.Id==packages.Packages[0].Id);
+        var installation=manager.Installation(tool);var before=await manager.Status(tool);
+        if(installation.State!="導入済み" || before.State is not ("実行中" or "停止中"))throw new IOException("正式導入と安全な状態が必要です。");
+        var directory=Path.Combine(root,"dev","history","v0.1.0","logs","tool-update-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(directory);
+        var localDirectory=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),tool.Name);
+        var dataDirectory=Path.Combine(installation.Directory!,"data");
+        var known=new[]{localDirectory,dataDirectory}.Where(Directory.Exists)
+            .SelectMany(p=>Directory.EnumerateFiles(p,"*",SearchOption.AllDirectories)).Distinct().ToArray();
+        var preserved=known.ToDictionary(p=>p,Hash);var outcome=0;var stopped=false;
+        File.WriteAllText(Path.Combine(directory,"preserved-before.json"),JsonSerializer.Serialize(preserved,ToolCatalog.Json));
+        try
+        {
+            if((await manager.Stop(tool)).State!="停止中")throw new IOException("正常終了を拒否しました。更新しません。");
+            stopped=true;
+            var result=await new InstallerAdapter(manager).Install(tool,catalog,installation.Directory);
+            if(result.State!="成功")throw new IOException(result.Detail);
+            foreach(var file in preserved)if(!File.Exists(file.Key) || Hash(file.Key)!=file.Value)throw new IOException("保存設定のハッシュが不一致です。");
+        }
+        catch(Exception ex){File.WriteAllText(Path.Combine(directory,"failure.txt"),ex.ToString());outcome=1;}
+        finally
+        {
+            if(stopped)
+            {
+                try
+                {
+                    var state=before.State=="実行中"?await manager.Start(tool,false,before.LaunchOrigin):await manager.Stop(tool);
+                    File.WriteAllText(Path.Combine(directory,"restoration.json"),JsonSerializer.Serialize(state,ToolCatalog.Json));
+                    if(state.State!=before.State)outcome=1;
+                }
+                catch(Exception ex){File.WriteAllText(Path.Combine(directory,"restoration-failure.txt"),ex.ToString());outcome=1;}
+            }
+            File.WriteAllText(Path.Combine(directory,"result.json"),JsonSerializer.Serialize(new{Outcome=outcome==0?"pass":"fail",Tool=tool.Name,PreservedHashes=preserved,OriginalState=before},ToolCatalog.Json));
+        }
+        return outcome;
+    }
     public static async Task<int> Host(string catalog)
     {
         var root=KotorinToys.Program.FindRoot();var manager=new ToolManager(root);var tools=manager.Load();
