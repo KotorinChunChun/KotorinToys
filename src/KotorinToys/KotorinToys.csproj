@@ -8,5 +8,9 @@
     <PlatformTarget>x64</PlatformTarget>
     <Version>0.1.0</Version>
   </PropertyGroup>
-  <ItemGroup><None Include="../../catalog/tools.json" Link="catalog/tools.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup>
+    <None Include="../../catalog/tools.json" Link="catalog/tools.json" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../../contracts/ManagementEndpoint.cs" Link="Integration/ManagementEndpoint.cs" />
+    <InternalsVisibleTo Include="KotorinToys.Tests" />
+  </ItemGroup>
 </Project>

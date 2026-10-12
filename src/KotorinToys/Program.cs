@@ -5,11 +5,13 @@ internal static class Program
     static void Main(string[] args)
     {
         ApplicationConfiguration.Initialize();
-        var root = args.Length == 2 && args[0] == "--root" ? Path.GetFullPath(args[1]) : FindRoot();
-        if (args.Contains("--self-test")) { Environment.ExitCode = SelfTest.Run(FindRoot()); return; }
+        var rootIndex = Array.IndexOf(args, "--root");
+        var root = rootIndex >= 0 && rootIndex + 1 < args.Length ? Path.GetFullPath(args[rootIndex + 1]) : FindRoot();
+        if (args.Contains("--self-test")) { Environment.ExitCode = SelfTest.Run(root); return; }
         using var mutex = new Mutex(true, @"Local\KotorinToys.Dashboard", out var first);
-        if (!first) return;
-        Application.Run(new Dashboard(root));
+        if (!first) { if (!args.Contains("--startup")) Integration.ManagementEndpoint.ShowExisting("dashboard"); return; }
+        using var context = new HostApplicationContext(root, args.Contains("--startup"));
+        Application.Run(context);
     }
     internal static string FindRoot()
     {

@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KotorinToys ツール定義 1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "version",
+    "summary",
+    "category",
+    "executable",
+    "installedExecutable",
+    "appId",
+    "manual",
+    "readme",
+    "shortcuts",
+    "distributionStatus",
+    "supportedEnvironment",
+    "investigationStatus",
+    "capabilities",
+    "runtimes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,63}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "executable": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![\\\\/]|[A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+    },
+    "installedExecutable": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![\\\\/]|[A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+    },
+    "manual": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![\\\\/]|[A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+    },
+    "readme": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![\\\\/]|[A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+    },
+    "shortcuts": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![\\\\/]|[A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+    },
+    "appId": {
+      "type": "string",
+      "pattern": "^KotorinToys\\.[A-Za-z0-9]+$"
+    },
+    "icon": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![\\\\/]|[A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "supportedEnvironment": {
+      "const": "windows11-x64"
+    },
+    "investigationStatus": {
+      "const": "confirmed"
+    },
+    "distributionStatus": {
+      "enum": [
+        "unpublished",
+        "published"
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "status",
+          "show",
+          "stop",
+          "silent-start",
+          "shortcuts"
+        ]
+      }
+    },
+    "runtimes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "file",
+              "dotnet-desktop",
+              "vc-x64",
+              "external"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![\\\\/]|[A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+          },
+          "major": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "optional": {
+            "type": "boolean"
+          },
+          "feature": {
+            "type": "string"
+          },
+          "guide": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "file"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "path"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "dotnet-desktop"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "major"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

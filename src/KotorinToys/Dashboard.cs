@@ -8,7 +8,7 @@ internal sealed class Dashboard : Form
     readonly Label result = new() { Dock=DockStyle.Bottom, Height=65, Padding=new Padding(12), AutoEllipsis=true };
     readonly System.Windows.Forms.Timer timer = new() { Interval=4000 };
     readonly FlowLayoutPanel actions = new() { Dock=DockStyle.Bottom, Height=55, Padding=new Padding(8) };
-    bool busy;
+    bool busy, refreshing;
     public Dashboard(string root)
     {
         manager = new(root); tools=manager.Load();
@@ -38,6 +38,7 @@ internal sealed class Dashboard : Form
     }
     async Task Execute(string command)
     {
+        if(command=="refresh") { await RefreshStates(); return; }
         if(busy) return;
         busy=true; actions.Enabled=false;
         try
@@ -45,18 +46,29 @@ internal sealed class Dashboard : Form
             var index=grid.CurrentRow?.Index ?? 0;
             var tool=tools[index];
             if(command=="manual")
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(manager.Resolve(tool.Manual)) { UseShellExecute=true });
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(PathSafety.Resolve(manager.DocumentRoot(tool), tool.Manual)) { UseShellExecute=true });
             else if(command!="refresh")
             {
                 grid.Rows[index].Cells[1].Value=command=="start" ? "起動処理中" : "停止処理中";
                 var state=command=="start" ? await manager.Start(tool) : await manager.Stop(tool);
                 result.Text=tool.Name+"："+state.State+" "+state.Detail;
             }
-            var states=await Task.WhenAll(tools.Select(manager.Status));
-            if(IsDisposed) return;
-            for(int i=0;i<tools.Length;i++) { grid.Rows[i].Cells[1].Value=states[i].State; grid.Rows[i].Cells[2].Value=states[i].Detail; }
+            await RefreshStates(true);
         }
         catch(Exception ex) { if(!IsDisposed) result.Text="操作失敗："+ex.Message; }
         finally { busy=false; if(!IsDisposed) actions.Enabled=true; }
+    }
+    async Task RefreshStates(bool afterOperation=false)
+    {
+        if(refreshing && !afterOperation || busy && !afterOperation) return;
+        if(!afterOperation) refreshing=true;
+        try
+        {
+            var states=await Task.WhenAll(tools.Select(tool=>manager.Status(tool)));
+            if(IsDisposed || busy && !afterOperation) return;
+            for(int i=0;i<tools.Length;i++) { grid.Rows[i].Cells[1].Value=states[i].State; grid.Rows[i].Cells[2].Value=states[i].Detail; }
+        }
+        catch(Exception ex) { if(!IsDisposed) result.Text="状態取得失敗："+ex.Message; }
+        finally { if(!afterOperation) refreshing=false; }
     }
 }

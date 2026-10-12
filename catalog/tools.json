@@ -1,23 +1,20 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "tools": [
     {
       "id": "live-text-marker",
       "name": "LiveTextMarker",
-      "executable": "tools/LiveTextMarker/source/out/LiveTextMarker/LiveTextMarker.exe",
-      "manual": "tools/LiveTextMarker/README.md"
+      "definition": "tools/LiveTextMarker/tool.json"
     },
     {
       "id": "smart-paste",
       "name": "SmartPaste",
-      "executable": "tools/SmartPaste/release/SmartPaste.exe",
-      "manual": "tools/SmartPaste/README.md"
+      "definition": "tools/SmartPaste/tool.json"
     },
     {
       "id": "ss-capture",
       "name": "SSCapture",
-      "executable": "tools/SSCapture/src/SSCapture/bin/Release/net10.0-windows/SSCapture.exe",
-      "manual": "tools/SSCapture/README.md"
+      "definition": "tools/SSCapture/tool.json"
     }
   ]
 }
