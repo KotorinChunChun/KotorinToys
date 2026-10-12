@@ -24,10 +24,13 @@ internal static class Program
         try
         {
             if(args.Contains("--foreground-pid")) { GetWindowThreadProcessId(GetForegroundWindow(),out var pid); Console.WriteLine(pid); return 0; }
+            if(args.Length==3 && args[0]=="--cleanup-task") {StartupTests.Cleanup(args[1],args[2]);return 0;}
             root = KotorinToys.Program.FindRoot();
-            fixtures = Path.Combine(root, "dev", "history", "v0.1.0", "logs", "f1-" + Guid.NewGuid().ToString("N"));
+            fixtures = Path.Combine(root, "dev", "history", "v0.1.0", "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
+            StartupTests.Run(root,fixtures,Check);
+            if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);
             if (args.Contains("--live")) LiveTests().GetAwaiter().GetResult();
             if (args.Contains("--host-lifetime")) HostLifetimeTests().GetAwaiter().GetResult();
             Console.WriteLine($"PASS: {count} 件");
@@ -180,7 +183,7 @@ internal static class Program
         var thread=new Thread(()=>
         {
             using var dispatch=new Control(); _=dispatch.Handle;
-            using var context=new HostApplicationContext(root,true);
+            using var context=new HostApplicationContext(root,true,Path.Combine(fixtures,"host-settings"));
             ready.SetResult((dispatch,context)); Application.Run(context);
         });
         thread.SetApartmentState(ApartmentState.STA); thread.Start();

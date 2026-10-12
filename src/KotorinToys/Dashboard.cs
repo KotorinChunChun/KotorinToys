@@ -9,7 +9,7 @@ internal sealed class Dashboard : Form
     readonly System.Windows.Forms.Timer timer = new() { Interval=4000 };
     readonly FlowLayoutPanel actions = new() { Dock=DockStyle.Bottom, Height=55, Padding=new Padding(8) };
     bool busy, refreshing;
-    public Dashboard(string root)
+    public Dashboard(string root,HostSettingsStore? settings=null,StartupCoordinator? startup=null)
     {
         manager = new(root); tools=manager.Load();
         Text=WindowTitle.Create(); Size=new Size(880,480); MinimumSize=new Size(650,350);
@@ -29,6 +29,11 @@ internal sealed class Dashboard : Form
             var button = new Button { Text=label, AutoSize=true, Height=35, Name=command };
             button.Click += async (_,_) => await Execute(command);
             actions.Controls.Add(button);
+        }
+        if(settings!=null && startup!=null)
+        {
+            var button=new Button{Text="本体設定・自動起動",AutoSize=true};
+            button.Click+=(_,_)=>{using var form=new StartupSettingsForm(settings,startup,tools);form.ShowDialog(this);};actions.Controls.Add(button);
         }
         Controls.Add(grid); Controls.Add(actions); Controls.Add(result);
         result.Text="ツールの通知領域アイコンを維持します。本体を閉じても各ツールは動作します。";
