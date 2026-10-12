@@ -24,6 +24,9 @@ internal static class Program
         try
         {
             if(args.Contains("--foreground-pid")) { GetWindowThreadProcessId(GetForegroundWindow(),out var pid); Console.WriteLine(pid); return 0; }
+            if(args.Length==1 && args[0]=="--run-native-arm-reboot")return BootValidation.Prepare().GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--arm-reboot-test")return BootValidation.ArmWithReceipt(args[1]).GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--boot-check")return BootValidation.Check(args[1]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--native-install")return InstalledStartupTests.NativeInstall(args[1]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--run-native-install")return InstalledStartupTests.NativeTask("--native-install "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--run-native-startup")return InstalledStartupTests.NativeTask("--installed-startup").GetAwaiter().GetResult();
@@ -64,6 +67,7 @@ internal static class Program
             StartupTests.Run(root,fixtures,Check);
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
+            BootValidation.Tests(Check);
             if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);
             if(args.Contains("--installed-startup")) InstalledStartupTests.Run(fixtures,Check).GetAwaiter().GetResult();
             if (args.Contains("--live")) LiveTests().GetAwaiter().GetResult();
