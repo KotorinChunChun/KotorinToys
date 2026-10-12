@@ -14,10 +14,16 @@ internal sealed record HostSettings
 }
 internal sealed record StartupJournal(string OperationId, string ToolId, HostSettings Before, string Phase,
     Dictionary<string,TaskOwnership> CreatedTasks, Dictionary<string,TaskPlan> PlannedTasks);
+internal sealed record StartupAttemptItem(string ToolId,string Result,string Detail,int? Pid=null);
+internal sealed record StartupAttempt(DateTimeOffset AttemptedAt,StartupAttemptItem[] Items);
 
 internal sealed class HostSettingsStore(string directory)
 {
     public string DirectoryPath => Path.GetFullPath(directory);
+    public bool RemovalPending => File.Exists(Path.Combine(DirectoryPath,"removal-operation.json"));
+    public StartupAttempt? LastAttempt => File.Exists(Path.Combine(DirectoryPath,"last-startup-attempt.json"))
+        ? JsonSerializer.Deserialize<StartupAttempt>(File.ReadAllText(Path.Combine(DirectoryPath,"last-startup-attempt.json")),ToolCatalog.Json) : null;
+    public void RecordAttempt(StartupAttemptItem[] items)=>AtomicWrite(Path.Combine(DirectoryPath,"last-startup-attempt.json"),new StartupAttempt(DateTimeOffset.UtcNow,items));
     string FilePath => Path.Combine(DirectoryPath,"settings.json");
     string JournalPath => Path.Combine(DirectoryPath,"startup-operation.json");
     public IDisposable AcquireLease()

@@ -24,13 +24,48 @@ internal static class Program
         try
         {
             if(args.Contains("--foreground-pid")) { GetWindowThreadProcessId(GetForegroundWindow(),out var pid); Console.WriteLine(pid); return 0; }
+            if(args.Length==2 && args[0]=="--native-install")return InstalledStartupTests.NativeInstall(args[1]).GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--run-native-install")return InstalledStartupTests.NativeTask("--native-install "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
+            if(args.Length==1 && args[0]=="--run-native-startup")return InstalledStartupTests.NativeTask("--installed-startup").GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--run-native-cycle")return InstalledStartupTests.NativeTask("--installed-cycle "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--installed-cycle")return InstalledStartupTests.Cycle(args[1]).GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--run-native-host-cycle")return InstalledStartupTests.NativeTask("--installed-host-cycle "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--installed-host-cycle")return InstalledStartupTests.HostCycle(args[1]).GetAwaiter().GetResult();
+            if(args.Length==3 && args[0]=="--via-probe")
+            {
+                var manager=new ToolManager(args[1]);var store=new HostSettingsStore(HostSettingsStore.DefaultDirectory);
+                var host=new InstallationDetector().Detect(new("host","KotorinToys","KotorinToys.exe","README.md",AppId:"KotorinToys",InstalledExecutable:"KotorinToys.exe"));
+                var coordinator=new StartupCoordinator(store,new TaskSchedulerGateway(),manager,host.Executable??"unknown");
+                var snapshots=manager.Load().Select(t=>manager.Snapshot(t,coordinator.State(t).GetAwaiter().GetResult()).GetAwaiter().GetResult()).ToArray();
+                var settingsFile=Path.Combine(store.DirectoryPath,"settings.json");
+                var registrations=new List<object>();
+                foreach(var view in new[]{Microsoft.Win32.RegistryView.Registry64,Microsoft.Win32.RegistryView.Registry32})
+                {
+                    using var hive=Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser,view);
+                    using var registration=hive.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\KotorinToys_is1");
+                    registrations.Add(new {View=view.ToString(),Exists=registration!=null,Path=registration?.GetValue("InstallLocation")});
+                }
+                File.WriteAllText(args[2],JsonSerializer.Serialize(new {Host=host,SettingsHash=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(settingsFile))),Snapshots=snapshots,Registrations=registrations,Is64Bit=Environment.Is64BitProcess,Sid=System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value},ToolCatalog.Json));
+                return 0;
+            }
+            if(args.Length==3 && args[0]=="--filesystem-probe")
+            {
+                string readable;
+                try{using var stream=File.OpenRead(args[1]);readable="読取成功";}catch(Exception ex){readable=ex.GetType().Name+" / 0x"+ex.HResult.ToString("X8");}
+                File.WriteAllText(args[2],JsonSerializer.Serialize(new {Target=args[1],LocalAppData=Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),FileExists=File.Exists(args[1]),DirectoryExists=Directory.Exists(Path.GetDirectoryName(args[1])),Readable=readable,Session=System.Diagnostics.Process.GetCurrentProcess().SessionId,UserSid=System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value},ToolCatalog.Json));
+                return 0;
+            }
             if(args.Length==3 && args[0]=="--cleanup-task") {StartupTests.Cleanup(args[1],args[2]);return 0;}
+            if(args.Contains("--scheduler-probe")){InstalledStartupTests.Probe().GetAwaiter().GetResult();return 0;}
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v0.1.0", "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             StartupTests.Run(root,fixtures,Check);
+            RemovalTests.Run(fixtures,Check);
+            InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);
+            if(args.Contains("--installed-startup")) InstalledStartupTests.Run(fixtures,Check).GetAwaiter().GetResult();
             if (args.Contains("--live")) LiveTests().GetAwaiter().GetResult();
             if (args.Contains("--host-lifetime")) HostLifetimeTests().GetAwaiter().GetResult();
             Console.WriteLine($"PASS: {count} 件");
@@ -85,6 +120,10 @@ internal static class Program
         Check(detector.Detect(tool).State=="導入済み", "本体経由記録に依存しない導入検出");
         Check(detector.Detect(tool).Version!=null, "EXEから版を取得");
         Check(detector.Detect(tool).Uninstaller==null, "削除プログラム欠落を偽装しない");
+        Check(new InstallationDetector(_=>null).UpdateTarget(tool,installedRoot).State=="導入済み","未登録の更新修復でも実EXEと製品定義を照合");
+        Check(new InstallationDetector(_=>new(Path.Combine(fixtures,"other-install"))).UpdateTarget(tool,installedRoot).State=="確認できない","登録された別配置を更新修復で迂回しない");
+        Check(new InstallationDetector(_=>null).UpdateTarget(tool with{Id="other"},installedRoot).State=="確認できない","未登録の更新修復で別製品定義を拒否");
+        Check(new InstallationDetector(_=>null).Detect(tool).State=="未導入","更新修復の照合を通常の正式導入検出へ流用しない");
         Check(RuntimeDetector.Detect(tool,Path.Combine(installedRoot,"dummy.exe")).Single().State=="未確認", "依存物未調査を空にしない");
         var runtimes = tool with { Runtimes=[new("test", "テスト依存", "file", "worker.exe")] };
         Check(RuntimeDetector.Detect(runtimes,Path.Combine(installedRoot,"dummy.exe")).Single().State=="不足", "ワーカー不足を検出");

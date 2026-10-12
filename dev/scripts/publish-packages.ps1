@@ -42,6 +42,10 @@ function Publish-Application([string]$Project, [string]$Output, [string]$Label, 
     Copy-Required $dotnetLicense $runtimeLicenses
     Copy-Required $dotnetNotices $runtimeLicenses
 }
+$maintenanceOutput = Join-Path $staging 'maintenance'
+& dotnet publish (Join-Path $projectRoot 'src/KotorinToys.Maintenance/KotorinToys.Maintenance.csproj') -c Release -r win-x64 --self-contained true -o $maintenanceOutput --nologo 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory 'maintenance.log') | Out-Host
+if ($LASTEXITCODE -ne 0) { throw '単体削除用メンテナンスの発行に失敗しました。' }
+Assert-Files $maintenanceOutput @('KotorinToys.Maintenance.exe','coreclr.dll','hostfxr.dll','hostpolicy.dll')
 foreach ($product in $Products | Select-Object -Unique) {
     $output = Join-Path $staging $product
     New-Item -ItemType Directory -Path $output | Out-Null
@@ -51,6 +55,7 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'catalog') $output
             Copy-Required (Join-Path $projectRoot 'README.md') $output
             Copy-Required (Join-Path $projectRoot 'docs') $output
+            Copy-Required (Join-Path $projectRoot 'catalog/host.json') (Join-Path $output 'tool.json')
             foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture')) {
                 $definitionOutput = Join-Path $output "tools/$name"
                 New-Item -ItemType Directory -Path $definitionOutput -Force | Out-Null
@@ -101,6 +106,7 @@ foreach ($product in $Products | Select-Object -Unique) {
         }
     }
     Assert-Files $output @("$product.exe", "$product.runtimeconfig.json", 'README.md')
+    Copy-Required $maintenanceOutput $output
     if (Test-Path -LiteralPath (Join-Path $output 'data')) { throw '利用者データが配布対象へ混入しています。' }
     $files = @(Get-ChildItem -LiteralPath $output -File -Recurse | Sort-Object FullName | ForEach-Object {
         [ordered]@{path=[IO.Path]::GetRelativePath($output,$_.FullName).Replace('\','/');length=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}

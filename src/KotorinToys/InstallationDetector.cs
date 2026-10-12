@@ -16,7 +16,7 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             if (registration == null) return new("未導入", null, null, null);
             var directory = registration.Directory;
             if (string.IsNullOrWhiteSpace(directory)) return new("確認できない", null, null, null, Detail: "導入先の登録がありません。");
-            directory = Path.GetFullPath(directory);
+            directory = Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory));
             var executable = PathSafety.Resolve(directory, tool.InstalledExecutable);
             if (!File.Exists(executable)) return new("修復が必要", null, directory, executable, Detail: "登録された実行ファイルがありません。");
             using var identity = System.Text.Json.JsonDocument.Parse(File.ReadAllText(PathSafety.Resolve(directory, "tool.json")));
@@ -37,6 +37,14 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
     {
         using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\" + appId + "_is1");
         return key == null ? null : new(key.GetValue("InstallLocation") as string);
+    }
+    // 未登録・途中導入の更新修復に限定。通常の導入検出は登録を必須とする。
+    public InstallationState UpdateTarget(ToolDefinition tool,string root)
+    {
+        var actual=Detect(tool);
+        if(actual.State=="未導入")actual=new InstallationDetector(_=>new(root)).Detect(tool);
+        return actual.State=="導入済み" && string.Equals(actual.Directory,Path.TrimEndingDirectorySeparator(Path.GetFullPath(root)),StringComparison.OrdinalIgnoreCase)
+            ? actual : new("確認できない",null,null,null,Detail:"更新対象の製品識別・配置を照合できません。");
     }
 }
 

@@ -112,6 +112,26 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
         finally {Release(folder);Release(service);}
         if(Read(name)!=null)throw new IOException("予約解除を確認できません。");
     }
+    public void RunOwned(string name,string expectedFingerprint)
+    {
+        ValidateName(name);
+        object? service=null,folder=null,task=null,running=null;
+        try
+        {
+            dynamic connected=Connect();service=connected;dynamic root=connected.GetFolder(@"\");folder=root;
+            dynamic found=root.GetTask(name);task=found;
+            var actual=new ScheduledTaskState(name,(string)found.Xml,(string)found.GetSecurityDescriptor(7));
+            if(actual.Fingerprint!=expectedFingerprint)throw new IOException("予約の外部変更を検出しました。開始しません。");
+            running=found.Run(null);
+        }
+        finally {Release(running);Release(task);Release(folder);Release(service);}
+    }
+    public (int State,int Result) Outcome(string name)
+    {
+        object? service=null,folder=null,task=null;
+        try{dynamic connected=Connect();service=connected;dynamic root=connected.GetFolder(@"\");folder=root;dynamic found=root.GetTask(name);task=found;return ((int)found.State,unchecked((int)found.LastTaskResult));}
+        finally {Release(task);Release(folder);Release(service);}
+    }
     static void ValidateName(string name)
     {
         if(!System.Text.RegularExpressions.Regex.IsMatch(name,@"^KotorinToys(?:\.Test\.[a-f0-9]{32})?\.S-1-[0-9-]+\.[a-z][a-z0-9-]{0,63}$"))

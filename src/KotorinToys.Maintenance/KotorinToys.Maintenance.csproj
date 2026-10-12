@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../KotorinToys/ToolCatalog.cs" Link="ToolCatalog.cs" />
+    <Compile Include="../KotorinToys/ToolManager.cs" Link="ToolManager.cs" />
+    <Compile Include="../KotorinToys/InstallationDetector.cs" Link="InstallationDetector.cs" />
+    <Compile Include="../KotorinToys/HostSettingsStore.cs" Link="HostSettingsStore.cs" />
+    <Compile Include="../KotorinToys/TaskSchedulerGateway.cs" Link="TaskSchedulerGateway.cs" />
+    <Compile Include="../KotorinToys/RemovalReservations.cs" Link="RemovalReservations.cs" />
+    <Compile Include="../KotorinToys/ExternalStartupDetector.cs" Link="ExternalStartupDetector.cs" />
+  </ItemGroup>
+</Project>

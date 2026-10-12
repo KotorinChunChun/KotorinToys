@@ -53,6 +53,8 @@ internal sealed class StartupSettingsForm : Form
         try
         {
             var settings=store.Load();hostStartup.Checked=settings.HostStartup;showDashboard.Checked=settings.ShowDashboardAtLogon;
+            var attempt=store.LastAttempt;
+            if(attempt!=null)message.Text="前回の経由開始（"+attempt.AttemptedAt.ToLocalTime().ToString("g")+"）："+string.Join(" / ",attempt.Items.Select(i=>i.ToolId+"："+i.Result+" "+i.Detail));
             var states=await Task.WhenAll(tools.Select(tool=>coordinator.State(tool)));if(IsDisposed)return;
             var external=await Task.WhenAll(tools.Select(tool=>coordinator.ExternalReservations(tool)));if(IsDisposed)return;
             for(int i=0;i<tools.Length;i++)

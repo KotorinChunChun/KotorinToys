@@ -7,7 +7,7 @@ internal sealed class Dashboard : Form
         SelectionMode=DataGridViewSelectionMode.FullRowSelect, MultiSelect=false, AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill, RowHeadersVisible=false };
     readonly Label result = new() { Dock=DockStyle.Bottom, Height=65, Padding=new Padding(12), AutoEllipsis=true };
     readonly System.Windows.Forms.Timer timer = new() { Interval=4000 };
-    readonly FlowLayoutPanel actions = new() { Dock=DockStyle.Bottom, Height=55, Padding=new Padding(8) };
+    readonly FlowLayoutPanel actions = new() { Dock=DockStyle.Bottom, Height=100, Padding=new Padding(8) };
     bool busy, refreshing;
     public Dashboard(string root,HostSettingsStore? settings=null,StartupCoordinator? startup=null)
     {
@@ -35,6 +35,8 @@ internal sealed class Dashboard : Form
             var button=new Button{Text="本体設定・自動起動",AutoSize=true};
             button.Click+=(_,_)=>{using var form=new StartupSettingsForm(settings,startup,tools);form.ShowDialog(this);};actions.Controls.Add(button);
         }
+        var installation=new Button{Text="導入・削除",AutoSize=true};
+        installation.Click+=(_,_)=>{using var form=new InstallationForm(manager);form.ShowDialog(this);};actions.Controls.Add(installation);
         Controls.Add(grid); Controls.Add(actions); Controls.Add(result);
         result.Text="ツールの通知領域アイコンを維持します。本体を閉じても各ツールは動作します。";
         Shown += async (_,_) => await Execute("refresh");

@@ -61,6 +61,12 @@ internal static class StartupTests
         check(result.Success && gateway.Tasks.Count==1 && store.Load().OwnedTasks.ContainsKey("host"),"直接から経由へ切替・直接予約は残さない");
         result=coordinator.SetMode(tools[1],"via_kotorintoys").GetAwaiter().GetResult();
         check(result.Success && gateway.Tasks.Count==1,"経由対象が共有する本体予約");
+        var shared=store.Load().OwnedTasks["host"];
+        gateway.Tasks[shared.Name]=gateway.Tasks[shared.Name] with{Xml=shared.Xml.Replace("PT0S","PT72H")};
+        coordinator.StartViaTargets().GetAwaiter().GetResult();
+        var attempt=store.LastAttempt!;
+        check(attempt.Items.Length==2 && attempt.Items.All(i=>i.Result=="見送り" && i.Detail.Contains("要対応") && i.Pid==null),"経由起動の予約不一致は無言で捨てず対象別の理由を記録");
+        gateway.Tasks[shared.Name]=new(shared.Name,shared.Xml,shared.SecurityDescriptor);
         check(!coordinator.SetHost(false,false).GetAwaiter().GetResult().Success,"経由対象がある本体予約解除を拒否");
         coordinator.SetMode(tools[0],"none").GetAwaiter().GetResult();
         check(gateway.Tasks.Count==1,"他の経由対象があれば本体予約を保持");
@@ -81,7 +87,11 @@ internal static class StartupTests
         check(!coordinator.SetMode(tools[0],"none").GetAwaiter().GetResult().Success && gateway.Tasks.Count==1,"外部変更された予約を削除しない");
         check(coordinator.State(tools[0]).GetAwaiter().GetResult().ActualState=="要対応","外部変更は登録済みにしない");
         var clean=new HostSettingsStore(Path.Combine(fixtures,"startup-production"));
-        check(!new StartupCoordinator(clean,new FakeGateway(),manager,Environment.ProcessPath!).SetMode(tools[0],"direct_task").GetAwaiter().GetResult().Success,
+        var developmentRoot=Path.Combine(fixtures,"unregistered-development");Directory.CreateDirectory(Path.Combine(developmentRoot,"catalog"));
+        var unregistered=tools[0] with{AppId="",ToolRoot="",Executable="development.exe"};
+        File.WriteAllText(Path.Combine(developmentRoot,"catalog","tools.json"),System.Text.Json.JsonSerializer.Serialize(new Catalog(1,[unregistered]),ToolCatalog.Json));
+        var rejected=new StartupCoordinator(clean,new FakeGateway(),new ToolManager(developmentRoot),Environment.ProcessPath!).SetMode(unregistered,"direct_task").GetAwaiter().GetResult();
+        check(!rejected.Success && rejected.Detail.Contains("正式導入済み"),
             "開発EXEを正式な安定起動先として予約しない");
         var recoveryStore=new HostSettingsStore(Path.Combine(fixtures,"startup-recovery"));var recoveryGateway=new FakeGateway();
         var recovery=new StartupCoordinator(recoveryStore,recoveryGateway,manager,Environment.ProcessPath!,allowDevelopment:true);

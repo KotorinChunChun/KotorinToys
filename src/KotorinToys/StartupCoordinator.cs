@@ -2,7 +2,6 @@ using System.Security.Principal;
 
 namespace KotorinToys;
 
-internal sealed record StartupResult(bool Success,string Detail);
 internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway gateway,ToolManager manager,
     string hostExecutable,string taskPrefix="KotorinToys",bool allowDevelopment=false)
 {
@@ -25,7 +24,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
         try
         {
             var settings=store.Load();var mode=settings.StartupModes.GetValueOrDefault(tool.Id,"none");
-            if(store.Journal!=null)return new StartupState(mode,"要対応","前回の予約操作が未完了です。復旧が必要です。");
+            if(store.Journal!=null || store.RemovalPending)return new StartupState(mode,"要対応","前回の予約操作が未完了です。復旧が必要です。");
             var id=mode=="via_kotorintoys"?"host":tool.Id;
             var actual=gateway.Read(Name(id));
             if(actual!=null && (!settings.OwnedTasks.TryGetValue(id,out var own) || own.Name!=actual.Name || own.Fingerprint!=actual.Fingerprint))
@@ -55,7 +54,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
         try
         {
             using var lease=store.AcquireLease();
-            if(store.Journal!=null)return new StartupResult(false,"未完了の操作記録があります。先に復旧してください。");
+            if(store.Journal!=null || store.RemovalPending)return new StartupResult(false,"未完了の操作記録があります。先に復旧してください。");
             var before=store.Load();var after=update(before);var plans=Plans(after);
             var originals=new Dictionary<string,TaskOwnership>();
             foreach(var pair in before.OwnedTasks)
@@ -106,6 +105,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
     });
     public Task<StartupResult> Recover()=>Task.Run(()=>
     {
+        if(store.RemovalPending)return new RemovalReservations(store,gateway,taskPrefix).Recover();
         try{using var lease=store.AcquireLease();var journal=store.Journal;return journal==null?new StartupResult(true,"未完了の操作はありません。"):Rollback(journal);}
         catch(Exception ex){return new StartupResult(false,ex.Message);}
     });
@@ -171,16 +171,27 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
     internal static string Quote(string value)=>"\""+value.Replace("\"","\\\"")+"\"";
     public async Task StartViaTargets(CancellationToken cancellation=default)
     {
-        var settings=store.Load();if(store.Journal!=null)return;
+        var settings=store.Load();var results=new List<StartupAttemptItem>();
+        bool incomplete=store.Journal!=null || store.RemovalPending;
         foreach(var tool in manager.Load())
         {
             cancellation.ThrowIfCancellationRequested();
             if(settings.StartupModes.GetValueOrDefault(tool.Id)!="via_kotorintoys")continue;
-            var state=await State(tool);if(state.ActualState!="登録済み")continue;
-            // サインインの瞬間に方式切替が始まっていれば対象を再起動しない。
-            using var lease=store.AcquireLease();
-            var current=store.Load();if(store.Journal!=null || current.StartupModes.GetValueOrDefault(tool.Id)!="via_kotorintoys")continue;
-            await manager.Start(tool,false,"via_kotorintoys",cancellation);
+            try
+            {
+                if(incomplete){results.Add(new(tool.Id,"見送り","未完了の予約操作があります。復旧が必要です。"));continue;}
+                var state=await State(tool);
+                if(state.ActualState!="登録済み"){results.Add(new(tool.Id,"見送り",state.ActualState+"："+state.Detail));continue;}
+                // サインインの瞬間に方式切替が始まっていれば対象を再起動しない。
+                using var lease=store.AcquireLease();
+                var current=store.Load();
+                if(store.Journal!=null || store.RemovalPending || current.StartupModes.GetValueOrDefault(tool.Id)!="via_kotorintoys")
+                {results.Add(new(tool.Id,"見送り","開始直前に予約操作または希望方式が変更されました。"));continue;}
+                var started=await manager.Start(tool,false,"via_kotorintoys",cancellation);
+                results.Add(new(tool.Id,started.State=="実行中"?"準備完了":"未完了",started.Detail,started.Pid));
+            }
+            catch(Exception ex) when(ex is not OperationCanceledException){results.Add(new(tool.Id,"失敗",ex.Message));}
         }
+        store.RecordAttempt(results.ToArray());
     }
 }
