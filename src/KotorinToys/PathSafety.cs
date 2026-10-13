@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace KotorinToys;
+
 internal static class PathSafety
 {
     public static string Resolve(string root, string relative)

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed partial class ReleaseDownloader : IDisposable
 {
     const long MaxBytes = 512L * 1024 * 1024;

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace KotorinToys;
+
 internal sealed record StartupResult(bool Success, string Detail);
 internal sealed record RuntimeRequirement(string Id, string Name, string Kind, string? Path = null, int? Major = null, bool Optional = false, string Feature = "基本機能", string? Guide = null);
 internal sealed record RuntimeState(string Id, string Name, string State, string Feature, bool Optional, string Detail);

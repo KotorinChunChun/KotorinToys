@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed partial class ToolManager
 {
     public async Task<Reply> Send(ToolDefinition tool, string command, int? expectedPid = null, CancellationToken cancellation = default)

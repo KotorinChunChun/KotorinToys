@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed partial class ToolManager
 {
     public async Task<ToolState> Start(ToolDefinition tool, bool showWindow = true, string launchReason = "host_manual", CancellationToken cancellation = default)
@@ -56,7 +57,7 @@ internal sealed partial class ToolManager
                         return new("確認できない", Detail: "起動したプロセスが準備完了前に終了しました。");
                 }
             }
-            catch (OperationCanceledException)when (!cancellation.IsCancellationRequested)
+            catch (OperationCanceledException) when (!cancellation.IsCancellationRequested)
             {
                 return new("確認できない", Detail: "起動後の準備完了を30秒以内に確認できませんでした。再起動せず状態を再確認してください。");
             }
@@ -114,7 +115,7 @@ internal sealed partial class ToolManager
             {
                 await process.WaitForExitAsync(timeout.Token);
             }
-            catch (OperationCanceledException)when (!cancellation.IsCancellationRequested)
+            catch (OperationCanceledException) when (!cancellation.IsCancellationRequested)
             {
                 return new("停止処理中", reply.Pid, "終了要求を受理しましたが、正常終了をまだ確認できません。");
             }

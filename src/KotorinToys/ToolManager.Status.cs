@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed partial class ToolManager
 {
     public async Task<ToolState> Status(ToolDefinition tool, CancellationToken cancellation = default)
@@ -15,7 +16,7 @@ internal sealed partial class ToolManager
         {
             path = Executable(tool);
         }
-        catch (Exception ex)when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
         {
             return new("確認できない", Detail: ex.Message);
         }
@@ -33,7 +34,7 @@ internal sealed partial class ToolManager
                     if (string.Equals(process.MainModule?.FileName, path, StringComparison.OrdinalIgnoreCase))
                         matches.Add(process.Id);
                 }
-                catch (Exception ex)when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+                catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
                 {
                     inaccessible = true;
                 }
@@ -52,7 +53,7 @@ internal sealed partial class ToolManager
                 return new("停止処理中", reply.Pid, "正常終了を確認しています。", reply.LaunchOrigin, reply.Version, reply.ProtocolVersion);
             return new(reply.Ready ? "実行中" : "起動処理中", reply.Pid, reply.Detail, reply.LaunchOrigin, reply.Version, reply.ProtocolVersion);
         }
-        catch (Exception ex)when (ex is IOException or UnauthorizedAccessException or OperationCanceledException or System.ComponentModel.Win32Exception or ArgumentException or InvalidOperationException or JsonException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or OperationCanceledException or System.ComponentModel.Win32Exception or ArgumentException or InvalidOperationException or JsonException)
         {
             cancellation.ThrowIfCancellationRequested();
             if (matches.Count > 0)

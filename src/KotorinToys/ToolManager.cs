@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed partial class ToolManager(string root)
 {
     [DllImport("user32.dll")]

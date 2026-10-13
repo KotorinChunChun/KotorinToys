@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Security;
 
 namespace KotorinToys;
+
 internal sealed class InstallationDetector(Func<string, InstallationRegistration?>? registryReader = null)
 {
     public InstallationState Detect(ToolDefinition tool)
@@ -31,7 +32,7 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             var uninstaller = PathSafety.Resolve(directory, "unins000.exe");
             return new("導入済み", installedVersion, directory, executable, File.Exists(uninstaller) ? uninstaller : null, File.Exists(uninstaller) ? "" : "削除プログラムがありません。");
         }
-        catch (Exception ex)when (ex is IOException or UnauthorizedAccessException or SecurityException or ArgumentException or System.Text.Json.JsonException or KeyNotFoundException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException or ArgumentException or System.Text.Json.JsonException or KeyNotFoundException)
         {
             return new("確認できない", null, null, null, Detail: ex.Message);
         }

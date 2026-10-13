@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml.Linq;
 
 namespace KotorinToys;
+
 internal sealed record TaskPlan(string Name, string Executable, string Arguments, string WorkingDirectory, string Sid, string Marker);
 internal sealed record ScheduledTaskState(string Name, string Xml, string SecurityDescriptor = "")
 {

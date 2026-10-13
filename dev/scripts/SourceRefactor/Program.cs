@@ -8,6 +8,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // 自分では製品ソースを書き換えない。patch適用は通常の編集ツールで行う。
 if (args.Length != 3) throw new ArgumentException("作業ルート・移動マップ・項目IDを指定してください。");
 var workspace = Path.GetFullPath(args[0]);
+if (args[1] == "--verify-layout")
+{
+    LayoutVerifier.Verify(workspace, args[2]);
+    return;
+}
 var entries = JsonSerializer.Deserialize<MoveEntry[]>(File.ReadAllText(args[1]), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 var entry = entries.Single(e => e.Id == args[2]);
 string Resolve(string relative)

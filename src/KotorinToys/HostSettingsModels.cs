@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed record TaskOwnership(string Name, string Fingerprint, string Xml, string SecurityDescriptor = "");
 internal sealed record HostSettings
 {

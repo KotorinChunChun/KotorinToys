@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml.Linq;
 
 namespace KotorinToys;
+
 internal sealed class TaskSchedulerGateway : IStartupGateway
 {
     static dynamic Connect()
@@ -35,7 +36,7 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
             task = found;
             return new(name, (string)found.Xml, (string)found.GetSecurityDescriptor(7));
         }
-        catch (COMException ex)when (ex.HResult == unchecked((int)0x80070002))
+        catch (COMException ex) when (ex.HResult == unchecked((int)0x80070002))
         {
             return null;
         }
@@ -245,7 +246,7 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
                         if (xml.Descendants(ns + "Exec").Any(action => string.Equals(Path.GetFullPath(action.Element(ns + "Command")?.Value ?? ""), Path.GetFullPath(executable), StringComparison.OrdinalIgnoreCase)))
                             found.Add(new("外部タスク", name, "読取のみ。定義・所有者を自動変更しません。"));
                     }
-                    catch (Exception ex)when (ex is COMException or IOException or ArgumentException)
+                    catch (Exception ex) when (ex is COMException or IOException or ArgumentException)
                     {
                         found.Add(new("タスク", "未確認", "一部の予約を読めません。"));
                     }
@@ -269,7 +270,7 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
                     }
                 }
             }
-            catch (Exception ex)when (ex is COMException or UnauthorizedAccessException)
+            catch (Exception ex) when (ex is COMException or UnauthorizedAccessException)
             {
                 found.Add(new("タスク", "未確認", "一部のフォルダーに読取権限がありません。"));
             }

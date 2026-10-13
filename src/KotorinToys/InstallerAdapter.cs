@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOnlyList<string>, Task<int>>? execute = null)
 {
     readonly SemaphoreSlim gate = new(1);

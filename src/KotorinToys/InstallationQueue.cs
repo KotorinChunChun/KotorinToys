@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed class InstallationQueue(InstallerAdapter adapter)
 {
     public async Task<InstallResult[]> Run(IReadOnlyList<ToolDefinition> targets, string operation, string? catalogPath, IProgress<InstallResult>? progress = null, CancellationToken cancellation = default)

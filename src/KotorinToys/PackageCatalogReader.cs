@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal static class PackageCatalogReader
 {
     public static PackageCatalog Load(string path)

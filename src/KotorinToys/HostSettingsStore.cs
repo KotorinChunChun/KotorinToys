@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed class HostSettingsStore(string directory)
 {
     public string DirectoryPath => Path.GetFullPath(directory);

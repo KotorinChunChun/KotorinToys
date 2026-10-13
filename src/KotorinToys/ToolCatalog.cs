@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace KotorinToys;
+
 internal static class ToolCatalog
 {
     public static readonly JsonSerializerOptions Json = new()
@@ -16,7 +17,7 @@ internal static class ToolCatalog
         {
             return LoadCore(root);
         }
-        catch (Exception ex)when (ex is JsonException or KeyNotFoundException or InvalidOperationException or FormatException or ArgumentException)
+        catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException or FormatException or ArgumentException)
         {
             throw new IOException("カタログまたはツール定義の形式が不正です。", ex);
         }

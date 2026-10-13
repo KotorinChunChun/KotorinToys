@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace KotorinToys;
+
 internal sealed partial class ReleaseDownloader
 {
     public static ReleaseCatalog Load(string root)
