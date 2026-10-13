@@ -55,5 +55,9 @@ internal static class ReleaseTests
         using(var downloader=new ReleaseDownloader(new Handler((_,_)=>Task.FromResult(++attempts<3?new HttpResponseMessage(HttpStatusCode.InternalServerError):Ok(bytes)))))
             check(File.Exists(await downloader.Prepare(catalog,[tool],cache)) && attempts==3,"一時的な5xxは回数制限付きで再取得しハッシュを検証");
         await Reject(catalog,(_,_)=>Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)),"継続する5xxは上限後に失敗し無限再試行しない");
+        await Reject(catalog,(_,_)=>Task.FromResult(new HttpResponseMessage(HttpStatusCode.Redirect)),"リダイレクト先欠落を拒否");
+        int redirectCount=0;
+        await Reject(catalog,(_,_)=>{redirectCount++;return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Redirect){Headers={Location=new("https://github.com/loop")}});},"リダイレクト連鎖を上限後に拒否");
+        check(redirectCount==5,"リダイレクトのHTTP要求は最大5回");
     }
 }

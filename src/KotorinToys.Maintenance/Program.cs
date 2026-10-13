@@ -11,11 +11,12 @@ static string Argument(string[] args,string name)
 try
 {
     var product=Argument(args,"--product");
-    var id=product switch{"KotorinToys"=>"host","LiveTextMarker"=>"live-text-marker","SmartPaste"=>"smart-paste","SSCapture"=>"ss-capture",_=>throw new IOException("未知の製品です。")};
+    var productIdentity=ProductIdentity.FromName(product)??throw new IOException("未知の製品です。");
+    var id=productIdentity.Id;
     var root=Path.GetFullPath(Argument(args,"--root"));
     var operation=Argument(args,"--operation");
     if(operation is not ("update" or "remove" or "recover"))throw new IOException("未知の操作です。");
-    var appId=product=="KotorinToys"?product:"KotorinToys."+product;
+    var appId=productIdentity.AppId;
     var identity=new ToolDefinition(id,product,product+".exe","README.md",AppId:appId,InstalledExecutable:product+".exe");
     var detector=new InstallationDetector();
     var installed=operation=="update"?detector.UpdateTarget(identity,root):detector.Detect(identity);

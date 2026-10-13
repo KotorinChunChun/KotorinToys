@@ -78,6 +78,7 @@ internal static class Program
             fixtures = Path.Combine(root, "dev", "history", "v0.1.0", "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
+            ProductIdentityTests.Run(Check);
             StartupTests.Run(root,fixtures,Check);
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
