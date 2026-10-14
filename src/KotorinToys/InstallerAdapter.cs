@@ -50,7 +50,7 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
                     };
             }
 
-            return result;
+            return result.State == "成功" ? result with { Detail = $"導入済み（{package.Version}）。正式登録・製品識別・実行ファイルの版を確認しました。" } : result;
         }
         catch (Exception ex)
         {
@@ -90,7 +90,7 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
                 };
             }
 
-            return result;
+            return result.State == "成功" ? result with { Detail = "削除済み。正式登録がないことを確認しました。設定・履歴は保持します。" } : result;
         }
         catch (Exception ex)
         {

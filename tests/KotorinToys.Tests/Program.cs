@@ -82,6 +82,9 @@ internal static class Program
             StartupTests.Run(root,fixtures,Check);
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
+            var previousContext = SynchronizationContext.Current;
+            try { InstallationSummaryTests.Run(root, Check); }
+            finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             BootValidation.Tests(Check);
             if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);
