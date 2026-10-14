@@ -13,9 +13,11 @@ internal static class PublicReleaseTests
         int unsupportedRequests = 0;
         using (var client = new PublicReleaseClient(new Handler((_, _) => { unsupportedRequests++; return new(HttpStatusCode.OK); })))
         {
-            var portable = ToolCatalog.Load(root).Single(t => t.Id == "shortcut-key-counter");
-            var actual = await client.Check(portable, null);
-            check(unsupportedRequests == 0 && !actual.Confirmed && actual.Package == null && actual.Detail.Contains("インストーラーは未公開"), "ポータブル版を未検証のインストーラーとして取得しない");
+            foreach (var unpublished in ToolCatalog.Load(root).Where(t => t.DistributionStatus == "unpublished"))
+            {
+                var actual = await client.Check(unpublished, null);
+                check(unsupportedRequests == 0 && !actual.Confirmed && actual.Package == null && actual.Detail.Contains("インストーラーは未公開"), unpublished.Name + " 未公開インストーラーを通信・取得しない");
+            }
         }
         var tool = ToolCatalog.Load(root).Single(t => t.Id == "smart-paste");
         byte[] bytes = [1, 2, 3, 4];
@@ -79,7 +81,7 @@ internal static class PublicReleaseTests
     {
         var bundled = ReleaseDownloader.Load(root); using var client = new PublicReleaseClient();
         bool success = true;
-        foreach (var tool in ToolCatalog.Load(root))
+        foreach (var tool in ToolCatalog.Load(root).Where(t => t.DistributionStatus == "published"))
         {
             var result = await client.Check(tool, bundled.Packages.Single(p => p.Package.Id == tool.Id));
             Console.WriteLine($"{tool.Name}: {result.Package?.Package.Version} / {result.Confirmed} / {result.Detail}");

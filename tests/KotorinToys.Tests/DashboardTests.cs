@@ -16,20 +16,20 @@ internal static class DashboardTests
         check(ToolVersionView.Create(installed[1] with { State = "未導入", Version = null }, releases[1]).Installed == "未導入", "開発配置を正式導入版にしない");
         check(!ToolVersionView.Create(installed[1] with { State = "確認できない" }, releases[1]).CanUpdate, "未確認の導入状態を更新対象にしない");
         var states = tools.Select(_ => new ToolState("実行中")).ToArray();
-        check(DashboardStatus.Summary(states) == "全体：実行中 4件", "下部は最後の1件ではなく全体4件を集計");
+        check(DashboardStatus.Summary(states) == "全体：実行中 7件", "下部は最後の1件ではなく全体7件を集計");
         check(DashboardStatus.Summary([new("実行中"), new("停止中"), new("確認できない")]).Contains("確認できない 1件"), "全体集計に停止・未確認も含める");
         using var form = new Dashboard(root); form.CreateControl();
         installed[1] = installed[1] with { Version = "0.1.3" };
         form.ApplySnapshot(installed, states, releases); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
-        check(grid.Rows.Count == 4 && grid.Rows.Cast<DataGridViewRow>().Select(row => row.Cells["summary"].Value?.ToString()).SequenceEqual(tools.Select(t => t.Summary)), "実フォームの表に4件の一言解説");
+        check(grid.Rows.Count == 7 && grid.Rows.Cast<DataGridViewRow>().Select(row => row.Cells["summary"].Value?.ToString()).SequenceEqual(tools.Select(t => t.Summary)), "実フォームの表に7件の一言解説");
         var expectedPublished = releases[1].Package!.Package.Version + "（開発版）";
         check(grid.Rows[1].Cells["installed"].Value?.ToString() == "0.1.3" && grid.Rows[1].Cells["published"].Value?.ToString() == expectedPublished, "実フォームに導入済み版と現在の公開台帳の版を別表示");
         grid.CurrentCell = grid.Rows[1].Cells[0];
         check(((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "更新あり行を選択すると更新導線が有効");
         grid.CurrentCell = grid.Rows[2].Cells[0];
         check(((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("SSCapture") &&
-            ((Label)form.Controls.Find("overallStatus", true).Single()).Text.Contains("実行中 4件"), "選択変更で選択情報だけを切替・全体4件を維持");
+            ((Label)form.Controls.Find("overallStatus", true).Single()).Text.Contains("実行中 7件"), "選択変更で選択情報だけを切替・全体7件を維持");
         check(((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版でも更新ボタンから最新情報を再確認できる");
         grid.CurrentCell = grid.Rows[3].Cells[0];
         check(((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("ShortcutKeyCounter") &&

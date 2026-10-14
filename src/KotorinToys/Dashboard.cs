@@ -31,9 +31,10 @@ internal sealed class Dashboard : BrandedForm
     public Dashboard(string root, HostSettingsStore? settings = null, StartupCoordinator? startup = null,
         Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>>? releaseCheck = null,
         Action<string?, ReleaseCatalog?>? showInstaller = null,
-        Func<ToolDefinition, InstallationState>? detectInstallation = null)
+        Func<ToolDefinition, InstallationState>? detectInstallation = null,
+        ToolManager? toolManager = null)
     {
-        manager = new(root); tools = manager.Load();
+        manager = toolManager ?? new(root); tools = manager.Load();
         this.releaseCheck = releaseCheck ?? CheckRelease;
         this.showInstaller = showInstaller ?? ((id, catalog) => { using var form = new InstallationForm(manager, id, catalog); form.ShowDialog(this); });
         this.detectInstallation = detectInstallation ?? manager.Installation;

@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace KotorinToys;
 
-internal sealed partial class ToolManager(string root)
+internal sealed partial class ToolManager(string root, Action<ToolDefinition, ProcessStartInfo>? configureStart = null)
 {
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]

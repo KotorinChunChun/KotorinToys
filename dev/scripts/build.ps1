@@ -13,4 +13,8 @@ try {
     if ($LASTEXITCODE) { throw 'ShortcutKeyCounterのビルドに失敗しました。' }
     dotnet build src/KotorinToys/KotorinToys.csproj -c Debug --nologo
     if ($LASTEXITCODE) { throw 'KotorinToysのビルドに失敗しました。' }
+    foreach ($name in @('CapchunScreen','ChulipVideo','ChunapTool')) {
+        dotnet build "tools/$name/src/$name/$name.csproj" -c Debug --artifacts-path "tools/$name/artifacts/management" --nologo
+        if ($LASTEXITCODE) { throw "$name の管理連携ビルドに失敗しました。" }
+    }
 } finally { Pop-Location }

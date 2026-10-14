@@ -5,7 +5,7 @@ KotorinToys本体と収録ツールのすべてのアプリ独自ウィンドウ
 - メイン画面: `製品名 - ver X.Y.Z`
 - 設定・操作・確認・エラー・プレビュー画面: `画面名 - 製品名 - ver X.Y.Z`
 - 区切りは半角スペース付きの半角ハイフン ` - ` に統一する。
-- 製品名はカタログの表示名と一致させる。現在はKotorinToys、LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter。
+- 製品名はカタログの表示名と一致させる。現在はKotorinToys、LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool。
 - バージョンは実行アセンブリの製品版（RustはCargo製品版）の数値3成分から取得し、タイトルへ直接書き込まない。
 - 作者名、操作説明、実行状態はタイトルに追加せず、それぞれ製品情報、画面内の案内、状態表示へ記載する。
 - Windows標準ダイアログと通知領域のツールチップはウィンドウタイトル規約の対象外。

@@ -50,7 +50,11 @@ pwsh -File dev/scripts/start.ps1
 
 ## 統合検証
 
-本体の `--self-test` は実際の4ツールで起動、既存PIDの維持、正常終了、再起動を検証します。既存インスタンスは変更せず、今回起動したツールは最後に正常停止します。実行前に編集中の操作や撮影・録画を完了してください。
+本体の `--self-test` は実際の7ツールで起動、既存PIDの維持、正常終了、再起動を検証します。既存インスタンスは変更せず、今回起動したツールは最後に正常停止します。実行前に編集中の操作や撮影・録画を完了してください。
+
+追加3件は`dev/scripts/build.ps1`で各子の`artifacts/management`へDebugビルドします。旧版が通常のbin/Debugで実行中でも上書きしません。本体のカタログはこの管理連携用出力を参照します。
+
+追加3件だけの隔離連携：`dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifacts-path artifacts/support-apps`の後、`./artifacts/support-apps/bin/KotorinToys.Tests/debug/KotorinToys.Tests.exe --new-tools-ipc`を実行します。開始時に停止中であることを確認し、版別logs内の専用設定を使用します。CapchunScreenのホットキーを取得せず、実動画や既存設定を操作しません。`--new-tools-panel`は通常本体とは別の同じDashboardを開き、予約変更を禁止します。管理の起動・表示・終了の検証は録画・書き出し・外部窓操作そのものの受入ではありません。
 
 ## ShortcutKeyCounterだけの隔離検証
 
@@ -68,13 +72,15 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 ## 独立Git管理
 
-親リポジトリのtools内4フォルダーは独立したGitリポジトリです。ShortcutKeyCounterも管理カタログへ登録していますが、本体対応インストーラーは未公開です。まず子で変更をコミット・pushし、親で採用コミットを記録します。`.gitmodules`に各公開先を登録し、次の操作で採用版をまとめて取得できます。
+親リポジトリのtools内7フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。公開先のある既存4件だけを次の操作で取得します。追加3件にはremoteがなく、`.gitmodules`にはパスと`update=none`のみを記録しています。URLを創作せず、外部公開までは別途ローカルの独立リポジトリを用意してください。
 
 ```powershell
-git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.git
+git clone https://github.com/KotorinChunChun/KotorinToys.git
+cd KotorinToys
+git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter
 ```
 
-本体だけを取得済みの場合は、本体フォルダーで`git submodule update --init --recursive`を実行します。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソースの公開と製品インストーラーのReleases公開は別です。
+本体だけを取得済みの場合も、上記の4件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソースの公開と製品インストーラーのReleases公開は別です。
 
 ## Releases配布
 

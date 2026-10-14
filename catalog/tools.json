@@ -20,6 +20,21 @@
       "id": "shortcut-key-counter",
       "name": "ShortcutKeyCounter",
       "definition": "tools/ShortcutKeyCounter/tool.json"
+    },
+    {
+      "id": "capchun-screen",
+      "name": "CapchunScreen",
+      "definition": "tools/CapchunScreen/tool.json"
+    },
+    {
+      "id": "chulip-video",
+      "name": "ChulipVideo",
+      "definition": "tools/ChulipVideo/tool.json"
+    },
+    {
+      "id": "chunap-tool",
+      "name": "ChunapTool",
+      "definition": "tools/ChunapTool/tool.json"
     }
   ]
 }

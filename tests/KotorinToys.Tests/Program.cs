@@ -24,6 +24,8 @@ internal static class Program
         try
         {
             if (args.SequenceEqual(["--shortcut-ipc"])) return ShortcutKeyCounterIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--new-tools-ipc"])) return AddedToolIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--new-tools-panel"])) return AddedToolIntegrationTests.Panel();
             if (args.SequenceEqual(["--shortcut-panel"])) return ShortcutKeyCounterIntegrationTests.Panel();
             if (args.Length == 2 && args[0] == "--shortcut-owned-stop" && int.TryParse(args[1], out var ownedPid))
                 return ShortcutKeyCounterIntegrationTests.StopOwned(ownedPid).GetAwaiter().GetResult();
@@ -109,12 +111,20 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 4, "schema 2で4ツールを解決する");
+        Check(tools.Length == 7, "schema 2で7ツールを解決する");
         Check(tools.Count(t => t.DistributionStatus == "published") == 3 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "公開Innoの3ツールと未公開Innoの追加ツールを区別");
-        Check(tools.All(t => t.Runtimes?.Length > 0), "4ツールの依存情報を持つ");
-        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"4ツールの確認済み能力と環境");
+        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 4, "新規3ツールを含め4件は本体用インストーラー未公開");
+        Check(tools.All(t => t.Runtimes?.Length > 0), "7ツールの依存情報を持つ");
+        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"7ツールの確認済み能力と環境");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs"));
         Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path))==contract),"共通管理実装と3子コピーの一致");
+        foreach (var name in new[] { "CapchunScreen", "ChulipVideo", "ChunapTool" })
+        {
+            string Normalize(string value) => value.Replace("\r\n", "\n").TrimEnd();
+            var directory = Path.Combine(root, "tools", name, "src", name, "Integration");
+            Check(Normalize(File.ReadAllText(Path.Combine(directory, "ManagementEndpoint.cs"))) == Normalize(contract), name + " 管理契約の共通コピーが一致");
+            Check(Normalize(File.ReadAllText(Path.Combine(directory, "ManagedToolContext.cs"))) == Normalize(File.ReadAllText(Path.Combine(root, "contracts", "ManagedToolContext.cs"))), name + " 無表示起動・正常終了の共通コピーが一致");
+        }
         Check(tools.All(t => File.Exists(PathSafety.Resolve(PathSafety.Resolve(root,t.ToolRoot), t.Manual))), "論理ルート基準の文書参照");
         Reject(() => PathSafety.Resolve(root, "../outside"), "親へのパストラバーサルを拒否");
         Reject(() => PathSafety.Resolve(root, "C:/outside"), "絶対パスを拒否");

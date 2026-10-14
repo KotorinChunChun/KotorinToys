@@ -10,3 +10,12 @@
 [submodule "tools/ShortcutKeyCounter"]
 	path = tools/ShortcutKeyCounter
 	url = https://github.com/KotorinChunChun/ShortcutKeyCounter.git
+[submodule "tools/CapchunScreen"]
+	path = tools/CapchunScreen
+	update = none
+[submodule "tools/ChulipVideo"]
+	path = tools/ChulipVideo
+	update = none
+[submodule "tools/ChunapTool"]
+	path = tools/ChunapTool
+	update = none

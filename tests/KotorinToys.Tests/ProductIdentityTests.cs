@@ -10,7 +10,10 @@ internal static class ProductIdentityTests
             ("live-text-marker", "LiveTextMarker", "KotorinToys.LiveTextMarker"),
             ("smart-paste", "SmartPaste", "KotorinToys.SmartPaste"),
             ("ss-capture", "SSCapture", "KotorinToys.SSCapture"),
-            ("shortcut-key-counter", "ShortcutKeyCounter", "KotorinToys.ShortcutKeyCounter")
+            ("shortcut-key-counter", "ShortcutKeyCounter", "KotorinToys.ShortcutKeyCounter"),
+            ("capchun-screen", "CapchunScreen", "KotorinToys.CapchunScreen"),
+            ("chulip-video", "ChulipVideo", "KotorinToys.ChulipVideo"),
+            ("chunap-tool", "ChunapTool", "KotorinToys.ChunapTool")
         })
         {
             var byId = ProductIdentity.FromId(id);
