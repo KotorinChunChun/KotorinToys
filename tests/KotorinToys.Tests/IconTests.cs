@@ -72,10 +72,10 @@ internal static class IconTests
         if (module == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
         try
         {
-            byte[]? group = null; int groups = 0; Exception? callbackError = null;
+            var groups = new List<byte[]>(); Exception? callbackError = null;
             EnumResourceName callback = (handle, type, name, parameter) =>
             {
-                try { groups++; group = Read(handle, type, name); return true; }
+                try { groups.Add(Read(handle, type, name)); return true; }
                 catch (Exception ex) { callbackError = ex; return false; }
             };
             bool enumerated = EnumResourceNames(module, 14, callback, 0);
@@ -83,17 +83,24 @@ internal static class IconTests
             if (!enumerated) throw new Win32Exception(Marshal.GetLastWin32Error());
             var ico = File.ReadAllBytes(source);
             int count = BitConverter.ToUInt16(ico, 4);
-            check(groups == 1 && group != null && group.Length == 6 + 14 * count && BitConverter.ToUInt16(group, 4) == count,
-                label + "のPEアイコングループに全10サイズを埋込み");
+            // Innoの削除EXEには補助グループもある。総数ではなく採用ICOの完全一致を調べる。
+            var matches = groups.Where(g => g.Length == 6 + 14 * count && BitConverter.ToUInt16(g, 4) == count &&
+                Enumerable.Range(0, count).All(i => g.AsSpan(6 + 14 * i, 12).SequenceEqual(ico.AsSpan(6 + 16 * i, 12)))).ToArray();
+            Console.WriteLine($"INFO: {label}のアイコングループ数={groups.Count}、各フレーム数={string.Join(',', groups.Select(g => g.Length >= 6 ? BitConverter.ToUInt16(g, 4) : 0))}");
+            check(matches.Length == 1, label + "のPEアイコングループに全10サイズを埋込み");
+            var group = matches.Single();
             for (int i = 0; i < count; i++)
             {
                 int entry = 6 + 16 * i, native = 6 + 14 * i;
                 int offset = checked((int)BitConverter.ToUInt32(ico, entry + 12)), length = checked((int)BitConverter.ToUInt32(ico, entry + 8));
-                var payload = Read(module, 3, BitConverter.ToUInt16(group!, native + 12));
+                var payload = Read(module, 3, BitConverter.ToUInt16(group, native + 12));
                 int size = ico[entry] == 0 ? 256 : ico[entry];
-                check(group!.AsSpan(native, 12).SequenceEqual(ico.AsSpan(entry, 12)) && payload.AsSpan().SequenceEqual(ico.AsSpan(offset, length)),
+                check(group.AsSpan(native, 12).SequenceEqual(ico.AsSpan(entry, 12)) && payload.AsSpan().SequenceEqual(ico.AsSpan(offset, length)),
                     label + $"のPE内{size}pxが元ICOとバイト一致");
             }
+            using var selected = Icon.ExtractAssociatedIcon(path) ?? throw new IOException("Windowsの関連アイコンを取得できません。");
+            using var expected = new Icon(source, selected.Size);
+            check(Same(selected, expected), label + "でWindowsが選ぶアイコンも04と一致");
             GC.KeepAlive(callback);
         }
         finally { FreeLibrary(module); }
