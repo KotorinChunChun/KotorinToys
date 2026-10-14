@@ -7,3 +7,6 @@
 [submodule "tools/SSCapture"]
 	path = tools/SSCapture
 	url = https://github.com/KotorinChunChun/SSCapture.git
+[submodule "tools/ShortcutKeyCounter"]
+	path = tools/ShortcutKeyCounter
+	url = https://github.com/KotorinChunChun/ShortcutKeyCounter.git

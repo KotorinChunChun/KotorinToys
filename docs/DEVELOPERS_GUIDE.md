@@ -54,7 +54,7 @@ pwsh -File dev/scripts/start.ps1
 
 ## 独立Git管理
 
-親リポジトリのtools内3フォルダーは独立したGitリポジトリです。まず子で変更をコミット・pushし、親で採用コミットを記録します。`.gitmodules`に各公開先を登録し、次の操作で採用版をまとめて取得できます。
+親リポジトリのtools内4フォルダーは独立したGitリポジトリです。ShortcutKeyCounterはリポジトリ登録・紹介のみで、本体の管理カタログにはまだ登録していません。まず子で変更をコミット・pushし、親で採用コミットを記録します。`.gitmodules`に各公開先を登録し、次の操作で採用版をまとめて取得できます。
 
 ```powershell
 git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.git

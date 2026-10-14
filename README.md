@@ -12,7 +12,18 @@ LiveTextMarker、SmartPaste、SSCaptureを登録し、本体の一覧から起�
 git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.git
 ```
 
-収録3ツールも、それぞれの独立リポジトリから本体が採用した版を取得します。
+収録4ツールも、それぞれの独立リポジトリから本体が採用した版を取得します。
+
+## サポートアプリ
+
+| アプリ | 概要 | 本体との連携 |
+|---|---|---|
+| [LiveTextMarker](tools/LiveTextMarker/README.md) | テキスト表示を補助するツール | 起動・停止・状態確認に対応 |
+| [SmartPaste](tools/SmartPaste/README.md) | 貼り付け作業を支援するツール | 起動・停止・状態確認に対応 |
+| [SSCapture](tools/SSCapture/README.md) | 画面撮影・録画と保存先や命名を管理するツール | 起動・停止・状態確認に対応 |
+| [ShortcutKeyCounter](tools/ShortcutKeyCounter/README.md) | ショートカットキーの利用回数を端末内で記録・集計し、入力を画面に表示するツール | 独立リポジトリ登録・紹介のみ |
+
+ShortcutKeyCounterのソースは[GitHub](https://github.com/KotorinChunChun/ShortcutKeyCounter)で公開しています。本体からの起動・停止・状態確認と導入管理は未対応です。単独での利用方法は[ユーザーガイド](tools/ShortcutKeyCounter/docs/users-guide.md)を参照してください。
 
 ## インストーラー（開発版）
 
