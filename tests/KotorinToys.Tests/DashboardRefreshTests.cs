@@ -1,0 +1,61 @@
+using KotorinToys;
+
+internal static class DashboardRefreshTests
+{
+    static void Pump(Task task)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(15);
+        while (!task.IsCompleted && DateTime.UtcNow < deadline) { Application.DoEvents(); Thread.Sleep(1); }
+        if (!task.IsCompleted) throw new TimeoutException("更新画面の試験が完了しません。");
+        task.GetAwaiter().GetResult();
+    }
+
+    public static void Run(string root, Action<bool, string> check)
+    {
+        var tools = ToolCatalog.Load(root); int requests = 0, dialogs = 0;
+        bool failure = false, newer = true;
+        string? selected = null; ReleaseCatalog? offered = null;
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        async Task<PublicRelease> Fetch(ToolDefinition tool, ReleasePackage? fallback, CancellationToken token)
+        {
+            requests++; await gate.Task.WaitAsync(token);
+            if (failure) throw new IOException("照合失敗の注入");
+            if (fallback is null) return new(null, false, false, "未公開");
+            return new(newer ? new(fallback.Package with { Version = "9.0.0", File = tool.Name + "-9.0.0-setup.exe" }, fallback.Length) : fallback,
+                true, false, "最新照合");
+        }
+        using var form = new Dashboard(root, releaseCheck: Fetch,
+            showInstaller: (id, catalog) => { dialogs++; selected = id; offered = catalog; },
+            detectInstallation: tool => new("導入済み", tool.Version, null, null));
+        form.CreateControl(); form.PerformLayout();
+        var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
+        var selectedRow = form.Controls.Find("selectedActions", true).Single();
+        var hostRow = form.Controls.Find("hostActions", true).Single();
+        var update = (Button)form.Controls.Find("updateSelected", true).Single();
+        check(form.Controls.Find("start", true).Single().Text == "起動設定を開く" && form.Controls.Find("stop", true).Single().Text == "停止させる", "選択ツールの操作名を依頼どおり変更");
+        check(!selectedRow.Controls.Cast<Control>().Concat(hostRow.Controls.Cast<Control>()).Any(c => c.Text == "公開版を確認"), "独立した公開版確認ボタンを削除");
+        check(form.Controls.Find("start", true).Single().Parent == selectedRow && update.Parent == selectedRow &&
+            form.Controls.Find("refresh", true).Single().Parent == hostRow && selectedRow.Bottom <= hostRow.Top, "選択アプリ操作と本体全体操作は別行");
+        grid.CurrentCell = grid.Rows[1].Cells[0];
+        check(update.Enabled, "公開版未照合でも更新ボタンを押せる");
+        var first = form.RefreshReleases(); var second = form.RefreshReleases();
+        check(ReferenceEquals(first, second) && requests == tools.Length, "同時の公開照合要求を一つの通信へ集約");
+        gate.SetResult(); Pump(first);
+        gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int before = requests;
+        var updating = form.OpenInstallation(true);
+        grid.CurrentCell = grid.Rows[2].Cells[0]; // 通信中の選択変更を模擬。
+        gate.SetResult(); Pump(updating);
+        check(requests == before + tools.Length && dialogs == 1, "更新は公開情報を再取得してから導入画面へ進む");
+        check(selected == tools[1].Id && offered?.Packages.Single(p => p.Package.Id == selected).Package.Version == "9.0.0", "途中で行を変えても押した製品の最新台帳を渡す");
+        newer = false; grid.CurrentCell = grid.Rows[1].Cells[0];
+        Pump(form.OpenInstallation(true));
+        check(dialogs == 1 && update.Enabled, "同じ公開版なら導入せず、再確認の操作は残す");
+        failure = true;
+        Pump(form.OpenInstallation(true));
+        check(dialogs == 1 && grid.Rows[1].Cells["update"].Value?.ToString() == "公開版を確認できません", "照合例外時に古い確認済み情報で更新しない");
+        failure = false; before = requests;
+        Pump(form.RefreshAll());
+        check(requests == before + tools.Length, "状態更新にも公開版の再取得を含む");
+    }
+}

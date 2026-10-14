@@ -89,7 +89,7 @@ internal static class Program
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
-            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
+            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();

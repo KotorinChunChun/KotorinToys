@@ -30,7 +30,7 @@ internal static class DashboardTests
         grid.CurrentCell = grid.Rows[2].Cells[0];
         check(((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("SSCapture") &&
             ((Label)form.Controls.Find("overallStatus", true).Single()).Text.Contains("実行中 4件"), "選択変更で選択情報だけを切替・全体4件を維持");
-        check(!((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版の行では更新ボタンが無効");
+        check(((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版でも更新ボタンから最新情報を再確認できる");
         grid.CurrentCell = grid.Rows[3].Cells[0];
         check(((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("ShortcutKeyCounter") &&
             !((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "追加ツールを選択可能で未公開インストーラーの更新は無効");

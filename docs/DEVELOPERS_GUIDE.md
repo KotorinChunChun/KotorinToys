@@ -64,7 +64,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 ./artifacts/shortcut-final/bin/KotorinToys.Tests/debug/KotorinToys.Tests.exe --shortcut-panel
 ```
 
-プレビューは画面を閉じるだけでは子ツールを終了しません。「正常停止」で今回の試験ツールを停止してから閉じてください。本体の正式導入版を更新する操作ではありません。
+プレビューは画面を閉じるだけでは子ツールを終了しません。「停止させる」で今回の試験ツールを停止してから閉じてください。本体の正式導入版を更新する操作ではありません。
 
 ## 独立Git管理
 
