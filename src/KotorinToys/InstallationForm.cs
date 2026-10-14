@@ -4,6 +4,7 @@ internal sealed class InstallationForm : Form
 {
     readonly ToolManager manager;
     readonly ToolDefinition[] tools;
+    readonly ReleaseCatalog? publicCatalog;
     readonly CheckedListBox targets = new() { Dock = DockStyle.Fill, CheckOnClick = true };
     readonly TextBox log = new() { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical };
     readonly DataGridView results = new() { Name = "installationResults", Dock = DockStyle.Fill, ReadOnly = true,
@@ -22,9 +23,11 @@ internal sealed class InstallationForm : Form
     CancellationTokenSource? cancellation;
     bool running;
 
-    public InstallationForm(ToolManager toolManager, string? initialTarget = null)
+    public InstallationForm(ToolManager toolManager, string? initialTarget = null, ReleaseCatalog? releases = null)
     {
         manager = toolManager; tools = manager.Load();
+        publicCatalog = releases;
+        if (publicCatalog != null) ReleaseDownloader.Validate(publicCatalog);
         Text = WindowTitle.Create("導入・削除"); Size = new(980, 600); MinimumSize = new(850, 520);
         Font = new("Yu Gothic UI", 11); StartPosition = FormStartPosition.CenterParent;
         foreach (var tool in tools) targets.Items.Add(tool.Name + "：" + manager.Installation(tool).State, tool.Id == initialTarget);
@@ -109,6 +112,7 @@ internal sealed class InstallationForm : Form
             "容量・固定SHA-256を照合しますが、Authenticodeによる発行元確認ではありません。\nSSCaptureを本体の「正常停止」で停止してから実行してください。";
         if (MessageBox.Show(this, prompt, WindowTitle.Create("FFmpeg導入の確認"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
         SetRunning(true); cancellation = new(); var current = cancellation; log.Clear();
+        results.Rows.Clear(); results.Rows.Add("FFmpeg / FFprobe", "処理中", "固定配布物の取得・検証・配置を行います。");
         completion.ForeColor = SystemColors.ControlText; completion.Text = "FFmpeg導入の準備中…";
         InstallResult result;
         try
@@ -118,7 +122,8 @@ internal sealed class InstallationForm : Form
                 new Progress<string>(message => { if (running && cancellation == current) { completion.Text = message; AppendLog(message); } }), current.Token);
             result = new(tool.Id, "ffmpeg", "成功", text);
         }
-        catch (OperationCanceledException) { result = new(tool.Id, "ffmpeg", "未実行", "取得・展開を取り消しました。既存ファイルは変更していません。"); }
+        catch (OperationCanceledException) { result = new(tool.Id, "ffmpeg", current.IsCancellationRequested ? "未実行" : "失敗",
+            current.IsCancellationRequested ? "取得・展開を取り消しました。既存ファイルは変更していません。" : "FFmpeg取得・展開が時間上限に達しました。既存ファイルは変更していません。"); }
         catch (Exception ex) { result = new(tool.Id, "ffmpeg", "失敗", ex.Message); }
         finally { SetRunning(false); cancellation = null; current.Dispose(); RefreshMedia(); }
         ShowSummary(InstallationSummary.Create([tool], "ffmpeg", [result]));
@@ -133,7 +138,9 @@ internal sealed class InstallationForm : Form
         if (running) return;
         var selected = targets.CheckedIndices.Cast<int>().Select(i => tools[i]).ToArray();
         if (selected.Length == 0) { completion.Text = "対象を選択してください。"; return; }
-        var confirmation = string.Join("、", selected.Select(t => t.Name)) + "\n" +
+        var confirmation = string.Join("\n", selected.Select(t => t.Name + "：導入 " +
+            (manager.Installation(t).Version ?? manager.Installation(t).State) +
+            (operation == "install" ? " → " + (catalogPath != null ? "ローカル台帳の版" : publicCatalog?.Packages.SingleOrDefault(p => p.Package.Id == t.Id)?.Package.Version ?? t.Version) : ""))) + "\n" +
             (operation == "install" ? "インストール / 更新" : "アンインストール") +
             "します。設定・履歴を保持し、正常終了の拒否時は中止します。\n" +
             (operation == "install" ? catalogPath == null ? "GitHubから検証対象版を取得し、SHA-256を照合した未署名の開発版を実行します。" : "未署名のローカルビルドを実行します。"
@@ -158,13 +165,18 @@ internal sealed class InstallationForm : Form
             if (operation == "install" && prepared == null)
             {
                 using var downloader = new ReleaseDownloader();
-                prepared = await downloader.Prepare(ReleaseDownloader.Load(manager.Root), selected,
+                var catalog = publicCatalog ?? ReleaseDownloader.Load(manager.Root);
+                // 製品の識別は維持し、照合済み公開版の固定スナップショットを取得する。
+                var versions = selected.Select(tool => tool with { Version = catalog.Packages.Single(p => p.Package.Id == tool.Id).Package.Version }).ToArray();
+                prepared = await downloader.Prepare(catalog, versions,
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KotorinToys", "packages"),
                     new Progress<string>(message => { if (running && cancellation == current) { completion.Text = message; AppendLog(message); } }), current.Token);
             }
-            final = await new InstallationQueue(new InstallerAdapter(manager)).Run(selected, operation, prepared, progress, current.Token);
+            var adapter = new InstallerAdapter(manager);
+            final = await new InstallationQueue(adapter, new ToolUpdateCoordinator(manager, adapter)).Run(selected, operation, prepared, progress, current.Token);
         }
-        catch (OperationCanceledException) { interruption = "取得または残りの処理をキャンセルしました。進行中のインストーラーは強制終了しません。"; }
+        catch (OperationCanceledException) { interruption = current.IsCancellationRequested
+            ? "取得または残りの処理をキャンセルしました。進行中のインストーラーは強制終了しません。" : "取得処理が時間上限に達しました。インストーラーは実行していません。"; }
         catch (Exception ex) { interruption = "操作を開始／完了できませんでした：" + ex.Message; }
         finally
         {

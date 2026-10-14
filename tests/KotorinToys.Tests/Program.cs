@@ -30,6 +30,7 @@ internal static class Program
                 Check(bitmap.GetPixel(16, 3).B > bitmap.GetPixel(16, 3).R, "本体トレイの青い専用アイコン");
             }
             if(args.Length==2 && args[0]=="--run-native-release-host")return InstalledStartupTests.NativeTask("--release-host "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
+            if(args.Length==1 && args[0]=="--public-release-check") return PublicReleaseTests.Live(KotorinToys.Program.FindRoot()).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--run-native-tool-update")return InstalledStartupTests.NativeTask("--tool-update "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--tool-update")return ReleaseAcceptance.UpdateTool(args[1]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--release-host")return ReleaseAcceptance.Host(args[1]).GetAwaiter().GetResult();
@@ -83,10 +84,12 @@ internal static class Program
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
-            try { InstallationSummaryTests.Run(root, Check); }
+            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();
+            PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+            ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             BootValidation.Tests(Check);
             if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);
             if(args.Contains("--installed-startup")) InstalledStartupTests.Run(fixtures,Check).GetAwaiter().GetResult();

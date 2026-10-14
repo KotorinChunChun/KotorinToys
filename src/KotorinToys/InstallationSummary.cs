@@ -11,7 +11,7 @@ internal sealed record InstallationSummary(string Title, string Detail, bool All
             var result = results.LastOrDefault(r => r.Id == tool.Id && r.Operation == operation);
             var state = result?.State ?? "未実行";
             if (state is not ("成功" or "失敗" or "要確認" or "再起動待ち" or "未実行")) state = "要確認";
-            return new InstallationResultRow(tool.Id, tool.Name, state, result?.Detail ?? interruption ?? "処理結果を取得できませんでした。");
+            return new InstallationResultRow(tool.Id, operation == "ffmpeg" ? tool.Name + "（FFmpeg / FFprobe）" : tool.Name, state, result?.Detail ?? interruption ?? "処理結果を取得できませんでした。");
         }).ToArray();
         int Count(string state) => rows.Count(row => row.State == state);
         var succeeded = rows.Length > 0 && Count("成功") == rows.Length;

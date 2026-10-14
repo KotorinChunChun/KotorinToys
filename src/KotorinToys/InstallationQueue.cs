@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace KotorinToys;
 
-internal sealed class InstallationQueue(InstallerAdapter adapter)
+internal sealed class InstallationQueue(InstallerAdapter adapter, ToolUpdateCoordinator? updates = null)
 {
     public async Task<InstallResult[]> Run(IReadOnlyList<ToolDefinition> targets, string operation, string? catalogPath, IProgress<InstallResult>? progress = null, CancellationToken cancellation = default)
     {
@@ -23,7 +23,10 @@ internal sealed class InstallationQueue(InstallerAdapter adapter)
             else
             {
                 progress?.Report(new(tool.Id, operation, "処理中", "一つずつ実行しています。"));
-                result = operation == "install" ? await adapter.Install(tool, catalogPath ?? throw new IOException("配布台帳が未指定です。")) : await adapter.Uninstall(tool);
+                result = operation == "install"
+                    ? updates != null ? await updates.Run(tool, catalogPath ?? throw new IOException("配布台帳が未指定です。"))
+                        : await adapter.Install(tool, catalogPath ?? throw new IOException("配布台帳が未指定です。"))
+                    : await adapter.Uninstall(tool);
             }
 
             results.Add(result);

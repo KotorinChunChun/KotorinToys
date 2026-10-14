@@ -22,6 +22,8 @@ git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.gi
 
 ## 開発版の起動
 
+開発中のソースでは、導入済み版／GitHub公開版／更新の要否／一言解説、全体と選択行の状態、導入完了の結果一覧、FFmpeg導入・修復を追加しています。使い方は[利用ガイド](docs/USERS_GUIDE.md)を参照してください。この変更の配布用バイナリはまだ作成しておらず、上記の公開済みインストーラーや現在の導入先には未反映です。
+
 ```powershell
 cd C:\develop\KotorinToys
 pwsh -File dev/scripts/start.ps1

@@ -64,8 +64,10 @@ git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.gi
 
 ## Releases配布
 
-本体と3ツールは`KotorinChunChun`配下の各Releasesへ、未署名の開発版インストーラー・SHA256SUMS・製品別台帳を公開します。本体の`catalog/releases.json`は対象製品・版・サイズ・固定SHA-256を記録します。任意の最新配布物に自動追従せず、採用版の変更時に検証して更新します。同じタグのassetを差し替えると旧本体はハッシュ不一致で拒否します。新しい配布物は新しい版へ進め、旧assetを上書きしないでください。
+本体と3ツールは`KotorinChunChun`配下の各Releasesへ、未署名の開発版インストーラー・SHA256SUMS・製品別台帳を公開します。`catalog/releases.json`は同梱版の製品・版・サイズ・固定SHA-256を記録します。開発中のソースではPublicReleaseClientで既知3リポジトリの公開版（開発版を含む）と製品別台帳を取得し、製品識別・数値tag・準備済みasset・サイズ・GitHubのdigest（提供時）を照合します。取得失敗時の同梱版は未確認として表示します。同梱済み版と同じ版の配布情報が変更された場合も拒否します。新しい配布物は新しい版へ進め、旧assetを上書きしないでください。
 
 公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。公開版SSCaptureは`publish-packages.ps1 -ExcludeFFmpeg`を指定し、FFmpeg／FFprobeと利用者dataを含めません。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
 
-ダウンロードはGitHubと指定されたGitHub assetホストのHTTPSだけ許可し、時間・容量・サイズ・SHA-256を検査します。SHA-256は本体に同梱した固定値であり、通信相手が返すハッシュで任意ファイルを信用しません。ただしコード署名による発行者検証ではありません。未署名の注意と配布元を利用者へ表示します。
+製品ダウンロードはGitHubと指定されたGitHub assetホストのHTTPSだけ許可し、時間・容量・サイズ・SHA-256を検査します。同梱版は本体の固定ハッシュ、新しい公開版は既知所有者の製品別台帳とGitHub assetの照合で確定したハッシュを使用します。公開版の表示だけで導入せず、利用者の確認時にその固定スナップショットを取得します。新公開版の台帳はGitHub上の配布元を信頼する境界であり、独立したコード署名による発行元確認ではありません。未署名の注意と導入済み版→対象版を表示します。
+
+FfmpegInstallerはこれとは別にGyanの固定HTTPS ZIP・固定容量・固定SHA-256を使用します。正式導入済みで停止中のSSCaptureだけに必要な2 EXE・ライセンス・READMEを配置し、設定／履歴／PATHを変えません。製品インストーラーへの同梱や自分のReleasesへの再配布はしません。

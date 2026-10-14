@@ -13,6 +13,8 @@
 | 配布識別と台帳検証 | [ProductIdentity](../src/KotorinToys/ProductIdentity.cs)、[PackageCatalogReader](../src/KotorinToys/PackageCatalogReader.cs) |
 | 取得・検証保存・導入 | [ReleaseDownloader](../src/KotorinToys/ReleaseDownloader.cs)、[HTTP](../src/KotorinToys/ReleaseDownloader.Http.cs)、[検証保存](../src/KotorinToys/ReleaseDownloader.Transfer.cs)、[InstallerAdapter](../src/KotorinToys/InstallerAdapter.cs)、[InstallationQueue](../src/KotorinToys/InstallationQueue.cs) |
 | 設定・予約・復旧 | [HostSettingsStore](../src/KotorinToys/HostSettingsStore.cs)、[StartupCoordinator](../src/KotorinToys/StartupCoordinator.cs)、[TaskSchedulerGateway](../src/KotorinToys/TaskSchedulerGateway.cs)、[RemovalReservations](../src/KotorinToys/RemovalReservations.cs) |
+| 公開版の照合・更新判定・起動復帰 | [PublicReleaseClient](../src/KotorinToys/PublicReleaseClient.cs)、[DashboardStatus](../src/KotorinToys/DashboardStatus.cs)、[ToolUpdateCoordinator](../src/KotorinToys/ToolUpdateCoordinator.cs) |
+| 一括最終結果・外部録画依存の導入 | [InstallationSummary](../src/KotorinToys/InstallationSummary.cs)、[FfmpegInstaller](../src/KotorinToys/FfmpegInstaller.cs) |
 
 モデルは実処理と分離しています。メンテナンスEXEは必要な非UIソースだけを明示的に共有し、製品識別を同じProductIdentityで照合します。ダウンロードは、HTTP応答の所有権・固定版／ホスト・容量・SHA-256・検証後の確定保存を分けて扱います。未署名であることや確認できない状態を成功へ補完しません。
 
@@ -34,6 +36,16 @@ pwsh -NoProfile -File dev/scripts/test-refactoring.ps1 -Target All -Version v0.1
 ```
 
 TargetはHost／LiveTextMarker／SmartPaste／SSCaptureへ限定できます。失敗した工程は終了コードとlogsで確認します。実OCR・AI・録画・デバイス・実サインイン・導入更新の受入は別の検証であり、この非対話テストの合格から推定しません。
+
+## 配布物を作らないコード検証
+
+```powershell
+cd C:\develop\KotorinToys
+dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path artifacts/code-tests
+& ./artifacts/code-tests/bin/KotorinToys.Tests/debug/KotorinToys.Tests.exe
+```
+
+この既定テストは模擬インストーラー／ZIP／APIと実フォームのコントロールを検査します。実インストールや既存ツールの停止はしません。--public-release-checkは実GitHubのAPIと小さな台帳だけを取得して照合し、製品バイナリを取得・実行しません。一時Debug出力を配布用成果物の完成と扱わないでください。
 
 ## 構造変更の検査
 

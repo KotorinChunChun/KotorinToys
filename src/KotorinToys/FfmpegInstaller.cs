@@ -41,7 +41,7 @@ internal sealed class FfmpegInstaller : IDisposable
             var present = Files.Take(2).Count(file => File.Exists(SafeTarget(installed.Directory, file.Target)));
             return present == 2 ? "配置済み（録画動作は未確認）" : present == 0 ? "未導入" : "一部不足（再導入が必要）";
         }
-        catch (IOException) { return "配置を確認できません"; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException) { return "配置を確認できません"; }
     }
 
     public async Task<string> Install(InstallationState installed, Func<Task<ToolState>> status,
@@ -70,10 +70,10 @@ internal sealed class FfmpegInstaller : IDisposable
             deadline.CancelAfter(TimeSpan.FromMinutes(10));
             progress?.Report("FFmpeg / FFprobe：固定9.0.2をダウンロード中（約110 MB）");
             var zip = Path.Combine(stage, "archive.zip");
-            await Download(zip, deadline.Token);
+            await Download(zip, deadline.Token).ConfigureAwait(false);
             progress?.Report("FFmpeg：容量・SHA-256一致。必要ファイルを検査・展開中。");
-            await Extract(zip, stage, deadline.Token);
-            await RequireStopped(); // 取得中にSSCaptureが起動した場合は配置しない。
+            await Extract(zip, stage, deadline.Token).ConfigureAwait(false);
+            await RequireStopped().ConfigureAwait(false); // 取得中にSSCaptureが起動した場合は配置しない。
             cancellation.ThrowIfCancellationRequested();
             progress?.Report("FFmpeg / FFprobe：専用配置へ反映中。設定・履歴は変更しません。");
             try { Apply(root, stage); }
@@ -152,7 +152,7 @@ internal sealed class FfmpegInstaller : IDisposable
 
     internal static void Apply(string root, string stage)
     {
-        var changes = new List<(string Target, string Backup, bool HadOriginal)>();
+        var changes = new List<(string Target, string Backup, bool HadOriginal, bool Placed)>();
         try
         {
             foreach (var (file, index) in Files.Select((file, index) => (file, index)))
@@ -162,8 +162,9 @@ internal sealed class FfmpegInstaller : IDisposable
                 var backup = SafeTarget(stage, "backup-" + index);
                 bool hadOriginal = File.Exists(target);
                 if (hadOriginal) File.Move(target, backup);
-                changes.Add((target, backup, hadOriginal));
+                changes.Add((target, backup, hadOriginal, false));
                 File.Move(SafeTarget(stage, file.File), target);
+                changes[^1] = (target, backup, hadOriginal, true);
             }
         }
         catch (Exception original)
@@ -172,7 +173,7 @@ internal sealed class FfmpegInstaller : IDisposable
             {
                 foreach (var change in changes.AsEnumerable().Reverse())
                 {
-                    File.Delete(change.Target);
+                    if (change.Placed) File.Delete(change.Target);
                     if (change.HadOriginal) File.Move(change.Backup, change.Target);
                 }
             }

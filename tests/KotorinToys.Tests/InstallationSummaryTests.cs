@@ -26,5 +26,7 @@ internal static class InstallationSummaryTests
         check(((Button)form.Controls.Find("closeInstallation", true).Single()).Enabled &&
             !((Button)form.Controls.Find("cancelRemaining", true).Single()).Enabled, "完了時は閉じる有効・キャンセル無効");
         check(grid.ColumnHeadersDefaultCellStyle.Padding.Vertical >= 16, "結果ヘッダーの上下余白");
+        form.Size = form.MinimumSize; form.PerformLayout();
+        check(grid.Width >= 450 && grid.Height >= 100, "最小サイズでも完了一覧の表示領域を確保");
     }
 }
