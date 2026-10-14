@@ -17,13 +17,13 @@
       "package": {
         "id": "smart-paste",
         "name": "SmartPaste",
-        "version": "0.1.4",
+        "version": "0.1.5",
         "appId": "KotorinToys.SmartPaste",
-        "file": "SmartPaste-0.1.4-setup.exe",
-        "sha256": "f93ea90123628c7586ba9aa0ccda57a9052f873b9f72a3dd965149d71d9dfd0b",
+        "file": "SmartPaste-0.1.5-setup.exe",
+        "sha256": "a2f2594974f1ef7786f9d3a219c9e4f1a51df8b9fafdc9da1c7edc118d211f23",
         "signature": "unsigned-public-build"
       },
-      "length": 162004997
+      "length": 162007173
     },
     {
       "package": {
