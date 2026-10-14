@@ -23,7 +23,8 @@ internal static class DashboardTests
         form.ApplySnapshot(installed, states, releases); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
         check(grid.Rows.Cast<DataGridViewRow>().Select(row => row.Cells["summary"].Value?.ToString()).SequenceEqual(tools.Select(t => t.Summary)), "実フォームの表に3件の一言解説");
-        check(grid.Rows[1].Cells["installed"].Value?.ToString() == "0.1.3" && grid.Rows[1].Cells["published"].Value?.ToString() == "0.1.4（開発版）", "実フォームに導入済み版と公開版を別表示");
+        var expectedPublished = releases[1].Package!.Package.Version + "（開発版）";
+        check(grid.Rows[1].Cells["installed"].Value?.ToString() == "0.1.3" && grid.Rows[1].Cells["published"].Value?.ToString() == expectedPublished, "実フォームに導入済み版と現在の公開台帳の版を別表示");
         grid.CurrentCell = grid.Rows[1].Cells[0];
         check(((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "更新あり行を選択すると更新導線が有効");
         grid.CurrentCell = grid.Rows[2].Cells[0];

@@ -15,6 +15,7 @@
 | 設定・予約・復旧 | [HostSettingsStore](../src/KotorinToys/HostSettingsStore.cs)、[StartupCoordinator](../src/KotorinToys/StartupCoordinator.cs)、[TaskSchedulerGateway](../src/KotorinToys/TaskSchedulerGateway.cs)、[RemovalReservations](../src/KotorinToys/RemovalReservations.cs) |
 | 公開版の照合・更新判定・起動復帰 | [PublicReleaseClient](../src/KotorinToys/PublicReleaseClient.cs)、[DashboardStatus](../src/KotorinToys/DashboardStatus.cs)、[ToolUpdateCoordinator](../src/KotorinToys/ToolUpdateCoordinator.cs) |
 | 一括最終結果・外部録画依存の導入 | [InstallationSummary](../src/KotorinToys/InstallationSummary.cs)、[FfmpegInstaller](../src/KotorinToys/FfmpegInstaller.cs) |
+| 本体アイコンの共通化・画面の所有権 | [AppIcon](../src/KotorinToys/AppIcon.cs)、[BrandedForm](../src/KotorinToys/BrandedForm.cs)、[共通規約](app-icon-rule.md) |
 
 モデルは実処理と分離しています。メンテナンスEXEは必要な非UIソースだけを明示的に共有し、製品識別を同じProductIdentityで照合します。ダウンロードは、HTTP応答の所有権・固定版／ホスト・容量・SHA-256・検証後の確定保存を分けて扱います。未署名であることや確認できない状態を成功へ補完しません。
 

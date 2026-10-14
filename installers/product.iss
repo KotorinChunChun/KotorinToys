@@ -19,7 +19,10 @@ CloseApplications=no
 RestartApplications=no
 AllowNoIcons=yes
 DisableProgramGroupPage=yes
-UninstallDisplayIcon={app}\{#ProductName}.exe
+UninstallDisplayIcon={app}\{#ProductName}.exe,0
+#if ProductName == "KotorinToys"
+SetupIconFile=..\src\KotorinToys\assets\KotorinToys.ico
+#endif
 WizardStyle=modern
 [Languages]
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
@@ -27,7 +30,7 @@ Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Source: "{#Payload}\maintenance\*"; DestDir: "{tmp}\maintenance"; Flags: dontcopy recursesubdirs
 Source: "{#Payload}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb"
 [Icons]
-Name: "{userprograms}\{#ProductName}"; Filename: "{app}\{#ProductName}.exe"
+Name: "{userprograms}\{#ProductName}"; Filename: "{app}\{#ProductName}.exe"; IconFilename: "{app}\{#ProductName}.exe"; IconIndex: 0
 [Code]
 var
   MaintenancePrepared, RemovalCompleted: Boolean;

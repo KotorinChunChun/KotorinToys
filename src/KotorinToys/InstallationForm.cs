@@ -1,6 +1,6 @@
 namespace KotorinToys;
 
-internal sealed class InstallationForm : Form
+internal sealed class InstallationForm : BrandedForm
 {
     readonly ToolManager manager;
     readonly ToolDefinition[] tools;

@@ -5,4 +5,5 @@
 - 版別要求・計画・進捗・報告はdev/history/vX.Y.Z/へ配置する。現行仕様と再現可能な手順はdocsへ置く。
 - フェーズごとに適切な検証を行い、問題がなければコミットする。
 - 本体と収録ツールのタイトルは[共通タイトル規約](docs/window-title-rule.md)に従う。新規画面もWindowTitle.Createを使用する。
+- 本体のアイコンは[共通アイコン規約](docs/app-icon-rule.md)に従う。新規の独自画面もBrandedFormを継承し、採用04の共通ICOを使用する。
 - 収録ツールの独立Git管理を維持する。

@@ -1,6 +1,6 @@
 namespace KotorinToys;
 
-internal sealed class StartupSettingsForm : Form
+internal sealed class StartupSettingsForm : BrandedForm
 {
     readonly HostSettingsStore store;
     readonly StartupCoordinator coordinator;

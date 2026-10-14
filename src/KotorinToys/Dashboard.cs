@@ -1,6 +1,6 @@
 namespace KotorinToys;
 
-internal sealed class Dashboard : Form
+internal sealed class Dashboard : BrandedForm
 {
     readonly ToolManager manager;
     readonly ToolDefinition[] tools;

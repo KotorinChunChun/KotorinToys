@@ -7,8 +7,10 @@
     <Nullable>enable</Nullable>
     <PlatformTarget>x64</PlatformTarget>
     <Version>0.1.0</Version>
+    <ApplicationIcon>assets/KotorinToys.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="assets/KotorinToys.ico" LogicalName="KotorinToys.AppIcon.ico" />
     <None Include="../../catalog/tools.json" Link="catalog/tools.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="../../contracts/ManagementEndpoint.cs" Link="Integration/ManagementEndpoint.cs" />
     <InternalsVisibleTo Include="KotorinToys.Tests" />

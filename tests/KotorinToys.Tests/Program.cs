@@ -23,11 +23,12 @@ internal static class Program
     {
         try
         {
-            using (var icon = AppIcon.Create())
+            IconTests.Asset(Check);
+            if (args.Length >= 2 && args[0] == "--verify-icon-exe")
             {
-                Check(icon.Size == new Size(32, 32), "本体トレイの専用アイコン寸法");
-                using var bitmap = icon.ToBitmap();
-                Check(bitmap.GetPixel(16, 3).B > bitmap.GetPixel(16, 3).R, "本体トレイの青い専用アイコン");
+                var source = Path.Combine(KotorinToys.Program.FindRoot(), "src", "KotorinToys", "assets", "KotorinToys.ico");
+                foreach (var path in args.Skip(1)) IconTests.Executable(path, source, Check);
+                Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             if(args.Length==2 && args[0]=="--run-native-release-host")return InstalledStartupTests.NativeTask("--release-host "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--public-release-check") return PublicReleaseTests.Live(KotorinToys.Program.FindRoot()).GetAwaiter().GetResult();
@@ -84,7 +85,7 @@ internal static class Program
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
-            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); }
+            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();

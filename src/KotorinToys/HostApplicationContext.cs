@@ -23,7 +23,6 @@ internal sealed class HostApplicationContext : ApplicationContext
         var menu = new ContextMenuStrip();
         menu.Items.Add("管理画面を開く", null, (_, _) => ShowDashboard());
         menu.Items.Add("KotorinToysを終了", null, (_, _) => ExitThread());
-        dashboard.Icon = icon;
         tray = new NotifyIcon { Text = "KotorinToys", Icon = icon, ContextMenuStrip = menu, Visible = true };
         tray.MouseDoubleClick += (_, _) => ShowDashboard();
         management = new("dashboard", dispatcher, ShowDashboard, ExitThread);
