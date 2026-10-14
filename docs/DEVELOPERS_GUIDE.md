@@ -52,6 +52,20 @@ pwsh -File dev/scripts/start.ps1
 
 本体の `--self-test` は実際の4ツールで起動、既存PIDの維持、正常終了、再起動を検証します。既存インスタンスは変更せず、今回起動したツールは最後に正常停止します。実行前に編集中の操作や撮影・録画を完了してください。
 
+## ShortcutKeyCounterだけの隔離検証
+
+通常の本体・3ツールを変更せず確認する場合、追加ツールの通常プロセスを終了してから次を使用します。検証DBは本体v0.1.0のlogs内、入力Hook・オーバーレイ・Run同期は無効です。
+
+```powershell
+cd C:\develop\KotorinToys
+dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifacts-path artifacts/shortcut-final
+./artifacts/shortcut-final/bin/KotorinToys.Tests/debug/KotorinToys.Tests.exe --shortcut-ipc
+# 実ダッシュボードの隔離プレビュー（本体の通常トレイは変更しない）
+./artifacts/shortcut-final/bin/KotorinToys.Tests/debug/KotorinToys.Tests.exe --shortcut-panel
+```
+
+プレビューは画面を閉じるだけでは子ツールを終了しません。「正常停止」で今回の試験ツールを停止してから閉じてください。本体の正式導入版を更新する操作ではありません。
+
 ## 独立Git管理
 
 親リポジトリのtools内4フォルダーは独立したGitリポジトリです。ShortcutKeyCounterも管理カタログへ登録していますが、本体対応インストーラーは未公開です。まず子で変更をコミット・pushし、親で採用コミットを記録します。`.gitmodules`に各公開先を登録し、次の操作で採用版をまとめて取得できます。
