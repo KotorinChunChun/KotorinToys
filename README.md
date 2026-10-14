@@ -21,10 +21,10 @@ git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.gi
 | [LiveTextMarker](tools/LiveTextMarker/README.md) | テキスト表示を補助するツール | 起動・停止・状態確認に対応 |
 | [SmartPaste](tools/SmartPaste/README.md) | 貼り付け作業を支援するツール | 起動・停止・状態確認に対応 |
 | [SSCapture](tools/SSCapture/README.md) | 画面撮影・録画と保存先や命名を管理するツール | 起動・停止・状態確認に対応 |
-| [ShortcutKeyCounter](tools/ShortcutKeyCounter/README.md) | ショートカットキーの利用回数を端末内で記録・集計し、入力を画面に表示するツール | 独立リポジトリ登録・紹介のみ |
+| [ShortcutKeyCounter](tools/ShortcutKeyCounter/README.md) | ショートカットキーの利用回数を端末内で記録・集計し、入力を画面に表示するツール | 開発版の起動・画面表示・正常停止・状態確認に対応 |
 | `CapchunScreen` | 画面録画・操作履歴TSV・独立プレビュー・複数動画の同時再生・Unity Capture出力を行うツール | ローカル版・未公開・本体連携未対応 |
 
-ShortcutKeyCounterのソースは[GitHub](https://github.com/KotorinChunChun/ShortcutKeyCounter)で公開しています。本体からの起動・停止・状態確認と導入管理は未対応です。単独での利用方法は[ユーザーガイド](tools/ShortcutKeyCounter/docs/users-guide.md)を参照してください。
+ShortcutKeyCounterの本体連携は[管理連携の手順](tools/ShortcutKeyCounter/docs/kotorintoys-integration.md)を参照してください。公開済みポータブルZIPとは別の開発ソースをビルドして利用します。本体からの正式導入・更新は未対応です。単独での利用方法は[ユーザーガイド](tools/ShortcutKeyCounter/docs/users-guide.md)を参照してください。
 
 CapchunScreenはローカルの`tools/CapchunScreen/`に独立Gitリポジトリとして配置しています。現時点では`git clone --recurse-submodules`の取得対象に含まれず、公開先とsubmoduleの登録は別工程です。利用方法はローカルの`tools/CapchunScreen/docs/users-guide.md`を参照してください。
 

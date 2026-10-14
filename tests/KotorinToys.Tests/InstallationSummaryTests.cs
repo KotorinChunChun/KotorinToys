@@ -4,7 +4,8 @@ internal static class InstallationSummaryTests
 {
     public static void Run(string root, Action<bool, string> check)
     {
-        var tools = ToolCatalog.Load(root);
+        // 公開インストーラー3件を選ぶケース。管理対象全件とは別に扱う。
+        var tools = ToolCatalog.Load(root).Where(t => t.DistributionStatus == "published").ToArray();
         InstallResult[] Results(params string[] states) => states.Select((state, i) => new InstallResult(tools[i].Id, "install", state, "テスト結果")).ToArray();
         var summary = InstallationSummary.Create(tools, "install", Results("成功", "成功", "成功"));
         check(summary.AllSucceeded && summary.Title.Contains("3件すべて成功"), "3件成功を明確な完了集計にする");

@@ -57,11 +57,15 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'README.md') $output
             Copy-Required (Join-Path $projectRoot 'docs') $output
             Copy-Required (Join-Path $projectRoot 'catalog/host.json') (Join-Path $output 'tool.json')
-            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture')) {
+            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter')) {
                 $definitionOutput = Join-Path $output "tools/$name"
                 New-Item -ItemType Directory -Path $definitionOutput -Force | Out-Null
                 Copy-Required (Join-Path $projectRoot "tools/$name/tool.json") $definitionOutput
                 Copy-Required (Join-Path $projectRoot "tools/$name/README.md") $definitionOutput
+                if ($name -eq 'ShortcutKeyCounter') {
+                    # 同梱READMEから辿れる説明だけを含める。子EXE・利用者DBは含めない。
+                    Copy-Required (Join-Path $projectRoot "tools/$name/docs") $definitionOutput
+                }
             }
         }
         'LiveTextMarker' {

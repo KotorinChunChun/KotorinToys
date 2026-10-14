@@ -15,6 +15,11 @@
       "id": "ss-capture",
       "name": "SSCapture",
       "definition": "tools/SSCapture/tool.json"
+    },
+    {
+      "id": "shortcut-key-counter",
+      "name": "ShortcutKeyCounter",
+      "definition": "tools/ShortcutKeyCounter/tool.json"
     }
   ]
 }

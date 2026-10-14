@@ -2,4 +2,4 @@
 
 各ツールを独立したGitリポジトリとして配置する場所です。
 
-LiveTextMarker、SmartPaste、SSCaptureを配置しています。それぞれ独立したGitリポジトリを維持し、管理窓口を追加して本体と連携しています。
+LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounterを配置しています。それぞれ独立したGitリポジトリを維持し、管理窓口で本体と連携しています。ShortcutKeyCounterは開発版の管理連携に対応し、本体からの正式導入・更新は未対応です。

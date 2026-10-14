@@ -46,15 +46,15 @@ pwsh -File dev/scripts/build.ps1
 pwsh -File dev/scripts/start.ps1
 ```
 
-.NET 10 SDKと.NET 10 Windows Desktop Runtimeが必要です。LiveTextMarkerとSmartPasteは.NET 8ランタイム同梱の開発出力を使用します。NuGet復元にはネットワーク接続が必要です。更新ビルド前には本体と3ツールを正常終了してください。
+.NET 10 SDKと.NET 10 Windows Desktop Runtimeが必要です。LiveTextMarkerとSmartPasteは.NET 8ランタイム同梱の開発出力を使用します。ShortcutKeyCounterはRust stable MSVC・C++ Build Tools・Node.js・WebView2を使用し、`target/debug/ShortcutKeyCounter.exe`を管理対象にします。NuGet／Cargo復元にはネットワーク接続が必要です。更新ビルド前には対象プロセスを正常終了してください。
 
 ## 統合検証
 
-本体の `--self-test` は実際の3ツールで起動、既存PIDの維持、正常終了、再起動を検証します。最後は3ツールを起動した状態にします。実行前に編集中の操作や撮影・録画を完了してください。
+本体の `--self-test` は実際の4ツールで起動、既存PIDの維持、正常終了、再起動を検証します。既存インスタンスは変更せず、今回起動したツールは最後に正常停止します。実行前に編集中の操作や撮影・録画を完了してください。
 
 ## 独立Git管理
 
-親リポジトリのtools内4フォルダーは独立したGitリポジトリです。ShortcutKeyCounterはリポジトリ登録・紹介のみで、本体の管理カタログにはまだ登録していません。まず子で変更をコミット・pushし、親で採用コミットを記録します。`.gitmodules`に各公開先を登録し、次の操作で採用版をまとめて取得できます。
+親リポジトリのtools内4フォルダーは独立したGitリポジトリです。ShortcutKeyCounterも管理カタログへ登録していますが、本体対応インストーラーは未公開です。まず子で変更をコミット・pushし、親で採用コミットを記録します。`.gitmodules`に各公開先を登録し、次の操作で採用版をまとめて取得できます。
 
 ```powershell
 git clone --recurse-submodules https://github.com/KotorinChunChun/KotorinToys.git

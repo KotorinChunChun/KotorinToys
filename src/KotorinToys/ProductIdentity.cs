@@ -8,7 +8,8 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId)
         new("host", "KotorinToys", "KotorinToys"),
         new("live-text-marker", "LiveTextMarker", "KotorinToys.LiveTextMarker"),
         new("smart-paste", "SmartPaste", "KotorinToys.SmartPaste"),
-        new("ss-capture", "SSCapture", "KotorinToys.SSCapture")
+        new("ss-capture", "SSCapture", "KotorinToys.SSCapture"),
+        new("shortcut-key-counter", "ShortcutKeyCounter", "KotorinToys.ShortcutKeyCounter")
     ];
     static readonly Dictionary<string, ProductIdentity> byId = products.ToDictionary(p => p.Id, StringComparer.Ordinal);
     static readonly Dictionary<string, ProductIdentity> byName = products.ToDictionary(p => p.Name, StringComparer.Ordinal);

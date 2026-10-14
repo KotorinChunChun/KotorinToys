@@ -9,6 +9,8 @@ try {
     if ($LASTEXITCODE) { throw 'SmartPasteのビルドに失敗しました。' }
     dotnet build tools/SSCapture/src/SSCapture/SSCapture.csproj -c Release --nologo
     if ($LASTEXITCODE) { throw 'SSCaptureのビルドに失敗しました。' }
+    & pwsh -ExecutionPolicy Bypass -File tools/ShortcutKeyCounter/dev/scripts/build-debug-ShortcutKeyCounter-all.ps1
+    if ($LASTEXITCODE) { throw 'ShortcutKeyCounterのビルドに失敗しました。' }
     dotnet build src/KotorinToys/KotorinToys.csproj -c Debug --nologo
     if ($LASTEXITCODE) { throw 'KotorinToysのビルドに失敗しました。' }
 } finally { Pop-Location }

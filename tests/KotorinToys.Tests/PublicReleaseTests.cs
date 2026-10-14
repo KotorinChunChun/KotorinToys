@@ -10,6 +10,13 @@ internal static class PublicReleaseTests
     static HttpResponseMessage Json(object value) => new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(value, ToolCatalog.Json)) };
     public static async Task Run(string root, string fixtures, Action<bool, string> check)
     {
+        int unsupportedRequests = 0;
+        using (var client = new PublicReleaseClient(new Handler((_, _) => { unsupportedRequests++; return new(HttpStatusCode.OK); })))
+        {
+            var portable = ToolCatalog.Load(root).Single(t => t.Id == "shortcut-key-counter");
+            var actual = await client.Check(portable, null);
+            check(unsupportedRequests == 0 && !actual.Confirmed && actual.Package == null && actual.Detail.Contains("インストーラーは未公開"), "ポータブル版を未検証のインストーラーとして取得しない");
+        }
         var tool = ToolCatalog.Load(root).Single(t => t.Id == "smart-paste");
         byte[] bytes = [1, 2, 3, 4];
         var package = new LocalPackage(tool.Id, tool.Name, "0.1.10", tool.AppId, "SmartPaste-0.1.10-setup.exe", Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant(), "unsigned-public-build");

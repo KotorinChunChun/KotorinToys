@@ -21,7 +21,7 @@ internal sealed class RemovalReservations(HostSettingsStore store, IStartupGatew
     {
         try
         {
-            if(id is not ("host" or "live-text-marker" or "smart-paste" or "ss-capture"))throw new IOException("未登録の削除対象です。");
+            if(ProductIdentity.FromId(id) is null)throw new IOException("未登録の削除対象です。");
             using var lease=store.AcquireLease();
             if(store.Journal!=null || File.Exists(JournalFile))throw new IOException("未完了の操作があります。削除せず復旧してください。");
             var before=store.Load();var modes=new Dictionary<string,string>(before.StartupModes);

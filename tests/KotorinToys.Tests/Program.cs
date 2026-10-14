@@ -105,10 +105,10 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 3, "schema 2で3ツールを解決する");
-        Check(tools.All(t => t.DistributionStatus == "published"), "公開した3ツールを配布状態へ反映");
-        Check(tools.All(t => t.Runtimes?.Length > 0), "3ツールの依存情報を持つ");
-        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"3ツールの確認済み能力と環境");
+        Check(tools.Length == 4, "schema 2で4ツールを解決する");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 3 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "公開Innoの3ツールと未公開Innoの追加ツールを区別");
+        Check(tools.All(t => t.Runtimes?.Length > 0), "4ツールの依存情報を持つ");
+        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"4ツールの確認済み能力と環境");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs"));
         Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path))==contract),"共通管理実装と3子コピーの一致");
         Check(tools.All(t => File.Exists(PathSafety.Resolve(PathSafety.Resolve(root,t.ToolRoot), t.Manual))), "論理ルート基準の文書参照");
