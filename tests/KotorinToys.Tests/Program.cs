@@ -86,6 +86,7 @@ internal static class Program
             try { InstallationSummaryTests.Run(root, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
+            FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();
             BootValidation.Tests(Check);
             if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);
             if(args.Contains("--installed-startup")) InstalledStartupTests.Run(fixtures,Check).GetAwaiter().GetResult();

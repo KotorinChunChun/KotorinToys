@@ -16,6 +16,7 @@ internal sealed class InstallationForm : Form
     readonly Label source = new() { Dock = DockStyle.Fill, AutoSize = true, Padding = new(8), Text = PublicSource };
     readonly Button cancel = new() { Name = "cancelRemaining", Text = "残りをキャンセル", AutoSize = true, Enabled = false };
     readonly Button close = new() { Name = "closeInstallation", Text = "閉じる", AutoSize = true };
+    readonly Label media = new() { Name = "ffmpegState", AutoSize = true, Dock = DockStyle.Fill, Padding = new(8) };
     readonly TableLayoutPanel detail = new() { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3 };
     string? catalogPath;
     CancellationTokenSource? cancellation;
@@ -39,11 +40,11 @@ internal sealed class InstallationForm : Form
         var content = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2 };
         content.ColumnStyles.Add(new(SizeType.Absolute, 260)); content.ColumnStyles.Add(new(SizeType.Percent, 100));
         content.Controls.Add(targets, 0, 0); content.Controls.Add(detail, 1, 0);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4 };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5 };
         layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
-        layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize));
+        layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
         layout.Controls.Add(source, 0, 0); layout.Controls.Add(completion, 0, 1);
-        layout.Controls.Add(content, 0, 2); layout.Controls.Add(buttons, 0, 3); Controls.Add(layout);
+        layout.Controls.Add(content, 0, 2); layout.Controls.Add(media, 0, 3); layout.Controls.Add(buttons, 0, 4); Controls.Add(layout);
         var published = new Button { Text = "GitHub Releasesを使用", AutoSize = true };
         published.Click += (_, _) => { catalogPath = null; source.Text = PublicSource; };
         var choose = new Button { Text = "配布台帳を選択", AutoSize = true };
@@ -56,6 +57,8 @@ internal sealed class InstallationForm : Form
         };
         buttons.Controls.Add(published); buttons.Controls.Add(choose);
         Add("選択をインストール / 更新", "install"); Add("選択をアンインストール", "uninstall");
+        var ffmpeg = new Button { Name = "installFfmpeg", Text = "FFmpegを導入 / 修復", AutoSize = true };
+        ffmpeg.Click += async (_, _) => await InstallFfmpeg(); buttons.Controls.Add(ffmpeg);
         cancel.Click += (_, _) => cancellation?.Cancel(); buttons.Controls.Add(cancel);
         close.Click += (_, _) => Close(); buttons.Controls.Add(close);
         FormClosing += (_, e) =>
@@ -64,6 +67,7 @@ internal sealed class InstallationForm : Form
             e.Cancel = true; cancellation?.Cancel();
             completion.Text = "キャンセル要求中：進行中の処理が終わるまでお待ちください。強制終了はしません。";
         };
+        RefreshMedia();
     }
     void SetRunning(bool value)
     {
@@ -87,6 +91,37 @@ internal sealed class InstallationForm : Form
             targets.Items[i] = tools[i].Name + "：" + manager.Installation(tools[i]).State;
             targets.SetItemChecked(i, selected);
         }
+        RefreshMedia();
+    }
+    void RefreshMedia()
+    {
+        var tool = tools.SingleOrDefault(t => t.Id == "ss-capture");
+        media.Text = "SSCaptureの録画用 FFmpeg / FFprobe：" + (tool == null ? "対象ツールなし" : FfmpegInstaller.State(manager.Installation(tool)));
+    }
+    async Task InstallFfmpeg()
+    {
+        if (running) return;
+        var tool = tools.Single(t => t.Id == "ss-capture");
+        var installed = manager.Installation(tool);
+        if (installed.State != "導入済み") { completion.Text = "FFmpegの前にSSCaptureを正式インストールしてください。"; return; }
+        var prompt = $"FFmpeg / FFprobe {FfmpegInstaller.Version}（約110 MB、Gyan GPLv3ビルド）を配布元から直接取得します。\n" +
+            $"配置先：{installed.Directory}\\tools\n既存の録画用ファイルはバックアップ付きで置き換えます。設定・履歴・PATHは変更しません。\n" +
+            "容量・固定SHA-256を照合しますが、Authenticodeによる発行元確認ではありません。\nSSCaptureを本体の「正常停止」で停止してから実行してください。";
+        if (MessageBox.Show(this, prompt, WindowTitle.Create("FFmpeg導入の確認"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
+        SetRunning(true); cancellation = new(); var current = cancellation; log.Clear();
+        completion.ForeColor = SystemColors.ControlText; completion.Text = "FFmpeg導入の準備中…";
+        InstallResult result;
+        try
+        {
+            using var installer = new FfmpegInstaller();
+            var text = await installer.Install(installed, () => manager.Status(tool),
+                new Progress<string>(message => { if (running && cancellation == current) { completion.Text = message; AppendLog(message); } }), current.Token);
+            result = new(tool.Id, "ffmpeg", "成功", text);
+        }
+        catch (OperationCanceledException) { result = new(tool.Id, "ffmpeg", "未実行", "取得・展開を取り消しました。既存ファイルは変更していません。"); }
+        catch (Exception ex) { result = new(tool.Id, "ffmpeg", "失敗", ex.Message); }
+        finally { SetRunning(false); cancellation = null; current.Dispose(); RefreshMedia(); }
+        ShowSummary(InstallationSummary.Create([tool], "ffmpeg", [result]));
     }
     void Add(string label, string operation)
     {
