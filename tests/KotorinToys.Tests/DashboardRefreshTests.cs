@@ -44,18 +44,42 @@ internal static class DashboardRefreshTests
         gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
         int before = requests;
         var updating = form.OpenInstallation(true);
+        check(!selectedRow.Enabled && !hostRow.Enabled, "更新処理中は選択操作と本体操作の両方を抑止");
+        var duplicate = form.OpenInstallation(true);
+        check(duplicate.IsCompletedSuccessfully && requests == before + tools.Length && dialogs == 0, "処理中の再操作で照合と導入画面を重複しない");
         grid.CurrentCell = grid.Rows[2].Cells[0]; // 通信中の選択変更を模擬。
         gate.SetResult(); Pump(updating);
         check(requests == before + tools.Length && dialogs == 1, "更新は公開情報を再取得してから導入画面へ進む");
         check(selected == tools[1].Id && offered?.Packages.Single(p => p.Package.Id == selected).Package.Version == "9.0.0", "途中で行を変えても押した製品の最新台帳を渡す");
+        check(selectedRow.Enabled && hostRow.Enabled, "更新処理後に両操作行を復旧");
         newer = false; grid.CurrentCell = grid.Rows[1].Cells[0];
         Pump(form.OpenInstallation(true));
         check(dialogs == 1 && update.Enabled, "同じ公開版なら導入せず、再確認の操作は残す");
         failure = true;
         Pump(form.OpenInstallation(true));
         check(dialogs == 1 && grid.Rows[1].Cells["update"].Value?.ToString() == "公開版を確認できません", "照合例外時に古い確認済み情報で更新しない");
+        check(selectedRow.Enabled && hostRow.Enabled && update.Enabled, "照合失敗後も再確認と通常操作を維持");
         failure = false; before = requests;
         Pump(form.RefreshAll());
         check(requests == before + tools.Length, "状態更新にも公開版の再取得を含む");
+        CheckClosingDuringRefresh(root, tools.Length, check);
+    }
+
+    static void CheckClosingDuringRefresh(string root, int toolCount, Action<bool, string> check)
+    {
+        int started = 0, canceled = 0;
+        async Task<PublicRelease> Wait(ToolDefinition tool, ReleasePackage? fallback, CancellationToken token)
+        {
+            started++;
+            try { await Task.Delay(Timeout.Infinite, token); }
+            finally { if (token.IsCancellationRequested) canceled++; }
+            return new(fallback, false, false, "待機終了");
+        }
+        using var closing = new Dashboard(root, releaseCheck: Wait);
+        var pending = closing.RefreshReleases();
+        closing.Dispose(); Pump(pending);
+        check(started == toolCount && canceled == toolCount && closing.IsDisposed, "画面破棄で全照合を中止し破棄済み画面を更新しない");
+        Pump(closing.RefreshReleases()); Pump(closing.RefreshAll());
+        check(started == toolCount, "破棄後の更新要求は新しい通信を開始しない");
     }
 }

@@ -58,11 +58,29 @@ internal static class PublicReleaseTests
             check(!actual.Confirmed && actual.Package == fallback && actual.Detail.Contains("公開確認失敗"), name);
         }
         await Reject([Release(draft: true)], "下書きは公開版にしない");
+        await Reject([], "公開一覧が空なら同梱版を未確認として維持");
+        await Reject(Enumerable.Repeat(Release(), 100).ToArray(), "100件の一覧を全件確認済みと誤認しない");
         await Reject([Release(tag: "main")], "数値版でないtagを更新にしない");
+        await Reject([Release(tag: "v0.1.10-beta")], "非数値の接尾辞付きtagを更新にしない");
         await Reject([Release()], "台帳の版とリリースtag不一致を拒否", package with { Version = "0.1.9", File = "SmartPaste-0.1.9-setup.exe" });
         await Reject([Release(assets: Assets("https://example.com/SmartPaste-packages.json"))], "別所有者・別配布先の公開台帳を拒否");
         await Reject([Release(assets: Assets(digest: "sha256:" + new string('0', 64)))], "GitHubassetと公開台帳のハッシュ不一致を拒否");
         await Reject([Release(assets: [Assets()[0]])], "インストーラー欠落を成功にしない");
+        await Reject([Release(assets: [Assets()[0], Assets()[0], Assets()[1]])], "同名の公開台帳assetを重複許可しない");
+        await Reject([Release(assets: [new { name = "SmartPaste-packages.json", state = "new", size = 512, browser_download_url = Url("SmartPaste-packages.json") }, Assets()[1]])], "準備未完了のassetを拒否");
+        await Reject([Release(assets: [new { name = "SmartPaste-packages.json", state = "uploaded", size = 32769, browser_download_url = Url("SmartPaste-packages.json") }, Assets()[1]])], "台帳assetの容量上限を取得前に検査");
+        using (var client = Make([Release(draft: true, tag: "v9.0.0"), Release()]))
+            check((await client.Check(tool, fallback)).Package?.Package.Version == "0.1.10", "新しい下書きを除外して公開中の最新候補を選択");
+        using (var client = new PublicReleaseClient(new Handler((request, _) => request.RequestUri!.Host == "api.github.com"
+            ? Json(new[] { Release() })
+            : new(HttpStatusCode.OK) { Content = new StringContent("\uFEFF" + JsonSerializer.Serialize(new PackageCatalog(1, "published", [package]), ToolCatalog.Json)) })))
+            check((await client.Check(tool, fallback)).Confirmed, "UTF-8 BOM付きの公開台帳を受け付ける");
+        int redirects = 0;
+        using (var client = new PublicReleaseClient(new Handler((request, _) =>
+        {
+            redirects++; return new(HttpStatusCode.Redirect) { Headers = { Location = request.RequestUri } };
+        })))
+            check(!(await client.Check(tool, fallback)).Confirmed && redirects == 5, "公開情報の循環リダイレクトは5要求で打ち切る");
         using (var client = Make([Release()]))
             check(!(await client.Check(tool, new(package with { Sha256 = new string('0', 64) }, bytes.Length))).Confirmed, "同梱固定版の同版asset差替をオンライン台帳で許容しない");
         using (var client = new PublicReleaseClient(new Handler((_, _) => new(HttpStatusCode.Forbidden))))
