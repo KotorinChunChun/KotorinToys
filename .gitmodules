@@ -18,7 +18,7 @@
 	update = none
 [submodule "tools/ChunapTool"]
 	path = tools/ChunapTool
-	update = none
+	url = https://github.com/KotorinChunChun/ChunapTool.git
 [submodule "tools/HttpSelector"]
 	path = tools/HttpSelector
 	update = none

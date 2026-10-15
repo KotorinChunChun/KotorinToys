@@ -72,15 +72,15 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 ## 独立Git管理
 
-親リポジトリのtools内7フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。公開先のある既存4件だけを次の操作で取得します。追加3件にはremoteがなく、`.gitmodules`にはパスと`update=none`のみを記録しています。URLを創作せず、外部公開までは別途ローカルの独立リポジトリを用意してください。
+親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。ChunapToolも公開されたため、公開先のある5件を次の操作で取得します。公開先が未設定の子は`.gitmodules`にパスと`update=none`のみを記録しています。URLを創作せず、外部公開までは別途ローカルの独立リポジトリを用意してください。
 
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git
 cd KotorinToys
-git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter
+git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/ChunapTool
 ```
 
-本体だけを取得済みの場合も、上記の4件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソースの公開と製品インストーラーのReleases公開は別です。
+本体だけを取得済みの場合も、上記の5件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソースの公開と製品インストーラーのReleases公開は別です。ChunapTool v0.1.1はランタイム同梱の未署名ポータブルZIPで、本体の正式導入・更新用インストーラーではありません。
 
 ## Releases配布
 

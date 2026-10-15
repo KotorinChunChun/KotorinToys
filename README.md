@@ -11,10 +11,10 @@ LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、C
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git
 cd KotorinToys
-git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter
+git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/ChunapTool
 ```
 
-公開先のある既存4ツールは、それぞれの独立リポジトリから本体が採用した版を取得します。追加3ツールとHttpSelectorのソースはローカル管理で、Gitの公開先が未設定です。8件構成をビルドするにはこれら4フォルダーの独立リポジトリも必要です。全体への`--recurse-submodules`は現段階では使用しないでください。
+公開先のある5ツールは、それぞれの独立リポジトリから本体が採用した版を取得します。CapchunScreen、ChulipVideo、HttpSelectorのソースはローカル管理で、Gitの公開先が未設定です。8件構成をビルドするにはこれら3フォルダーの独立リポジトリも必要です。全体への`--recurse-submodules`は現段階では使用しないでください。
 
 ## サポートアプリ
 
@@ -33,7 +33,7 @@ HttpSelectorは[署名付きMSIXの導入](tools/HttpSelector/docs/INSTALL_MSIX.
 
 ShortcutKeyCounterの本体連携は[管理連携の手順](tools/ShortcutKeyCounter/docs/kotorintoys-integration.md)を参照してください。公開済みポータブルZIPとは別の開発ソースをビルドして利用します。本体からの正式導入・更新は未対応です。単独での利用方法は[ユーザーガイド](tools/ShortcutKeyCounter/docs/users-guide.md)を参照してください。
 
-追加3ツールは独立Gitを維持し、親は採用コミットだけを記録します。`.gitmodules`はパスと`update=none`のみを登録し、架空の公開URLを設定しません。各アプリの利用ガイドと管理連携ガイドを参照してください。本体からの正式インストール・更新は未対応です。ひとこと解説の文言の再編集は後続対応とします。
+追加3ツールは独立Gitを維持し、親は採用コミットだけを記録します。ChunapToolは[公開リポジトリ](https://github.com/KotorinChunChun/ChunapTool)と[v0.1.1ポータブル開発版](https://github.com/KotorinChunChun/ChunapTool/releases/tag/v0.1.1)を公開しました。CapchunScreenとChulipVideoの`.gitmodules`はパスと`update=none`のみを登録し、架空の公開URLを設定しません。各アプリの利用ガイドと管理連携ガイドを参照してください。本体からの正式インストール・更新は未対応です。ひとこと解説の文言の再編集は後続対応とします。
 
 ## インストーラー（開発版）
 
