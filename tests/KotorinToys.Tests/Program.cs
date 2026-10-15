@@ -96,6 +96,7 @@ internal static class Program
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();
             PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+            PublicReleaseMetadataTests.Run(root, Check);
             ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             BootValidation.Tests(Check);
             if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);

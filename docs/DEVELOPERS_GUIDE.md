@@ -84,6 +84,12 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 ## Releases配布
 
+### 本体内部の責務
+
+`Dashboard.cs`は画面の依存・状態・寿命を保持し、`Dashboard.Layout.cs`で構築とイベント接続、`Dashboard.Display.cs`で表と下部の反映、`Dashboard.Operations.cs`で操作の直列化と導入導線、`Dashboard.Refresh.cs`で実行状態・公開版の再取得を扱います。操作文言・表示構成は変更しません。
+
+`PublicReleaseClient`は製品識別・期限・失敗時の結果を制御し、`.Http.cs`は許可URL・リダイレクト・容量制限付きの読込だけを担当します。`PublicReleaseMetadata`は通信・画面・設定保存を持たず、最新候補の選択、assetの所有者・製品・tag、台帳と固定版・ハッシュの一致を検証します。選択候補はJSONを所有し、元のJsonDocumentの寿命に依存しません。HTTPを模擬する回帰と検証型の直接テストを両方維持してください。
+
 本体と3ツールは`KotorinChunChun`配下の各Releasesへ、未署名の開発版インストーラー・SHA256SUMS・製品別台帳を公開します。`catalog/releases.json`は同梱版の製品・版・サイズ・固定SHA-256を記録します。開発中のソースではPublicReleaseClientで既知3リポジトリの公開版（開発版を含む）と製品別台帳を取得し、製品識別・数値tag・準備済みasset・サイズ・GitHubのdigest（提供時）を照合します。取得失敗時の同梱版は未確認として表示します。同梱済み版と同じ版の配布情報が変更された場合も拒否します。新しい配布物は新しい版へ進め、旧assetを上書きしないでください。
 
 公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。公開版SSCaptureは`publish-packages.ps1 -ExcludeFFmpeg`を指定し、FFmpeg／FFprobeと利用者dataを含めません。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
