@@ -4,7 +4,7 @@ KotoriChunが開発・管理するWindows向けデスクトップ便利ツール
 
 ## プロジェクトの状態
 
-LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapToolの7件を登録し、本体の一覧から起動、既存画面の表示、正常停止、状態確認、使い方の表示を行えます。現在は開発中です。ソース公開は製品の正式リリースや全機能の受入完了を意味しません。
+LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool、HttpSelectorの8件を登録し、本体の一覧から起動、既存画面の表示、正常停止、状態確認、使い方の表示を行えます。現在は開発中です。ソース公開は製品の正式リリースや全機能の受入完了を意味しません。
 
 ## ソースの取得
 
@@ -14,7 +14,7 @@ cd KotorinToys
 git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter
 ```
 
-公開先のある既存4ツールは、それぞれの独立リポジトリから本体が採用した版を取得します。追加3ツールはローカルのみで、公開先が未設定です。7件構成をビルド・起動するには追加3フォルダーの独立リポジトリも必要です。全体への`--recurse-submodules`は現段階では使用しないでください。
+公開先のある既存4ツールは、それぞれの独立リポジトリから本体が採用した版を取得します。追加3ツールとHttpSelectorのソースはローカル管理で、Gitの公開先が未設定です。8件構成をビルドするにはこれら4フォルダーの独立リポジトリも必要です。全体への`--recurse-submodules`は現段階では使用しないでください。
 
 ## サポートアプリ
 
@@ -27,6 +27,9 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [CapchunScreen](tools/CapchunScreen/README.md) | 画面録画・操作履歴TSV・独立プレビュー・複数動画の同時再生・Unity Capture出力を行うツール | ローカル開発版の起動・画面表示・正常停止・状態確認に対応 |
 | [ChulipVideo](tools/ChulipVideo/README.md) | 動画から手順書用の画像を切り出すツール | ローカル開発版の起動・画面表示・正常停止・状態確認に対応 |
 | [ChunapTool](tools/ChunapTool/README.md) | ウィンドウの位置・サイズ・最大化を調整するツール | ローカル開発版の起動・画面表示・正常停止・状態確認に対応 |
+| [HttpSelector](tools/HttpSelector/README.md) | 危険なリンクを警告し、ブラウザーのプロファイルを選ぶツール | 署名付きMSIXの起動・画面表示・正常停止・状態確認に対応 |
+
+HttpSelectorは[署名付きMSIXの導入](tools/HttpSelector/docs/INSTALL_MSIX.md)が必須です。WindowsへHTTP/HTTPSの関連付け候補を登録した後、既定のアプリ設定で利用者が選択してください。本体はMSIXの署名付き登録・Publisher・製品版を照合し、未導入や旧版を開発EXEに切り替えません。既存の本体対応Inno配布とは別の導入経路です。
 
 ShortcutKeyCounterの本体連携は[管理連携の手順](tools/ShortcutKeyCounter/docs/kotorintoys-integration.md)を参照してください。公開済みポータブルZIPとは別の開発ソースをビルドして利用します。本体からの正式導入・更新は未対応です。単独での利用方法は[ユーザーガイド](tools/ShortcutKeyCounter/docs/users-guide.md)を参照してください。
 

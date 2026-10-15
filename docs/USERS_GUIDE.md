@@ -39,3 +39,11 @@ KotorinToysは、収録したWindows向け便利ツールの導入、起動、�
 SSCaptureを正式導入し、本体の「停止させる」で停止した後、「導入・削除」の「FFmpegを導入 / 修復」を押します。固定9.0.2のFFmpeg／FFprobeを[FFmpeg公式が紹介する配布元](https://ffmpeg.org/download.html)の[Gyan GPLv3ビルド](https://www.gyan.dev/ffmpeg/builds/)から直接取得します（約110 MB）。再起動して録画を確認してください。
 
 容量と固定SHA-256を照合し、実行ファイル横のtoolsへ録画用の2ファイルとライセンス・READMEを配置します。これは署名による発行元検証や実録画の確認ではありません。既存ファイルはバックアップ付きで置き換え、失敗時は元へ戻します。復旧未完了の場合はエラーに示したバックアップを削除しないでください。設定・履歴・WindowsのPATHは変更せず、公開済みインストーラーへの同梱もしません。
+
+## HttpSelectorの導入
+
+HttpSelectorは[署名付きMSIXの導入手順](../tools/HttpSelector/docs/INSTALL_MSIX.md)に従ってインストールしてください。HTTP/HTTPSの関連付け登録に必要なため、EXEのコピーだけで利用しません。MSIXの候補登録後、Windowsの「設定」→「アプリ」→「既定のアプリ」でHTTPとHTTPSにHttpSelectorを指定します。既定値を本体が強制変更することはありません。
+
+本体は登録済みの署名付きMSIXを起動・表示・停止・状態確認します。未導入、旧版、登録確認不能のときはMSIX導入・更新の案内を表示し、開発EXEには切り替えません。Inno台帳によるインストール・更新とは別の導入経路です。自動起動には「KotorinToys経由」を選んでください。
+
+危険性が疑われるURLやQuad9で確認できないURLは、割り込みオフやルール一致でも開く前に警告します。キャンセルが初期選択です。Quad9へ送るのはサブドメインを含むホスト名だけで、元URL・パス・クエリは送りません。詳しくは[HttpSelector利用ガイド](../tools/HttpSelector/docs/USERS_GUIDE.md)を参照してください。

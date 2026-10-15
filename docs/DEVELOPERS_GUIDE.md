@@ -50,7 +50,7 @@ pwsh -File dev/scripts/start.ps1
 
 ## 統合検証
 
-本体の `--self-test` は実際の7ツールで起動、既存PIDの維持、正常終了、再起動を検証します。既存インスタンスは変更せず、今回起動したツールは最後に正常停止します。実行前に編集中の操作や撮影・録画を完了してください。
+本体の `--self-test` は登録された8ツールで起動、既存PIDの維持、正常終了、再起動を検証します。HttpSelectorは署名付きMSIXの導入が必要です。既存インスタンスは変更せず、今回起動したツールは最後に正常停止します。実行前に編集中の操作や撮影・録画を完了してください。
 
 追加3件は`dev/scripts/build.ps1`で各子の`artifacts/management`へDebugビルドします。旧版が通常のbin/Debugで実行中でも上書きしません。本体のカタログはこの管理連携用出力を参照します。
 
@@ -97,3 +97,18 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 製品ダウンロードはGitHubと指定されたGitHub assetホストのHTTPSだけ許可し、時間・容量・サイズ・SHA-256を検査します。同梱版は本体の固定ハッシュ、新しい公開版は既知所有者の製品別台帳とGitHub assetの照合で確定したハッシュを使用します。公開版の表示だけで導入せず、利用者の確認時にその固定スナップショットを取得します。新公開版の台帳はGitHub上の配布元を信頼する境界であり、独立したコード署名による発行元確認ではありません。未署名の注意と導入済み版→対象版を表示します。
 
 FfmpegInstallerはこれとは別にGyanの固定HTTPS ZIP・固定容量・固定SHA-256を使用します。正式導入済みで停止中のSSCaptureだけに必要な2 EXE・ライセンス・READMEを配置し、設定／履歴／PATHを変えません。製品インストーラーへの同梱や自分のReleasesへの再配布はしません。
+
+## HttpSelectorのMSIX連携と検証
+
+HttpSelectorは独立Gitを保持して `tools/HttpSelector` に配置します。通常利用は署名付きMSIX必須です。`tool.json` の `msix` がPackage Family・Publisher・Application Idを宣言し、本体はOS登録とManifestを照合してWindowsのパッケージ起動APIを使います。実プロセスのPackage Familyも照合し、非MSIX開発プロセスを取り違えません。資料は子リポジトリを参照します。
+
+`dev/scripts/build.ps1` は隔離管理試験用に子の `target/management` もビルドしますが、通常起動でこのEXEにフォールバックしません。
+
+```powershell
+cd C:\develop\KotorinToys
+dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path artifacts/http-selector-tests
+.\artifacts\http-selector-tests\bin\KotorinToys.Tests\debug\KotorinToys.Tests.exe --http-selector-ipc
+.\artifacts\http-selector-tests\bin\KotorinToys.Tests\debug\KotorinToys.Tests.exe --http-selector-msix
+```
+
+最初は専用設定・スキャン無効のDebug EXEでの管理契約試験、後者は署名付きMSIX 0.0.3.2を現在ユーザーに導入した実パッケージ試験です。既存HttpSelectorがあれば試験開始せず、試験所有PIDだけを正常停止します。MSIX試験は導入済みの利用者設定を使用するため事前に退避し、プロファイルを開いたり既定アプリを変更したりしません。結果は子の `dev/history/v0.0.3.2/` に記録します。

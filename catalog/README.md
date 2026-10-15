@@ -11,4 +11,10 @@
 
 ## 現在の登録状況
 
-LiveTextMarker、SmartPaste、SSCaptureを `tools.json` に登録しています。実行パスと文書パスはプロジェクトルートからの相対パスです。インストーラーと自動起動の登録は今後の実装対象です。
+LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool、HttpSelectorを `tools.json` に登録しています。Schema 2は各独立ツールのtool.jsonを参照します。開発EXEと資料は子の相対パス、MSIX製品はOSの導入登録を使い、確認できない項目を推測して埋めません。
+
+## HttpSelectorの登録
+
+現在のカタログはHttpSelectorを含む8件です。HttpSelectorの `tool.json` は製品版0.0.3.2と署名付きMSIXのPackage Family・Publisher・Application Idを持ちます。通常の管理対象は登録済みMSIXです。開発EXEの相対パスは隔離試験用に残します。MSIX未導入や旧版からの暗黙のフォールバックは行いません。
+
+`distributionStatus: unpublished` は本体のInno台帳に含めない状態です。HttpSelectorの署名付きMSIX配布とは別に扱い、架空のInnoやGitの公開URLを追加しません。
