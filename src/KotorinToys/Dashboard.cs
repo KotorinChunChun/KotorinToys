@@ -14,12 +14,15 @@ internal sealed partial class Dashboard : BrandedForm
         Text = "本体を閉じても各ツールは動作します。" };
     readonly Label releaseStatus = new() { AutoSize = true, Dock = DockStyle.Fill, Text = "公開版：未確認（同梱台帳を表示）" };
     readonly Button update = new() { Name = "updateSelected", Text = "選択ツールを更新", AutoSize = true, Enabled = false };
+    readonly Button github = new() { Name = "github", Text = "GitHubを開く", AutoSize = true, Enabled = false };
+    readonly ToolTip tooltips = new();
     readonly System.Windows.Forms.Timer timer = new() { Interval = 4000 };
     readonly FlowLayoutPanel actions = new() { Name = "selectedActions", Dock = DockStyle.Fill, AutoSize = true, Padding = new(8) };
     readonly FlowLayoutPanel hostActions = new() { Name = "hostActions", Dock = DockStyle.Fill, AutoSize = true, Padding = new(8, 0, 8, 0) };
     readonly Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>> releaseCheck;
     readonly Action<string?, ReleaseCatalog?> showInstaller;
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
+    readonly Action<Uri> openRepository;
     Task? releaseRefresh;
     readonly CancellationTokenSource lifetime = new();
     readonly ReleasePackage?[] bundledPackages;
@@ -32,12 +35,15 @@ internal sealed partial class Dashboard : BrandedForm
         Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>>? releaseCheck = null,
         Action<string?, ReleaseCatalog?>? showInstaller = null,
         Func<ToolDefinition, InstallationState>? detectInstallation = null,
-        ToolManager? toolManager = null)
+        ToolManager? toolManager = null,
+        Action<Uri>? openRepository = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.releaseCheck = releaseCheck ?? CheckRelease;
         this.showInstaller = showInstaller ?? ((id, catalog) => { using var form = new InstallationForm(manager, id, catalog); form.ShowDialog(this); });
         this.detectInstallation = detectInstallation ?? manager.Installation;
+        this.openRepository = openRepository ?? (uri => System.Diagnostics.Process.Start(
+            new System.Diagnostics.ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }));
         installations = tools.Select(this.detectInstallation).ToArray();
         states = tools.Select(_ => new ToolState("確認中")).ToArray();
         ReleaseCatalog? bundled = null;
@@ -49,7 +55,7 @@ internal sealed partial class Dashboard : BrandedForm
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && !resourcesDisposed) { resourcesDisposed = true; lifetime.Cancel(); timer.Dispose(); lifetime.Dispose(); }
+        if (disposing && !resourcesDisposed) { resourcesDisposed = true; lifetime.Cancel(); timer.Dispose(); tooltips.Dispose(); lifetime.Dispose(); }
         base.Dispose(disposing);
     }
 }

@@ -20,6 +20,10 @@ internal sealed partial class Dashboard
     {
         overall.Text = DashboardStatus.Summary(states);
         int i = grid.CurrentRow?.Index ?? -1;
+        var repository = i >= 0 && i < tools.Length ? ToolRepository.Find(tools[i]) : null;
+        github.Enabled = !busy && repository != null;
+        github.AccessibleDescription = repository?.AbsoluteUri ?? "GitHub公開先が未設定です。";
+        tooltips.SetToolTip(github, github.AccessibleDescription);
         if (i < 0 || i >= tools.Length) { selection.Text = "選択：ツールを選択してください。"; update.Enabled = false; return; }
         var version = ToolVersionView.Create(installations[i], releases[i]);
         selection.Text = $"選択：{tools[i].Name} — {states[i].State} / 導入済み版 {version.Installed} / 公開版 {version.Published}";

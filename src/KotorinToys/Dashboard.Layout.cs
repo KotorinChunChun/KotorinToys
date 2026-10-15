@@ -32,6 +32,7 @@ internal sealed partial class Dashboard
             var button = new Button { Text = label, AutoSize = true, Name = name };
             button.Click += async (_, _) => await Execute(command); actions.Controls.Add(button);
         }
+        github.Click += (_, _) => OpenRepository(); actions.Controls.Add(github);
         var refresh = new Button { Text = "状態を更新", Name = "refresh", AutoSize = true };
         refresh.Click += async (_, _) => await RefreshAll(); hostActions.Controls.Add(refresh);
         if (settings != null && startup != null)

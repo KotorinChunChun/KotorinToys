@@ -63,6 +63,7 @@ internal static class DashboardRefreshTests
         Pump(form.RefreshAll());
         check(requests == before + tools.Length, "状態更新にも公開版の再取得を含む");
         CheckClosingDuringRefresh(root, tools.Length, check);
+        RepositoryButtonTests.Run(root, check);
     }
 
     static void CheckClosingDuringRefresh(string root, int toolCount, Action<bool, string> check)

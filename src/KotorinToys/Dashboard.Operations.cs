@@ -2,6 +2,24 @@ namespace KotorinToys;
 
 internal sealed partial class Dashboard
 {
+    internal void OpenRepository()
+    {
+        if (busy || IsDisposed) return;
+        var index = grid.CurrentRow?.Index ?? -1;
+        if (index < 0 || index >= tools.Length) return;
+        var tool = tools[index];
+        var repository = ToolRepository.Find(tool);
+        if (repository == null) { operation.Text = tool.Name + "：GitHub公開先が未設定です。"; return; }
+        if (!TryBeginOperation()) return;
+        try
+        {
+            openRepository(repository);
+            operation.Text = "最終操作：" + tool.Name + " / GitHubを開く要求を送りました。";
+        }
+        catch (Exception ex) { if (!IsDisposed) operation.Text = "GitHubを開けません：" + ex.Message; }
+        finally { EndOperation(); }
+    }
+
     async Task Execute(DashboardCommand command)
     {
         if (!TryBeginOperation()) return;

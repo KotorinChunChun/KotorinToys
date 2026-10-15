@@ -30,6 +30,7 @@ internal static class Program
             if (args.Length == 2 && args[0] == "--shortcut-owned-stop" && int.TryParse(args[1], out var ownedPid))
                 return ShortcutKeyCounterIntegrationTests.StopOwned(ownedPid).GetAwaiter().GetResult();
             IconTests.Asset(Check);
+            if (args.SequenceEqual(["--repository-button-tests"])) { RepositoryButtonTests.Run(KotorinToys.Program.FindRoot(), Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.Length >= 2 && args[0] == "--verify-icon-exe")
             {
                 var source = Path.Combine(KotorinToys.Program.FindRoot(), "src", "KotorinToys", "assets", "KotorinToys.ico");
