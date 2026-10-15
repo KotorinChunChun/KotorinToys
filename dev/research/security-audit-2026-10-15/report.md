@@ -8,7 +8,7 @@
 
 |対象|主要結果|個別レポート|
 |---|---|---|
-|CapchunScreen|高: 通常文字記録OFFでもShift付き文字を履歴へ保存。修正対象。保護入力判定は別途設計。|[診断](../../../tools/CapchunScreen/dev/research/security-audit-2026-10-15/report.md)|
+|CapchunScreen|高: 通常文字記録OFFでもShift付き文字を履歴へ保存する問題を修正、154検査成功。保護入力判定は別途設計。|[診断](../../../tools/CapchunScreen/dev/research/security-audit-2026-10-15/report.md)|
 |ChulipVideo|中: 同一利用者の管理pipe応答待ちによる停止・資源上限不足。|[診断](../../../tools/ChulipVideo/dev/research/security-audit-2026-10-15/report.md)|
 |ChunapTool|中: 共通管理pipeの資源上限不足。|[診断](../../../tools/ChunapTool/dev/research/security-audit-2026-10-15/report.md)|
 |LiveTextMarker|中: 共通管理pipe。NuGet既知脆弱性報告0。|[診断](../../../tools/LiveTextMarker/dev/research/security-audit-2026-10-15/report.md)|
@@ -38,7 +38,7 @@
 ## 改善実装・検証状況
 
 - [x] 全8プロジェクトの診断レポート作成、参照先・差分検査。
-- [ ] CapchunScreenの高リスクを既存版の計画に記録後、回帰テストを追加して修正する。結果は子レポートで確定する。
+- [x] CapchunScreenの高リスクを既存v0.1.0計画へ記録し、合成回帰で修正前9失敗→修正後全154成功。警告0/エラー0。詳細は子レポートを参照。
 - 中/低の項目、署名/鍵管理、保護入力の新ポリシー、配布/本番更新は未実施。
 
 文書だけの診断フェーズでは製品ビルド・GUIを形式的に実行しない。ネットワーク侵入、別ユーザー/リモートpipe、実パスワード、実録画、インストール、配布/公開は未試験。子コミット後の親gitlink更新は本作業では行わない。
