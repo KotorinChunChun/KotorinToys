@@ -8,6 +8,8 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
 {
     public InstallationState Detect(ToolDefinition tool)
     {
+        if (tool.Msix != null)
+            return MsixInstallation.Detect(tool);
         if (string.IsNullOrEmpty(tool.AppId))
             return new("未導入", null, null, null, Detail: "正式導入の検出方法は未登録です。");
         try

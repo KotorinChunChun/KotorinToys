@@ -53,7 +53,6 @@ internal static class ToolCatalog
                     "appId",
                     "manual",
                     "readme",
-                    "shortcuts",
                     "distributionStatus",
                     "supportedEnvironment",
                     "investigationStatus",
@@ -85,10 +84,13 @@ internal static class ToolCatalog
                 PathSafety.Resolve(logicalRoot, tool.InstalledExecutable);
             if (!string.IsNullOrEmpty(tool.Icon))
                 PathSafety.Resolve(logicalRoot, tool.Icon);
-            if (schema == 2 && (tool.SupportedEnvironment != "windows11-x64" || tool.InvestigationStatus != "confirmed" || tool.Capabilities == null || tool.Capabilities.Distinct().Count() != tool.Capabilities.Length || tool.Capabilities.Any(c => c is not ("status" or "show" or "stop" or "silent-start" or "shortcuts")) || tool.DistributionStatus is not ("unpublished" or "published") || !Regex.IsMatch(tool.Version, "^[0-9]+\\.[0-9]+\\.[0-9]+$")))
+            if (schema == 2 && (tool.SupportedEnvironment != "windows11-x64" || tool.InvestigationStatus != "confirmed" || tool.Capabilities == null || tool.Capabilities.Distinct().Count() != tool.Capabilities.Length || tool.Capabilities.Any(c => c is not ("status" or "show" or "stop" or "silent-start" or "shortcuts")) || tool.DistributionStatus is not ("unpublished" or "published") || !Regex.IsMatch(tool.Version, "^[0-9]+(?:\\.[0-9]+){2,3}$")))
                 throw new IOException("環境・調査状態・能力・版の定義が不正です。");
             if (!string.IsNullOrEmpty(tool.AppId) && !Regex.IsMatch(tool.AppId, "^KotorinToys\\.[A-Za-z0-9]+$"))
                 throw new IOException("製品識別が不正です。");
+            if (tool.Msix is { } msix && (!Regex.IsMatch(msix.FamilyName ?? "", "^[A-Za-z0-9.-]+_[a-z0-9]{13}$") ||
+                !Regex.IsMatch(msix.ApplicationId ?? "", "^[A-Za-z][A-Za-z0-9.]*$") || string.IsNullOrEmpty(msix.Publisher) || !msix.Publisher.StartsWith("CN=", StringComparison.Ordinal)))
+                throw new IOException("MSIXの製品識別が不正です。");
             foreach (var runtime in tool.Runtimes ?? [])
             {
                 if (string.IsNullOrWhiteSpace(runtime.Id) || string.IsNullOrWhiteSpace(runtime.Name) || runtime.Kind is not ("file" or "dotnet-desktop" or "vc-x64" or "external") || runtime.Kind == "file" && string.IsNullOrWhiteSpace(runtime.Path) || runtime.Kind == "dotnet-desktop" && runtime.Major is not (> 0))

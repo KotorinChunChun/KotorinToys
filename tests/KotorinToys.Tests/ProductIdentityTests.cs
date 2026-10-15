@@ -13,7 +13,8 @@ internal static class ProductIdentityTests
             ("shortcut-key-counter", "ShortcutKeyCounter", "KotorinToys.ShortcutKeyCounter"),
             ("capchun-screen", "CapchunScreen", "KotorinToys.CapchunScreen"),
             ("chulip-video", "ChulipVideo", "KotorinToys.ChulipVideo"),
-            ("chunap-tool", "ChunapTool", "KotorinToys.ChunapTool")
+            ("chunap-tool", "ChunapTool", "KotorinToys.ChunapTool"),
+            ("http-selector", "HttpSelector", "KotorinToys.HttpSelector")
         })
         {
             var byId = ProductIdentity.FromId(id);

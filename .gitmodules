@@ -19,3 +19,6 @@
 [submodule "tools/ChunapTool"]
 	path = tools/ChunapTool
 	update = none
+[submodule "tools/HttpSelector"]
+	path = tools/HttpSelector
+	update = none

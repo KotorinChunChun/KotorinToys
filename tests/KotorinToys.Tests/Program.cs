@@ -24,6 +24,8 @@ internal static class Program
         try
         {
             if (args.SequenceEqual(["--shortcut-ipc"])) return ShortcutKeyCounterIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--http-selector-ipc"])) return HttpSelectorIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--http-selector-msix"])) return HttpSelectorIntegrationTests.RunMsix().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--new-tools-ipc"])) return AddedToolIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--new-tools-panel"])) return AddedToolIntegrationTests.Panel();
             if (args.SequenceEqual(["--shortcut-panel"])) return ShortcutKeyCounterIntegrationTests.Panel();
@@ -87,6 +89,7 @@ internal static class Program
             fixtures = Path.Combine(root, "dev", "history", "v0.1.0", "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
+            MsixInstallationTests.Run(fixtures, Check);
             ProductIdentityTests.Run(Check);
             StartupTests.Run(root,fixtures,Check);
             RemovalTests.Run(fixtures,Check);
@@ -113,11 +116,12 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 7, "schema 2で7ツールを解決する");
+        Check(tools.Length == 8, "schema 2でHttpSelectorを含む8ツールを解決する");
         Check(tools.Count(t => t.DistributionStatus == "published") == 3 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "公開Innoの3ツールと未公開Innoの追加ツールを区別");
-        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 4, "新規3ツールを含め4件は本体用インストーラー未公開");
-        Check(tools.All(t => t.Runtimes?.Length > 0), "7ツールの依存情報を持つ");
-        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"7ツールの確認済み能力と環境");
+        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 5, "HttpSelectorを含め5件は本体用インストーラー未公開");
+        Check(tools.All(t => t.Runtimes?.Length > 0), "8ツールの依存情報を持つ");
+        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"8ツールの確認済み能力と環境");
+        Check(tools.Single(t => t.Id == "http-selector") is { Version: "0.0.3.2", AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" }, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs"));
         Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path))==contract),"共通管理実装と3子コピーの一致");
         foreach (var name in new[] { "CapchunScreen", "ChulipVideo", "ChunapTool" })
@@ -146,6 +150,32 @@ internal static class Program
         Save(new Catalog(1,[legacy with { Readme="../outside.md" }])); Reject(() => ToolCatalog.Load(legacyRoot), "READMEの範囲外参照を拒否");
         Save(new Catalog(1,[legacy with { Shortcuts="../outside.json" }])); Reject(() => ToolCatalog.Load(legacyRoot), "宣言の範囲外参照を拒否");
         Save(new Catalog(1,[legacy with { InstalledExecutable="../outside.exe" }])); Reject(() => ToolCatalog.Load(legacyRoot), "導入EXEの範囲外参照を拒否");
+        var versionRoot = Path.Combine(fixtures, "catalog-versions");
+        Directory.CreateDirectory(Path.Combine(versionRoot, "catalog"));
+        var versionDefinitionRoot = Path.Combine(versionRoot, "tools", "HttpSelector");
+        Directory.CreateDirectory(versionDefinitionRoot);
+        var definition = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(Path.Combine(root, "tools", "HttpSelector", "tool.json")))!.AsObject();
+        File.WriteAllText(Path.Combine(versionRoot, "catalog", "tools.json"), JsonSerializer.Serialize(new
+        {
+            schemaVersion = 2,
+            tools = new[] { new { id = "http-selector", name = "HttpSelector", definition = "tools/HttpSelector/tool.json" } }
+        }, ToolCatalog.Json));
+        using var schema = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "contracts", "tool.schema.json")));
+        var versionPattern = schema.RootElement.GetProperty("properties").GetProperty("version").GetProperty("pattern").GetString()!;
+        foreach (var version in new[] { "0.0.3", "0.0.3.2", "12.34.56.78" })
+        {
+            definition["version"] = version;
+            File.WriteAllText(Path.Combine(versionDefinitionRoot, "tool.json"), definition.ToJsonString(ToolCatalog.Json));
+            Check(ToolCatalog.Load(versionRoot).Single().Version == version, "数値3成分または4成分の製品版を保持：" + version);
+            Check(System.Text.RegularExpressions.Regex.IsMatch(version, versionPattern), "ツールschemaも3成分または4成分の版を許容：" + version);
+        }
+        foreach (var version in new[] { "", "0.0", "0.0.3.2.1", "v0.0.3.2", "0.0.3.2-beta", "0.0.3+2" })
+        {
+            definition["version"] = version;
+            File.WriteAllText(Path.Combine(versionDefinitionRoot, "tool.json"), definition.ToJsonString(ToolCatalog.Json));
+            Reject(() => ToolCatalog.Load(versionRoot), "数値3～4成分以外の製品版を拒否：" + version);
+            Check(!System.Text.RegularExpressions.Regex.IsMatch(version, versionPattern), "ツールschemaも不正な版を拒否：" + version);
+        }
     }
     static void DetectionTests()
     {

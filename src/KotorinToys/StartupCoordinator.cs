@@ -41,6 +41,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
     public Task<StartupResult> SetMode(ToolDefinition tool,string mode)=>Change(tool.Id,before=>
     {
         if(mode is not ("none" or "via_kotorintoys" or "direct_task"))throw new IOException("未対応の自動起動方式です。");
+        if(tool.Msix != null && mode == "direct_task")throw new IOException("MSIX版はKotorinToys経由の自動起動を選択してください。");
         var modes=new Dictionary<string,string>(before.StartupModes){[tool.Id]=mode};return before with{StartupModes=modes};
     });
     public Task<StartupResult> SetHost(bool enabled,bool showDashboard)=>Change("host",before=>
@@ -152,6 +153,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
             if(pair.Value!="none" && !allowDevelopment && manager.Installation(tool).State!="導入済み")
                 throw new IOException("自動起動には正式導入済みの安定起動先が必要です。");
             if(pair.Value!="direct_task")continue;
+            if(tool.Msix != null)throw new IOException("MSIX版の実行ファイルは直接予約できません。KotorinToys経由を選択してください。");
             if(!allowDevelopment && manager.Installation(tool).State!="導入済み")throw new IOException("直接予約には正式導入済みの安定起動先が必要です。");
             var executable=manager.Executable(tool);if(!File.Exists(executable))throw new IOException("起動先がありません。");
             plans[pair.Key]=new(Name(pair.Key),executable,"--startup --launch-origin direct_task",Path.GetDirectoryName(executable)!,sid,Marker(settings,pair.Key));

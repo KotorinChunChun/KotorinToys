@@ -11,7 +11,8 @@ internal sealed partial class ToolManager
 {
     public async Task<Reply> Send(ToolDefinition tool, string command, int? expectedPid = null, CancellationToken cancellation = default)
     {
-        var name = "KotorinToys." + WindowsIdentity.GetCurrent().User!.Value + "." + tool.Id;
+        var pipeId = tool.Msix is { } msix ? tool.Id + "." + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(msix.FamilyName))).ToLowerInvariant() : tool.Id;
+        var name = "KotorinToys." + WindowsIdentity.GetCurrent().User!.Value + "." + pipeId;
         using var pipe = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         deadline.CancelAfter(TimeSpan.FromSeconds(2));

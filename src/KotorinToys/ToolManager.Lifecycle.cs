@@ -39,7 +39,9 @@ internal sealed partial class ToolManager
             start.ArgumentList.Add(launchReason);
             // 隔離連携試験用の起動設定。通常運用では指定せず、カタログから任意引数を受け入れない。
             configureStart?.Invoke(tool, start);
-            using var launched = Process.Start(start) ?? throw new IOException("起動できませんでした。");
+            using var launched = tool.Msix is { } msix
+                ? MsixInstallation.Activate(msix, launchReason)
+                : Process.Start(start) ?? throw new IOException("起動できませんでした。");
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
             deadline.CancelAfter(TimeSpan.FromSeconds(30));
             try

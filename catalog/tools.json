@@ -35,6 +35,11 @@
       "id": "chunap-tool",
       "name": "ChunapTool",
       "definition": "tools/ChunapTool/tool.json"
+    },
+    {
+      "id": "http-selector",
+      "name": "HttpSelector",
+      "definition": "tools/HttpSelector/tool.json"
     }
   ]
 }

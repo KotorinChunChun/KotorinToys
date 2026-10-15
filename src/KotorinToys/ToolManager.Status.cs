@@ -47,6 +47,8 @@ internal sealed partial class ToolManager
             using var process = Process.GetProcessById(reply.Pid);
             if (process.SessionId != Process.GetCurrentProcess().SessionId || !string.Equals(process.MainModule?.FileName, path, StringComparison.OrdinalIgnoreCase))
                 return new("確認できない", Detail: "別の配置またはセッションのインスタンスを検出しました。");
+            if (tool.Msix is { } msix && !MsixInstallation.MatchesProcess(process, msix))
+                return new("確認できない", Detail: "実プロセスのMSIX Package Familyが一致しません。");
             if (reply.ProtocolVersion < 2)
                 return new("確認できない", reply.Pid, "旧管理窓口です。準備状態・操作結果を確認するにはツールを更新してください。");
             if (pendingStops.TryGetValue(tool.Id, out var stoppingPid) && stoppingPid == reply.Pid)

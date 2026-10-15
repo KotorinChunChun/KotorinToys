@@ -12,7 +12,7 @@ internal static class SelfTest
         try
         {
             var tools=manager.Load();
-            if(tools.Length!=7) throw new Exception("7ツール登録の検証に失敗しました。");
+            if(tools.Length!=8) throw new Exception("8ツール登録の検証に失敗しました。");
             foreach(var t in tools) if(!File.Exists(manager.Executable(t)) || !File.Exists(PathSafety.Resolve(manager.DocumentRoot(t),t.Manual))) throw new Exception(t.Name+"の登録パスがありません。");
             try { manager.Resolve("../outside"); throw new Exception("範囲外パスを拒否しませんでした。"); } catch(IOException) { }
             foreach(var t in tools)
