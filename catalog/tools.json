@@ -23,7 +23,7 @@
     },
     {
       "id": "capchun-screen",
-      "name": "CapchunScreen",
+      "name": "CapchunWindow",
       "definition": "tools/CapchunScreen/tool.json"
     },
     {
