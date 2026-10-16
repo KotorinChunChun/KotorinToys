@@ -14,6 +14,7 @@ internal sealed partial class Dashboard : BrandedForm
         Text = "本体を閉じても各ツールは動作します。" };
     readonly Label releaseStatus = new() { AutoSize = true, Dock = DockStyle.Fill, Text = "公開版：未確認（同梱台帳を表示）" };
     readonly Label catalogStatus = new() { Name = "catalogStatus", AutoSize = true, Dock = DockStyle.Fill };
+    readonly Label selfUpdateStatus = new() { Name = "selfUpdateStatus", AutoSize = true, Dock = DockStyle.Fill };
     readonly Button update = new() { Name = "updateSelected", Text = "選択ツールを更新", AutoSize = true, Enabled = false };
     readonly Button github = new() { Name = "github", Text = "GitHubを開く", AutoSize = true, Enabled = false };
     readonly ToolTip tooltips = new();
@@ -24,6 +25,8 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Action<string?, ReleaseCatalog?> showInstaller;
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
     readonly Action<Uri> openRepository;
+    readonly IHostSelfUpdateService selfUpdates;
+    readonly Action showSelfUpdater;
     Task? releaseRefresh;
     Task? stateRefresh, allRefresh;
     readonly CancellationTokenSource lifetime = new();
@@ -39,9 +42,13 @@ internal sealed partial class Dashboard : BrandedForm
         Action<string?, ReleaseCatalog?>? showInstaller = null,
         Func<ToolDefinition, InstallationState>? detectInstallation = null,
         ToolManager? toolManager = null,
-        Action<Uri>? openRepository = null)
+        Action<Uri>? openRepository = null, IHostSelfUpdateService? selfUpdates = null, Action? showSelfUpdater = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
+        this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
+        this.showSelfUpdater = showSelfUpdater ?? (() => { using var form = new HostUpdateForm(this.selfUpdates); form.ShowDialog(this); });
+        selfUpdateStatus.Text = "本体：" + this.selfUpdates.CurrentVersion + " / 本体アップデートから公開版を確認できます。";
+        RefreshSelfUpdateResult();
         this.releaseCheck = releaseCheck ?? CheckRelease;
         this.showInstaller = showInstaller ?? ((id, catalog) => { using var form = new InstallationForm(manager, id, catalog); form.ShowDialog(this); });
         this.detectInstallation = detectInstallation ?? manager.Installation;

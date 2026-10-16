@@ -17,6 +17,7 @@ internal sealed partial class Dashboard
             var execution = await Task.WhenAll(current.Select(tool => manager.Status(tool, lifetime.Token)));
             if (IsDisposed || busy && !afterOperation || !ReferenceEquals(current, tools)) return;
             ApplySnapshot(current.Select(detectInstallation).ToArray(), execution, releases);
+            RefreshSelfUpdateResult();
         }
         catch (Exception ex) { if (!IsDisposed) operation.Text = "状態取得失敗：" + ex.Message; }
     }

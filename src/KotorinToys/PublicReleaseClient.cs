@@ -51,7 +51,7 @@ internal sealed partial class PublicReleaseClient : IDisposable
         catch (Exception ex) when (ex is IOException or HttpRequestException or JsonException or InvalidOperationException or KeyNotFoundException or FormatException or OperationCanceledException or ArgumentException)
         {
             cancellation.ThrowIfCancellationRequested();
-            return new(fallback, false, false, "公開確認失敗。表示版は同梱台帳です：" + ex.Message);
+            return new(fallback, false, false, (hostUpdate ? "本体公開版の確認失敗：" : "公開確認失敗。表示版は同梱台帳です：") + ex.Message);
         }
     }
 

@@ -96,10 +96,30 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v0.1.0", "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--self-update-panel"]))
+            {
+                Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+                var area = Screen.PrimaryScreen!.WorkingArea;
+                using var panel = new HostUpdateForm(new HostSelfUpdateService(root, fixtures))
+                {
+                    StartPosition = FormStartPosition.Manual,
+                    Bounds = new(area.Left + area.Width / 2, area.Top, area.Width - area.Width / 2, area.Height)
+                };
+                Application.Run(panel);
+                return 0;
+            }
+            if (args.SequenceEqual(["--host-release-check"]))
+            {
+                using var client = new PublicReleaseClient();
+                var result = client.CheckHost(true).GetAwaiter().GetResult();
+                Console.WriteLine(JsonSerializer.Serialize(result, ToolCatalog.Json));
+                return result.Confirmed ? 0 : 1;
+            }
             if (args.SequenceEqual(["--self-update-tests"]))
             {
                 HostReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
                 SelfUpdateWorkflowTests.Run(fixtures, Check).GetAwaiter().GetResult();
+                HostUpdateFormTests.Run(root, Check);
                 Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             HostReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
@@ -118,7 +138,7 @@ internal static class Program
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
-            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
+            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();

@@ -84,6 +84,8 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 ## Releases配布
 
+本体の自己更新は[本体更新の配布条件と隔離検証](self-update.md)を参照してください。子ツールの取得経路は本体を拒否したままにし、専用のメンテナンス引継ぎで実装しています。実装コミットと新しい版のRelease公開・このPCへの更新は別の工程です。
+
 ### 本体内部の責務
 
 ツール一覧の配信は[GitHub設定の運用手順](online-tool-catalog.md)を参照してください。ToolCatalogはローカル開発定義の互換読込・共通検証、OnlineToolCatalogは公開configの検証、ToolCatalogClientは固定HTTPSの取得、ToolCatalogSourceは最後の正常一覧と予約照合用の旧登録を扱います。本番のHostApplicationContextは共有Sourceを持つToolManagerをDashboardとStartupCoordinatorへ渡します。配信用configは子ファイルに依存せず、ビルド・発行時にも本体へコピーします。公開configの更新と製品バイナリの配布は別です。

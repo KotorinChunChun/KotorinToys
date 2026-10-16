@@ -42,9 +42,11 @@ internal sealed partial class Dashboard
         }
         var installation = new Button { Text = "導入・削除 / FFmpeg", AutoSize = true };
         installation.Click += async (_, _) => await OpenInstallation(false); hostActions.Controls.Add(installation);
+        var hostUpdate = new Button { Name = "hostUpdate", Text = "本体アップデート", AutoSize = true };
+        hostUpdate.Click += (_, _) => OpenSelfUpdate(); hostActions.Controls.Add(hostUpdate);
         update.Click += async (_, _) => await OpenInstallation(true); actions.Controls.Add(update);
-        var footer = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new(10) };
-        footer.Controls.Add(overall); footer.Controls.Add(selection); footer.Controls.Add(catalogStatus); footer.Controls.Add(releaseStatus); footer.Controls.Add(operation);
+        var footer = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 6, Padding = new(10) };
+        footer.Controls.Add(overall); footer.Controls.Add(selection); footer.Controls.Add(catalogStatus); footer.Controls.Add(releaseStatus); footer.Controls.Add(selfUpdateStatus); footer.Controls.Add(operation);
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 1 };
         layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
         layout.Controls.Add(grid, 0, 0); layout.Controls.Add(actions, 0, 1); layout.Controls.Add(hostActions, 0, 2); layout.Controls.Add(footer, 0, 3); Controls.Add(layout);
