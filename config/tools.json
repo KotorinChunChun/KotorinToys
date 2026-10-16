@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "tools": [
+    {
+      "id": "live-text-marker",
+      "name": "LiveTextMarker",
+      "version": "1.1.0",
+      "summary": "画面上の文字に下線・強調表示を付ける",
+      "category": "表示支援",
+      "executable": "source/out/LiveTextMarker/LiveTextMarker.exe",
+      "installedExecutable": "LiveTextMarker.exe",
+      "appId": "KotorinToys.LiveTextMarker",
+      "manual": "README.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "distributionStatus": "published",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "icon": "source/assets/LiveTextMarker.ico",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "dotnet8",
+          "name": ".NET 8 Desktop x64",
+          "kind": "dotnet-desktop",
+          "major": 8
+        },
+        {
+          "id": "vc",
+          "name": "Visual C++ 2015–2022 x64",
+          "kind": "vc-x64",
+          "feature": "ローカルOCR",
+          "guide": "READMEの動作環境を確認してください。"
+        },
+        {
+          "id": "jpn",
+          "name": "日本語OCR学習データ",
+          "kind": "file",
+          "path": "tessdata/jpn.traineddata",
+          "feature": "ローカルOCR"
+        },
+        {
+          "id": "eng",
+          "name": "英語OCR学習データ",
+          "kind": "file",
+          "path": "tessdata/eng.traineddata",
+          "feature": "ローカルOCR"
+        }
+      ],
+      "toolRoot": "tools/LiveTextMarker",
+      "repositoryUrl": "https://github.com/KotorinChunChun/LiveTextMarker"
+    },
+    {
+      "id": "smart-paste",
+      "name": "SmartPaste",
+      "version": "0.1.5",
+      "summary": "Explorerの貼り付け時にファイル名を確認・整理する",
+      "category": "ファイル操作",
+      "executable": "release/SmartPaste.exe",
+      "installedExecutable": "SmartPaste.exe",
+      "appId": "KotorinToys.SmartPaste",
+      "manual": "README.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "distributionStatus": "published",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "icon": null,
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "dotnet8",
+          "name": ".NET 8 Desktop x64",
+          "kind": "dotnet-desktop",
+          "major": 8
+        },
+        {
+          "id": "worker",
+          "name": "SmartPaste.Ocrワーカー",
+          "kind": "file",
+          "path": "ocr/SmartPaste.Ocr.exe",
+          "optional": true,
+          "feature": "画像のOneOCR"
+        },
+        {
+          "id": "oneocr",
+          "name": "OneOCR対応環境",
+          "kind": "external",
+          "optional": true,
+          "feature": "画像のOneOCR",
+          "guide": "固有設定画面と画像命名処理の診断を確認してください。"
+        }
+      ],
+      "toolRoot": "tools/SmartPaste",
+      "repositoryUrl": "https://github.com/KotorinChunChun/SmartPaste"
+    },
+    {
+      "id": "ss-capture",
+      "name": "SSCapture",
+      "version": "0.1.1",
+      "summary": "画面撮影・録画と保存先や命名を管理する",
+      "category": "画面キャプチャ",
+      "executable": "src/SSCapture/bin/Release/net10.0-windows/SSCapture.exe",
+      "installedExecutable": "SSCapture.exe",
+      "appId": "KotorinToys.SSCapture",
+      "manual": "README.md",
+      "readme": "README.md",
+      "distributionStatus": "published",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "icon": null,
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "dotnet10",
+          "name": ".NET 10 Desktop x64",
+          "kind": "dotnet-desktop",
+          "major": 10
+        },
+        {
+          "id": "ffmpeg",
+          "name": "ffmpeg",
+          "kind": "file",
+          "path": "tools/ffmpeg.exe",
+          "optional": true,
+          "feature": "録画"
+        },
+        {
+          "id": "ffprobe",
+          "name": "ffprobe",
+          "kind": "file",
+          "path": "tools/ffprobe.exe",
+          "optional": true,
+          "feature": "録画"
+        },
+        {
+          "id": "oneocr",
+          "name": "OneOCR対応環境",
+          "kind": "external",
+          "optional": true,
+          "feature": "OCR命名",
+          "guide": "SSCaptureのOCR診断を確認してください。"
+        }
+      ],
+      "toolRoot": "tools/SSCapture",
+      "repositoryUrl": "https://github.com/KotorinChunChun/SSCapture"
+    },
+    {
+      "id": "shortcut-key-counter",
+      "name": "ShortcutKeyCounter",
+      "version": "0.1.4",
+      "summary": "ショートカットキーの使用回数を集計し、入力を画面に表示する",
+      "category": "入力・作業分析",
+      "executable": "target/debug/ShortcutKeyCounter.exe",
+      "installedExecutable": "ShortcutKeyCounter.exe",
+      "appId": "KotorinToys.ShortcutKeyCounter",
+      "manual": "README.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "icon": "apps/shortcut-key-counter/icons/icon.ico",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "webview2",
+          "name": "Microsoft Edge WebView2 Runtime",
+          "kind": "external",
+          "guide": "画面表示にはWebView2 Runtimeが必要です。Windows 11で利用できます。"
+        },
+        {
+          "id": "capture-helper",
+          "name": "ShortcutKeyCaptureヘルパー",
+          "kind": "file",
+          "path": "ShortcutKeyCapture.exe",
+          "optional": true,
+          "feature": "高権限アプリの入力取得"
+        }
+      ],
+      "toolRoot": "tools/ShortcutKeyCounter",
+      "repositoryUrl": "https://github.com/KotorinChunChun/ShortcutKeyCounter"
+    },
+    {
+      "id": "capchun-screen",
+      "name": "CapchunWindow",
+      "version": "0.1.2",
+      "summary": "モニターや選択ウィンドウを録画し、操作履歴をTSVへ保存する",
+      "category": "録画",
+      "executable": "artifacts/management/bin/CapchunScreen/debug/CapchunWindow.exe",
+      "installedExecutable": "CapchunWindow.exe",
+      "appId": "KotorinToys.CapchunScreen",
+      "manual": "docs/users-guide.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "dotnet-desktop",
+          "name": ".NET Desktop Runtime 10 (x64)",
+          "kind": "dotnet-desktop",
+          "major": 10,
+          "guide": "開発実行には.NET 10 SDK、フレームワーク依存EXEには.NET Desktop Runtime 10 x64が必要です。"
+        },
+        {
+          "id": "ffmpeg",
+          "name": "FFmpeg",
+          "kind": "external",
+          "optional": true,
+          "feature": "録画・動画再生",
+          "guide": "設定でlibx264対応FFmpeg実行ファイルを指定してください。本体のSSCapture専用FFmpeg導入とは別設定です。"
+        },
+        {
+          "id": "unity-capture",
+          "name": "Unity Capture",
+          "kind": "external",
+          "optional": true,
+          "feature": "仮想カメラ",
+          "guide": "仮想カメラ使用時のみ別途ドライバーが必要です。CapchunWindowの「導入ガイド」で公式配布先と導入手順を確認できます。"
+        }
+      ],
+      "toolRoot": "tools/CapchunScreen"
+    },
+    {
+      "id": "chulip-video",
+      "name": "ChulipVideo",
+      "version": "0.2.0",
+      "summary": "動画から手順書用の画像を切り出す",
+      "category": "動画・画像編集",
+      "executable": "artifacts/management/bin/ChulipVideo/debug/ChulipVideo.exe",
+      "installedExecutable": "ChulipVideo.exe",
+      "appId": "KotorinToys.ChulipVideo",
+      "manual": "docs/guide.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "dotnet-desktop",
+          "name": ".NET Desktop Runtime 10 (x64)",
+          "kind": "dotnet-desktop",
+          "major": 10,
+          "guide": "開発実行には.NET 10 SDK、フレームワーク依存EXEには.NET Desktop Runtime 10 x64が必要です。"
+        },
+        {
+          "id": "ffmpeg",
+          "name": "FFmpeg",
+          "kind": "external",
+          "optional": true,
+          "feature": "動画の読込・書き出し",
+          "guide": "設定でlibx264対応FFmpeg実行ファイルを指定してください。本体のSSCapture専用FFmpeg導入とは別設定です。"
+        }
+      ],
+      "toolRoot": "tools/ChulipVideo"
+    },
+    {
+      "id": "chunap-tool",
+      "name": "ChunapTool",
+      "version": "0.1.1",
+      "summary": "選択したウィンドウの位置・サイズ・最大化を調整する",
+      "category": "ウィンドウ操作",
+      "executable": "artifacts/management/bin/ChunapTool/debug/ChunapTool.exe",
+      "installedExecutable": "ChunapTool.exe",
+      "appId": "KotorinToys.ChunapTool",
+      "manual": "docs/guide.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "dotnet-desktop",
+          "name": ".NET Desktop Runtime 10 (x64)",
+          "kind": "dotnet-desktop",
+          "major": 10,
+          "guide": "開発実行には.NET 10 SDK、フレームワーク依存EXEには.NET Desktop Runtime 10 x64が必要です。"
+        }
+      ],
+      "toolRoot": "tools/ChunapTool",
+      "repositoryUrl": "https://github.com/KotorinChunChun/ChunapTool"
+    },
+    {
+      "id": "http-selector",
+      "name": "HttpSelector",
+      "version": "0.0.3.2",
+      "summary": "リンクの危険性を確認し、ブラウザーのプロファイルを選んで開く",
+      "category": "ブラウザー・リンク",
+      "executable": "target/management/debug/HttpSelector.exe",
+      "installedExecutable": "HttpSelector.exe",
+      "appId": "KotorinToys.HttpSelector",
+      "msix": {
+        "familyName": "HttpSelector.Development_xtxrnffqrdk4w",
+        "publisher": "CN=KotorinChunChun",
+        "applicationId": "App"
+      },
+      "manual": "docs/USERS_GUIDE.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "vc-runtime-x64",
+          "name": "Microsoft Visual C++ Runtime (x64)",
+          "kind": "vc-x64",
+          "optional": true,
+          "feature": "開発用EXEの隔離検証",
+          "guide": "正式な署名付きMSIXはstatic CRTを使用し、この追加ランタイムは不要です。"
+        }
+      ],
+      "toolRoot": "tools/HttpSelector"
+    }
+  ]
+}

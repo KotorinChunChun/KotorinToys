@@ -13,7 +13,8 @@ internal sealed record ToolDefinition(
     string AppId = "", string InstalledExecutable = "", string Readme = "README.md",
     string Shortcuts = "config/shortcuts.json", RuntimeRequirement[]? Runtimes = null,
     string DistributionStatus = "unpublished", string? SupportedEnvironment = null,
-    string? Icon = null, string[]? Capabilities = null, string InvestigationStatus = "uninvestigated", MsixDefinition? Msix = null);
+    string? Icon = null, string[]? Capabilities = null, string InvestigationStatus = "uninvestigated", MsixDefinition? Msix = null,
+    string? RepositoryUrl = null);
 internal sealed record Catalog(int SchemaVersion, ToolDefinition[] Tools);
 internal sealed record InstallationState(string State, string? Version, string? Directory, string? Executable, string? Uninstaller = null, string Detail = "");
 internal sealed record StartupState(string? DesiredMode = null, string ActualState = "未確認", string Detail = "");

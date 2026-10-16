@@ -88,6 +88,12 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v0.1.0", "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--online-catalog-tests"]))
+            {
+                OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+                Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
+            OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             ProductIdentityTests.Run(Check);
