@@ -54,3 +54,5 @@ dotnet build src/KotorinToys.Maintenance/KotorinToys.Maintenance.csproj --artifa
 ```
 
 自動試験は隔離fixtureとOS操作の差替えで順序・正常終了拒否・取消・改変・導入失敗・3010・再起動失敗を検証します。実Releases間のインストールやサインイン・再起動の受入を代替しません。
+
+2026年10月17日、本PCでは自己更新対応の初回導入版0.1.0から、公開Releasesの0.1.1を取得して本体の正常終了・更新・通常再起動まで実機確認しました。元の保存10ファイル・子2件のPID・所有予約を保持しています。環境と確認範囲は[版別の実更新報告](../dev/history/v0.1.1/v0.1.1-imp.md)を参照してください。
