@@ -26,7 +26,7 @@ internal static class OnlineCatalogTests
         }
         var bytes = File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath));
         var bundled = OnlineToolCatalog.Parse(bytes, root);
-        check(bundled.Select(t => t.Id).SequenceEqual(ToolCatalog.Load(root).Select(t => t.Id)), "同梱configは現行8ツールと同じ順序");
+        check(bundled.Select(t => t.Id).SequenceEqual(ToolCatalog.Load(root).Select(t => t.Id)), "同梱configは現行9ツールと同じ順序");
         var tool = bundled[0];
         check(ToolRepository.Find(OnlineToolCatalog.Parse(Encode(tool with { RepositoryUrl = null }), root).Single()) == null,
             "configで公開先を未設定にすると旧固定URLへ補完しない");

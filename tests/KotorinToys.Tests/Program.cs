@@ -27,6 +27,7 @@ internal static class Program
             if (args.SequenceEqual(["--http-selector-ipc"])) return HttpSelectorIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--http-selector-msix"])) return HttpSelectorIntegrationTests.RunMsix().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--new-tools-ipc"])) return AddedToolIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--everydb-ipc"])) return AddedToolIntegrationTests.Run("every-db").GetAwaiter().GetResult();
             if (args.SequenceEqual(["--new-tools-panel"])) return AddedToolIntegrationTests.Panel();
             if (args.SequenceEqual(["--shortcut-panel"])) return ShortcutKeyCounterIntegrationTests.Panel();
             if (args.Length == 2 && args[0] == "--shortcut-owned-stop" && int.TryParse(args[1], out var ownedPid))
@@ -159,14 +160,18 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 8, "schema 2でHttpSelectorを含む8ツールを解決する");
+        Check(tools.Length == 9, "schema 2でEveryDBを含む9ツールを解決する");
         Check(tools.Count(t => t.DistributionStatus == "published") == 3 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "公開Innoの3ツールと未公開Innoの追加ツールを区別");
-        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 5, "HttpSelectorを含め5件は本体用インストーラー未公開");
-        Check(tools.All(t => t.Runtimes?.Length > 0), "8ツールの依存情報を持つ");
-        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"8ツールの確認済み能力と環境");
+        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 6, "EveryDBを含め6件は本体用インストーラー未公開");
+        Check(tools.All(t => t.Runtimes?.Length > 0), "9ツールの依存情報を持つ");
+        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"9ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");
+        var everyDb = tools.Single(t => t.Id == "every-db");
+        Check(everyDb is { Name: "EveryDB", Version: "0.1.0", AppId: "KotorinToys.EveryDB", DistributionStatus: "unpublished" } &&
+            everyDb.Executable == "src-tauri/target/kotorintoys/debug/everydb.exe" && everyDb.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]),
+            "EveryDBの独立リポジトリ・開発実行先・管理能力を登録");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs"));
         Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path))==contract),"共通管理実装と3子コピーの一致");
         foreach (var name in new[] { "CapchunScreen", "ChulipVideo", "ChunapTool" })

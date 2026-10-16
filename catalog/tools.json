@@ -40,6 +40,11 @@
       "id": "http-selector",
       "name": "HttpSelector",
       "definition": "tools/HttpSelector/tool.json"
+    },
+    {
+      "id": "every-db",
+      "name": "EveryDB",
+      "definition": "tools/EveryDB/tool.json"
     }
   ]
 }

@@ -22,3 +22,6 @@
 [submodule "tools/HttpSelector"]
 	path = tools/HttpSelector
 	update = none
+[submodule "tools/EveryDB"]
+	path = tools/EveryDB
+	update = none

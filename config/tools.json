@@ -359,6 +359,34 @@
         }
       ],
       "toolRoot": "tools/HttpSelector"
+    },
+    {
+      "id": "every-db",
+      "name": "EveryDB",
+      "version": "0.1.0",
+      "summary": "複数のデータソースをSQLiteへ取り込み、横断検索する",
+      "category": "検索・データ整理",
+      "toolRoot": "tools/EveryDB",
+      "executable": "src-tauri/target/kotorintoys/debug/everydb.exe",
+      "installedExecutable": "everydb.exe",
+      "appId": "KotorinToys.EveryDB",
+      "manual": "docs/user-guide.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "icon": "src-tauri/icons/icon.ico",
+      "capabilities": ["status", "show", "stop", "silent-start"],
+      "runtimes": [
+        {
+          "id": "webview2",
+          "name": "Microsoft Edge WebView2 Runtime",
+          "kind": "external",
+          "feature": "メイン画面",
+          "guide": "Windows 11のWebView2 Runtimeが必要です。"
+        }
+      ]
     }
   ]
 }

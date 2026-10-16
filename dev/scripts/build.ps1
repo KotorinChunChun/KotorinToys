@@ -13,6 +13,8 @@ try {
     if ($LASTEXITCODE) { throw 'ShortcutKeyCounterのビルドに失敗しました。' }
     & cargo build --manifest-path tools/HttpSelector/Cargo.toml --target-dir tools/HttpSelector/target/management
     if ($LASTEXITCODE) { throw 'HttpSelectorの管理連携ビルドに失敗しました。' }
+    & (Join-Path $projectRoot 'tools/EveryDB/dev/scripts/build-debug-EveryDB-kotorintoys.ps1')
+    if ($LASTEXITCODE) { throw 'EveryDBの管理連携ビルドに失敗しました。' }
     dotnet build src/KotorinToys/KotorinToys.csproj -c Debug --nologo
     if ($LASTEXITCODE) { throw 'KotorinToysのビルドに失敗しました。' }
     foreach ($name in @('CapchunScreen','ChulipVideo','ChunapTool')) {

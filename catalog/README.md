@@ -11,10 +11,12 @@
 
 ## 現在の登録状況
 
-LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool、HttpSelectorを `tools.json` に登録しています。Schema 2は各独立ツールのtool.jsonを参照します。開発EXEと資料は子の相対パス、MSIX製品はOSの導入登録を使い、確認できない項目を推測して埋めません。
+LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool、HttpSelector、EveryDBを `tools.json` に登録しています。Schema 2は各独立ツールのtool.jsonを参照します。開発EXEと資料は子の相対パス、MSIX製品はOSの導入登録を使い、確認できない項目を推測して埋めません。
+
+EveryDBはWindows 11向けのローカル開発版を登録しています。子リポジトリは `tools/EveryDB` で独立管理し、GitHubの公開先・本体用インストーラーは未登録です。親のビルドスクリプトが子の専用デバッグ出力先を作成し、管理画面からの起動・表示・正常停止・状態確認に使用します。
 
 ## HttpSelectorの登録
 
-現在のカタログはHttpSelectorを含む8件です。HttpSelectorの `tool.json` は製品版0.0.3.2と署名付きMSIXのPackage Family・Publisher・Application Idを持ちます。通常の管理対象は登録済みMSIXです。開発EXEの相対パスは隔離試験用に残します。MSIX未導入や旧版からの暗黙のフォールバックは行いません。
+現在のカタログはEveryDBを含む9件です。HttpSelectorの `tool.json` は製品版0.0.3.2と署名付きMSIXのPackage Family・Publisher・Application Idを持ちます。通常の管理対象は登録済みMSIXです。開発EXEの相対パスは隔離試験用に残します。MSIX未導入や旧版からの暗黙のフォールバックは行いません。
 
 `distributionStatus: unpublished` は本体のInno台帳に含めない状態です。HttpSelectorの署名付きMSIX配布とは別に扱い、架空のInnoやGitの公開URLを追加しません。
