@@ -10,6 +10,7 @@ static string Argument(string[] args,string name)
 }
 try
 {
+    if (args.Length == 2 && args[0] == "--self-update") return await SelfUpdateWorker.Run(args[1]);
     var product=Argument(args,"--product");
     var productIdentity=ProductIdentity.FromName(product)??throw new IOException("未知の製品です。");
     var id=productIdentity.Id;

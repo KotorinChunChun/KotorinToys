@@ -5,6 +5,14 @@
     <ApplicationIcon>../KotorinToys/assets/KotorinToys.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../KotorinToys/HostProduct.cs" Link="HostProduct.cs" />
+    <Compile Include="../KotorinToys/SelfUpdateModels.cs" Link="SelfUpdateModels.cs" />
+    <Compile Include="../KotorinToys/SelfUpdateWorkflow.cs" Link="SelfUpdateWorkflow.cs" />
+    <Compile Include="../KotorinToys/SelfUpdateWorker.cs" Link="SelfUpdateWorker.cs" />
+    <Compile Include="../KotorinToys/PackageModels.cs" Link="PackageModels.cs" />
+    <Compile Include="../KotorinToys/PackageCatalogReader.cs" Link="PackageCatalogReader.cs" />
+    <Compile Include="../KotorinToys/InstallerAdapter.cs" Link="InstallerAdapter.cs" />
+    <Compile Include="../KotorinToys/ReleaseModels.cs" Link="ReleaseModels.cs" />
     <Compile Include="../KotorinToys/ToolCatalog.cs" Link="ToolCatalog.cs" />
     <Compile Include="../KotorinToys/OnlineToolCatalog.cs" Link="OnlineToolCatalog.cs" />
     <Compile Include="../KotorinToys/ToolCatalogClient.cs" Link="ToolCatalogClient.cs" />

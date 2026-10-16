@@ -99,9 +99,11 @@ internal static class Program
             if (args.SequenceEqual(["--self-update-tests"]))
             {
                 HostReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
+                SelfUpdateWorkflowTests.Run(fixtures, Check).GetAwaiter().GetResult();
                 Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             HostReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
+            SelfUpdateWorkflowTests.Run(fixtures, Check).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--online-catalog-tests"]))
             {
                 OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
