@@ -18,11 +18,11 @@ internal sealed partial class PublicReleaseClient : IDisposable
     {
         try
         {
-            if (ProductIdentity.FromId(tool.Id) is not { } product || product.Name != tool.Name || product.AppId != tool.AppId || tool.Id == "host")
-                throw new IOException("公開版の照合対象が不正です。");
             cancellation.ThrowIfCancellationRequested();
             if (tool.DistributionStatus != "published")
                 return new(null, false, false, "本体対応インストーラーは未公開です。ポータブル版・開発版の利用方法は「使い方」を確認してください。");
+            if (ProductIdentity.FromId(tool.Id) is not { } product || product.Name != tool.Name || product.AppId != tool.AppId || tool.Id == "host")
+                return new(null, false, false, "この製品のインストーラー管理には本体側の対応が必要です。「GitHubを開く」から配布方法を確認してください。");
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var token = deadline.Token;

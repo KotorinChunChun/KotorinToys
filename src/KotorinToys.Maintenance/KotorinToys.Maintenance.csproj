@@ -6,6 +6,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../KotorinToys/ToolCatalog.cs" Link="ToolCatalog.cs" />
+    <Compile Include="../KotorinToys/OnlineToolCatalog.cs" Link="OnlineToolCatalog.cs" />
+    <Compile Include="../KotorinToys/ToolCatalogClient.cs" Link="ToolCatalogClient.cs" />
+    <Compile Include="../KotorinToys/ToolCatalogSource.cs" Link="ToolCatalogSource.cs" />
     <Compile Include="../KotorinToys/ToolManager.cs" Link="ToolManager.cs" />
     <Compile Include="../KotorinToys/InstallationDetector.cs" Link="InstallationDetector.cs" />
     <Compile Include="../KotorinToys/MsixInstallation.cs" Link="MsixInstallation.cs" />

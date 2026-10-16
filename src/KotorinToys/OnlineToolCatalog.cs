@@ -6,6 +6,8 @@ namespace KotorinToys;
 // 公開configは他ファイルを参照しない。一度の取得を検証してから一覧全体を採用する。
 internal static class OnlineToolCatalog
 {
+    static readonly JsonSerializerOptions jsonOptions = new(ToolCatalog.Json)
+    { UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow };
     public const int MaximumBytes = 512 * 1024;
     public const int MaximumTools = 128;
     public const string RelativePath = "config/tools.json";
@@ -23,10 +25,11 @@ internal static class OnlineToolCatalog
             foreach (var entry in document.RootElement.GetProperty("tools").EnumerateArray())
                 foreach (var key in new[] { "id", "name", "version", "summary", "category", "executable", "installedExecutable", "appId", "manual", "readme", "toolRoot", "distributionStatus", "supportedEnvironment", "investigationStatus", "capabilities", "runtimes" })
                     if (!entry.TryGetProperty(key, out _)) throw new IOException("一覧configの必須項目がありません：" + key);
-            var catalog = document.RootElement.Deserialize<Catalog>(ToolCatalog.Json) ?? throw new IOException("一覧configが空です。");
+            var catalog = document.RootElement.Deserialize<Catalog>(jsonOptions) ?? throw new IOException("一覧configが空です。");
             if (catalog.SchemaVersion != 1) throw new IOException("未対応の一覧config形式です。");
             Validate(catalog.Tools, root, MaximumTools);
-            return catalog.Tools;
+            // 公開configでの未設定は無効化を意味する。旧ローカル定義用の固定URLへ戻さない。
+            return catalog.Tools.Select(t => t with { RepositoryUrl = t.RepositoryUrl ?? "" }).ToArray();
         }
         catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException or ArgumentException or NullReferenceException)
         { throw new IOException("一覧configの形式が不正です。", ex); }
@@ -48,7 +51,7 @@ internal static class OnlineToolCatalog
                 !DocumentPath(tool.Manual) || !DocumentPath(tool.Readme))
                 throw new IOException("一覧configの製品・パス・説明が不正です。");
             ToolCatalog.Validate(tool, root);
-            if (tool.RepositoryUrl != null && !IsRepositoryUrl(tool.RepositoryUrl)) throw new IOException("GitHubトップページのURLが不正です。");
+            if (!string.IsNullOrEmpty(tool.RepositoryUrl) && !IsRepositoryUrl(tool.RepositoryUrl)) throw new IOException("GitHubトップページのURLが不正です。");
         }
         if (tools.Select(t => t.Id).Distinct().Count() != tools.Length ||
             tools.Select(t => t.AppId).Distinct(StringComparer.OrdinalIgnoreCase).Count() != tools.Length)

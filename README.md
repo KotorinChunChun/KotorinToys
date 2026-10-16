@@ -18,6 +18,8 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 ## サポートアプリ
 
+一覧は起動時と「状態を更新」でGitHubのconfigを取得する構成です。この機能を含む本体への初回更新後は、mainの [config/tools.json](config/tools.json) だけで追加・非表示・順序・説明を変更できます。通信できないときは前回の正常な一覧を維持します。[設定更新の運用手順](docs/online-tool-catalog.md)を参照してください。以下は同梱時点の初期一覧です。
+
 | アプリ | 概要 | 本体との連携 |
 |---|---|---|
 | [LiveTextMarker](tools/LiveTextMarker/README.md) | テキスト表示を補助するツール | 起動・停止・状態確認に対応 |
@@ -61,6 +63,7 @@ pwsh -File dev/scripts/start.ps1
 
 - `src/` — KotorinToys本体のソース
 - `catalog/` — 収録ツールの一覧と登録情報
+- `config/` — GitHubで差し替える自己完結した配信用ツール一覧
 - `contracts/` — ツール情報・文書・ショートカットの共通仕様
 - `tools/` — 独立Gitリポジトリとして配置する各ツール
 - `docs/` — 利用・開発・運用の現行資料

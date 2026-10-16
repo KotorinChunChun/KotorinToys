@@ -30,6 +30,7 @@ internal sealed class StartupSettingsForm : BrandedForm
         Add("選択ツールの方式を適用",async()=>
         {
             grid.EndEdit();var index=grid.CurrentRow?.Index ?? 0;
+            if (tools.Length == 0 || grid.CurrentRow == null) return new StartupResult(false, "設定するツールを選択してください。");
             return await coordinator.SetMode(tools[index],grid.Rows[index].Cells["mode"].Value?.ToString()??"none");
         });
         Add("未完了操作を復旧",coordinator.Recover);

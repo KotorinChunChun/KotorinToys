@@ -14,8 +14,10 @@ internal sealed class HostApplicationContext : ApplicationContext
     public HostApplicationContext(string root, bool startup,string? settingsDirectory=null)
     {
         var settings=new HostSettingsStore(settingsDirectory??HostSettingsStore.DefaultDirectory);
-        var coordinator=new StartupCoordinator(settings,new TaskSchedulerGateway(),new ToolManager(root),Environment.ProcessPath!);
-        dashboard = new Dashboard(root,settings,coordinator);
+        var source = new ToolCatalogSource(root, settings.DirectoryPath);
+        var manager = new ToolManager(root, catalogSource: source);
+        var coordinator=new StartupCoordinator(settings,new TaskSchedulerGateway(),manager,Environment.ProcessPath!);
+        dashboard = new Dashboard(root,settings,coordinator, toolManager: manager);
         dashboard.FormClosing += (_, args) =>
         {
             if (!exiting && args.CloseReason == CloseReason.UserClosing) { args.Cancel = true; dashboard.Hide(); }
@@ -35,6 +37,8 @@ internal sealed class HostApplicationContext : ApplicationContext
                 {
                     if(settings.Load().ShowDashboardAtLogon)ShowDashboard();
                     await coordinator.StartViaTargets();
+                    // 画面非表示のサインイン起動でも一覧を更新する。新規ツールを自動起動はしない。
+                    if (!dashboard.Visible) await dashboard.RefreshAll();
                 }
                 catch(Exception ex){tray.BalloonTipText="自動起動を確認できません："+ex.Message;tray.ShowBalloonTip(5000);}
             }));

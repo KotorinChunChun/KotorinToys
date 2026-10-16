@@ -7,7 +7,8 @@ using System.Text.Json;
 
 namespace KotorinToys;
 
-internal sealed partial class ToolManager(string root, Action<ToolDefinition, ProcessStartInfo>? configureStart = null)
+internal sealed partial class ToolManager(string root, Action<ToolDefinition, ProcessStartInfo>? configureStart = null,
+    ToolCatalogSource? catalogSource = null)
 {
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -17,7 +18,9 @@ internal sealed partial class ToolManager(string root, Action<ToolDefinition, Pr
     readonly ConcurrentDictionary<string, int> pendingStops = new();
     public string Root => root;
 
-    public ToolDefinition[] Load() => ToolCatalog.Load(root);
+    internal ToolCatalogSource? CatalogSource => catalogSource;
+    public ToolDefinition[] Load() => catalogSource?.Load() ?? ToolCatalog.Load(root);
+    public ToolDefinition[] KnownTools() => catalogSource?.KnownTools() ?? Load();
     public string Resolve(string relative) => PathSafety.Resolve(root, relative);
     public string DevelopmentRoot(ToolDefinition tool) => string.IsNullOrEmpty(tool.ToolRoot) ? root : Resolve(tool.ToolRoot);
     public string DocumentRoot(ToolDefinition tool) => tool.Msix != null ? DevelopmentRoot(tool) : Installation(tool).Directory ?? DevelopmentRoot(tool);

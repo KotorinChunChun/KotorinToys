@@ -146,7 +146,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
     }
     Dictionary<string,TaskPlan> Plans(HostSettings settings)
     {
-        var plans=new Dictionary<string,TaskPlan>();var tools=manager.Load().ToDictionary(t=>t.Id);
+        var plans=new Dictionary<string,TaskPlan>();var tools=manager.KnownTools().ToDictionary(t=>t.Id);
         foreach(var pair in settings.StartupModes)
         {
             if(!tools.TryGetValue(pair.Key,out var tool))throw new IOException("登録されていない自動起動対象です。");
@@ -175,7 +175,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
     {
         var settings=store.Load();var results=new List<StartupAttemptItem>();
         bool incomplete=store.Journal!=null || store.RemovalPending;
-        foreach(var tool in manager.Load())
+        foreach(var tool in manager.KnownTools())
         {
             cancellation.ThrowIfCancellationRequested();
             if(settings.StartupModes.GetValueOrDefault(tool.Id)!="via_kotorintoys")continue;

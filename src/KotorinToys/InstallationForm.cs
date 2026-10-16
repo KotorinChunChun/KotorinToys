@@ -61,6 +61,7 @@ internal sealed class InstallationForm : BrandedForm
         buttons.Controls.Add(published); buttons.Controls.Add(choose);
         Add("選択をインストール / 更新", "install"); Add("選択をアンインストール", "uninstall");
         var ffmpeg = new Button { Name = "installFfmpeg", Text = "FFmpegを導入 / 修復", AutoSize = true };
+        ffmpeg.Enabled = tools.Any(t => t.Id == "ss-capture");
         ffmpeg.Click += async (_, _) => await InstallFfmpeg(); buttons.Controls.Add(ffmpeg);
         cancel.Click += (_, _) => cancellation?.Cancel(); buttons.Controls.Add(cancel);
         close.Click += (_, _) => Close(); buttons.Controls.Add(close);
@@ -104,7 +105,8 @@ internal sealed class InstallationForm : BrandedForm
     async Task InstallFfmpeg()
     {
         if (running) return;
-        var tool = tools.Single(t => t.Id == "ss-capture");
+        var tool = tools.SingleOrDefault(t => t.Id == "ss-capture");
+        if (tool == null) { completion.Text = "現在の一覧にSSCaptureがありません。"; return; }
         var installed = manager.Installation(tool);
         if (installed.State != "導入済み") { completion.Text = "FFmpegの前にSSCaptureを正式インストールしてください。"; return; }
         var prompt = $"FFmpeg / FFprobe {FfmpegInstaller.Version}（約110 MB、Gyan GPLv3ビルド）を配布元から直接取得します。\n" +

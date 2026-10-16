@@ -25,7 +25,9 @@ internal sealed partial class Dashboard
         if (!TryBeginOperation()) return;
         try
         {
-            var index = grid.CurrentRow?.Index ?? 0; var tool = tools[index];
+            var index = grid.CurrentRow?.Index ?? -1;
+            if (index < 0 || index >= tools.Length) return;
+            var tool = tools[index];
             if (command == DashboardCommand.Manual)
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(PathSafety.Resolve(manager.DocumentRoot(tool), tool.Manual)) { UseShellExecute = true });
             else
@@ -43,6 +45,7 @@ internal sealed partial class Dashboard
     {
         if (busy || IsDisposed) return;
         var index = grid.CurrentRow?.Index ?? 0;
+        if (updateOnly && (tools.Length == 0 || grid.CurrentRow == null)) return;
         if (!TryBeginOperation()) return;
         try
         {
@@ -67,7 +70,7 @@ internal sealed partial class Dashboard
     }
     bool TryBeginOperation()
     {
-        if (busy) return false;
+        if (busy || refreshingCatalog) return false;
         busy = true;
         actions.Enabled = hostActions.Enabled = false;
         return true;

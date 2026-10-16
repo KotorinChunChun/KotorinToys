@@ -36,7 +36,7 @@ internal static class DashboardTests
             !((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "追加ツールを選択可能で未公開インストーラーの更新は無効");
         var httpSelectorIndex = Array.FindIndex(tools, tool => tool.Id == "http-selector");
         grid.CurrentCell = grid.Rows[httpSelectorIndex].Cells[0];
-        check(grid.Rows[httpSelectorIndex].Cells["installed"].Value?.ToString() == "0.0.3.2" &&
+        check(grid.Rows[httpSelectorIndex].Cells["installed"].Value?.ToString() == tools[httpSelectorIndex].Version &&
             ((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("HttpSelector") &&
             !((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "HttpSelectorの4成分版を表示し未公開Innoへの更新を無効化");
         check(grid.Columns.Cast<DataGridViewColumn>().All(column => column.SortMode == DataGridViewColumnSortMode.NotSortable), "行順で別製品を操作しないよう手動並替を禁止");

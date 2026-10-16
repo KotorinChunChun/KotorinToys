@@ -17,9 +17,14 @@ internal static class Program
     }
     internal static string FindRoot()
     {
+        string? bundledRoot = null;
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir != null; dir = dir.Parent)
+        {
             if (File.Exists(Path.Combine(dir.FullName, "catalog", "tools.json")) && Directory.Exists(Path.Combine(dir.FullName, "tools")))
                 return dir.FullName;
+            if (bundledRoot == null && File.Exists(Path.Combine(dir.FullName, OnlineToolCatalog.RelativePath))) bundledRoot = dir.FullName;
+        }
+        if (bundledRoot != null) return bundledRoot;
         throw new DirectoryNotFoundException("catalog/tools.json と tools を持つプロジェクトルートが見つかりません。--root で指定してください。");
     }
 }

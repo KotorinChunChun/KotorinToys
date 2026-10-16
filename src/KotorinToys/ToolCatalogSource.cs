@@ -31,9 +31,13 @@ internal sealed class ToolCatalogSource
             if (cache.SchemaVersion != 1 || !string.Equals(this.root, cache.Root, StringComparison.OrdinalIgnoreCase)) throw new IOException("別配置のキャッシュです。");
             OnlineToolCatalog.Validate(cache.Tools, root, OnlineToolCatalog.MaximumTools);
             OnlineToolCatalog.Validate(cache.RetiredTools, root, 512);
+            ValidateIdentities(cache.Tools.Concat(cache.RetiredTools).ToArray(), tools);
             var current = cache.Tools.Select(t => t.Id).ToHashSet();
             // 同梱定義は一度非表示になっても予約の照合・解除用に残す。
-            retired = cache.RetiredTools.Concat(tools).Where(t => !current.Contains(t.Id)).DistinctBy(t => t.Id).ToArray();
+            var history = cache.RetiredTools.Concat(tools).Where(t => !current.Contains(t.Id)).DistinctBy(t => t.Id).ToArray();
+            ValidateIdentities(cache.Tools.Concat(history).ToArray(), []);
+            if (history.Length > 512) throw new IOException("旧登録の保持件数の上限です。");
+            retired = history;
             tools = cache.Tools;
             Detail = "ツール一覧：前回取得したconfig（未再確認）";
         }
@@ -61,11 +65,7 @@ internal sealed class ToolCatalogSource
             var next = OnlineToolCatalog.Parse(bytes, root);
             lock (sync)
             {
-                var known = tools.Concat(retired).ToDictionary(t => t.Id);
-                foreach (var tool in next)
-                    if (known.TryGetValue(tool.Id, out var previous) &&
-                        (previous.AppId != tool.AppId || previous.Msix != tool.Msix))
-                        throw new IOException("既存IDの製品識別・MSIX識別は変更できません：" + tool.Id);
+                ValidateIdentities(next, tools.Concat(retired).ToArray());
                 var ids = next.Select(t => t.Id).ToHashSet();
                 var history = tools.Concat(retired).Where(t => !ids.Contains(t.Id)).DistinctBy(t => t.Id).ToArray();
                 if (history.Length > 512) throw new IOException("旧登録の保持件数の上限です。キャッシュを確認してください。");
@@ -89,6 +89,17 @@ internal sealed class ToolCatalogSource
                 return new(tools.ToArray(), Detail, false);
             }
         }
+    }
+
+    static void ValidateIdentities(ToolDefinition[] next, ToolDefinition[] previous)
+    {
+        var known = previous.ToDictionary(t => t.Id);
+        if (next.Select(t => t.Id).Distinct().Count() != next.Length ||
+            next.Select(t => t.AppId).Distinct(StringComparer.OrdinalIgnoreCase).Count() != next.Length)
+            throw new IOException("キャッシュまたは一覧の製品識別が重複しています。");
+        foreach (var tool in next)
+            if (known.TryGetValue(tool.Id, out var old) && (old.AppId != tool.AppId || old.Msix != tool.Msix))
+                throw new IOException("既存IDの製品識別・MSIX識別は変更できません：" + tool.Id);
     }
 
     void Save(byte[] bytes)

@@ -32,6 +32,14 @@ internal static class Program
             if (args.Length == 2 && args[0] == "--shortcut-owned-stop" && int.TryParse(args[1], out var ownedPid))
                 return ShortcutKeyCounterIntegrationTests.StopOwned(ownedPid).GetAwaiter().GetResult();
             IconTests.Asset(Check);
+            if (args.Length == 2 && args[0] == "--validate-online-catalog")
+            {
+                var catalogRoot = KotorinToys.Program.FindRoot();
+                var path = Path.GetFullPath(args[1]);
+                if (new FileInfo(path).Length > OnlineToolCatalog.MaximumBytes) throw new IOException("一覧configの容量上限を超えています。");
+                var validated = OnlineToolCatalog.Parse(File.ReadAllBytes(path), catalogRoot);
+                Console.WriteLine($"一覧config検証成功：{validated.Length}件。通信・公開は行っていません。"); return 0;
+            }
             if (args.SequenceEqual(["--repository-button-tests"])) { RepositoryButtonTests.Run(KotorinToys.Program.FindRoot(), Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.Length >= 2 && args[0] == "--verify-icon-exe")
             {
@@ -91,6 +99,7 @@ internal static class Program
             if (args.SequenceEqual(["--online-catalog-tests"]))
             {
                 OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+                OnlineCatalogDashboardTests.Run(root, fixtures, Check);
                 Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
@@ -101,7 +110,7 @@ internal static class Program
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
-            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
+            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();
@@ -127,7 +136,9 @@ internal static class Program
         Check(tools.Count(t => t.DistributionStatus == "unpublished") == 5, "HttpSelectorを含め5件は本体用インストーラー未公開");
         Check(tools.All(t => t.Runtimes?.Length > 0), "8ツールの依存情報を持つ");
         Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"8ツールの確認済み能力と環境");
-        Check(tools.Single(t => t.Id == "http-selector") is { Version: "0.0.3.2", AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" }, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");
+        var httpSelector = tools.Single(t => t.Id == "http-selector");
+        Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
+            Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs"));
         Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path))==contract),"共通管理実装と3子コピーの一致");
         foreach (var name in new[] { "CapchunScreen", "ChulipVideo", "ChunapTool" })

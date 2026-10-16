@@ -54,6 +54,8 @@ foreach ($product in $Products | Select-Object -Unique) {
         'KotorinToys' {
             Publish-Application 'src/KotorinToys/KotorinToys.csproj' $output $product
             Copy-Required (Join-Path $projectRoot 'catalog') $output
+            # configはcsprojからも発行される。配布時の自己完結した初期一覧として必須にする。
+            Assert-Files $output @('config/tools.json')
             Copy-Required (Join-Path $projectRoot 'README.md') $output
             Copy-Required (Join-Path $projectRoot 'docs') $output
             Copy-Required (Join-Path $projectRoot 'catalog/host.json') (Join-Path $output 'tool.json')

@@ -3,7 +3,7 @@ namespace KotorinToys;
 internal sealed partial class Dashboard : BrandedForm
 {
     readonly ToolManager manager;
-    readonly ToolDefinition[] tools;
+    ToolDefinition[] tools;
     readonly DataGridView grid = new() { Name = "toolTable", Dock = DockStyle.Fill, ReadOnly = true,
         AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false,
         SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false,
@@ -13,6 +13,7 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Label operation = new() { Name = "lastOperation", AutoSize = true, Dock = DockStyle.Fill,
         Text = "本体を閉じても各ツールは動作します。" };
     readonly Label releaseStatus = new() { AutoSize = true, Dock = DockStyle.Fill, Text = "公開版：未確認（同梱台帳を表示）" };
+    readonly Label catalogStatus = new() { Name = "catalogStatus", AutoSize = true, Dock = DockStyle.Fill };
     readonly Button update = new() { Name = "updateSelected", Text = "選択ツールを更新", AutoSize = true, Enabled = false };
     readonly Button github = new() { Name = "github", Text = "GitHubを開く", AutoSize = true, Enabled = false };
     readonly ToolTip tooltips = new();
@@ -24,12 +25,14 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
     readonly Action<Uri> openRepository;
     Task? releaseRefresh;
+    Task? stateRefresh, allRefresh;
     readonly CancellationTokenSource lifetime = new();
-    readonly ReleasePackage?[] bundledPackages;
+    ReleasePackage?[] bundledPackages;
+    readonly ReleaseCatalog? bundledCatalog;
     InstallationState[] installations;
     ToolState[] states;
     PublicRelease[] releases;
-    bool busy, refreshing, checkingReleases, resourcesDisposed;
+    bool busy, checkingReleases, refreshingCatalog, resourcesDisposed;
 
     public Dashboard(string root, HostSettingsStore? settings = null, StartupCoordinator? startup = null,
         Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>>? releaseCheck = null,
@@ -48,6 +51,8 @@ internal sealed partial class Dashboard : BrandedForm
         states = tools.Select(_ => new ToolState("確認中")).ToArray();
         ReleaseCatalog? bundled = null;
         try { bundled = ReleaseDownloader.Load(root); } catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException) { releaseStatus.Text = "公開台帳を読めません：" + ex.Message; }
+        bundledCatalog = bundled;
+        catalogStatus.Text = manager.CatalogSource?.Detail ?? "ツール一覧：ローカル登録";
         bundledPackages = tools.Select(tool => bundled?.Packages.SingleOrDefault(p => p.Package.Id == tool.Id)).ToArray();
         releases = bundledPackages.Select(package => new PublicRelease(package, false, false, "公開未確認・同梱台帳")).ToArray();
         InitializeLayout(settings, startup);

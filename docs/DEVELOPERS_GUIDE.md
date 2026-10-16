@@ -86,6 +86,8 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 ### 本体内部の責務
 
+ツール一覧の配信は[GitHub設定の運用手順](online-tool-catalog.md)を参照してください。ToolCatalogはローカル開発定義の互換読込・共通検証、OnlineToolCatalogは公開configの検証、ToolCatalogClientは固定HTTPSの取得、ToolCatalogSourceは最後の正常一覧と予約照合用の旧登録を扱います。本番のHostApplicationContextは共有Sourceを持つToolManagerをDashboardとStartupCoordinatorへ渡します。配信用configは子ファイルに依存せず、ビルド・発行時にも本体へコピーします。公開configの更新と製品バイナリの配布は別です。
+
 `Dashboard.cs`は画面の依存・状態・寿命を保持し、`Dashboard.Layout.cs`で構築とイベント接続、`Dashboard.Display.cs`で表と下部の反映、`Dashboard.Operations.cs`で操作の直列化と導入導線、`Dashboard.Refresh.cs`で実行状態・公開版の再取得を扱います。操作文言・表示構成は変更しません。
 
 `PublicReleaseClient`は製品識別・期限・失敗時の結果を制御し、`.Http.cs`は許可URL・リダイレクト・容量制限付きの読込だけを担当します。`PublicReleaseMetadata`は通信・画面・設定保存を持たず、最新候補の選択、assetの所有者・製品・tag、台帳と固定版・ハッシュの一致を検証します。選択候補はJSONを所有し、元のJsonDocumentの寿命に依存しません。HTTPを模擬する回帰と検証型の直接テストを両方維持してください。

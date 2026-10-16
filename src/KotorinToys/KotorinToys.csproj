@@ -12,6 +12,7 @@
   <ItemGroup>
     <EmbeddedResource Include="assets/KotorinToys.ico" LogicalName="KotorinToys.AppIcon.ico" />
     <None Include="../../catalog/tools.json" Link="catalog/tools.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../config/tools.json" Link="config/tools.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Compile Include="../../contracts/ManagementEndpoint.cs" Link="Integration/ManagementEndpoint.cs" />
     <InternalsVisibleTo Include="KotorinToys.Tests" />
   </ItemGroup>
