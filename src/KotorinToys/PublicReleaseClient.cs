@@ -23,16 +23,28 @@ internal sealed partial class PublicReleaseClient : IDisposable
                 return new(null, false, false, "本体対応インストーラーは未公開です。ポータブル版・開発版の利用方法は「使い方」を確認してください。");
             if (ProductIdentity.FromId(tool.Id) is not { } product || product.Name != tool.Name || product.AppId != tool.AppId || tool.Id == "host")
                 return new(null, false, false, "この製品のインストーラー管理には本体側の対応が必要です。「GitHubを開く」から配布方法を確認してください。");
+            return await CheckCore(tool, fallback, true, false, cancellation);
+        }
+        catch (OperationCanceledException) { throw; }
+    }
+
+    public Task<PublicRelease> CheckHost(bool includePrerelease = false, CancellationToken cancellation = default) =>
+        CheckCore(HostProduct.Definition, null, includePrerelease, true, cancellation);
+
+    async Task<PublicRelease> CheckCore(ToolDefinition tool, ReleasePackage? fallback, bool includePrerelease, bool hostUpdate, CancellationToken cancellation)
+    {
+        try
+        {
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var token = deadline.Token;
             using var list = JsonDocument.Parse(await Read(new($"https://api.github.com/repos/KotorinChunChun/{tool.Name}/releases?per_page=100"), 2 * 1024 * 1024, token));
-            var latest = PublicReleaseMetadata.Select(list.RootElement);
+            var latest = PublicReleaseMetadata.Select(list.RootElement, includePrerelease);
             var manifest = latest.Asset(tool, tool.Name + "-packages.json");
             var installer = latest.Asset(tool, $"{tool.Name}-{latest.Version}-setup.exe");
             if (manifest.GetProperty("size").GetInt64() is <= 0 or > 32768) throw new IOException("公開台帳の容量が不正です。");
             var json = await Read(new(manifest.GetProperty("browser_download_url").GetString()!), 32768, token);
-            var item = latest.Package(tool, json, installer, fallback);
+            var item = latest.Package(tool, json, installer, fallback, hostUpdate);
             bool prerelease = latest.Prerelease;
             return new(item, true, prerelease, $"GitHub公開版・配布台帳照合済み（{DateTime.Now:MM/dd HH:mm}）。未署名です。");
         }

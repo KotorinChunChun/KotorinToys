@@ -19,11 +19,11 @@ internal sealed class PublicReleaseMetadata
     public string Version => tag[1..];
     public bool Prerelease => release.GetProperty("prerelease").GetBoolean();
 
-    public static PublicReleaseMetadata Select(JsonElement list)
+    public static PublicReleaseMetadata Select(JsonElement list, bool includePrerelease = true)
     {
         var releases = list.EnumerateArray().ToArray();
         if (releases.Length >= 100) throw new IOException("公開版の全件照合が必要です。100件以上のリリースは自動判定しません。");
-        var candidates = releases.Where(r => !r.GetProperty("draft").GetBoolean())
+        var candidates = releases.Where(r => !r.GetProperty("draft").GetBoolean() && (includePrerelease || !r.GetProperty("prerelease").GetBoolean()))
             .Select(r => (Release: r, Tag: r.GetProperty("tag_name").GetString()))
             .Where(r => r.Tag != null && Regex.IsMatch(r.Tag, @"^v[0-9]+\.[0-9]+\.[0-9]+$") && System.Version.TryParse(r.Tag[1..], out _))
             .OrderByDescending(r => System.Version.Parse(r.Tag![1..])).ToArray();
@@ -43,7 +43,7 @@ internal sealed class PublicReleaseMetadata
         return matches[0];
     }
 
-    public ReleasePackage Package(ToolDefinition tool, string json, JsonElement installer, ReleasePackage? fallback)
+    public ReleasePackage Package(ToolDefinition tool, string json, JsonElement installer, ReleasePackage? fallback, bool hostUpdate = false)
     {
         // PowerShellで作成された台帳のUTF-8 BOMも受け付ける。
         var catalog = JsonSerializer.Deserialize<PackageCatalog>(json.TrimStart('\uFEFF'), ToolCatalog.Json)
@@ -57,7 +57,8 @@ internal sealed class PublicReleaseMetadata
         if (package.Id != tool.Id || package.Name != tool.Name || package.AppId != tool.AppId || package.Version != Version)
             throw new IOException("公開台帳と製品・リリースtagが一致しません。");
         var item = new ReleasePackage(package, installer.GetProperty("size").GetInt64());
-        ReleaseDownloader.Validate(new(1, [item]));
+        if (hostUpdate) HostProduct.Validate(item);
+        else ReleaseDownloader.Validate(new(1, [item]));
         // 同梱済み固定版のasset差し替えを、オンライン台帳で許容しない。
         if (fallback != null && System.Version.Parse(fallback.Package.Version) == System.Version.Parse(Version) &&
             (fallback.Package != package || fallback.Length != item.Length))
