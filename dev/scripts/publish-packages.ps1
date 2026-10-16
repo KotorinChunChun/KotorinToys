@@ -1,10 +1,12 @@
 param(
     [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')]
     [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
-    [switch]$ExcludeFFmpeg
+    [switch]$ExcludeFFmpeg,
+    [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot)
+if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $dotnetCommand = Get-Command dotnet -CommandType Application -ErrorAction Stop
 $dotnetRoot = Split-Path $dotnetCommand.Source
 $dotnetLicense = Join-Path $dotnetRoot 'LICENSE.txt'
@@ -14,7 +16,7 @@ if (-not (Test-Path -LiteralPath $dotnetLicense -PathType Leaf) -or -not (Test-P
 }
 $runId = 'packages-' + [Guid]::NewGuid().ToString('N')
 $staging = Join-Path $projectRoot "artifacts/packages/$runId"
-$logDirectory = Join-Path $projectRoot "dev/history/v0.1.0/logs/$runId"
+$logDirectory = Join-Path $projectRoot "dev/history/$RecordVersion/logs/$runId"
 New-Item -ItemType Directory -Path $staging, $logDirectory | Out-Null
 function Copy-Required([string]$Source, [string]$Destination) {
     if (-not (Test-Path -LiteralPath $Source)) { throw "配布に必要なファイルがありません: $Source" }

@@ -1,6 +1,7 @@
-param([switch]$DownloadOnly)
+param([switch]$DownloadOnly, [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot)
+if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $version = '7.1.0'
 $expectedHash = '0362A383ED217D4C4239B5933866DD96D3EB2102737DA92F80F6057A4B40DF2F'
 $downloadDirectory = Join-Path $projectRoot 'artifacts/dependencies/downloads'
@@ -23,7 +24,7 @@ if ((Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash -ne $expectedH
 if ($DownloadOnly) { Write-Output "署名・発行元・SHA-256の検証成功: $installer"; return }
 if (-not (Test-Path -LiteralPath $compiler -PathType Leaf)) {
     $runId = 'inno-prepare-' + [Guid]::NewGuid().ToString('N')
-    $logDirectory = Join-Path $projectRoot "dev/history/v0.1.0/logs/$runId"
+    $logDirectory = Join-Path $projectRoot "dev/history/$RecordVersion/logs/$runId"
     New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null
     $arguments = @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-', '/CURRENTUSER', '/NOICONS',
         ('/DIR="' + $compilerDirectory + '"'), ('/LOG="' + (Join-Path $logDirectory 'setup.log') + '"'))

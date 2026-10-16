@@ -1,17 +1,19 @@
 param(
     [Parameter(Mandatory)][string]$PackageDirectory,
     [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')]
-    [string[]]$Products=@('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')
+    [string[]]$Products=@('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
+    [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path (Split-Path $PSScriptRoot)
+if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $packageRoot=[IO.Path]::GetFullPath($PackageDirectory)
 $allowedRoot=[IO.Path]::GetFullPath((Join-Path $projectRoot 'artifacts/packages')) + [IO.Path]::DirectorySeparatorChar
 if (-not $packageRoot.StartsWith($allowedRoot,[StringComparison]::OrdinalIgnoreCase)) { throw '専用パッケージ出力以外はコンパイルしません。' }
-& (Join-Path $PSScriptRoot 'prepare-inno.ps1')
+& (Join-Path $PSScriptRoot 'prepare-inno.ps1') -RecordVersion $RecordVersion
 $compiler=Join-Path $projectRoot 'artifacts/dependencies/inno-7.1.0/ISCC.exe'
 $runId='installers-'+[Guid]::NewGuid().ToString('N')
-$output=Join-Path $projectRoot "dev/history/v0.1.0/logs/$runId"
+$output=Join-Path $projectRoot "dev/history/$RecordVersion/logs/$runId"
 New-Item -ItemType Directory -Path $output | Out-Null
 $packages=@()
 foreach($product in $Products | Select-Object -Unique) {

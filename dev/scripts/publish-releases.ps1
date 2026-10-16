@@ -1,11 +1,13 @@
 param(
     [Parameter(Mandatory)][string]$CatalogPath,
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')][string[]]$Products=@('LiveTextMarker','SmartPaste','SSCapture')
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')][string[]]$Products=@('LiveTextMarker','SmartPaste','SSCapture'),
+    [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path (Split-Path $PSScriptRoot)
+if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $catalogFile=[IO.Path]::GetFullPath($CatalogPath)
-$allowed=[IO.Path]::GetFullPath((Join-Path $projectRoot 'dev/history/v0.1.0/logs'))+[IO.Path]::DirectorySeparatorChar
+$allowed=[IO.Path]::GetFullPath((Join-Path $projectRoot "dev/history/$RecordVersion/logs"))+[IO.Path]::DirectorySeparatorChar
 if(-not $catalogFile.StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw '版別ログ内の配布台帳だけ公開できます。'}
 $catalog=Get-Content -LiteralPath $catalogFile -Raw | ConvertFrom-Json
 if($catalog.schemaVersion -ne 1 -or $catalog.distributionStatus -ne 'unpublished'){throw '正式ビルドのローカル台帳が必要です。'}
@@ -36,7 +38,7 @@ foreach($name in $Products | Select-Object -Unique){
     [ordered]@{schemaVersion=1;distributionStatus='published';packages=@($package)} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifest -Encoding utf8
     $notes="Windows 11 x64向けの未署名の開発版（prerelease）です。.NETランタイム同梱。設定・保存データは保持します。SHA256SUMSで配布物を確認できます。全機能の受入完了版ではありません。"
     if($name -eq 'SSCapture'){$notes+=" FFmpeg／FFprobe・OneOCR外部ファイルは同梱しません。録画にはFFmpeg公式の取得案内 https://ffmpeg.org/download.html を参照し、ffmpeg.exeとffprobe.exeを導入先のtoolsへ別途配置してください。"}
-    if($name -eq 'KotorinToys'){$notes+=" 収録3ツールは導入・削除画面からGitHub Releasesの固定版を取得し、製品・版・容量・SHA-256を照合して導入できます。"}
+    if($name -eq 'KotorinToys'){$notes+=" 本体の『本体アップデート』から新しいReleasesを照合・取得し、本体だけを正常終了・更新・再起動します。開発版は明示選択が必要です。初回はこの機能を含む版の手動導入が必要です。子ツールの実行状態と設定・履歴・自動起動予約は保持します。対応する子ツールの導入・更新は別画面です。"}
     & $ghExe release create "v$($package.version)" $file $shaFile $manifest --repo "KotorinChunChun/$name" --target $commit --title "$name $($package.version) 開発版" --notes $notes --prerelease
     if($LASTEXITCODE -ne 0){throw 'Release作成が失敗しました。既存assetの上書き・再公開は自動実行しません。'}
     $published+= [ordered]@{package=$package;length=(Get-Item -LiteralPath $file).Length}

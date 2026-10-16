@@ -94,7 +94,7 @@ internal static class Program
             if(args.Length==3 && args[0]=="--cleanup-task") {StartupTests.Cleanup(args[1],args[2]);return 0;}
             if(args.Contains("--scheduler-probe")){InstalledStartupTests.Probe().GetAwaiter().GetResult();return 0;}
             root = KotorinToys.Program.FindRoot();
-            fixtures = Path.Combine(root, "dev", "history", "v0.1.0", "logs", "host-test-" + Guid.NewGuid().ToString("N"));
+            fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
             if (args.SequenceEqual(["--self-update-panel"]))
             {

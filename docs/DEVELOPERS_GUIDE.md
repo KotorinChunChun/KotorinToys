@@ -98,6 +98,8 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。公開版SSCaptureは`publish-packages.ps1 -ExcludeFFmpeg`を指定し、FFmpeg／FFprobeと利用者dataを含めません。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
 
+配布・Inno準備・ローカル導入のログは、既定でcatalog/host.jsonの版の`dev/history/vX.Y.Z/logs/`へ保存します。他製品や初回導入用旧版を検証する場合は`-RecordVersion vX.Y.Z`で記録の対象版を明示してください。製品版そのものを変更する引数ではありません。公開台帳の許可範囲も指定版のlogs内に限定します。
+
 製品ダウンロードはGitHubと指定されたGitHub assetホストのHTTPSだけ許可し、時間・容量・サイズ・SHA-256を検査します。同梱版は本体の固定ハッシュ、新しい公開版は既知所有者の製品別台帳とGitHub assetの照合で確定したハッシュを使用します。公開版の表示だけで導入せず、利用者の確認時にその固定スナップショットを取得します。新公開版の台帳はGitHub上の配布元を信頼する境界であり、独立したコード署名による発行元確認ではありません。未署名の注意と導入済み版→対象版を表示します。
 
 FfmpegInstallerはこれとは別にGyanの固定HTTPS ZIP・固定容量・固定SHA-256を使用します。正式導入済みで停止中のSSCaptureだけに必要な2 EXE・ライセンス・READMEを配置し、設定／履歴／PATHを変えません。製品インストーラーへの同梱や自分のReleasesへの再配布はしません。

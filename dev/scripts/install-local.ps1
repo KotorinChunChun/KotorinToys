@@ -2,15 +2,17 @@ param(
     [Parameter(Mandatory)][string]$CatalogPath,
     [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')]
     [string[]]$Products=@('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
-    [switch]$CustomValidationDirectory
+    [switch]$CustomValidationDirectory,
+    [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path (Split-Path $PSScriptRoot)
+if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $catalogFile=[IO.Path]::GetFullPath($CatalogPath)
 $catalog=Get-Content -LiteralPath $catalogFile -Raw | ConvertFrom-Json
 if($catalog.schemaVersion -ne 1 -or $catalog.distributionStatus -ne 'unpublished'){throw '未対応のローカル配布台帳です。'}
 $runId='install-'+[Guid]::NewGuid().ToString('N')
-$logs=Join-Path $projectRoot "dev/history/v0.1.0/logs/$runId"
+$logs=Join-Path $projectRoot "dev/history/$RecordVersion/logs/$runId"
 New-Item -ItemType Directory -Path $logs | Out-Null
 $dataPaths=@{
  'LiveTextMarker'=Join-Path $env:LOCALAPPDATA 'LiveTextMarker/settings.json'
