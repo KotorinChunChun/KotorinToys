@@ -102,8 +102,8 @@ internal static class PublicReleaseTests
         bool success = true;
         foreach (var tool in ToolCatalog.Load(root).Where(t => t.DistributionStatus == "published"))
         {
-            var result = await client.Check(tool, bundled.Packages.Single(p => p.Package.Id == tool.Id));
-            Console.WriteLine($"{tool.Name}: {result.Package?.Package.Version} / {result.Confirmed} / {result.Detail}");
+            var result = await client.Check(tool, bundled.Packages.SingleOrDefault(p => p.Package.Id == tool.Id));
+            Console.WriteLine($"{tool.Name}: {(result.Package is { } item ? ReleaseDisplay.Version(item) : "公開版なし")} / {result.Confirmed} / {result.Detail}");
             success &= result.Confirmed;
         }
         return success ? 0 : 1;

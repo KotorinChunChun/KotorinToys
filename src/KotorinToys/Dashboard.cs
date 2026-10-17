@@ -15,7 +15,9 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Label releaseStatus = new() { AutoSize = true, Dock = DockStyle.Fill, Text = "公開版：未確認（同梱台帳を表示）" };
     readonly Label catalogStatus = new() { Name = "catalogStatus", AutoSize = true, Dock = DockStyle.Fill };
     readonly Label selfUpdateStatus = new() { Name = "selfUpdateStatus", AutoSize = true, Dock = DockStyle.Fill };
-    readonly Button update = new() { Name = "updateSelected", Text = "選択ツールを更新", AutoSize = true, Enabled = false };
+    readonly Button install = new() { Name = "installSelected", Text = "インストール", AutoSize = true, Enabled = false };
+    readonly Button update = new() { Name = "updateSelected", Text = "アップデート", AutoSize = true, Enabled = false };
+    readonly Button uninstall = new() { Name = "uninstallSelected", Text = "アンインストール", AutoSize = true, Enabled = false };
     readonly Button github = new() { Name = "github", Text = "GitHubを開く", AutoSize = true, Enabled = false };
     readonly ToolTip tooltips = new();
     readonly System.Windows.Forms.Timer timer = new() { Interval = 4000 };
@@ -23,6 +25,7 @@ internal sealed partial class Dashboard : BrandedForm
     readonly FlowLayoutPanel hostActions = new() { Name = "hostActions", Dock = DockStyle.Fill, AutoSize = true, Padding = new(8, 0, 8, 0) };
     readonly Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>> releaseCheck;
     readonly Action<string?, ReleaseCatalog?> showInstaller;
+    readonly Action<string, string, ReleaseCatalog?> showToolInstaller;
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
     readonly Action<Uri> openRepository;
     readonly IHostSelfUpdateService selfUpdates;
@@ -42,7 +45,8 @@ internal sealed partial class Dashboard : BrandedForm
         Action<string?, ReleaseCatalog?>? showInstaller = null,
         Func<ToolDefinition, InstallationState>? detectInstallation = null,
         ToolManager? toolManager = null,
-        Action<Uri>? openRepository = null, IHostSelfUpdateService? selfUpdates = null, Action? showSelfUpdater = null)
+        Action<Uri>? openRepository = null, IHostSelfUpdateService? selfUpdates = null, Action? showSelfUpdater = null,
+        Action<string, string, ReleaseCatalog?>? showToolInstaller = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
@@ -51,6 +55,8 @@ internal sealed partial class Dashboard : BrandedForm
         RefreshSelfUpdateResult();
         this.releaseCheck = releaseCheck ?? CheckRelease;
         this.showInstaller = showInstaller ?? ((id, catalog) => { using var form = new InstallationForm(manager, id, catalog); form.ShowDialog(this); });
+        this.showToolInstaller = showToolInstaller ?? ((id, operation, catalog) =>
+        { using var form = new InstallationForm(manager, id, catalog, operation); form.ShowDialog(this); });
         this.detectInstallation = detectInstallation ?? manager.Installation;
         this.openRepository = openRepository ?? (uri => System.Diagnostics.Process.Start(
             new System.Diagnostics.ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }));

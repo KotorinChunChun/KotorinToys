@@ -7,7 +7,7 @@ internal static class DashboardTests
         var tools = ToolCatalog.Load(root);
         var catalog = ReleaseDownloader.Load(root);
         var releases = tools.Select(t => new PublicRelease(catalog.Packages.SingleOrDefault(p => p.Package.Id == t.Id), t.DistributionStatus == "published", true, "テスト")).ToArray();
-        var installed = tools.Select(t => new InstallationState("導入済み", t.Version, null, null)).ToArray();
+        var installed = tools.Select(t => new InstallationState("導入済み", t.Version, null, null, "test-uninstaller.exe")).ToArray();
         var view = ToolVersionView.Create(installed[1] with { Version = "0.1.3" }, releases[1]);
         check(view.CanUpdate && view.Update == "更新あり", "公開版が新しいときだけ更新可能");
         check(ToolVersionView.Create(installed[1], releases[1]).Update == "公開版と同じ", "同一版は更新不要");
@@ -30,7 +30,19 @@ internal static class DashboardTests
         grid.CurrentCell = grid.Rows[2].Cells[0];
         check(((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("SSCapture") &&
             ((Label)form.Controls.Find("overallStatus", true).Single()).Text.Contains("実行中 9件"), "選択変更で選択情報だけを切替・全体9件を維持");
-        check(((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版でも更新ボタンから最新情報を再確認できる");
+        check(!((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版はアップデートを無効にする");
+        check(((Button)form.Controls.Find("uninstallSelected", true).Single()).Enabled &&
+            !((Button)form.Controls.Find("installSelected", true).Single()).Enabled, "導入済みはインストールを無効・アンインストールを有効にする");
+        states[2] = new("停止中"); form.ApplySnapshot(installed, states, releases);
+        check(!form.Controls.Find("stop", true).Single().Enabled, "停止中のツールは停止ボタンを無効にする");
+        states[2] = new("実行中"); form.ApplySnapshot(installed, states, releases);
+        check(form.Controls.Find("stop", true).Single().Enabled, "実行中へ変化すると停止ボタンを復旧する");
+        installed[2] = new("未導入", null, null, null); form.ApplySnapshot(installed, states, releases);
+        check(form.Controls.Find("installSelected", true).Single().Enabled && !form.Controls.Find("uninstallSelected", true).Single().Enabled &&
+            !form.Controls.Find("updateSelected", true).Single().Enabled, "未導入で公開配布照合済みの場合だけインストールを有効にする");
+        form.ApplySnapshot(installed, states, releases.Select(r => r with { Confirmed = false }).ToArray());
+        check(!form.Controls.Find("installSelected", true).Single().Enabled, "未確認の同梱版でインストールを許可しない");
+        form.ApplySnapshot(installed, states, releases);
         grid.CurrentCell = grid.Rows[3].Cells[0];
         check(((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("ShortcutKeyCounter") &&
             !((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "追加ツールを選択可能で未公開インストーラーの更新は無効");

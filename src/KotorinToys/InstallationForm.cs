@@ -1,11 +1,18 @@
 namespace KotorinToys;
 
+internal delegate Task<InstallResult[]> InstallationExecution(ToolDefinition[] targets, string operation,
+    ReleaseCatalog? catalog, string? localCatalog, IProgress<InstallResult>? progress,
+    IProgress<string>? downloadProgress, CancellationToken cancellation);
+
 internal sealed class InstallationForm : BrandedForm
 {
     readonly ToolManager manager;
     readonly ToolDefinition[] tools;
     readonly ReleaseCatalog? publicCatalog;
-    readonly CheckedListBox targets = new() { Dock = DockStyle.Fill, CheckOnClick = true };
+    readonly string? singleOperation;
+    readonly Func<string, bool> confirm;
+    readonly InstallationExecution execute;
+    readonly CheckedListBox targets = new() { Name = "installationTargets", Dock = DockStyle.Fill, CheckOnClick = true, HorizontalScrollbar = true };
     readonly TextBox log = new() { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical };
     readonly DataGridView results = new() { Name = "installationResults", Dock = DockStyle.Fill, ReadOnly = true,
         AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false,
@@ -21,16 +28,26 @@ internal sealed class InstallationForm : BrandedForm
     readonly TableLayoutPanel detail = new() { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3 };
     string? catalogPath;
     CancellationTokenSource? cancellation;
-    bool running;
+    bool running, singleStarted;
 
-    public InstallationForm(ToolManager toolManager, string? initialTarget = null, ReleaseCatalog? releases = null)
+    public InstallationForm(ToolManager toolManager, string? initialTarget = null, ReleaseCatalog? releases = null,
+        string? operation = null, Func<string, bool>? confirm = null, InstallationExecution? execute = null)
     {
         manager = toolManager; tools = manager.Load();
+        if (operation != null && (operation is not ("install" or "update" or "uninstall") || tools.All(t => t.Id != initialTarget)))
+            throw new ArgumentException("単体操作の対象・種別が不正です。");
+        singleOperation = operation;
+        this.confirm = confirm ?? (text => MessageBox.Show(this, text, WindowTitle.Create("対象の確認"), MessageBoxButtons.OKCancel) == DialogResult.OK);
+        this.execute = execute ?? ((selected, verb, catalog, path, progress, download, token) =>
+            new ToolInstallationRunner(manager).Run(selected, verb, catalog, path, progress, download, token));
         publicCatalog = releases;
         if (publicCatalog != null) ReleaseDownloader.Validate(publicCatalog);
-        Text = WindowTitle.Create("導入・削除"); Size = new(980, 600); MinimumSize = new(850, 520);
+        Text = WindowTitle.Create(operation == null ? "詳細設定（開発者向け）" :
+            operation == "install" ? "インストール" : operation == "update" ? "アップデート" : "アンインストール");
+        Size = new(980, 600); MinimumSize = new(850, 520);
         Font = new("Yu Gothic UI", 11); StartPosition = FormStartPosition.CenterParent;
-        foreach (var tool in tools) targets.Items.Add(tool.Name + "：" + manager.Installation(tool).State, tool.Id == initialTarget);
+        foreach (var tool in tools) targets.Items.Add(TargetText(tool), tool.Id == initialTarget);
+        if (operation != null) completion.Text = tools.Single(t => t.Id == initialTarget).Name + "：操作内容を確認してください。";
         results.Columns.Add("product", "ツール"); results.Columns.Add("state", "結果"); results.Columns.Add("detail", "理由・次の操作");
         results.Columns[0].FillWeight = 24; results.Columns[1].FillWeight = 23; results.Columns[2].FillWeight = 53;
         results.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -41,28 +58,16 @@ internal sealed class InstallationForm : BrandedForm
         detail.Controls.Add(results, 0, 0); detail.Controls.Add(showLog, 0, 1); detail.Controls.Add(log, 0, 2);
         showLog.CheckedChanged += (_, _) => { detail.RowStyles[2].Height = showLog.Checked ? 150 : 0; };
         var content = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2 };
-        content.ColumnStyles.Add(new(SizeType.Absolute, 260)); content.ColumnStyles.Add(new(SizeType.Percent, 100));
+        content.ColumnStyles.Add(new(SizeType.Absolute, operation == null ? 300 : 0)); content.ColumnStyles.Add(new(SizeType.Percent, 100));
         content.Controls.Add(targets, 0, 0); content.Controls.Add(detail, 1, 0);
+        targets.Visible = media.Visible = operation == null;
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5 };
         layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
         layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
         layout.Controls.Add(source, 0, 0); layout.Controls.Add(completion, 0, 1);
         layout.Controls.Add(content, 0, 2); layout.Controls.Add(media, 0, 3); layout.Controls.Add(buttons, 0, 4); Controls.Add(layout);
-        var published = new Button { Text = "GitHub Releasesを使用", AutoSize = true };
-        published.Click += (_, _) => { catalogPath = null; source.Text = PublicSource; };
-        var choose = new Button { Text = "配布台帳を選択", AutoSize = true };
-        choose.Click += (_, _) =>
-        {
-            using var picker = new OpenFileDialog { Title = "信頼できるローカルビルドのpackages.json", Filter = "配布台帳|packages.json", CheckFileExists = true };
-            if (picker.ShowDialog(this) != DialogResult.OK) return;
-            try { InstallerAdapter.Load(picker.FileName); catalogPath = picker.FileName; source.Text = "ローカル配布台帳：" + catalogPath + "\n未署名です。設定・履歴は保持します。"; }
-            catch (Exception ex) { MessageBox.Show(this, ex.Message, WindowTitle.Create("配布台帳の確認")); }
-        };
-        buttons.Controls.Add(published); buttons.Controls.Add(choose);
-        Add("選択をインストール / 更新", "install"); Add("選択をアンインストール", "uninstall");
-        var ffmpeg = new Button { Name = "installFfmpeg", Text = "FFmpegを導入 / 修復", AutoSize = true };
-        ffmpeg.Enabled = tools.Any(t => t.Id == "ss-capture");
-        ffmpeg.Click += async (_, _) => await InstallFfmpeg(); buttons.Controls.Add(ffmpeg);
+        if (operation == null) AddAdvancedButtons();
+        cancel.Text = operation == null ? "残りをキャンセル" : "キャンセル";
         cancel.Click += (_, _) => cancellation?.Cancel(); buttons.Controls.Add(cancel);
         close.Click += (_, _) => Close(); buttons.Controls.Add(close);
         FormClosing += (_, e) =>
@@ -71,13 +76,44 @@ internal sealed class InstallationForm : BrandedForm
             e.Cancel = true; cancellation?.Cancel();
             completion.Text = "キャンセル要求中：進行中の処理が終わるまでお待ちください。強制終了はしません。";
         };
+        if (operation != null) Shown += async (_, _) => await RunSelected();
         RefreshMedia();
+    }
+
+    void AddAdvancedButtons()
+    {
+        source.Text = "開発者向け：一括操作・依存ツールの導入・ローカル配布物の検証を行います。\n" + PublicSource;
+        var published = new Button { Name = "useGithubReleases", Text = "取得元をGitHub Releasesに戻す", AutoSize = true };
+        published.Click += (_, _) => { catalogPath = null; source.Text = PublicSource; RefreshTargets(); };
+        var choose = new Button { Name = "chooseLocalCatalog", Text = "ローカル配布台帳を選択", AutoSize = true };
+        choose.Click += (_, _) =>
+        {
+            using var picker = new OpenFileDialog { Title = "信頼できるローカルビルドのpackages.json", Filter = "配布台帳|packages.json", CheckFileExists = true };
+            if (picker.ShowDialog(this) != DialogResult.OK) return;
+            try { InstallerAdapter.Load(picker.FileName); catalogPath = picker.FileName; source.Text = "ローカル配布台帳：" + catalogPath + "\n未署名です。設定・履歴は保持します。"; RefreshTargets(); }
+            catch (Exception ex) { MessageBox.Show(this, ex.Message, WindowTitle.Create("配布台帳の確認")); }
+        };
+        buttons.Controls.Add(published); buttons.Controls.Add(choose);
+        var select = new Button { Name = "selectInstallable", Text = "導入可能な全件を選択", AutoSize = true };
+        select.Click += (_, _) =>
+        {
+            for (int i = 0; i < tools.Length; i++)
+                targets.SetItemChecked(i, catalogPath != null ? ToolInstallationRunner.UnsupportedReason(tools[i]) == null :
+                    ToolInstallationRunner.PublicReason(tools[i], publicCatalog) == null);
+        };
+        buttons.Controls.Add(select);
+        Add("選択を一括インストール / 更新", "install"); Add("選択を一括アンインストール", "uninstall");
+        var ffmpeg = new Button { Name = "installFfmpeg", Text = "FFmpegを導入 / 修復", AutoSize = true };
+        ffmpeg.Enabled = tools.Any(t => t.Id == "ss-capture");
+        ffmpeg.Click += async (_, _) => await InstallFfmpeg(); buttons.Controls.Add(ffmpeg);
     }
     void SetRunning(bool value)
     {
         running = value; targets.Enabled = !value;
         foreach (Control control in buttons.Controls) control.Enabled = !value;
         cancel.Enabled = value; close.Enabled = !value;
+        if (singleOperation == null && buttons.Controls.Find("installFfmpeg", false).SingleOrDefault() is Button ffmpeg)
+            ffmpeg.Enabled = !value && tools.Any(t => t.Id == "ss-capture");
     }
     void AppendLog(string text) { if (!IsDisposed) log.AppendText(text + "\r\n"); }
     internal void ShowSummary(InstallationSummary summary)
@@ -92,10 +128,17 @@ internal sealed class InstallationForm : BrandedForm
         for (int i = 0; i < tools.Length; i++)
         {
             var selected = targets.GetItemChecked(i);
-            targets.Items[i] = tools[i].Name + "：" + manager.Installation(tools[i]).State;
+            targets.Items[i] = TargetText(tools[i]);
             targets.SetItemChecked(i, selected);
         }
         RefreshMedia();
+    }
+    string TargetText(ToolDefinition tool)
+    {
+        var item = publicCatalog?.Packages.SingleOrDefault(p => p.Package.Id == tool.Id);
+        string? reason = catalogPath == null ? ToolInstallationRunner.PublicReason(tool, publicCatalog) : ToolInstallationRunner.UnsupportedReason(tool);
+        return tool.Name + "：" + manager.Installation(tool).State + (catalogPath == null && item != null ? " → " + ReleaseDisplay.Version(item) : "") +
+            (reason == null ? "" : " / " + reason);
     }
     void RefreshMedia()
     {
@@ -111,7 +154,7 @@ internal sealed class InstallationForm : BrandedForm
         if (installed.State != "導入済み") { completion.Text = "FFmpegの前にSSCaptureを正式インストールしてください。"; return; }
         var prompt = $"FFmpeg / FFprobe {FfmpegInstaller.Version}（約110 MB、Gyan GPLv3ビルド）を配布元から直接取得します。\n" +
             $"配置先：{installed.Directory}\\tools\n既存の録画用ファイルはバックアップ付きで置き換えます。設定・履歴・PATHは変更しません。\n" +
-            "容量・固定SHA-256を照合しますが、Authenticodeによる発行元確認ではありません。\nSSCaptureを本体の「正常停止」で停止してから実行してください。";
+            "容量・固定SHA-256を照合しますが、Authenticodeによる発行元確認ではありません。\nSSCaptureを本体の「停止させる」で停止してから実行してください。";
         if (MessageBox.Show(this, prompt, WindowTitle.Create("FFmpeg導入の確認"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
         SetRunning(true); cancellation = new(); var current = cancellation; log.Clear();
         results.Rows.Clear(); results.Rows.Add("FFmpeg / FFprobe", "処理中", "固定配布物の取得・検証・配置を行います。");
@@ -132,16 +175,20 @@ internal sealed class InstallationForm : BrandedForm
     }
     void Add(string label, string operation)
     {
-        var button = new Button { Text = label, AutoSize = true }; buttons.Controls.Add(button);
+        var button = new Button { Name = operation == "install" ? "batchInstall" : "batchUninstall", Text = label, AutoSize = true }; buttons.Controls.Add(button);
         button.Click += async (_, _) => await Run(operation);
     }
+    internal Task RunSelected() => singleOperation == null ? Task.CompletedTask : Run(singleOperation == "uninstall" ? "uninstall" : "install");
     async Task Run(string operation)
     {
-        if (running) return;
+        if (running || IsDisposed || singleOperation != null && singleStarted) return;
+        if (singleOperation != null) singleStarted = true;
         var selected = targets.CheckedIndices.Cast<int>().Select(i => tools[i]).ToArray();
         if (selected.Length == 0) { completion.Text = "対象を選択してください。"; return; }
-        var confirmation = ReleaseDisplay.Confirmation(selected, operation, manager.Installation, publicCatalog, catalogPath);
-        if (MessageBox.Show(this, confirmation, WindowTitle.Create("対象の確認"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
+        string confirmation;
+        try { confirmation = ReleaseDisplay.Confirmation(selected, operation, manager.Installation, publicCatalog, catalogPath); }
+        catch (Exception ex) { completion.Text = "操作内容を確認できません：" + ex.Message; return; }
+        if (!confirm(confirmation)) { completion.Text = "操作をキャンセルしました。変更していません。"; return; }
         SetRunning(true); cancellation = new(); var current = cancellation;
         log.Clear(); results.Rows.Clear(); completion.ForeColor = SystemColors.ControlText;
         foreach (var tool in selected) results.Rows.Add(tool.Name, "待機中", "");
@@ -157,17 +204,21 @@ internal sealed class InstallationForm : BrandedForm
                 results.Rows[index].Cells[1].Value = result.State; results.Rows[index].Cells[2].Value = result.Detail;
                 AppendLog(selected[index].Name + "：" + result.State + " / " + result.Detail);
             });
-            final = await new ToolInstallationRunner(manager).Run(selected, operation, publicCatalog, catalogPath, progress,
-                new Progress<string>(message => { if (running && cancellation == current) { completion.Text = message; AppendLog(message); } }), current.Token);
+            final = await execute(selected, operation, publicCatalog, catalogPath, progress,
+                new Progress<string>(message => { if (!IsDisposed && running && cancellation == current) { completion.Text = message; AppendLog(message); } }), current.Token);
         }
         catch (OperationCanceledException) { interruption = current.IsCancellationRequested
             ? "取得または残りの処理をキャンセルしました。進行中のインストーラーは強制終了しません。" : "取得処理が時間上限に達しました。インストーラーは実行していません。"; }
         catch (Exception ex) { interruption = "操作を開始／完了できませんでした：" + ex.Message; }
         finally
         {
-            SetRunning(false); ShowSummary(InstallationSummary.Create(selected, operation, final, interruption));
-            if (interruption != null) AppendLog(interruption);
-            cancellation = null; current.Dispose(); RefreshTargets();
+            if (!IsDisposed)
+            {
+                SetRunning(false); ShowSummary(InstallationSummary.Create(selected, operation, final, interruption));
+                if (interruption != null) AppendLog(interruption);
+                RefreshTargets();
+            }
+            cancellation = null; current.Dispose();
         }
     }
 }

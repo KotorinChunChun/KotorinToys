@@ -104,6 +104,10 @@ internal static class Program
                 PublicReleaseMetadataTests.Run(root, Check);
                 ReleaseDisplayTests.Run(root, Check);
                 HostUpdateFormTests.Run(root, Check);
+                InstallationFormWorkflowTests.Run(root, Check);
+                DashboardTests.Run(root, Check);
+                DashboardRefreshTests.Run(root, Check);
+                DashboardInstallationTests.Run(root, Check);
                 Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             if (args.SequenceEqual(["--self-update-panel"]))
@@ -148,7 +152,7 @@ internal static class Program
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
-            try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
+            try { InstallationSummaryTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); DashboardInstallationTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             ToolInstallationRunnerTests.Run(root, Check).GetAwaiter().GetResult();

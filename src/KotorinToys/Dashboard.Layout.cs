@@ -10,7 +10,7 @@ internal sealed partial class Dashboard
         grid.ColumnHeadersDefaultCellStyle.Padding = new(4, 8, 4, 8);
         grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         foreach (var (name, label, weight) in new[] { ("tool", "ツール", 16), ("summary", "ひとこと解説", 24),
-            ("installed", "導入済み版", 10), ("published", "公開版", 14), ("update", "更新", 13), ("state", "現在の状態", 12), ("detail", "詳細", 18) })
+            ("installed", "導入済み版", 10), ("published", "公開版・公開日", 22), ("update", "更新", 13), ("state", "現在の状態", 12), ("detail", "詳細", 18) })
         {
             var column = grid.Columns[grid.Columns.Add(name, label)]; column.FillWeight = weight;
             column.MinimumWidth = name == "summary" ? 150 : name == "tool" ? 125 : 80;
@@ -26,8 +26,8 @@ internal sealed partial class Dashboard
         };
         actions.Controls.Add(new Label { Text = "選択中アプリ：", AutoSize = true, Margin = new(3, 8, 8, 0) });
         hostActions.Controls.Add(new Label { Text = "本体全体：", AutoSize = true, Margin = new(3, 8, 8, 0) });
-        foreach (var (label, command, name) in new[] { ("起動設定を開く", DashboardCommand.Start, "start"),
-            ("停止させる", DashboardCommand.Stop, "stop"), ("使い方", DashboardCommand.Manual, "manual") })
+        foreach (var (label, command, name) in new[] { ("起動 / 設定を開く", DashboardCommand.Start, "start"),
+            ("停止させる", DashboardCommand.Stop, "stop"), ("使い方を開く", DashboardCommand.Manual, "manual") })
         {
             var button = new Button { Text = label, AutoSize = true, Name = name };
             button.Click += async (_, _) => await Execute(command); actions.Controls.Add(button);
@@ -40,11 +40,13 @@ internal sealed partial class Dashboard
             var button = new Button { Text = "本体設定・自動起動", Name = "hostSettings", AutoSize = true };
             button.Click += (_, _) => { using var form = new StartupSettingsForm(settings, startup, manager.KnownTools()); form.ShowDialog(this); }; hostActions.Controls.Add(button);
         }
-        var installation = new Button { Text = "導入・削除 / FFmpeg", AutoSize = true };
+        var installation = new Button { Name = "advancedSettings", Text = "詳細設定（開発者向け）", AutoSize = true };
         installation.Click += async (_, _) => await OpenInstallation(false); hostActions.Controls.Add(installation);
         var hostUpdate = new Button { Name = "hostUpdate", Text = "本体アップデート", AutoSize = true };
         hostUpdate.Click += (_, _) => OpenSelfUpdate(); hostActions.Controls.Add(hostUpdate);
-        update.Click += async (_, _) => await OpenInstallation(true); actions.Controls.Add(update);
+        install.Click += async (_, _) => await OpenToolInstallation("install"); actions.Controls.Add(install);
+        update.Click += async (_, _) => await OpenToolInstallation("update"); actions.Controls.Add(update);
+        uninstall.Click += async (_, _) => await OpenToolInstallation("uninstall"); actions.Controls.Add(uninstall);
         var footer = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 6, Padding = new(10) };
         footer.Controls.Add(overall); footer.Controls.Add(selection); footer.Controls.Add(catalogStatus); footer.Controls.Add(releaseStatus); footer.Controls.Add(selfUpdateStatus); footer.Controls.Add(operation);
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 1 };

@@ -20,7 +20,8 @@ internal sealed class ToolUpdateCoordinator(
         {
             var actual = installation(tool);
             if (actual.State is not ("導入済み" or "未導入")) throw new IOException(actual.Detail);
-            var package = InstallerAdapter.Load(catalog).Packages.Single(p => p.Id == tool.Id);
+            var package = InstallerAdapter.Load(catalog).Packages.SingleOrDefault(p => p.Id == tool.Id)
+                ?? throw new IOException("配布台帳に対象製品がありません：" + tool.Name);
             if (actual.State == "導入済み" && Version.TryParse(actual.Version, out var installedVersion) &&
                 Version.TryParse(package.Version, out var requestedVersion) && installedVersion > requestedVersion)
                 throw new IOException("導入済み版より古い公開版へ戻す操作は行いません。");

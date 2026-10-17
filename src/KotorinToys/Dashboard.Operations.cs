@@ -28,6 +28,7 @@ internal sealed partial class Dashboard
             var index = grid.CurrentRow?.Index ?? -1;
             if (index < 0 || index >= tools.Length) return;
             var tool = tools[index];
+            if (command == DashboardCommand.Stop && states[index].State == "停止中") return;
             if (command == DashboardCommand.Manual)
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(PathSafety.Resolve(manager.DocumentRoot(tool), tool.Manual)) { UseShellExecute = true });
             else
@@ -43,26 +44,50 @@ internal sealed partial class Dashboard
     }
     internal async Task OpenInstallation(bool updateOnly)
     {
-        if (busy || IsDisposed) return;
-        var index = grid.CurrentRow?.Index ?? 0;
-        if (updateOnly && (tools.Length == 0 || grid.CurrentRow == null)) return;
+        if (updateOnly) { await OpenToolInstallation("update"); return; }
         if (!TryBeginOperation()) return;
         try
         {
-            if (updateOnly)
+            await RefreshReleases();
+            if (!IsDisposed) showInstaller(null, ConfirmedCatalog());
+            await RefreshStates(true);
+        }
+        catch (Exception ex) { if (!IsDisposed) operation.Text = "詳細設定を開けません：" + ex.Message; }
+        finally { EndOperation(); }
+    }
+
+    ReleaseCatalog? ConfirmedCatalog()
+    {
+        var packages = releases.Where(r => r.Confirmed && r.Package != null).Select(r => r.Package!).ToArray();
+        return packages.Length > 0 ? new(1, packages) : null;
+    }
+
+    internal async Task OpenToolInstallation(string requested)
+    {
+        if (requested is not ("install" or "update" or "uninstall")) throw new ArgumentException("未対応の操作です。", nameof(requested));
+        if (busy || refreshingCatalog || checkingReleases || IsDisposed) return;
+        var index = grid.CurrentRow?.Index ?? -1;
+        if (index < 0 || index >= tools.Length) return;
+        var tool = tools[index];
+        if (requested == "update" && !ToolVersionView.Create(installations[index], releases[index]).CanUpdate) return;
+        if (!TryBeginOperation()) return;
+        try
+        {
+            if (requested != "uninstall") await RefreshReleases();
+            await RefreshStates(true);
+            if (IsDisposed) return;
+            var actual = installations[index];
+            var catalog = ConfirmedCatalog();
+            string? reason = requested == "uninstall" ? ToolInstallationRunner.UnsupportedReason(tool) : ToolInstallationRunner.PublicReason(tool, catalog);
+            if (reason != null) { operation.Text = tool.Name + "：" + reason; return; }
+            if (requested == "uninstall")
             {
-                await RefreshReleases();
-                await RefreshStates(true);
-                if (IsDisposed) return;
-                if (!ToolVersionView.Create(installations[index], releases[index]).CanUpdate)
-                {
-                    operation.Text = tools[index].Name + "：" + ToolVersionView.Create(installations[index], releases[index]).Update;
-                    return;
-                }
+                if (actual.State != "導入済み" || actual.Uninstaller == null)
+                { operation.Text = tool.Name + "：正式導入と削除プログラムを確認できません。"; return; }
             }
-            var packages = releases.Where(r => r.Package != null).Select(r => r.Package!).ToArray();
-            var catalog = packages.Length > 0 ? new ReleaseCatalog(1, packages) : null;
-            showInstaller(updateOnly ? tools[index].Id : null, catalog);
+            else if (requested == "install" ? actual.State != "未導入" : !ToolVersionView.Create(actual, releases[index]).CanUpdate)
+            { operation.Text = tool.Name + "：導入状態または公開版が変わりました。状態を更新して確認してください。"; return; }
+            showToolInstaller(tool.Id, requested, catalog);
             await RefreshStates(true);
         }
         catch (Exception ex) { if (!IsDisposed) operation.Text = "導入画面を開けません：" + ex.Message; }
@@ -70,7 +95,7 @@ internal sealed partial class Dashboard
     }
     bool TryBeginOperation()
     {
-        if (busy || refreshingCatalog) return false;
+        if (busy || refreshingCatalog || IsDisposed) return false;
         busy = true;
         actions.Enabled = hostActions.Enabled = false;
         return true;

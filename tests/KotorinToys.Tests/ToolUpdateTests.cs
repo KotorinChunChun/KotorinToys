@@ -34,5 +34,9 @@ internal static class ToolUpdateTests
         int previousInstalls = installs, previousStops = stops;
         result = await coordinator.Run(tool, catalog);
         check(result.State == "失敗" && installs == previousInstalls && stops == previousStops, "導入済みより古い版への変更を停止前に拒否");
+        var missing = ToolCatalog.Load(root).Single(t => t.Id == "ss-capture");
+        result = await coordinator.Run(missing, catalog);
+        check(result.State == "失敗" && result.Detail.Contains("配布台帳に対象製品がありません") && installs == previousInstalls && stops == previousStops,
+            "ローカル台帳の対象欠落も日本語の理由で停止前に拒否する");
     }
 }
