@@ -97,6 +97,11 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--download-tool-release-tests"]) || args.SequenceEqual(["--download-host-release-test"]))
+            {
+                PublishedDownloadTests.Run(root, Path.Combine(fixtures, "public-download"), args[0] == "--download-host-release-test").GetAwaiter().GetResult();
+                return 0;
+            }
             if (args.SequenceEqual(["--distribution-tests"]))
             {
                 ProductIdentityTests.Run(Check);
@@ -184,8 +189,8 @@ internal static class Program
     {
         var tools = ToolCatalog.Load(root);
         Check(tools.Length == 9, "schema 2でEveryDBを含む9ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 3 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "公開Innoの3ツールと未公開Innoの追加ツールを区別");
-        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 6, "EveryDBを含め6件は本体用インストーラー未公開");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 6 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応6ツールと今回公開しないShortcutKeyCounterを区別");
+        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 3, "ShortcutKeyCounter・HttpSelector・EveryDBは本体用Inno配布の対象外");
         Check(tools.All(t => t.Runtimes?.Length > 0), "9ツールの依存情報を持つ");
         Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"9ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");

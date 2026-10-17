@@ -9,7 +9,8 @@ internal static class RepositoryButtonTests
         {
             ["live-text-marker"] = "LiveTextMarker", ["smart-paste"] = "SmartPaste",
             ["ss-capture"] = "SSCapture", ["shortcut-key-counter"] = "ShortcutKeyCounter",
-            ["every-db"] = "EveryDB"
+            ["every-db"] = "EveryDB", ["capchun-screen"] = "CapchunWindow",
+            ["chulip-video"] = "ChulipVideo-CSharp", ["chunap-tool"] = "ChunapTool"
         };
         int opened = 0; Uri? requested = null;
         using var form = new Dashboard(root, openRepository: uri => { opened++; requested = uri; });

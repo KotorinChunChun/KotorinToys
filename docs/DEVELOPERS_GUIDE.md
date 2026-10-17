@@ -72,15 +72,15 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 ## 独立Git管理
 
-親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。ChunapToolも公開されたため、公開先のある5件を次の操作で取得します。公開先が未設定の子は`.gitmodules`にパスと`update=none`のみを記録しています。URLを創作せず、外部公開までは別途ローカルの独立リポジトリを用意してください。
+親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。以下は公開先のある7件の取得です。CapchunScreenはCapchunWindow、ChulipVideoはChulipVideo-CSharpを取得します。EveryDBは別途明示したupdateで取得できます。HttpSelectorはURL未設定のローカル管理を維持します。
 
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git
 cd KotorinToys
-git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/ChunapTool
+git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/CapchunScreen tools/ChulipVideo tools/ChunapTool
 ```
 
-本体だけを取得済みの場合も、上記の5件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソースの公開と製品インストーラーのReleases公開は別です。ChunapTool v0.1.1はランタイム同梱の未署名ポータブルZIPで、本体の正式導入・更新用インストーラーではありません。
+本体だけを取得済みの場合も、上記の7件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソース公開と製品Releaseは別です。0.1.2から追加3ツールも本体対応Inno配布を行います。ShortcutKeyCounter・HttpSelector・EveryDBの本体用Inno配布は対象外です。
 
 ## Releases配布
 
@@ -104,7 +104,9 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 `PublicReleaseClient`は製品識別・期限・失敗時の結果を制御し、`.Http.cs`は許可URL・リダイレクト・容量制限付きの読込だけを担当します。`PublicReleaseMetadata`は通信・画面・設定保存を持たず、最新候補の選択、assetの所有者・製品・tag、台帳と固定版・ハッシュの一致を検証します。選択候補はJSONを所有し、元のJsonDocumentの寿命に依存しません。HTTPを模擬する回帰と検証型の直接テストを両方維持してください。
 
-本体と3ツールは`KotorinChunChun`配下の各Releasesへ、未署名の開発版インストーラー・SHA256SUMS・製品別台帳を公開します。`catalog/releases.json`は同梱版の製品・版・サイズ・固定SHA-256を記録します。開発中のソースではPublicReleaseClientで既知3リポジトリの公開版（開発版を含む）と製品別台帳を取得し、製品識別・数値tag・準備済みasset・サイズ・GitHubのdigest（提供時）を照合します。取得失敗時の同梱版は未確認として表示します。同梱済み版と同じ版の配布情報が変更された場合も拒否します。新しい配布物は新しい版へ進め、旧assetを上書きしないでください。
+本体と対応6ツールは`KotorinChunChun`配下の各Releasesへ、未署名の開発版インストーラー・SHA256SUMS・製品別台帳を公開します。`catalog/releases.json`は同梱版の製品・版・サイズ・固定SHA-256を記録します。PublicReleaseClientはProductIdentityの固定配布先（C#版ChulipVideoはChulipVideo-CSharp）を使い、公開版（開発版を含む）・台帳・製品識別・数値tag・asset・容量・GitHub digestを照合します。取得失敗時の同梱版は未確認です。同版の配布情報差替を拒否し、新しい配布物は新しい版へ進めます。旧assetを上書きしないでください。
+
+公開入力は`stage-release-source.ps1`で親コミットと各gitlinkの採用ソースだけをUTF-8 ZIPから展開して作成します。元の作業ツリーや未採用の子HEADを混ぜません。日本語パス・Windowsパス長に備え短い隔離ルートを使います。配布スクリプトは`distribution-products.ps1`の固定表を共有し、`test-distribution-scripts.ps1`で検査できます。追加3ツールは`-Products CapchunWindow,ChulipVideo,ChunapTool`で指定します。製品名とソースのフォルダー名を混同しないでください。
 
 公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。公開版SSCaptureは`publish-packages.ps1 -ExcludeFFmpeg`を指定し、FFmpeg／FFprobeと利用者dataを含めません。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
 

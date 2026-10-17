@@ -7,7 +7,9 @@ internal static class ToolInstallationRunnerTests
         var tools = ToolCatalog.Load(root);
         var catalog = ReleaseDownloader.Load(root);
         var supported = tools.First(t => t.DistributionStatus == "published");
-        var unsupported = tools.Where(t => new[] { "shortcut-key-counter", "capchun-screen", "chulip-video", "chunap-tool" }.Contains(t.Id)).ToArray();
+        // 元の欠落・未公開条件を固定したfixture。実製品の公開後も負の回帰を残す。
+        var unsupported = tools.Where(t => new[] { "shortcut-key-counter", "capchun-screen", "chulip-video", "chunap-tool" }.Contains(t.Id))
+            .Select(t => t with { DistributionStatus = "unpublished" }).ToArray();
         int downloads = 0, executions = 0;
         var order = new List<string>(); bool failDownload = false;
         var runner = new ToolInstallationRunner(new(root),
@@ -44,5 +46,7 @@ internal static class ToolInstallationRunnerTests
         check(results[0].State == "成功" && downloads == 2, "開発者のローカル台帳は公開前でも利用可能");
         var msix = tools.Single(t => t.Id == "http-selector");
         check(ToolInstallationRunner.UnsupportedReason(msix) != null, "MSIXをInnoの導入削除へ混入させない");
+        results = await runner.Run(tools.Where(t => t.Id is "capchun-screen" or "chulip-video" or "chunap-tool").ToArray(), "install", catalog, null);
+        check(results.Length == 3 && results.All(r => r.State == "成功"), "公開済み追加3製品は共通取得・導入処理へ接続できる");
     }
 }

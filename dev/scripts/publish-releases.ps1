@@ -40,7 +40,7 @@ foreach($name in $Products | Select-Object -Unique){
     [ordered]@{schemaVersion=1;distributionStatus='published';packages=@($package)} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifest -Encoding utf8
     $notes="Windows 11 x64向けの未署名の開発版（prerelease）です。.NETランタイム同梱。設定・保存データは保持します。SHA256SUMSで配布物を確認できます。全機能の受入完了版ではありません。"
     if($name -eq 'SSCapture'){$notes+=" FFmpeg／FFprobe・OneOCR外部ファイルは同梱しません。録画にはFFmpeg公式の取得案内 https://ffmpeg.org/download.html を参照し、ffmpeg.exeとffprobe.exeを導入先のtoolsへ別途配置してください。"}
-    if($name -eq 'KotorinToys'){$notes+=" 本体の『本体アップデート』から新しいReleasesを照合・取得し、本体だけを正常終了・更新・再起動します。開発版は明示選択が必要です。初回はこの機能を含む版の手動導入が必要です。子ツールの実行状態と設定・履歴・自動起動予約は保持します。対応する子ツールの導入・更新は別画面です。"}
+    if($name -eq 'KotorinToys'){$notes+=" 本体の『本体アップデート』から新しいReleasesを照合・取得し、本体だけを正常終了・更新・再起動します。開発版は明示選択が必要です。初回はこの機能を含む版の手動導入が必要です。子ツールの実行状態と設定・履歴・自動起動予約は保持します。対応する子ツールの導入・更新はメイン一覧から操作します。"}
     if($name -eq 'KotorinToys'){$notes+=" メイン一覧から単体のインストール・アップデート・アンインストールを操作できます。公開日を表示し、一括操作・FFmpeg・ローカル台帳は開発者向け詳細設定へ集約しました。ShortcutKeyCounterは本体用インストーラー未公開として案内します。"}
     if($name -in @('CapchunWindow','ChulipVideo')){$notes+=" FFmpegは同梱しません。公式取得案内 https://ffmpeg.org/download.html を確認し、各アプリの設定で既存のffmpeg.exeを指定してください。"}
     if($name -eq 'CapchunWindow'){$notes+=" 仮想カメラのUnity Captureドライバーは別途必要です。入力記録は画面に映る機密情報やpassword入力を保護する保証ではありません。機密入力を含む録画・操作記録には使用しないでください。"}

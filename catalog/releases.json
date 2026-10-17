@@ -36,6 +36,30 @@
         "signature": "unsigned-public-build"
       },
       "length": 76355650
+    },
+    {
+      "package": {
+        "id": "capchun-screen", "name": "CapchunWindow", "version": "0.1.2",
+        "appId": "KotorinToys.CapchunScreen", "file": "CapchunWindow-0.1.2-setup.exe",
+        "sha256": "4ba8b4c2a4c453d56d706b7f48b7caacc9c868675ad927e6d4339b39ae429177", "signature": "unsigned-public-build"
+      },
+      "length": 80734735
+    },
+    {
+      "package": {
+        "id": "chulip-video", "name": "ChulipVideo", "version": "0.2.1",
+        "appId": "KotorinToys.ChulipVideo", "file": "ChulipVideo-0.2.1-setup.exe",
+        "sha256": "6e0d09298484f9d6cebc972d6d5c6f368f591c7dc0db6d6c0a300aa14c665604", "signature": "unsigned-public-build"
+      },
+      "length": 76428634
+    },
+    {
+      "package": {
+        "id": "chunap-tool", "name": "ChunapTool", "version": "0.1.2",
+        "appId": "KotorinToys.ChunapTool", "file": "ChunapTool-0.1.2-setup.exe",
+        "sha256": "87ff5b0979723a76ce80ee3b8a5b0849ec7abfc67f41aa328616682d7c4a45a4", "signature": "unsigned-public-build"
+      },
+      "length": 80806507
     }
   ]
 }

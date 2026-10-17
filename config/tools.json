@@ -213,7 +213,7 @@
       "manual": "docs/users-guide.md",
       "readme": "README.md",
       "shortcuts": "config/shortcuts.json",
-      "distributionStatus": "unpublished",
+      "distributionStatus": "published",
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
       "capabilities": [
@@ -247,12 +247,13 @@
           "guide": "仮想カメラ使用時のみ別途ドライバーが必要です。CapchunWindowの「導入ガイド」で公式配布先と導入手順を確認できます。"
         }
       ],
-      "toolRoot": "tools/CapchunScreen"
+      "toolRoot": "tools/CapchunScreen",
+      "repositoryUrl": "https://github.com/KotorinChunChun/CapchunWindow"
     },
     {
       "id": "chulip-video",
       "name": "ChulipVideo",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "summary": "動画から手順書用の画像を切り出す",
       "category": "動画・画像編集",
       "executable": "artifacts/management/bin/ChulipVideo/debug/ChulipVideo.exe",
@@ -261,7 +262,7 @@
       "manual": "docs/guide.md",
       "readme": "README.md",
       "shortcuts": "config/shortcuts.json",
-      "distributionStatus": "unpublished",
+      "distributionStatus": "published",
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
       "capabilities": [
@@ -287,12 +288,13 @@
           "guide": "設定でlibx264対応FFmpeg実行ファイルを指定してください。本体のSSCapture専用FFmpeg導入とは別設定です。"
         }
       ],
-      "toolRoot": "tools/ChulipVideo"
+      "toolRoot": "tools/ChulipVideo",
+      "repositoryUrl": "https://github.com/KotorinChunChun/ChulipVideo-CSharp"
     },
     {
       "id": "chunap-tool",
       "name": "ChunapTool",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "summary": "選択したウィンドウの位置・サイズ・最大化を調整する",
       "category": "ウィンドウ操作",
       "executable": "artifacts/management/bin/ChunapTool/debug/ChunapTool.exe",
@@ -301,7 +303,7 @@
       "manual": "docs/guide.md",
       "readme": "README.md",
       "shortcuts": "config/shortcuts.json",
-      "distributionStatus": "unpublished",
+      "distributionStatus": "published",
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
       "capabilities": [

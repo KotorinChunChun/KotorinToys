@@ -11,10 +11,10 @@ LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、C
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git
 cd KotorinToys
-git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/ChunapTool
+git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/CapchunScreen tools/ChulipVideo tools/ChunapTool
 ```
 
-公開リポジトリのある5ツールは、それぞれ本体が採用した版を取得します。EveryDBの提供元は [独立リポジトリ](https://github.com/KotorinChunChun/EveryDB) に登録しており、取得権限のあるアカウントでは `git submodule update --init -- tools/EveryDB` で取得できます。CapchunScreen、ChulipVideo、HttpSelectorはローカル管理です。9件構成をビルドするにはこれら3フォルダーも必要です。全体への`--recurse-submodules`は現段階では使用しないでください。
+公開リポジトリのある7ツールは、それぞれ本体が採用した版を取得します。CapchunScreenフォルダーの製品名はCapchunWindow、ChulipVideoは専用のChulipVideo-CSharpを取得します。EveryDBは [独立リポジトリ](https://github.com/KotorinChunChun/EveryDB) から `git submodule update --init -- tools/EveryDB` で取得できます。HttpSelectorはローカル管理のため、9件構成の開発ビルドには別途ソースが必要です。全体への`--recurse-submodules`は現段階では使用しないでください。配布本体の利用に子ソースの取得は不要です。
 
 ## サポートアプリ
 
@@ -26,9 +26,9 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [SmartPaste](tools/SmartPaste/README.md) | 貼り付け作業を支援するツール | 起動・停止・状態確認に対応 |
 | [SSCapture](tools/SSCapture/README.md) | 画面撮影・録画と保存先や命名を管理するツール | 起動・停止・状態確認に対応 |
 | [ShortcutKeyCounter](tools/ShortcutKeyCounter/README.md) | ショートカットキーの利用回数を端末内で記録・集計し、入力を画面に表示するツール | 開発版の起動・画面表示・正常停止・状態確認に対応 |
-| [CapchunScreen](tools/CapchunScreen/README.md) | 画面録画・操作履歴TSV・独立プレビュー・複数動画の同時再生・Unity Capture出力を行うツール | ローカル開発版の起動・画面表示・正常停止・状態確認に対応 |
-| [ChulipVideo](tools/ChulipVideo/README.md) | 動画から手順書用の画像を切り出すツール | ローカル開発版の起動・画面表示・正常停止・状態確認に対応 |
-| [ChunapTool](tools/ChunapTool/README.md) | ウィンドウの位置・サイズ・最大化を調整するツール | ローカル開発版の起動・画面表示・正常停止・状態確認に対応 |
+| [CapchunWindow](tools/CapchunScreen/README.md) | 画面録画・操作履歴TSV・独立プレビュー・複数動画の同時再生・Unity Capture出力を行うツール | 導入・更新・削除と起動・停止・状態確認に対応 |
+| [ChulipVideo C#版](tools/ChulipVideo/README.md) | 動画から手順書用の画像を切り出すツール | 導入・更新・削除と起動・停止・状態確認に対応 |
+| [ChunapTool](tools/ChunapTool/README.md) | ウィンドウの位置・サイズ・最大化を調整するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [HttpSelector](tools/HttpSelector/README.md) | 危険なリンクを警告し、ブラウザーのプロファイルを選ぶツール | 署名付きMSIXの起動・画面表示・正常停止・状態確認に対応 |
 | [EveryDB](tools/EveryDB/README.md) | 複数のデータソースをSQLiteへ取り込み、横断検索するツール | ローカル開発版の起動・画面表示・正常停止・状態確認に対応 |
 
@@ -36,15 +36,15 @@ HttpSelectorは[署名付きMSIXの導入](tools/HttpSelector/docs/INSTALL_MSIX.
 
 ShortcutKeyCounterの本体連携は[管理連携の手順](tools/ShortcutKeyCounter/docs/kotorintoys-integration.md)を参照してください。公開済みポータブルZIPとは別の開発ソースをビルドして利用します。本体からの正式導入・更新は未対応です。単独での利用方法は[ユーザーガイド](tools/ShortcutKeyCounter/docs/users-guide.md)を参照してください。
 
-追加3ツールは独立Gitを維持し、親は採用コミットだけを記録します。ChunapToolは[公開リポジトリ](https://github.com/KotorinChunChun/ChunapTool)と[v0.1.1ポータブル開発版](https://github.com/KotorinChunChun/ChunapTool/releases/tag/v0.1.1)を公開しました。CapchunScreenとChulipVideoの`.gitmodules`はパスと`update=none`のみを登録し、架空の公開URLを設定しません。各アプリの利用ガイドと管理連携ガイドを参照してください。本体からの正式インストール・更新は未対応です。ひとこと解説の文言の再編集は後続対応とします。
+追加3ツールは独立Gitを維持し、親は採用コミットだけを記録します。[CapchunWindow 0.1.2](https://github.com/KotorinChunChun/CapchunWindow/releases/tag/v0.1.2)、[ChulipVideo C# 0.2.1](https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/tag/v0.2.1)、[ChunapTool 0.1.2](https://github.com/KotorinChunChun/ChunapTool/releases/tag/v0.1.2)をランタイム同梱の本体対応インストーラーで公開しています。旧ZIPや別実装は置き換えません。FFmpegと仮想カメラドライバーは同梱しません。各アプリの導入ガイドを確認してください。
 
-EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。[独立リポジトリ](https://github.com/KotorinChunChun/EveryDB)は公開前点検と履歴整理を実施しました。履歴整理前に取得したコピーは新規取得し直してください。本体の正式インストール・更新は未対応です。ローカルの`config/tools.json`への登録はこのブランチにあります。mainの公開一覧への反映は別途行います。
+EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。[独立リポジトリ](https://github.com/KotorinChunChun/EveryDB)は公開前点検と履歴整理を実施しました。履歴整理前に取得したコピーは新規取得し直してください。本体対応Inno形式の正式インストール・更新は未対応で、単体配布を利用します。
 
 ## インストーラー（開発版）
 
-[本体のReleases](https://github.com/KotorinChunChun/KotorinToys/releases)から`KotorinToys-0.1.1-setup.exe`を取得してください。Windows 11 x64・利用者単位・ランタイム同梱の未署名開発版です。全機能の受入完了版ではありません。
+[本体0.1.2のReleases](https://github.com/KotorinChunChun/KotorinToys/releases/tag/v0.1.2)から`KotorinToys-0.1.2-setup.exe`を取得してください。Windows 11 x64・利用者単位・ランタイム同梱の未署名開発版です。全機能の受入完了版ではありません。既存の0.1.1からは「本体アップデート」で開発版も対象にするか、setupで保持付き更新してください。
 
-公開v0.1.1では「導入・削除」から対象ツールを選択します。現行の開発ソースでは、メイン一覧に「インストール」「アップデート」「アンインストール」を配置し、GitHub Releasesから照合済み固定版を取得する方式を標準にしています。公開日の併記、未対応配布の案内、停止中の停止ボタン無効化も追加しました。一括操作・FFmpeg導入・ローカル配布台帳は「詳細設定（開発者向け）」へ移しています。これらの追加変更は既存の公開インストーラーやこのPCの導入済み本体には未反映です。設定・保存データは保持し、正常終了を拒否したツールは更新・削除しません。SSCaptureの録画用FFmpeg／FFprobeとOneOCR外部ファイルは別途必要です。
+0.1.2ではメイン一覧から「インストール」「アップデート」「アンインストール」を操作できます。GitHub Releasesの固定版・容量・SHA-256を照合し、公開日を版の右に表示します。一括操作・SSCaptureのFFmpeg導入・ローカル台帳は「詳細設定（開発者向け）」にあります。未対応配布を選んでも内部検索エラーにはせず、理由を表示します。設定・履歴は保持し、正常終了を拒否した対象は更新・削除しません。SSCaptureのOneOCR外部ファイルは別途必要です。
 
 ## 開発版の起動
 
@@ -74,7 +74,7 @@ pwsh -File dev/scripts/start.ps1
 - `docs/` — 利用・開発・運用の現行資料
 - `dev/history/v0.1.0/` — v0.1.0の要求・準備計画・進捗
 
-各ツールは単独で導入・開発・利用できる独立リポジトリとして扱います。親プロジェクトから既存ツールの内部構成を一括変更しません。
+各ツールは単独で導入・開発・利用できる独立リポジトリとして扱います。親プロジェクトから既存ツールの内部構成を一括変更しません。今回の配布範囲と検証結果は[v0.1.2記録](dev/history/v0.1.2/v0.1.2-imp.md)を参照してください。
 
 ## 開発者向け情報
 
