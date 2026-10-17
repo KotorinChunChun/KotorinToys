@@ -142,6 +142,7 @@ internal static class Program
             try { InstallationSummaryTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
+            ToolInstallationRunnerTests.Run(root, Check).GetAwaiter().GetResult();
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();
             PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             PublicReleaseMetadataTests.Run(root, Check);

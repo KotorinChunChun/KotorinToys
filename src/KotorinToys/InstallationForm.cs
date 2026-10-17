@@ -163,19 +163,8 @@ internal sealed class InstallationForm : BrandedForm
                 results.Rows[index].Cells[1].Value = result.State; results.Rows[index].Cells[2].Value = result.Detail;
                 AppendLog(selected[index].Name + "：" + result.State + " / " + result.Detail);
             });
-            var prepared = catalogPath;
-            if (operation == "install" && prepared == null)
-            {
-                using var downloader = new ReleaseDownloader();
-                var catalog = publicCatalog ?? ReleaseDownloader.Load(manager.Root);
-                // 製品の識別は維持し、照合済み公開版の固定スナップショットを取得する。
-                var versions = selected.Select(tool => tool with { Version = catalog.Packages.Single(p => p.Package.Id == tool.Id).Package.Version }).ToArray();
-                prepared = await downloader.Prepare(catalog, versions,
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KotorinToys", "packages"),
-                    new Progress<string>(message => { if (running && cancellation == current) { completion.Text = message; AppendLog(message); } }), current.Token);
-            }
-            var adapter = new InstallerAdapter(manager);
-            final = await new InstallationQueue(adapter, new ToolUpdateCoordinator(manager, adapter)).Run(selected, operation, prepared, progress, current.Token);
+            final = await new ToolInstallationRunner(manager).Run(selected, operation, publicCatalog, catalogPath, progress,
+                new Progress<string>(message => { if (running && cancellation == current) { completion.Text = message; AppendLog(message); } }), current.Token);
         }
         catch (OperationCanceledException) { interruption = current.IsCancellationRequested
             ? "取得または残りの処理をキャンセルしました。進行中のインストーラーは強制終了しません。" : "取得処理が時間上限に達しました。インストーラーは実行していません。"; }
