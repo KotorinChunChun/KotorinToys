@@ -1,10 +1,11 @@
 param(
     [Parameter(Mandatory)][string]$CatalogPath,
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')][string[]]$Products=@('LiveTextMarker','SmartPaste','SSCapture'),
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool')][string[]]$Products=@('LiveTextMarker','SmartPaste','SSCapture'),
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path (Split-Path $PSScriptRoot)
+. (Join-Path $PSScriptRoot 'distribution-products.ps1')
 if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $catalogFile=[IO.Path]::GetFullPath($CatalogPath)
 $allowed=[IO.Path]::GetFullPath((Join-Path $projectRoot "dev/history/$RecordVersion/logs"))+[IO.Path]::DirectorySeparatorChar
@@ -21,12 +22,13 @@ foreach($name in $Products | Select-Object -Unique){
     $package=@($catalog.packages | Where-Object name -eq $name)
     if($package.Count -ne 1){throw "対象が一意ではありません：$name"}
     $package=$package[0]
-    $id=switch($name){'KotorinToys'{'host'} 'LiveTextMarker'{'live-text-marker'} 'SmartPaste'{'smart-paste'} 'SSCapture'{'ss-capture'}}
-    $appId=if($id -eq 'host'){'KotorinToys'}else{'KotorinToys.'+$name}
+    $identity=Get-DistributionProduct $name
+    $id=$identity.Id
+    $appId=$identity.AppId
     if($package.id -ne $id -or $package.appId -ne $appId -or $package.version -notmatch '^\d+\.\d+\.\d+$' -or $package.file -ne "$name-$($package.version)-setup.exe" -or $package.signature -ne 'unsigned-local-build' -or $package.sha256 -notmatch '^[a-f0-9]{64}$'){throw '配布製品・版・形式が不正です。'}
     $file=Join-Path $directory $package.file
     if((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $package.sha256){throw '公開直前のハッシュが一致しません。'}
-    $repoPath=if($id -eq 'host'){$projectRoot}else{Join-Path $projectRoot "tools/$name"}
+    $repoPath=if($id -eq 'host'){$projectRoot}else{Join-Path $projectRoot "tools/$($identity.Folder)"}
     $commit=git -c "safe.directory=$repoPath" -C $repoPath rev-parse HEAD
     if($LASTEXITCODE -ne 0){throw '採用コミットがありません。'}
     $remote=git -c "safe.directory=$repoPath" -C $repoPath ls-remote origin refs/heads/main
@@ -39,7 +41,10 @@ foreach($name in $Products | Select-Object -Unique){
     $notes="Windows 11 x64向けの未署名の開発版（prerelease）です。.NETランタイム同梱。設定・保存データは保持します。SHA256SUMSで配布物を確認できます。全機能の受入完了版ではありません。"
     if($name -eq 'SSCapture'){$notes+=" FFmpeg／FFprobe・OneOCR外部ファイルは同梱しません。録画にはFFmpeg公式の取得案内 https://ffmpeg.org/download.html を参照し、ffmpeg.exeとffprobe.exeを導入先のtoolsへ別途配置してください。"}
     if($name -eq 'KotorinToys'){$notes+=" 本体の『本体アップデート』から新しいReleasesを照合・取得し、本体だけを正常終了・更新・再起動します。開発版は明示選択が必要です。初回はこの機能を含む版の手動導入が必要です。子ツールの実行状態と設定・履歴・自動起動予約は保持します。対応する子ツールの導入・更新は別画面です。"}
-    & $ghExe release create "v$($package.version)" $file $shaFile $manifest --repo "KotorinChunChun/$name" --target $commit --title "$name $($package.version) 開発版" --notes $notes --prerelease
+    if($name -eq 'KotorinToys'){$notes+=" メイン一覧から単体のインストール・アップデート・アンインストールを操作できます。公開日を表示し、一括操作・FFmpeg・ローカル台帳は開発者向け詳細設定へ集約しました。ShortcutKeyCounterは本体用インストーラー未公開として案内します。"}
+    if($name -in @('CapchunWindow','ChulipVideo')){$notes+=" FFmpegは同梱しません。公式取得案内 https://ffmpeg.org/download.html を確認し、各アプリの設定で既存のffmpeg.exeを指定してください。"}
+    if($name -eq 'CapchunWindow'){$notes+=" 仮想カメラのUnity Captureドライバーは別途必要です。入力記録は画面に映る機密情報やpassword入力を保護する保証ではありません。機密入力を含む録画・操作記録には使用しないでください。"}
+    & $ghExe release create "v$($package.version)" $file $shaFile $manifest --repo "KotorinChunChun/$($identity.Repository)" --target $commit --title "$name $($package.version) 開発版" --notes $notes --prerelease
     if($LASTEXITCODE -ne 0){throw 'Release作成が失敗しました。既存assetの上書き・再公開は自動実行しません。'}
     $published+= [ordered]@{package=$package;length=(Get-Item -LiteralPath $file).Length}
 }

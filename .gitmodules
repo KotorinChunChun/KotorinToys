@@ -12,10 +12,10 @@
 	url = https://github.com/KotorinChunChun/ShortcutKeyCounter.git
 [submodule "tools/CapchunScreen"]
 	path = tools/CapchunScreen
-	update = none
+	url = https://github.com/KotorinChunChun/CapchunWindow.git
 [submodule "tools/ChulipVideo"]
 	path = tools/ChulipVideo
-	update = none
+	url = https://github.com/KotorinChunChun/ChulipVideo-CSharp.git
 [submodule "tools/ChunapTool"]
 	path = tools/ChunapTool
 	url = https://github.com/KotorinChunChun/ChunapTool.git

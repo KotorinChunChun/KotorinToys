@@ -1,11 +1,12 @@
 param(
     [Parameter(Mandatory)][string]$PackageDirectory,
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture')]
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool')]
     [string[]]$Products=@('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path (Split-Path $PSScriptRoot)
+. (Join-Path $PSScriptRoot 'distribution-products.ps1')
 if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $packageRoot=[IO.Path]::GetFullPath($PackageDirectory)
 $allowedRoot=[IO.Path]::GetFullPath((Join-Path $projectRoot 'artifacts/packages')) + [IO.Path]::DirectorySeparatorChar
@@ -25,9 +26,12 @@ foreach($product in $Products | Select-Object -Unique) {
         if(-not $file.StartsWith($payload+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'ファイル台帳の範囲外参照です。' }
         if((Get-Item -LiteralPath $file).Length -ne $entry.length -or (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.sha256){throw "配布入力のハッシュが不一致です：$product/$($entry.path)"}
     }
-    $expectedId=if($product -eq 'KotorinToys'){'KotorinToys'}else{'KotorinToys.'+$product}
+    $identity = Get-DistributionProduct $product
+    $expectedId=$identity.AppId
     if($definition.name -ne $product -or $definition.appId -ne $expectedId -or $definition.version -notmatch '^\d+\.\d+\.\d+$'){throw '製品定義が不正です。'}
     if(@(Get-ChildItem -LiteralPath $payload -File -Recurse).Count -ne $manifest.files.Count){throw '台帳にない追加ファイルがあります。'}
+    $exeInfo = [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $payload "$product.exe"))
+    if ($exeInfo.ProductName -ne $product -or "$($exeInfo.FileMajorPart).$($exeInfo.FileMinorPart).$($exeInfo.FileBuildPart)" -ne $definition.version) { throw '配布EXEの製品名・版が定義と一致しません。' }
     $arguments=@('--quiet-progress',"--define=ProductName=$product","--define=ProductAppId=$($definition.appId)","--define=ProductVersion=$($definition.version)","--define=Payload=$payload","--define=OutputDirectory=$output",(Join-Path $projectRoot 'installers/product.iss'))
     & $compiler @arguments 2>&1 | Tee-Object -FilePath (Join-Path $output "$product-compile.log") | Out-Host
     if($LASTEXITCODE -ne 0){throw "$product のインストーラーコンパイルに失敗しました。"}
