@@ -200,8 +200,8 @@ internal static class Program
         Check(everyDb is { Name: "EveryDB", Version: "0.1.0", AppId: "KotorinToys.EveryDB", DistributionStatus: "unpublished" } &&
             everyDb.Executable == "src-tauri/target/kotorintoys/debug/everydb.exe" && everyDb.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]),
             "EveryDBの独立リポジトリ・開発実行先・管理能力を登録");
-        var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs"));
-        Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path))==contract),"共通管理実装と3子コピーの一致");
+        var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs")).Replace("\r\n", "\n");
+        Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path)).Replace("\r\n", "\n")==contract),"改行形式を除く共通管理実装と3子コピーの一致");
         foreach (var name in new[] { "CapchunScreen", "ChulipVideo", "ChunapTool" })
         {
             string Normalize(string value) => value.Replace("\r\n", "\n").TrimEnd();
