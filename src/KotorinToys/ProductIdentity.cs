@@ -1,8 +1,9 @@
 namespace KotorinToys;
 
 // 配布とメンテナンスが共有する固定の製品識別。表示名で曖昧検索しない。
-internal sealed record ProductIdentity(string Id, string Name, string AppId)
+internal sealed record ProductIdentity(string Id, string Name, string AppId, string? RepositoryName = null)
 {
+    public string Repository => RepositoryName ?? Name;
     static readonly ProductIdentity[] products =
     [
         new("host", "KotorinToys", "KotorinToys"),
@@ -10,8 +11,8 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId)
         new("smart-paste", "SmartPaste", "KotorinToys.SmartPaste"),
         new("ss-capture", "SSCapture", "KotorinToys.SSCapture"),
         new("shortcut-key-counter", "ShortcutKeyCounter", "KotorinToys.ShortcutKeyCounter"),
-        new("capchun-screen", "CapchunScreen", "KotorinToys.CapchunScreen"),
-        new("chulip-video", "ChulipVideo", "KotorinToys.ChulipVideo"),
+        new("capchun-screen", "CapchunWindow", "KotorinToys.CapchunScreen"),
+        new("chulip-video", "ChulipVideo", "KotorinToys.ChulipVideo", "ChulipVideo-CSharp"),
         new("chunap-tool", "ChunapTool", "KotorinToys.ChunapTool"),
         new("http-selector", "HttpSelector", "KotorinToys.HttpSelector")
     ];

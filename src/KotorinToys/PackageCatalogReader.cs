@@ -17,7 +17,7 @@ internal static class PackageCatalogReader
 
     internal static void Validate(PackageCatalog value)
     {
-        if (value.SchemaVersion != 1 || value.DistributionStatus is not ("unpublished" or "published") || value.Packages == null || value.Packages.Length is < 1 or > 4 || value.Packages.Select(p => p.Id).Distinct().Count() != value.Packages.Length)
+        if (value.SchemaVersion != 1 || value.DistributionStatus is not ("unpublished" or "published") || value.Packages == null || value.Packages.Length is < 1 or > 16 || value.Packages.Select(p => p.Id).Distinct().Count() != value.Packages.Length)
             throw new IOException("未対応または重複したローカル配布台帳です。");
         foreach (var package in value.Packages)
         {

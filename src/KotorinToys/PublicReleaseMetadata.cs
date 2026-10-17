@@ -40,7 +40,9 @@ internal sealed class PublicReleaseMetadata
         var matches = assets.Where(a => a.GetProperty("name").GetString() == name).ToArray();
         if (matches.Length != 1 || matches[0].GetProperty("state").GetString() != "uploaded")
             throw new IOException("公開assetが欠落・重複・未準備です：" + name);
-        var url = $"https://github.com/KotorinChunChun/{tool.Name}/releases/download/{tag}/{name}";
+        var product = ProductIdentity.FromId(tool.Id) ?? throw new IOException("公開製品の固定配布先がありません。");
+        if (product.Name != tool.Name || product.AppId != tool.AppId) throw new IOException("公開製品の識別が一致しません。");
+        var url = $"https://github.com/KotorinChunChun/{product.Repository}/releases/download/{tag}/{name}";
         if (matches[0].GetProperty("browser_download_url").GetString() != url)
             throw new IOException("公開assetの所有者・製品・tagが一致しません。");
         return matches[0];

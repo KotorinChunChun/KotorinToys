@@ -38,7 +38,8 @@ internal sealed partial class PublicReleaseClient : IDisposable
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var token = deadline.Token;
-            using var list = JsonDocument.Parse(await Read(new($"https://api.github.com/repos/KotorinChunChun/{tool.Name}/releases?per_page=100"), 2 * 1024 * 1024, token));
+            var repository = ProductIdentity.FromId(tool.Id)?.Repository ?? throw new IOException("公開製品の固定配布先がありません。");
+            using var list = JsonDocument.Parse(await Read(new($"https://api.github.com/repos/KotorinChunChun/{repository}/releases?per_page=100"), 2 * 1024 * 1024, token));
             var latest = PublicReleaseMetadata.Select(list.RootElement, includePrerelease);
             var manifest = latest.Asset(tool, tool.Name + "-packages.json");
             var installer = latest.Asset(tool, $"{tool.Name}-{latest.Version}-setup.exe");

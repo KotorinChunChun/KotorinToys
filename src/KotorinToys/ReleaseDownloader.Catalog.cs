@@ -25,6 +25,11 @@ internal sealed partial class ReleaseDownloader
             throw new IOException("公開ツールのサイズまたは対象が不正です。");
     }
 
-    internal static Uri Asset(ReleasePackage item) => new($"https://github.com/KotorinChunChun/{item.Package.Name}/releases/download/v{item.Package.Version}/{item.Package.File}");
+    internal static Uri Asset(ReleasePackage item)
+    {
+        var product = ProductIdentity.FromId(item.Package.Id) ?? throw new IOException("公開製品の固定配布先がありません。");
+        if (product.Name != item.Package.Name || product.AppId != item.Package.AppId) throw new IOException("公開製品の識別が一致しません。");
+        return new($"https://github.com/KotorinChunChun/{product.Repository}/releases/download/v{item.Package.Version}/{item.Package.File}");
+    }
     internal static bool Allowed(Uri uri) => uri.Scheme == "https" && uri.IsDefaultPort && string.IsNullOrEmpty(uri.UserInfo) && uri.Host is "github.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com";
 }
