@@ -97,6 +97,10 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--public-catalog-acceptance"]))
+            {
+                PublishedDownloadTests.RunCatalog(root, Path.Combine(fixtures, "public-catalog")).GetAwaiter().GetResult(); return 0;
+            }
             if (args.SequenceEqual(["--download-tool-release-tests"]) || args.SequenceEqual(["--download-host-release-test"]))
             {
                 PublishedDownloadTests.Run(root, Path.Combine(fixtures, "public-download"), args[0] == "--download-host-release-test").GetAwaiter().GetResult();
