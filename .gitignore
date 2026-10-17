@@ -21,7 +21,13 @@ obj/
 # ローカル環境変数・認証情報
 .env
 .env.local
+.env.*
+*.env
+!.env.example
+!*.env.example
 secrets.json
+credentials.json
+.npmrc
 *.pfx
 *.p12
 *.key
@@ -41,5 +47,16 @@ Thumbs.db
 # ログ・実行時一時データ
 *.log
 *.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+*.db.*.bak
+/dev/private/
+/dev/temp/
 tmp/
 .claude/

@@ -14,7 +14,7 @@ cd KotorinToys
 git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/ChunapTool
 ```
 
-公開先のある5ツールは、それぞれの独立リポジトリから本体が採用した版を取得します。CapchunScreen、ChulipVideo、HttpSelector、EveryDBのソースはローカル管理で、Gitの公開先が未設定です。9件構成をビルドするにはこれら4フォルダーの独立リポジトリも必要です。全体への`--recurse-submodules`は現段階では使用しないでください。
+公開リポジトリのある5ツールは、それぞれ本体が採用した版を取得します。EveryDBの提供元は [独立リポジトリ](https://github.com/KotorinChunChun/EveryDB) に登録しており、取得権限のあるアカウントでは `git submodule update --init -- tools/EveryDB` で取得できます。CapchunScreen、ChulipVideo、HttpSelectorはローカル管理です。9件構成をビルドするにはこれら3フォルダーも必要です。全体への`--recurse-submodules`は現段階では使用しないでください。
 
 ## サポートアプリ
 
@@ -38,7 +38,7 @@ ShortcutKeyCounterの本体連携は[管理連携の手順](tools/ShortcutKeyCou
 
 追加3ツールは独立Gitを維持し、親は採用コミットだけを記録します。ChunapToolは[公開リポジトリ](https://github.com/KotorinChunChun/ChunapTool)と[v0.1.1ポータブル開発版](https://github.com/KotorinChunChun/ChunapTool/releases/tag/v0.1.1)を公開しました。CapchunScreenとChulipVideoの`.gitmodules`はパスと`update=none`のみを登録し、架空の公開URLを設定しません。各アプリの利用ガイドと管理連携ガイドを参照してください。本体からの正式インストール・更新は未対応です。ひとこと解説の文言の再編集は後続対応とします。
 
-EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。独立リポジトリのURLは未設定で、本体の正式インストール・更新も未対応です。ローカルの`config/tools.json`への登録はこのブランチにあります。GitHubの公開一覧へは親リポジトリを公開するまで反映されません。
+EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。[独立リポジトリ](https://github.com/KotorinChunChun/EveryDB)は公開前点検と履歴整理を実施しました。履歴整理前に取得したコピーは新規取得し直してください。本体の正式インストール・更新は未対応です。ローカルの`config/tools.json`への登録はこのブランチにあります。mainの公開一覧への反映は別途行います。
 
 ## インストーラー（開発版）
 

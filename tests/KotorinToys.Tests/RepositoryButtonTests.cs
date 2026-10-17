@@ -8,7 +8,8 @@ internal static class RepositoryButtonTests
         var expected = new Dictionary<string, string>
         {
             ["live-text-marker"] = "LiveTextMarker", ["smart-paste"] = "SmartPaste",
-            ["ss-capture"] = "SSCapture", ["shortcut-key-counter"] = "ShortcutKeyCounter"
+            ["ss-capture"] = "SSCapture", ["shortcut-key-counter"] = "ShortcutKeyCounter",
+            ["every-db"] = "EveryDB"
         };
         int opened = 0; Uri? requested = null;
         using var form = new Dashboard(root, openRepository: uri => { opened++; requested = uri; });

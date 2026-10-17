@@ -24,4 +24,4 @@
 	update = none
 [submodule "tools/EveryDB"]
 	path = tools/EveryDB
-	update = none
+	url = https://github.com/KotorinChunChun/EveryDB.git
