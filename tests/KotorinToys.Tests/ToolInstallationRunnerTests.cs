@@ -39,8 +39,10 @@ internal static class ToolInstallationRunnerTests
         using var cancel = new CancellationTokenSource(); cancel.Cancel();
         results = await runner.Run([supported, unsupported[0]], "install", catalog, null, cancellation: cancel.Token);
         check(results.All(r => r.State == "未実行") && executions == 1, "取消後は残りを未実行とし強制停止しない");
-        results = await runner.Run([supported, supported], "uninstall", null, null);
+        var progressRows = new List<InstallResult>();
+        results = await runner.Run([supported, supported], "uninstall", null, null, new ImmediateProgress<InstallResult>(progressRows.Add));
         check(results.Length == 1 && executions == 2, "削除は公開配布情報不要・重複対象を一度だけ処理");
+        check(progressRows.Single(r => r.State == "処理中").Detail == "実行中です", "公開配布の実行中メッセージを簡潔にする");
         failDownload = false;
         results = await runner.Run([unsupported[0]], "install", null, "local-packages.json");
         check(results[0].State == "成功" && downloads == 2, "開発者のローカル台帳は公開前でも利用可能");

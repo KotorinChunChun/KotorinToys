@@ -48,7 +48,7 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
                     path = await (prepare ?? Prepare)(new(1, [item]), tool with { Version = item.Package.Version }, downloadProgress, cancellation);
                 }
                 cancellation.ThrowIfCancellationRequested();
-                progress?.Report(new(tool.Id, operation, "処理中", "一つずつ実行しています。"));
+                progress?.Report(new(tool.Id, operation, "処理中", "実行中です"));
                 result = await (execute ?? Execute)(tool, operation, path, cancellation);
             }
             catch (OperationCanceledException)

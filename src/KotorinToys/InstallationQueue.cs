@@ -22,7 +22,7 @@ internal sealed class InstallationQueue(InstallerAdapter adapter, ToolUpdateCoor
                 result = new(tool.Id, operation, "未実行", "残りの操作を取り消しました。進行中の処理は強制終了していません。");
             else
             {
-                progress?.Report(new(tool.Id, operation, "処理中", "一つずつ実行しています。"));
+                progress?.Report(new(tool.Id, operation, "処理中", "実行中です"));
                 result = operation == "install"
                     ? updates != null ? await updates.Run(tool, catalogPath ?? throw new IOException("配布台帳が未指定です。"))
                         : await adapter.Install(tool, catalogPath ?? throw new IOException("配布台帳が未指定です。"))

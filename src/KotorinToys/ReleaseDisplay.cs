@@ -24,12 +24,8 @@ internal static class ReleaseDisplay
             var reason = local == null ? ToolInstallationRunner.PublicReason(tool, catalog) : ToolInstallationRunner.UnsupportedReason(tool);
             return tool.Name + "：" + current + " → " + target + (reason == null ? "" : "\n  実行不可：" + reason);
         });
-        return string.Join("\n", lines) + "\n" +
+        return string.Join("\n", lines) + "\n\n" +
             (operation == "install" ? "インストール / アップデート" : "アンインストール") +
-            "します。設定・履歴を保持し、正常終了の拒否時は中止します。\n" +
-            (operation == "install" ? local == null
-                ? "GitHubから照合済みの固定版を取得し、SHA-256を照合した未署名の開発版を実行します。公開日は日本時間です。"
-                : "未署名のローカルビルドを実行します。"
-                : "対象の管理予約を整理します。外部予約は変更しません。");
+            "してもよろしいですか？";
     }
 }

@@ -37,8 +37,10 @@ internal static class InstallerTests
         var results=await new InstallationQueue(adapter).Run([tool,next],"install",catalogPath,cancellation:cancellation.Token);
         check(results[0].State=="再起動待ち" && results[1].State=="未実行","キャンセルは進行中を強制中断せず残りだけ未実行にする");
         adapter=new InstallerAdapter(new(root),(_,_)=>Task.FromResult(7));
-        results=await new InstallationQueue(adapter).Run([tool,next],"install",catalogPath);
+        var progressRows=new List<InstallResult>();
+        results=await new InstallationQueue(adapter).Run([tool,next],"install",catalogPath,new ImmediateProgress<InstallResult>(progressRows.Add));
         check(results.Length==2 && results.All(r=>r.State=="失敗"),"一括の部分失敗・配布物欠落を対象別に返す");
+        check(progressRows.Where(r=>r.State=="処理中").Count()==2 && progressRows.Where(r=>r.State=="処理中").All(r=>r.Detail=="実行中です"),"ローカル一括配布も実行中ですに統一");
         check(InstallerAdapter.Classify(tool.Id,"install",0).State=="成功" && InstallerAdapter.Classify(tool.Id,"install",7).State=="失敗","終了コード分類を区別する");
         try{await new InstallationQueue(adapter).Run([tool,new("host","KotorinToys","KotorinToys.exe","README.md")],"install",catalogPath);check(false,"一括に本体を含めない");}
         catch(IOException){check(true,"一括に本体を含めない");}

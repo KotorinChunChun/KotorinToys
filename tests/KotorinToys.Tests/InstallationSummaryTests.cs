@@ -8,7 +8,7 @@ internal static class InstallationSummaryTests
         var tools = ToolCatalog.Load(root).Where(t => t.DistributionStatus == "published").Take(3).ToArray();
         InstallResult[] Results(params string[] states) => states.Select((state, i) => new InstallResult(tools[i].Id, "install", state, "テスト結果")).ToArray();
         var summary = InstallationSummary.Create(tools, "install", Results("成功", "成功", "成功"));
-        check(summary.AllSucceeded && summary.Title.Contains("3件すべて成功"), "3件成功を明確な完了集計にする");
+        check(summary.AllSucceeded && summary.Title == "すべてのインストールが完了しました。" && summary.Detail == "", "全件成功は指定の短い完了文だけにする");
         check(summary.Rows.Select(r => r.Name).SequenceEqual(tools.Select(t => t.Name)), "内部IDではなく正式製品名を表示");
         summary = InstallationSummary.Create(tools, "install", Results("成功", "失敗", "未実行"));
         check(!summary.AllSucceeded && summary.Detail.Contains("成功 1件 / 失敗 1件") && summary.Detail.Contains("未実行 1件"), "部分失敗とキャンセルを全件成功にしない");
@@ -23,7 +23,7 @@ internal static class InstallationSummaryTests
         form.CreateControl(); form.ShowSummary(InstallationSummary.Create(tools, "install", Results("成功", "成功", "成功"))); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("installationResults", true).Single();
         var label = (Label)form.Controls.Find("installationSummary", true).Single();
-        check(grid.Rows.Count == 3 && label.Text.Contains("3件すべて成功"), "実フォームに完了一覧を反映");
+        check(grid.Rows.Count == 3 && label.Text == "すべてのインストールが完了しました。", "実フォームに完了一覧と余分な改行のない完了文を反映");
         check(((Button)form.Controls.Find("closeInstallation", true).Single()).Enabled &&
             !((Button)form.Controls.Find("cancelRemaining", true).Single()).Enabled, "完了時は閉じる有効・キャンセル無効");
         check(grid.ColumnHeadersDefaultCellStyle.Padding.Vertical >= 16, "結果ヘッダーの上下余白");

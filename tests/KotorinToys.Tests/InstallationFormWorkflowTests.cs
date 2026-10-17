@@ -30,16 +30,17 @@ internal static class InstallationFormWorkflowTests
             return gate.Task;
         };
         bool Confirm(string text)
-        { confirmations++; check(text.Contains("2026/10/17 公開") && text.Contains("設定・履歴を保持"), "単体操作の確認に公開日とデータ保持を明示"); return approved; }
+        { confirmations++; check(text.Contains("2026/10/17 公開") && text.EndsWith("\n\nインストール / アップデートしてもよろしいですか？") && !text.Contains("設定・履歴を保持"), "単体操作の確認は公開日と短い質問にする"); return approved; }
         using var form = new InstallationForm(manager, item.Package.Id, catalog, "update", Confirm, execute);
         form.CreateControl(); form.PerformLayout();
+        check(form.Controls.Find("installationSource", true).Single().Text == "GitHub Releasesの検証版をインストールします。", "取得元の案内を指定の短い文にする");
         check(form.Text == WindowTitle.Create("アップデート") && form.Icon != null, "単体アップデートも共通タイトル・04アイコン");
         check(!form.Controls.Find("chooseLocalCatalog", true).Any() && !form.Controls.Find("useGithubReleases", true).Any() &&
             !form.Controls.Find("installFfmpeg", true).Any() && !form.Controls.Find("batchInstall", true).Any(), "単体画面に台帳・取得元切替・FFmpeg・一括操作を出さない");
         var pending = form.RunSelected(); Pump(form.RunSelected());
         check(confirmations == 1 && executions == 1 && !form.Controls.Find("closeInstallation", true).Single().Enabled, "確認後は進捗へ直結し二重実行を拒否");
         gate.SetResult([new(item.Package.Id, "install", "成功", "テスト完了")]); Pump(pending);
-        check(form.Controls.Find("installationSummary", true).Single().Text.Contains("すべて成功") && form.Controls.Find("closeInstallation", true).Single().Enabled,
+        check(form.Controls.Find("installationSummary", true).Single().Text == "すべてのインストールが完了しました。" && form.Controls.Find("closeInstallation", true).Single().Enabled,
             "単体操作の完了を表示し閉じる操作を復旧");
         Pump(form.RunSelected()); check(executions == 1, "完了画面から同じ操作を再実行しない");
         approved = false;

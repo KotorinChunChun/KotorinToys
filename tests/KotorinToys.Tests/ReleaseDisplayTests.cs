@@ -13,9 +13,12 @@ internal static class ReleaseDisplayTests
         var view = ToolVersionView.Create(new("導入済み", "0.0.1", null, null), new(item, true, true, "fixture"));
         check(view.CanUpdate && view.Published.Contains("2026/10/17 公開"), "日付追加後も数値版の更新比較を維持");
         string text = ReleaseDisplay.Confirmation([tool], "install", _ => new("未導入", null, null, null), new(1, [item]), null);
-        check(text.Contains(item.Package.Version + "（2026/10/17 公開）") && text.Contains("未署名"), "導入確認に公開版・日付・未署名の注意");
+        check(text == tool.Name + "：未導入 → " + item.Package.Version + "（2026/10/17 公開）\n\nインストール / アップデートしてもよろしいですか？", "導入確認は対象・版・公開日と空行・指定の短い確認文のみ");
         text = ReleaseDisplay.Confirmation([tool], "install", _ => new("未導入", null, null, null), new(1, []), null);
         check(text.Contains("取得可能な公開版なし") && !text.Contains("→ " + tool.Version), "配布がない製品で開発版番号を導入できる版として表示しない");
+        check(text.Contains("実行不可："), "短い確認文でも実行不可の原因を隠さない");
+        text = ReleaseDisplay.Confirmation([tool], "uninstall", _ => new("導入済み", "1.0.0", null, null), null, null);
+        check(text == tool.Name + "：1.0.0 → アンインストール\n\nアンインストールしてもよろしいですか？", "削除の確認も対象と短い質問だけにする");
         foreach (var raw in new[] { "\"2026-10-16T18:00:00Z\"", "null", "\"invalid\"" })
         {
             using var json = JsonDocument.Parse("[{\"tag_name\":\"v1.0.0\",\"draft\":false,\"prerelease\":false,\"published_at\":" + raw + "}]");

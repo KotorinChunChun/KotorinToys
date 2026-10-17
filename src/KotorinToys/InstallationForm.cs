@@ -20,8 +20,8 @@ internal sealed class InstallationForm : BrandedForm
     readonly Label completion = new() { Name = "installationSummary", Dock = DockStyle.Fill, AutoSize = true, Padding = new(8),
         Text = "操作するツールを選択してください。" };
     readonly FlowLayoutPanel buttons = new() { Dock = DockStyle.Fill, AutoSize = true, Padding = new(8) };
-    const string PublicSource = "GitHub Releasesの検証対象版を取得します。製品・版・容量・SHA-256を照合します。未署名の開発版です。設定・履歴は保持します。";
-    readonly Label source = new() { Dock = DockStyle.Fill, AutoSize = true, Padding = new(8), Text = PublicSource };
+    const string PublicSource = "GitHub Releasesの検証版をインストールします。";
+    readonly Label source = new() { Name = "installationSource", Dock = DockStyle.Fill, AutoSize = true, Padding = new(8), Text = PublicSource };
     readonly Button cancel = new() { Name = "cancelRemaining", Text = "残りをキャンセル", AutoSize = true, Enabled = false };
     readonly Button close = new() { Name = "closeInstallation", Text = "閉じる", AutoSize = true };
     readonly Label media = new() { Name = "ffmpegState", AutoSize = true, Dock = DockStyle.Fill, Padding = new(8) };
@@ -37,6 +37,7 @@ internal sealed class InstallationForm : BrandedForm
         if (operation != null && (operation is not ("install" or "update" or "uninstall") || tools.All(t => t.Id != initialTarget)))
             throw new ArgumentException("単体操作の対象・種別が不正です。");
         singleOperation = operation;
+        if (operation == "uninstall") source.Text = "選択したツールをアンインストールします。";
         this.confirm = confirm ?? (text => MessageBox.Show(this, text, WindowTitle.Create("対象の確認"), MessageBoxButtons.OKCancel) == DialogResult.OK);
         this.execute = execute ?? ((selected, verb, catalog, path, progress, download, token) =>
             new ToolInstallationRunner(manager).Run(selected, verb, catalog, path, progress, download, token));
@@ -120,8 +121,10 @@ internal sealed class InstallationForm : BrandedForm
     {
         results.Rows.Clear();
         foreach (var row in summary.Rows) results.Rows.Add(row.Name, row.State == "成功" ? "完了" : row.State, row.Detail);
-        completion.Text = summary.Title + "\n" + summary.Detail;
+        completion.Text = summary.Title + (string.IsNullOrEmpty(summary.Detail) ? "" : "\n" + summary.Detail);
         completion.ForeColor = summary.AllSucceeded ? Color.DarkGreen : Color.DarkRed;
+        AppendLog(summary.Title);
+        foreach (var row in summary.Rows) AppendLog(row.Name + "：" + row.State + " / " + row.Detail);
     }
     void RefreshTargets()
     {
@@ -191,6 +194,8 @@ internal sealed class InstallationForm : BrandedForm
         if (!confirm(confirmation)) { completion.Text = "操作をキャンセルしました。変更していません。"; return; }
         SetRunning(true); cancellation = new(); var current = cancellation;
         log.Clear(); results.Rows.Clear(); completion.ForeColor = SystemColors.ControlText;
+        AppendLog(catalogPath == null ? "GitHub Releases：製品・版・容量・SHA-256を照合します。未署名の配布物です。" : "ローカル配布台帳：" + catalogPath + "（未署名）");
+        AppendLog("設定・履歴を保持し、正常終了の拒否時は中止します。");
         foreach (var tool in selected) results.Rows.Add(tool.Name, "待機中", "");
         completion.Text = "処理中：完了するまでお待ちください。";
         InstallResult[] final = []; string? interruption = null;

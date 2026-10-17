@@ -114,11 +114,15 @@ internal static class Program
             }
             if (args.SequenceEqual(["--installation-tests"]))
             {
+                InstallerTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
                 ToolInstallationRunnerTests.Run(root, Check).GetAwaiter().GetResult();
                 DistributionMappingTests.Run(root, Check).GetAwaiter().GetResult();
                 PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
                 PublicReleaseMetadataTests.Run(root, Check);
                 ReleaseDisplayTests.Run(root, Check);
+                var previousInstallationContext = SynchronizationContext.Current;
+                try { InstallationSummaryTests.Run(root, Check); }
+                finally { SynchronizationContext.SetSynchronizationContext(previousInstallationContext); }
                 HostUpdateFormTests.Run(root, Check);
                 InstallationFormWorkflowTests.Run(root, Check);
                 DashboardTests.Run(root, Check);
