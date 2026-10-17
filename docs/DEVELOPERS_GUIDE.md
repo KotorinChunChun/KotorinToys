@@ -90,7 +90,17 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 ツール一覧の配信は[GitHub設定の運用手順](online-tool-catalog.md)を参照してください。ToolCatalogはローカル開発定義の互換読込・共通検証、OnlineToolCatalogは公開configの検証、ToolCatalogClientは固定HTTPSの取得、ToolCatalogSourceは最後の正常一覧と予約照合用の旧登録を扱います。本番のHostApplicationContextは共有Sourceを持つToolManagerをDashboardとStartupCoordinatorへ渡します。配信用configは子ファイルに依存せず、ビルド・発行時にも本体へコピーします。公開configの更新と製品バイナリの配布は別です。
 
-`Dashboard.cs`は画面の依存・状態・寿命を保持し、`Dashboard.Layout.cs`で構築とイベント接続、`Dashboard.Display.cs`で表と下部の反映、`Dashboard.Operations.cs`で操作の直列化と導入導線、`Dashboard.Refresh.cs`で実行状態・公開版の再取得を扱います。操作文言・表示構成は変更しません。
+`Dashboard.cs`は画面の依存・状態・寿命を保持し、`Dashboard.Layout.cs`で構築とイベント接続、`Dashboard.Display.cs`で表・下部・ボタンの有効条件、`Dashboard.Operations.cs`で操作の直列化と単体導入／詳細設定の導線、`Dashboard.Refresh.cs`で実行状態・公開版の再取得を扱います。単体の導入・アップデート・削除はメインから選択IDと操作種別を渡し、通常のInstallationFormには確認・進捗・結果だけを表示します。operation未指定の同フォームは開発者向け詳細設定となり、一括処理・台帳切替・FFmpegを表示します。
+
+`ToolInstallationRunner`は本体対応形式と製品識別を確認し、製品ごとに取得・実行・失敗結果を完結させます。configへの追加だけで未対応形式を実行可能にはしません。`ReleaseDisplay`はGitHubのpublished_atを日本時間の公開日へ変換し、版表示と確認文を共通化します。公開日を取得日時で代用せず、旧台帳の日付欠落も許容します。ローカル台帳の欠落製品も、停止・実行より前に日本語で拒否します。
+
+今回の変更は配布用publishやインストーラー生成なしで次の隔離ビルドと関連回帰を実行できます。全体回帰は最後の引数を外します。実導入・削除とデスクトップ目視は別の確認です。
+
+```powershell
+cd C:\develop\KotorinToys
+dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifacts-path artifacts/installation-ui
+& .\artifacts\installation-ui\bin\KotorinToys.Tests\debug\KotorinToys.Tests.exe --installation-tests
+```
 
 `PublicReleaseClient`は製品識別・期限・失敗時の結果を制御し、`.Http.cs`は許可URL・リダイレクト・容量制限付きの読込だけを担当します。`PublicReleaseMetadata`は通信・画面・設定保存を持たず、最新候補の選択、assetの所有者・製品・tag、台帳と固定版・ハッシュの一致を検証します。選択候補はJSONを所有し、元のJsonDocumentの寿命に依存しません。HTTPを模擬する回帰と検証型の直接テストを両方維持してください。
 
