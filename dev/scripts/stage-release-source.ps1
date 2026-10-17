@@ -5,11 +5,10 @@ $commit = (& git -C $projectRoot rev-parse "$Ref^{commit}").Trim()
 if ($LASTEXITCODE -or $commit -notmatch '^[a-f0-9]{40}$') { throw '公開元コミットを解決できません。' }
 $output = Join-Path $projectRoot ('artifacts/release-sources/' + $commit.Substring(0,12) + '-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $output | Out-Null
-$archive = Join-Path $output 'parent.tar'
-& git -C $projectRoot archive --format=tar --output=$archive $commit
+$archive = Join-Path $output 'parent.zip'
+& git -C $projectRoot archive --format=zip --output=$archive $commit
 if ($LASTEXITCODE) { throw '本体の採用ソースを抽出できません。' }
-& tar -xf $archive -C $output
-if ($LASTEXITCODE) { throw '本体ソースを展開できません。' }
+[IO.Compression.ZipFile]::ExtractToDirectory($archive, $output, [Text.Encoding]::UTF8, $false)
 $adopted = @()
 foreach ($line in (& git -C $projectRoot ls-tree $commit tools/)) {
     if ($line -notmatch '^160000 commit ([a-f0-9]{40})\s+(tools/[A-Za-z0-9._-]+)$') { continue }
@@ -17,11 +16,10 @@ foreach ($line in (& git -C $projectRoot ls-tree $commit tools/)) {
     $repository = Join-Path $projectRoot $relative
     $target = Join-Path $output $relative
     New-Item -ItemType Directory -Path $target -Force | Out-Null
-    $childArchive = Join-Path $output ((Split-Path $relative -Leaf) + '.tar')
-    & git -c "safe.directory=$repository" -C $repository archive --format=tar --output=$childArchive $childCommit
+    $childArchive = Join-Path $output ((Split-Path $relative -Leaf) + '.zip')
+    & git -c "safe.directory=$repository" -C $repository archive --format=zip --output=$childArchive $childCommit
     if ($LASTEXITCODE) { throw "採用した子ソースがありません：$relative/$childCommit" }
-    & tar -xf $childArchive -C $target
-    if ($LASTEXITCODE) { throw "子ソースを展開できません：$relative" }
+    [IO.Compression.ZipFile]::ExtractToDirectory($childArchive, $target, [Text.Encoding]::UTF8, $false)
     $adopted += [ordered]@{ path=$relative; commit=$childCommit }
 }
 if (-not $adopted.Count) { throw '子の採用コミットがありません。' }
