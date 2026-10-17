@@ -6,6 +6,8 @@ internal sealed class HostUpdateForm : BrandedForm
     readonly Label current = new() { Name = "hostCurrentVersion", AutoSize = true };
     readonly Label available = new() { Name = "hostAvailableVersion", AutoSize = true, Text = "公開版：未確認" };
     readonly Label status = new() { Name = "hostUpdateStatus", AutoSize = true, MaximumSize = new(710, 0) };
+    readonly Label blocked = new() { Name = "hostUpdateBlockedReason", AutoSize = true, MaximumSize = new(710, 0), ForeColor = Color.DarkRed };
+    readonly Label previousResult = new() { Name = "hostLastUpdate", AutoSize = true, MaximumSize = new(710, 0), Visible = false };
     readonly CheckBox preview = new() { Name = "hostIncludePrerelease", Text = "開発版（prerelease）も更新対象にする", AutoSize = true };
     readonly CheckBox consent = new() { Name = "hostUpdateConsent", Text = "未署名の配布物であることを確認し、本体の終了・更新・再起動に同意する", AutoSize = true };
     readonly Button refresh = new() { Name = "checkHostUpdate", Text = "公開版を再確認", AutoSize = true };
@@ -29,7 +31,18 @@ internal sealed class HostUpdateForm : BrandedForm
             "KotorinChunChun/KotorinToysのGitHub Releasesから取得します。製品・版・容量・SHA-256を照合しますが、電子署名による発行元確認ではありません。\n" +
             "設定・履歴・自動起動予約は保持し、子ツールは停止しません。検証後に本体だけを終了・更新・再起動します。OSの自動再起動はしません。\n" +
             "取消できるのは取得・準備までです。更新開始後の強制中断は行いません。失敗・再起動待ちは結果として記録します。" });
-        content.Controls.Add(consent); content.Controls.Add(status);
+        content.Controls.Add(consent); content.Controls.Add(status); content.Controls.Add(blocked); content.Controls.Add(previousResult);
+        content.ClientSizeChanged += (_, _) =>
+        {
+            var width = Math.Max(100, content.ClientSize.Width - content.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth);
+            foreach (var label in content.Controls.OfType<Label>()) label.MaximumSize = new(width, 0);
+        };
+        if (service.LastResult() is { } last)
+        {
+            previousResult.Text = $"前回の更新：{last.FromVersion} → {last.ToVersion} / {last.State}\n{last.Detail}" +
+                (last.Restarted ? "\n本体の再起動確認済み" : "\n本体の起動確認前");
+            previousResult.Visible = true;
+        }
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, Padding = new(10) };
         buttons.Controls.AddRange([refresh, install, cancel, close]); Controls.Add(content); Controls.Add(buttons);
         refresh.Click += async (_, _) => await RefreshRelease();
@@ -45,6 +58,7 @@ internal sealed class HostUpdateForm : BrandedForm
             if (!transferred) { closeRequested = true; active?.Cancel(); }
         };
         Shown += async (_, _) => await RefreshRelease();
+        UpdateButtons();
     }
 
     internal void CancelOperation() => active?.Cancel();
@@ -70,7 +84,6 @@ internal sealed class HostUpdateForm : BrandedForm
             available.Text = "公開版：" + ReleaseDisplay.Version(result.Package) + (result.Prerelease ? "（開発版）" : "（正式版）");
             status.Text = HostProduct.IsNewer(result.Package, service.CurrentVersion) ? "新しい公開版があります。" :
                 Version.Parse(result.Package.Package.Version) == Version.Parse(service.CurrentVersion) ? "確認した公開版と同じ版です。更新は不要です。" : "公開版より新しい本体を使用しています。古い版へ戻しません。";
-            if (service.BlockReason() is { } reason) status.Text += "\n" + reason;
         }
         catch (OperationCanceledException) { if (!IsDisposed) { available.Text = "公開版：未確認"; status.Text = "公開確認を取り消しました。"; } }
         catch (Exception ex) { if (!IsDisposed) { offered = null; available.Text = "公開版：未確認"; status.Text = "本体の公開版を確認できません：" + ex.Message; } }
@@ -79,7 +92,8 @@ internal sealed class HostUpdateForm : BrandedForm
 
     internal async Task InstallUpdate()
     {
-        if (running || transferred || IsDisposed || !CanInstall()) return;
+        if (running || transferred || IsDisposed) return;
+        if (!CanInstall(service.BlockReason())) { UpdateButtons(); return; }
         var selected = offered!.Package!;
         running = true; UpdateButtons();
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token); active = cancellation;
@@ -101,13 +115,15 @@ internal sealed class HostUpdateForm : BrandedForm
         finally { acceptingProgress = false; EndOperation(); }
     }
 
-    bool CanInstall() => consent.Checked && offered is { Confirmed: true, Package: not null } &&
-        HostProduct.IsNewer(offered.Package, service.CurrentVersion) && service.BlockReason() == null;
+    bool CanInstall(string? reason) => consent.Checked && offered is { Confirmed: true, Package: not null } &&
+        HostProduct.IsNewer(offered.Package, service.CurrentVersion) && reason == null;
 
     void UpdateButtons()
     {
+        var reason = service.BlockReason();
+        blocked.Text = reason ?? ""; blocked.Visible = reason != null;
         refresh.Enabled = preview.Enabled = consent.Enabled = !running && !transferred;
-        install.Enabled = !running && !transferred && CanInstall();
+        install.Enabled = !running && !transferred && CanInstall(reason);
         cancel.Enabled = running && !transferred; close.Enabled = !transferred;
     }
 

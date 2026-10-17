@@ -35,13 +35,17 @@ internal sealed partial class Dashboard
             {
                 grid.Rows[index].Cells["state"].Value = command == DashboardCommand.Start ? "起動処理中" : "停止処理中";
                 var state = command == DashboardCommand.Start ? await manager.Start(tool) : await manager.Stop(tool);
-                if (state.State is not ("実行中" or "停止中"))
-                    ShowOperationFailure($"{tool.Name}：{state.State}\n{state.Detail}", tool.Id);
+                ReportExecution(tool, command == DashboardCommand.Start, state);
             }
             await RefreshStates(true);
         }
         catch (Exception ex) { ShowOperationFailure("操作失敗：" + ex.Message); }
         finally { EndOperation(); }
+    }
+    internal void ReportExecution(ToolDefinition tool, bool starting, ToolState state)
+    {
+        if (state.State != (starting ? "実行中" : "停止中"))
+            ShowOperationFailure($"{tool.Name}：{state.State}\n{state.Detail}", tool.Id);
     }
     internal async Task OpenInstallation(bool updateOnly)
     {

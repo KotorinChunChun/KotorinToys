@@ -32,7 +32,8 @@ internal static class HostUpdateFormTests
             if (HandoffGate != null) await HandoffGate.Task.WaitAsync(cancellation);
             if (FailHandoff) throw new IOException("引継ぎ失敗試験");
         }
-        public SelfUpdateResult? LastResult() => null;
+        public SelfUpdateResult? Result;
+        public SelfUpdateResult? LastResult() => Result;
     }
     static T Control<T>(System.Windows.Forms.Control form, string name) where T : System.Windows.Forms.Control => (T)form.Controls.Find(name, true).Single();
 
@@ -61,7 +62,10 @@ internal static class HostUpdateFormTests
         Pump(form.InstallUpdate()); check(service.Handoffs == 0 && !install.Enabled, "新しい版でも未署名の明示同意前には開始しない");
         consent.Checked = true; check(install.Enabled, "同意・正式導入・新しい公開版が揃うと更新可能");
         service.Blocked = "開発実行です。"; consent.Checked = false; consent.Checked = true;
-        check(!install.Enabled, "開発実行・別配置の本体は更新できない"); service.Blocked = null;
+        check(!install.Enabled && Control<Label>(form, "hostUpdateBlockedReason").Text == service.Blocked, "開発実行・別配置の原因を更新ボタンと同時に表示");
+        Pump(form.RefreshRelease());
+        check(Control<Label>(form, "hostUpdateBlockedReason").Text == service.Blocked, "公開確認後も更新不可の具体的な原因を表示");
+        service.Blocked = null;
         preview.Checked = true;
         check(service.Queries.Last() && Control<Label>(form, "hostAvailableVersion").Text.Contains("開発版") && !consent.Checked, "開発版への切替では再照合と再同意を必要とする");
         foreach (var version in new[] { "0.1.0", "0.0.9" })
@@ -100,5 +104,15 @@ internal static class HostUpdateFormTests
         var button = Control<Button>(dashboard, "hostUpdate");
         check(button.Parent?.Name == "hostActions" && !dashboard.Controls.Find("selfUpdateStatus", true).Any(), "本体アップデートは別の操作行へ配置し下部へ常設情報を出さない");
         dashboard.OpenSelfUpdate(); check(opened == 1, "本体ボタンから専用更新画面へ進む");
+        var resultService = new Fake { Result = new(1, Guid.NewGuid().ToString("N"), root, "0.1.1", "0.1.2", "失敗", "アクセス拒否の試験", false, 7, DateTimeOffset.UtcNow) };
+        using var history = new HostUpdateForm(resultService); history.CreateControl(); history.PerformLayout();
+        check(Control<Label>(history, "hostLastUpdate").Text.Contains("0.1.1 → 0.1.2 / 失敗") &&
+            Control<Label>(history, "hostLastUpdate").Text.Contains("アクセス拒否の試験"), "前回更新の対象版・結果・理由はメインでなく専用画面へ保持");
+        history.Size = history.MinimumSize; history.PerformLayout();
+        var reasonLabel = Control<Label>(history, "hostUpdateBlockedReason");
+        resultService.Blocked = "更新できません：正式導入先とは別のEXEです。\n実行中：C:\\develop\\source\\bin\\debug\\KotorinToys.exe\n正式な実行ファイル：C:\\Programs\\KotorinToys\\KotorinToys.exe\n対処：正式導入版を起動してください。";
+        Pump(history.RefreshRelease()); history.PerformLayout();
+        check(reasonLabel.Text == resultService.Blocked && reasonLabel.MaximumSize.Width <= reasonLabel.Parent!.ClientSize.Width - reasonLabel.Parent.Padding.Horizontal &&
+            Control<Button>(history, "installHostUpdate").Bottom <= history.ClientSize.Height, "最小サイズでも実パス付きの原因を折返し・スクロール対象にしてボタンを隠さない");
     }
 }

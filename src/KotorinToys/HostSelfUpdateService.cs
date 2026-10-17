@@ -21,13 +21,7 @@ internal sealed class HostSelfUpdateService(string root, string settingsDirector
         try
         {
             var actual = new InstallationDetector().Detect(HostProduct.Definition);
-            if (actual.State != "導入済み" || !SelfUpdateFiles.SamePath(actual.Directory, root) ||
-                !SelfUpdateFiles.SamePath(actual.Executable, Environment.ProcessPath) || actual.Version != CurrentVersion)
-                return "登録済みの正式導入先から実行している本体だけを自己更新できます。開発実行・別配置・版の不一致は確認のみです。";
-            foreach (var name in new[] { "KotorinToys.Maintenance.exe", "KotorinToys.Maintenance.runtimeconfig.json", "coreclr.dll", "hostfxr.dll", "hostpolicy.dll" })
-                if (!File.Exists(PathSafety.Resolve(root, "maintenance/" + name)))
-                    return "自己完結型の更新用メンテナンスがありません。手動で本体を更新してください。";
-            return null;
+            return HostSelfUpdateEligibility.Explain(actual, root, Environment.ProcessPath, CurrentVersion, File.Exists);
         }
         catch (Exception ex) { return "正式導入を照合できません：" + ex.Message; }
     }

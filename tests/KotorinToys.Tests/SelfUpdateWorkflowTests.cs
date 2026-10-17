@@ -5,6 +5,7 @@ internal static class SelfUpdateWorkflowTests
 {
     public static async Task Run(string fixtures, Action<bool, string> check)
     {
+        HostSelfUpdateEligibilityTests.Run(fixtures, check);
         var settings = Path.Combine(fixtures, "self-update-profile");
         var root = Path.Combine(fixtures, "self-update-installed");
         var bytes = "インストーラーではないfixture"u8.ToArray();
