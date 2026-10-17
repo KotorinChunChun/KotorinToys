@@ -29,7 +29,7 @@ internal sealed partial class ReleaseDownloader : IDisposable
         Directory.CreateDirectory(directory);
         foreach (var item in selected)
         {
-            progress?.Report(item.Package.Name + "：ダウンロード中（固定版 " + item.Package.Version + "）");
+            progress?.Report(item.Package.Name + "：ダウンロード中（固定版 " + ReleaseDisplay.Version(item) + "）");
             await Download(item, directory, cancellation);
             progress?.Report(item.Package.Name + "：SHA-256・サイズ一致。未署名です。");
         }

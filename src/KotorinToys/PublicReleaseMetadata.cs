@@ -18,6 +18,9 @@ internal sealed class PublicReleaseMetadata
 
     public string Version => tag[1..];
     public bool Prerelease => release.GetProperty("prerelease").GetBoolean();
+    public DateTimeOffset? PublishedAt => release.TryGetProperty("published_at", out var value) &&
+        value.ValueKind == JsonValueKind.String && DateTimeOffset.TryParse(value.GetString(),
+            System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var date) ? date : null;
 
     public static PublicReleaseMetadata Select(JsonElement list, bool includePrerelease = true)
     {
@@ -56,7 +59,7 @@ internal sealed class PublicReleaseMetadata
         var package = catalog.Packages[0];
         if (package.Id != tool.Id || package.Name != tool.Name || package.AppId != tool.AppId || package.Version != Version)
             throw new IOException("公開台帳と製品・リリースtagが一致しません。");
-        var item = new ReleasePackage(package, installer.GetProperty("size").GetInt64());
+        var item = new ReleasePackage(package, installer.GetProperty("size").GetInt64(), PublishedAt);
         if (hostUpdate) HostProduct.Validate(item);
         else ReleaseDownloader.Validate(new(1, [item]));
         // 同梱済み固定版のasset差し替えを、オンライン台帳で許容しない。

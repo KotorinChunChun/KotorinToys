@@ -67,7 +67,7 @@ internal sealed class HostUpdateForm : BrandedForm
             HostProduct.Validate(result.Package);
             if (result.Prerelease && !includePreview) throw new IOException("開発版を更新対象にしていません。");
             offered = result;
-            available.Text = "公開版：" + result.Package.Package.Version + (result.Prerelease ? "（開発版）" : "（正式版）");
+            available.Text = "公開版：" + ReleaseDisplay.Version(result.Package) + (result.Prerelease ? "（開発版）" : "（正式版）");
             status.Text = HostProduct.IsNewer(result.Package, service.CurrentVersion) ? "新しい公開版があります。" :
                 Version.Parse(result.Package.Package.Version) == Version.Parse(service.CurrentVersion) ? "確認した公開版と同じ版です。更新は不要です。" : "公開版より新しい本体を使用しています。古い版へ戻しません。";
             if (service.BlockReason() is { } reason) status.Text += "\n" + reason;

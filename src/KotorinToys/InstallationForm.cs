@@ -140,13 +140,7 @@ internal sealed class InstallationForm : BrandedForm
         if (running) return;
         var selected = targets.CheckedIndices.Cast<int>().Select(i => tools[i]).ToArray();
         if (selected.Length == 0) { completion.Text = "対象を選択してください。"; return; }
-        var confirmation = string.Join("\n", selected.Select(t => t.Name + "：導入 " +
-            (manager.Installation(t).Version ?? manager.Installation(t).State) +
-            (operation == "install" ? " → " + (catalogPath != null ? "ローカル台帳の版" : publicCatalog?.Packages.SingleOrDefault(p => p.Package.Id == t.Id)?.Package.Version ?? t.Version) : ""))) + "\n" +
-            (operation == "install" ? "インストール / 更新" : "アンインストール") +
-            "します。設定・履歴を保持し、正常終了の拒否時は中止します。\n" +
-            (operation == "install" ? catalogPath == null ? "GitHubから検証対象版を取得し、SHA-256を照合した未署名の開発版を実行します。" : "未署名のローカルビルドを実行します。"
-            : "対象の管理予約を整理します。外部予約は変更しません。");
+        var confirmation = ReleaseDisplay.Confirmation(selected, operation, manager.Installation, publicCatalog, catalogPath);
         if (MessageBox.Show(this, confirmation, WindowTitle.Create("対象の確認"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
         SetRunning(true); cancellation = new(); var current = cancellation;
         log.Clear(); results.Rows.Clear(); completion.ForeColor = SystemColors.ControlText;

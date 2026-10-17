@@ -5,7 +5,7 @@ internal sealed record ToolVersionView(string Installed, string Published, strin
     public static ToolVersionView Create(InstallationState installed, PublicRelease release)
     {
         string actual = installed.State == "導入済み" ? installed.Version ?? "未確認" : installed.State;
-        string available = release.Package?.Package.Version ?? "不明";
+        string available = release.Package is { } item ? ReleaseDisplay.Version(item) : "不明";
         if (!release.Confirmed) return new(actual, release.Package == null ? "不明" : available + "（同梱台帳）", "公開版を確認できません", false);
         if (release.Prerelease) available += "（開発版）";
         if (installed.State == "未導入") return new(actual, available, "未導入", false);

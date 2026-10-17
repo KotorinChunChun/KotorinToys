@@ -97,6 +97,15 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--installation-tests"]))
+            {
+                ToolInstallationRunnerTests.Run(root, Check).GetAwaiter().GetResult();
+                PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+                PublicReleaseMetadataTests.Run(root, Check);
+                ReleaseDisplayTests.Run(root, Check);
+                HostUpdateFormTests.Run(root, Check);
+                Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
             if (args.SequenceEqual(["--self-update-panel"]))
             {
                 Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
@@ -146,6 +155,7 @@ internal static class Program
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();
             PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             PublicReleaseMetadataTests.Run(root, Check);
+            ReleaseDisplayTests.Run(root, Check);
             ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             BootValidation.Tests(Check);
             if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);

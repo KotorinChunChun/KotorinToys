@@ -54,7 +54,10 @@ internal static class HostUpdateFormTests
         check(form.Text == WindowTitle.Create("本体アップデート") && form.Icon != null, "本体更新画面は共通タイトルと04アイコンを使用");
         check(!preview.Checked && !install.Enabled, "開発版と未確認インストールは既定で無効");
         Pump(form.RefreshRelease());
-        check(Control<Label>(form, "hostCurrentVersion").Text.Contains("0.1.0") && Control<Label>(form, "hostAvailableVersion").Text.Contains("0.1.1（正式版）"), "現在の本体版と検証済み公開版を分離表示");
+        check(Control<Label>(form, "hostCurrentVersion").Text.Contains("0.1.0") && Control<Label>(form, "hostAvailableVersion").Text.Contains("0.1.1（公開日不明）（正式版）"), "現在の本体版と検証済み公開版を分離表示");
+        service.Item = service.Item with { PublishedAt = DateTimeOffset.Parse("2026-10-16T18:00:00Z") };
+        Pump(form.RefreshRelease());
+        check(Control<Label>(form, "hostAvailableVersion").Text.Contains("0.1.1（2026/10/17 公開）"), "本体更新でも版の右に日本時間の公開日");
         Pump(form.InstallUpdate()); check(service.Handoffs == 0 && !install.Enabled, "新しい版でも未署名の明示同意前には開始しない");
         consent.Checked = true; check(install.Enabled, "同意・正式導入・新しい公開版が揃うと更新可能");
         service.Blocked = "開発実行です。"; consent.Checked = false; consent.Checked = true;

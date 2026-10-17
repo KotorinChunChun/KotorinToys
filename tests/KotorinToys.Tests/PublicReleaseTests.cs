@@ -29,7 +29,7 @@ internal static class PublicReleaseTests
             new { name = "SmartPaste-packages.json", state = "uploaded", size = 512, browser_download_url = url ?? Url("SmartPaste-packages.json") },
             new { name = package.File, state = "uploaded", size = bytes.Length, browser_download_url = Url(package.File), digest = digest ?? "sha256:" + package.Sha256 }
         ];
-        object Release(bool draft = false, string tag = "v0.1.10", object[]? assets = null) => new { tag_name = tag, draft, prerelease = true, assets = assets ?? Assets() };
+        object Release(bool draft = false, string tag = "v0.1.10", object[]? assets = null) => new { tag_name = tag, draft, prerelease = true, published_at = "2026-10-16T18:00:00Z", assets = assets ?? Assets() };
         PublicReleaseClient Make(object[] list, LocalPackage? manifest = null) => new(new Handler((request, _) =>
         {
             if (request.RequestUri!.Host == "api.github.com")
@@ -44,6 +44,7 @@ internal static class PublicReleaseTests
         {
             var actual = await client.Check(tool, fallback);
             check(actual.Confirmed && actual.Package?.Package.Version == "0.1.10" && actual.Prerelease, "数値版比較で最新開発版と台帳を照合");
+            check(actual.Package?.PublishedAt == DateTimeOffset.Parse("2026-10-16T18:00:00Z"), "HTTP公開情報の公開日時を照合済み候補まで保持");
             using var downloader = new ReleaseDownloader(new Handler((request, _) =>
             {
                 check(request.RequestUri == new Uri(Url(package.File)), "確認した新公開版の固定assetだけを取得");
