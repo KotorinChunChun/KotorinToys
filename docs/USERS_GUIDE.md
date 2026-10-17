@@ -10,7 +10,7 @@ KotorinToysは、収録したWindows向け便利ツールの導入、起動、�
 
 一覧にツールの一言解説、導入済み版、公開版と公開日、更新の要否を表示します。公開日はGitHub Releasesのpublished_atを日本時間の日付にし、バージョンの右に「0.1.5（2026/10/14 公開）」のように表示します。取得できない日付は「公開日不明」とし、確認日時を公開日の代わりには使いません。導入済み版は正式登録された実行ファイルから取得し、開発フォルダーだけの配置は「未導入」と区別します。
 
-同梱初期一覧は9件で、取得したconfigによって変わります。LiveTextMarker／SmartPaste／SSCaptureに加え、CapchunWindow（旧CapchunScreen）／ChulipVideo C#版／ChunapToolの計6件が本体対応インストーラーを利用できます。ShortcutKeyCounterは今回の公開対象外、EveryDBは単体配布、HttpSelectorは署名付きMSIXのため、本体のInno形式の導入・削除とは別経路です。未対応のボタンは無効になり、理由を案内します。CapchunWindowとChulipVideoのFFmpegは各アプリで指定します（本体のFFmpeg導入はSSCapture専用）。ひとこと解説はconfigのsummaryで変更できます。
+同梱初期一覧は9件で、取得したconfigによって変わります。LiveTextMarker／SmartPaste／SSCaptureに加え、CapchunWindow（旧CapchunScreen）／ChulipVideo C#版／ChunapToolの計6件が本体対応インストーラーを利用できます。開発版ではShortcutKeyCounterの[ポータブルZIPの公開版・公開日表示](portable-release-publication.md)に対応します。本体対応インストーラーは未公開のため、EveryDBの単体配布、HttpSelectorの署名付きMSIXとともに、本体のInno形式の導入・削除とは別経路です。未対応のボタンは無効になり、理由を案内します。CapchunWindowとChulipVideoのFFmpegは各アプリで指定します（本体のFFmpeg導入はSSCapture専用）。ひとこと解説はconfigのsummaryで変更できます。
 
 起動時と「状態を更新」でGitHub Releasesと製品別配布台帳を照合します。独立した「公開版を確認」ボタンはありません。公開済み開発版も対象にし、開発版であることを併記します。通信失敗・API制限・台帳欠落では「公開版を確認できません」とし、同梱台帳の版を表示しても「最新です」とは判定しません。
 

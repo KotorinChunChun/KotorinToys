@@ -97,6 +97,24 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.Length is 1 or 2 && args[0] == "--portable-release-check")
+                return PortableReleaseTests.Live(root, args.Length == 2 ? args[1] : null).GetAwaiter().GetResult();
+            if (args.Length is 1 or 2 && args[0] == "--portable-release-panel")
+            {
+                Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+                var area = Screen.PrimaryScreen!.WorkingArea;
+                using var panel = new Dashboard(root, new HostSettingsStore(fixtures), releaseCheck: async (tool, fallback, token) =>
+                {
+                    using var client = PortableReleaseTests.LiveClient(args.Length == 2 && tool.Id == "shortcut-key-counter" ? args[1] : null);
+                    return await client.Check(tool, fallback, token);
+                })
+                {
+                    Text = WindowTitle.Create("公開版確認"), StartPosition = FormStartPosition.Manual,
+                    Bounds = new(area.Left + area.Width / 2, area.Top, area.Width - area.Width / 2, area.Height)
+                };
+                Application.Run(panel);
+                return 0;
+            }
             if (args.SequenceEqual(["--public-catalog-acceptance"]))
             {
                 PublishedDownloadTests.RunCatalog(root, Path.Combine(fixtures, "public-catalog")).GetAwaiter().GetResult(); return 0;
@@ -119,6 +137,8 @@ internal static class Program
                 DistributionMappingTests.Run(root, Check).GetAwaiter().GetResult();
                 PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
                 PublicReleaseMetadataTests.Run(root, Check);
+                PortableReleaseTests.Run(root, Check).GetAwaiter().GetResult();
+                PortableReleaseTests.Form(root, Check);
                 ReleaseDisplayTests.Run(root, Check);
                 var previousInstallationContext = SynchronizationContext.Current;
                 try { InstallationSummaryTests.Run(root, Check); }
@@ -180,6 +200,8 @@ internal static class Program
             FfmpegTests.Run(fixtures, Check).GetAwaiter().GetResult();
             PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             PublicReleaseMetadataTests.Run(root, Check);
+            PortableReleaseTests.Run(root, Check).GetAwaiter().GetResult();
+            PortableReleaseTests.Form(root, Check);
             ReleaseDisplayTests.Run(root, Check);
             ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             BootValidation.Tests(Check);

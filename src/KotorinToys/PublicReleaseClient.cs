@@ -2,7 +2,8 @@ using System.Text.Json;
 
 namespace KotorinToys;
 
-internal sealed record PublicRelease(ReleasePackage? Package, bool Confirmed, bool Prerelease, string Detail);
+internal sealed record PortablePublication(string Version, DateTimeOffset? PublishedAt, string DownloadUrl, long Length, string Sha256);
+internal sealed record PublicRelease(ReleasePackage? Package, bool Confirmed, bool Prerelease, string Detail, PortablePublication? Portable = null);
 
 internal sealed partial class PublicReleaseClient : IDisposable
 {
@@ -20,7 +21,12 @@ internal sealed partial class PublicReleaseClient : IDisposable
         {
             cancellation.ThrowIfCancellationRequested();
             if (tool.DistributionStatus != "published")
+            {
+                if (tool.Id == "shortcut-key-counter" && tool.Name == "ShortcutKeyCounter" &&
+                    tool.AppId == "KotorinToys.ShortcutKeyCounter" && tool.Msix == null)
+                    return await CheckPortable(tool, cancellation);
                 return new(null, false, false, "本体対応インストーラーは未公開です。ポータブル版・開発版の利用方法は「使い方」を確認してください。");
+            }
             if (ProductIdentity.FromId(tool.Id) is not { } product || product.Name != tool.Name || product.AppId != tool.AppId || tool.Id == "host")
                 return new(null, false, false, "この製品のインストーラー管理には本体側の対応が必要です。「GitHubを開く」から配布方法を確認してください。");
             return await CheckCore(tool, fallback, true, false, cancellation);

@@ -73,4 +73,22 @@ internal sealed class PublicReleaseMetadata
             throw new IOException("GitHubのassetハッシュと配布台帳が一致しません。");
         return item;
     }
+
+    public PortablePublication Portable(ToolDefinition tool, string checksums)
+    {
+        var name = $"{tool.Name}-v{Version}-win-x64.zip";
+        var asset = Asset(tool, name);
+        long length = asset.GetProperty("size").GetInt64();
+        if (length is <= 0 or > 512 * 1024 * 1024)
+            throw new IOException("公開ZIPの容量が不正です。");
+        var entries = checksums.TrimStart('\uFEFF').Split('\n')
+            .Select(line => Regex.Match(line.TrimEnd('\r'), @"^([a-fA-F0-9]{64}) [ *](.+)$"))
+            .Where(match => match.Success && match.Groups[2].Value == name).ToArray();
+        if (entries.Length != 1) throw new IOException("公開ZIPのSHA-256が欠落または重複しています。");
+        string hash = entries[0].Groups[1].Value.ToLowerInvariant();
+        if (asset.TryGetProperty("digest", out var digest) && digest.ValueKind == JsonValueKind.String &&
+            !string.Equals(digest.GetString(), "sha256:" + hash, StringComparison.OrdinalIgnoreCase))
+            throw new IOException("GitHubのassetハッシュとSHA256SUMSが一致しません。");
+        return new(Version, PublishedAt, asset.GetProperty("browser_download_url").GetString()!, length, hash);
+    }
 }
