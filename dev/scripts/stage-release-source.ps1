@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot)
 $commit = (& git -C $projectRoot rev-parse "$Ref^{commit}").Trim()
 if ($LASTEXITCODE -or $commit -notmatch '^[a-f0-9]{40}$') { throw '公開元コミットを解決できません。' }
-$output = Join-Path $projectRoot ('artifacts/release-sources/' + $commit.Substring(0,12) + '-' + [Guid]::NewGuid().ToString('N'))
+$output = Join-Path $projectRoot ('artifacts/rs/' + $commit.Substring(0,8) + '-' + [Guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $output | Out-Null
 $archive = Join-Path $output 'parent.zip'
 & git -C $projectRoot archive --format=zip --output=$archive $commit
