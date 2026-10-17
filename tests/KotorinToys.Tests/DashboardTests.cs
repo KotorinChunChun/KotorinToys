@@ -16,8 +16,6 @@ internal static class DashboardTests
         check(ToolVersionView.Create(installed[1] with { State = "未導入", Version = null }, releases[1]).Installed == "未導入", "開発配置を正式導入版にしない");
         check(!ToolVersionView.Create(installed[1] with { State = "確認できない" }, releases[1]).CanUpdate, "未確認の導入状態を更新対象にしない");
         var states = tools.Select(_ => new ToolState("実行中")).ToArray();
-        check(DashboardStatus.Summary(states) == "全体：実行中 9件", "下部は最後の1件ではなく全体9件を集計");
-        check(DashboardStatus.Summary([new("実行中"), new("停止中"), new("確認できない")]).Contains("確認できない 1件"), "全体集計に停止・未確認も含める");
         using var form = new Dashboard(root); form.CreateControl();
         installed[1] = installed[1] with { Version = "0.1.3" };
         form.ApplySnapshot(installed, states, releases); form.PerformLayout();
@@ -28,8 +26,10 @@ internal static class DashboardTests
         grid.CurrentCell = grid.Rows[1].Cells[0];
         check(((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "更新あり行を選択すると更新導線が有効");
         grid.CurrentCell = grid.Rows[2].Cells[0];
-        check(((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("SSCapture") &&
-            ((Label)form.Controls.Find("overallStatus", true).Single()).Text.Contains("実行中 9件"), "選択変更で選択情報だけを切替・全体9件を維持");
+        check(grid.CurrentRow?.Cells["tool"].Value?.ToString() == "SSCapture" && grid.Rows.Cast<DataGridViewRow>().All(row => row.Cells["state"].Value?.ToString() == "実行中"), "選択変更後も状態は表の各行で確認できる");
+        check(new[] { "overallStatus", "selectedStatus", "lastOperation", "catalogStatus", "selfUpdateStatus" }
+            .All(name => form.Controls.Find(name, true).Length == 0), "メイン下部の状態・説明ラベルを生成しない");
+        check(grid.Parent is TableLayoutPanel layout && layout.RowCount == 3 && layout.Controls.Count == 3, "メインは一覧と2つの操作行だけでフッター領域を残さない");
         check(!((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版はアップデートを無効にする");
         check(((Button)form.Controls.Find("uninstallSelected", true).Single()).Enabled &&
             !((Button)form.Controls.Find("installSelected", true).Single()).Enabled, "導入済みはインストールを無効・アンインストールを有効にする");
@@ -44,16 +44,16 @@ internal static class DashboardTests
         check(!form.Controls.Find("installSelected", true).Single().Enabled, "未確認の同梱版でインストールを許可しない");
         form.ApplySnapshot(installed, states, releases);
         grid.CurrentCell = grid.Rows[3].Cells[0];
-        check(((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("ShortcutKeyCounter") &&
+        check(grid.CurrentRow?.Cells["tool"].Value?.ToString() == "ShortcutKeyCounter" &&
             !((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "追加ツールを選択可能で未公開インストーラーの更新は無効");
         var httpSelectorIndex = Array.FindIndex(tools, tool => tool.Id == "http-selector");
         grid.CurrentCell = grid.Rows[httpSelectorIndex].Cells[0];
         check(grid.Rows[httpSelectorIndex].Cells["installed"].Value?.ToString() == tools[httpSelectorIndex].Version &&
-            ((Label)form.Controls.Find("selectedStatus", true).Single()).Text.Contains("HttpSelector") &&
+            grid.CurrentRow?.Cells["tool"].Value?.ToString() == "HttpSelector" &&
             !((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "HttpSelectorの4成分版を表示し未公開Innoへの更新を無効化");
         check(grid.Columns.Cast<DataGridViewColumn>().All(column => column.SortMode == DataGridViewColumnSortMode.NotSortable), "行順で別製品を操作しないよう手動並替を禁止");
         form.Size = form.MinimumSize; form.PerformLayout();
-        check(grid.Width >= 800 && grid.Height >= 180, "最小サイズで表と下部表示の領域を確保");
+        check(grid.Width >= 800 && grid.Height >= 320, "最小サイズでも下部の空白を作らず一覧を広げる");
         form.Dispose(); // 二度目のDisposeでもタイマー・取消資源が例外にならない。
         check(form.IsDisposed, "フォーム終了のタイマー・取消資源を安全に解放");
     }

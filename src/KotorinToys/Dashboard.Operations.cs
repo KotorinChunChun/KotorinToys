@@ -9,14 +9,14 @@ internal sealed partial class Dashboard
         if (index < 0 || index >= tools.Length) return;
         var tool = tools[index];
         var repository = ToolRepository.Find(tool);
-        if (repository == null) { operation.Text = tool.Name + "：GitHub公開先が未設定です。"; return; }
+        if (repository == null) { ShowOperationFailure(tool.Name + "：GitHub公開先が未設定です。", tool.Id); return; }
         if (!TryBeginOperation()) return;
         try
         {
             openRepository(repository);
-            operation.Text = "最終操作：" + tool.Name + " / GitHubを開く要求を送りました。";
+            operationErrors.Remove(tool.Id); UpdateDetails();
         }
-        catch (Exception ex) { if (!IsDisposed) operation.Text = "GitHubを開けません：" + ex.Message; }
+        catch (Exception ex) { ShowOperationFailure("GitHubを開けません：" + ex.Message, tool.Id); }
         finally { EndOperation(); }
     }
 
@@ -27,7 +27,7 @@ internal sealed partial class Dashboard
         {
             var index = grid.CurrentRow?.Index ?? -1;
             if (index < 0 || index >= tools.Length) return;
-            var tool = tools[index];
+            var tool = tools[index]; operationErrors.Remove(tool.Id);
             if (command == DashboardCommand.Stop && states[index].State == "停止中") return;
             if (command == DashboardCommand.Manual)
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(PathSafety.Resolve(manager.DocumentRoot(tool), tool.Manual)) { UseShellExecute = true });
@@ -35,11 +35,12 @@ internal sealed partial class Dashboard
             {
                 grid.Rows[index].Cells["state"].Value = command == DashboardCommand.Start ? "起動処理中" : "停止処理中";
                 var state = command == DashboardCommand.Start ? await manager.Start(tool) : await manager.Stop(tool);
-                operation.Text = $"最終操作：{tool.Name} / {state.State} {state.Detail}";
+                if (state.State is not ("実行中" or "停止中"))
+                    ShowOperationFailure($"{tool.Name}：{state.State}\n{state.Detail}", tool.Id);
             }
             await RefreshStates(true);
         }
-        catch (Exception ex) { if (!IsDisposed) operation.Text = "操作失敗：" + ex.Message; }
+        catch (Exception ex) { ShowOperationFailure("操作失敗：" + ex.Message); }
         finally { EndOperation(); }
     }
     internal async Task OpenInstallation(bool updateOnly)
@@ -52,7 +53,7 @@ internal sealed partial class Dashboard
             if (!IsDisposed) showInstaller(null, ConfirmedCatalog());
             await RefreshStates(true);
         }
-        catch (Exception ex) { if (!IsDisposed) operation.Text = "詳細設定を開けません：" + ex.Message; }
+        catch (Exception ex) { ShowOperationFailure("詳細設定を開けません：" + ex.Message); }
         finally { EndOperation(); }
     }
 
@@ -79,18 +80,19 @@ internal sealed partial class Dashboard
             var actual = installations[index];
             var catalog = ConfirmedCatalog();
             string? reason = requested == "uninstall" ? ToolInstallationRunner.UnsupportedReason(tool) : ToolInstallationRunner.PublicReason(tool, catalog);
-            if (reason != null) { operation.Text = tool.Name + "：" + reason; return; }
+            if (reason != null) { ShowOperationFailure(tool.Name + "：" + reason, tool.Id); return; }
             if (requested == "uninstall")
             {
                 if (actual.State != "導入済み" || actual.Uninstaller == null)
-                { operation.Text = tool.Name + "：正式導入と削除プログラムを確認できません。"; return; }
+                { ShowOperationFailure(tool.Name + "：正式導入と削除プログラムを確認できません。", tool.Id); return; }
             }
             else if (requested == "install" ? actual.State != "未導入" : !ToolVersionView.Create(actual, releases[index]).CanUpdate)
-            { operation.Text = tool.Name + "：導入状態または公開版が変わりました。状態を更新して確認してください。"; return; }
+            { ShowOperationFailure(tool.Name + "：導入状態または公開版が変わりました。状態を更新して確認してください。", tool.Id); return; }
+            operationErrors.Remove(tool.Id);
             showToolInstaller(tool.Id, requested, catalog);
             await RefreshStates(true);
         }
-        catch (Exception ex) { if (!IsDisposed) operation.Text = "導入画面を開けません：" + ex.Message; }
+        catch (Exception ex) { ShowOperationFailure("導入画面を開けません：" + ex.Message); }
         finally { EndOperation(); }
     }
     bool TryBeginOperation()
@@ -106,7 +108,7 @@ internal sealed partial class Dashboard
         busy = false;
         if (IsDisposed) return;
         actions.Enabled = hostActions.Enabled = true;
-        UpdateFooter();
+        UpdateActions();
     }
 
     enum DashboardCommand { Start, Stop, Manual }

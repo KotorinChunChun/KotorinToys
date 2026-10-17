@@ -13,7 +13,7 @@ internal static class RepositoryButtonTests
             ["chulip-video"] = "ChulipVideo-CSharp", ["chunap-tool"] = "ChunapTool"
         };
         int opened = 0; Uri? requested = null;
-        using var form = new Dashboard(root, openRepository: uri => { opened++; requested = uri; });
+        using var form = new Dashboard(root, openRepository: uri => { opened++; requested = uri; }, notify: _ => { });
         form.CreateControl(); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
         var github = (Button)form.Controls.Find("github", true).Single();
@@ -41,9 +41,11 @@ internal static class RepositoryButtonTests
             ToolRepository.Find(published with { Id = "unknown" }) == null, "別製品・未知IDのリンクを補完しない");
         grid.CurrentCell = null; int previous = opened; form.OpenRepository();
         check(!github.Enabled && opened == previous, "未選択ではGitHubを開かない");
-        using var failing = new Dashboard(root, openRepository: _ => throw new IOException("ブラウザー起動失敗の注入"));
+        string? notice = null;
+        using var failing = new Dashboard(root, openRepository: _ => throw new IOException("ブラウザー起動失敗の注入"), notify: text => notice = text);
         failing.CreateControl(); failing.OpenRepository();
-        check(((Label)failing.Controls.Find("lastOperation", true).Single()).Text.Contains("GitHubを開けません") &&
+        var failedGrid = (DataGridView)failing.Controls.Find("toolTable", true).Single();
+        check(notice?.Contains("GitHubを開けません") == true && failedGrid.Rows[0].Cells["detail"].Value?.ToString()?.Contains("ブラウザー起動失敗の注入") == true &&
             failing.Controls.Find("selectedActions", true).Single().Enabled, "ブラウザー起動失敗を通知し操作行を復旧");
     }
 }

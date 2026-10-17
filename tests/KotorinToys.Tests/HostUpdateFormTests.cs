@@ -98,7 +98,7 @@ internal static class HostUpdateFormTests
         using var dashboard = new Dashboard(root, selfUpdates: new Fake(), showSelfUpdater: () => opened++);
         dashboard.CreateControl(); dashboard.PerformLayout();
         var button = Control<Button>(dashboard, "hostUpdate");
-        check(button.Parent?.Name == "hostActions" && Control<Label>(dashboard, "selfUpdateStatus").Text.Contains("0.1.0"), "本体アップデートは選択ツールと別の本体操作行へ配置");
+        check(button.Parent?.Name == "hostActions" && !dashboard.Controls.Find("selfUpdateStatus", true).Any(), "本体アップデートは別の操作行へ配置し下部へ常設情報を出さない");
         dashboard.OpenSelfUpdate(); check(opened == 1, "本体ボタンから専用更新画面へ進む");
     }
 }

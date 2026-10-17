@@ -44,7 +44,7 @@ internal static class OnlineCatalogDashboardTests
         check(grid.Rows.Count == 2 && grid.Rows[0].Cells["tool"].Value?.ToString() == added.Name &&
             grid.Rows[1].Cells["summary"].Value?.ToString() == "GitHubで説明更新", "実フォームへ追加・削除・説明変更を再起動なしで反映");
         check(grid.CurrentRow?.Index == 1 && requestedReleases.SequenceEqual(new[] { added.Id, bundled[1].Id }), "選択IDを保持し変更後のツールだけ公開版照合");
-        check(selectedActions.Enabled && hostActions.Enabled && form.Controls.Find("catalogStatus", true).Single().Text.Contains("取得済み 2件"), "取得結果・件数を表示して操作行を復旧");
+        check(selectedActions.Enabled && hostActions.Enabled && !form.Controls.Find("catalogStatus", true).Any(), "取得成功の常設説明なしで操作行を復旧");
         check(manager.Load().Length == 2 && manager.KnownTools().Length == bundled.Length + 1 && starts == 0 && dialogs == 0, "管理部と一覧を共有し設定更新だけでは起動・導入しない");
         grid.CurrentCell = grid.Rows[0].Cells[0]; form.OpenRepository();
         check(opened == 1 && ToolRepository.Find(added)?.AbsoluteUri == added.RepositoryUrl, "追加ツールのGitHubトップページもconfigから反映");
@@ -52,9 +52,9 @@ internal static class OnlineCatalogDashboardTests
         requestedReleases.Clear(); Pump(form.RefreshAll());
         check(grid.Rows.Count == 2 && grid.CurrentRow?.Index == 1 && grid.Rows[0].Cells["summary"].Value?.ToString() == "もう一度更新", "連続したconfig変更でも選択を行番号でなくIDで追従");
         response = System.Text.Encoding.UTF8.GetBytes("bad JSON"); Pump(form.RefreshAll());
-        check(grid.Rows.Count == 2 && grid.CurrentRow?.Index == 1 && form.Controls.Find("catalogStatus", true).Single().Text.Contains("維持"), "取得したconfigが壊れても表示・選択を維持");
+        check(grid.Rows.Count == 2 && grid.CurrentRow?.Index == 1 && grid.Rows[0].Cells["detail"].Value?.ToString()?.Contains("維持") == true, "取得したconfigが壊れても表示・選択を維持し理由を表へ残す");
         response = OnlineCatalogTests.Encode(); Pump(form.RefreshAll());
-        check(grid.Rows.Count == 0 && form.Controls.Find("overallStatus", true).Single().Text.Contains("登録ツールなし") &&
+        check(grid.Rows.Count == 0 && grid.AccessibleDescription?.Contains("登録ツールなし") == true &&
             !form.Controls.Find("start", true).Single().Enabled && !form.Controls.Find("github", true).Single().Enabled, "空一覧は理由を表示し選択操作を無効にする");
         Pump(form.OpenInstallation(true)); check(dialogs == 0, "空一覧の更新操作で先頭行を参照しない");
         using (var installation = new InstallationForm(manager))

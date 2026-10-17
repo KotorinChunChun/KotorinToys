@@ -17,8 +17,8 @@ internal sealed partial class Dashboard
             column.SortMode = DataGridViewColumnSortMode.NotSortable;
         }
         foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "");
-        grid.SelectionChanged += (_, _) => UpdateFooter();
-        grid.CurrentCellChanged += (_, _) => UpdateFooter();
+        grid.SelectionChanged += (_, _) => UpdateActions();
+        grid.CurrentCellChanged += (_, _) => UpdateActions();
         grid.CellDoubleClick += async (_, e) =>
         {
             if (e.RowIndex < 0 || busy) return;
@@ -47,11 +47,9 @@ internal sealed partial class Dashboard
         install.Click += async (_, _) => await OpenToolInstallation("install"); actions.Controls.Add(install);
         update.Click += async (_, _) => await OpenToolInstallation("update"); actions.Controls.Add(update);
         uninstall.Click += async (_, _) => await OpenToolInstallation("uninstall"); actions.Controls.Add(uninstall);
-        var footer = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 6, Padding = new(10) };
-        footer.Controls.Add(overall); footer.Controls.Add(selection); footer.Controls.Add(catalogStatus); footer.Controls.Add(releaseStatus); footer.Controls.Add(selfUpdateStatus); footer.Controls.Add(operation);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 1 };
-        layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
-        layout.Controls.Add(grid, 0, 0); layout.Controls.Add(actions, 0, 1); layout.Controls.Add(hostActions, 0, 2); layout.Controls.Add(footer, 0, 3); Controls.Add(layout);
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1 };
+        layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
+        layout.Controls.Add(grid, 0, 0); layout.Controls.Add(actions, 0, 1); layout.Controls.Add(hostActions, 0, 2); Controls.Add(layout);
         ApplySnapshot(installations, states, releases);
         Shown += async (_, _) => { timer.Start(); await RefreshAll(); };
         timer.Tick += async (_, _) => { if (!busy) await RefreshStates(); };

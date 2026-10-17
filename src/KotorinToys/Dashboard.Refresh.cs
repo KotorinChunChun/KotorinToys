@@ -16,10 +16,10 @@ internal sealed partial class Dashboard
         {
             var execution = await Task.WhenAll(current.Select(tool => manager.Status(tool, lifetime.Token)));
             if (IsDisposed || busy && !afterOperation || !ReferenceEquals(current, tools)) return;
+            stateError = null;
             ApplySnapshot(current.Select(detectInstallation).ToArray(), execution, releases);
-            RefreshSelfUpdateResult();
         }
-        catch (Exception ex) { if (!IsDisposed) operation.Text = "状態取得失敗：" + ex.Message; }
+        catch (Exception ex) { if (!IsDisposed) { stateError = "状態取得失敗：" + ex.Message; UpdateDetails(); } }
     }
 
     internal Task RefreshAll()
@@ -33,7 +33,7 @@ internal sealed partial class Dashboard
     {
         refreshingCatalog = true;
         actions.Enabled = hostActions.Enabled = false;
-        UpdateFooter();
+        UpdateActions();
         try
         {
             // 旧一覧の非同期取得を完了させてから配列と行をまとめて切り替える。
@@ -41,19 +41,19 @@ internal sealed partial class Dashboard
             if (IsDisposed) return;
             if (manager.CatalogSource is { } source)
             {
-                catalogStatus.Text = "ツール一覧：GitHub configを確認中…";
                 var result = await source.Refresh(lifetime.Token);
                 if (IsDisposed) return;
                 if (result.Accepted) ReplaceTools(result.Tools);
-                catalogStatus.Text = result.Detail;
+                catalogError = result.Accepted ? null : result.Detail;
+                UpdateDetails();
             }
             await Task.WhenAll(RefreshStates(true), RefreshReleases());
         }
-        catch (Exception ex) { if (!IsDisposed) catalogStatus.Text = "一覧更新失敗・現在の一覧を維持：" + ex.Message; }
+        catch (Exception ex) { if (!IsDisposed) { catalogError = "一覧更新失敗・現在の一覧を維持：" + ex.Message; UpdateDetails(); } }
         finally
         {
             refreshingCatalog = false;
-            if (!IsDisposed) { actions.Enabled = hostActions.Enabled = true; UpdateFooter(); }
+            if (!IsDisposed) { actions.Enabled = hostActions.Enabled = true; UpdateActions(); }
         }
     }
 
@@ -94,22 +94,21 @@ internal sealed partial class Dashboard
         if (checkingReleases || IsDisposed) return;
         var current = tools;
         var fallback = bundledPackages;
-        checkingReleases = true; UpdateFooter(); releaseStatus.Text = "公開版：GitHubのリリースと配布台帳を確認中…";
+        checkingReleases = true; UpdateActions();
         try
         {
             var published = await Task.WhenAll(current.Select((tool, i) => releaseCheck(tool, fallback[i], lifetime.Token)));
             if (IsDisposed || !ReferenceEquals(current, tools)) return;
             ApplySnapshot(installations, states, published);
-            releaseStatus.Text = $"公開版：{published.Count(r => r.Confirmed)} / {tools.Length}件を照合済み（開発版を含む・未署名）";
         }
         catch (Exception ex)
         {
             if (!IsDisposed && ReferenceEquals(current, tools))
             {
-                releaseStatus.Text = "公開版の確認失敗：" + ex.Message;
-                ApplySnapshot(installations, states, fallback.Select(p => new PublicRelease(p, false, false, releaseStatus.Text)).ToArray());
+                var error = "公開版の確認失敗：" + ex.Message;
+                ApplySnapshot(installations, states, fallback.Select(p => new PublicRelease(p, false, false, error)).ToArray());
             }
         }
-        finally { checkingReleases = false; if (!IsDisposed) UpdateFooter(); }
+        finally { checkingReleases = false; if (!IsDisposed) UpdateActions(); }
     }
 }

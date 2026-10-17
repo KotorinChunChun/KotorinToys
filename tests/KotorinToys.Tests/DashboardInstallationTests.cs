@@ -13,7 +13,7 @@ internal static class DashboardInstallationTests
     {
         var tools = ToolCatalog.Load(root); var catalog = ReleaseDownloader.Load(root);
         var actual = tools.ToDictionary(t => t.Id, _ => new InstallationState("未導入", null, null, null));
-        int requests = 0, advanced = 0;
+        int requests = 0, advanced = 0; var notices = new List<string>();
         var calls = new List<(string Id, string Operation, ReleaseCatalog? Catalog)>();
         TaskCompletionSource? gate = null;
         async Task<PublicRelease> Fetch(ToolDefinition tool, ReleasePackage? fallback, CancellationToken token)
@@ -23,7 +23,7 @@ internal static class DashboardInstallationTests
         }
         using var form = new Dashboard(root, releaseCheck: Fetch, detectInstallation: t => actual[t.Id],
             showToolInstaller: (id, operation, releases) => calls.Add((id, operation, releases)),
-            showInstaller: (_, _) => advanced++);
+            showInstaller: (_, _) => advanced++, notify: notices.Add);
         form.CreateControl(); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
         Pump(form.RefreshReleases()); grid.CurrentCell = grid.Rows[0].Cells[0];
@@ -56,7 +56,7 @@ internal static class DashboardInstallationTests
             "同版の無効ボタン相当の直接呼出しでも更新を開始しない");
         grid.CurrentCell = grid.Rows[3].Cells[0];
         Pump(form.OpenToolInstallation("install"));
-        check(calls.Count == 3 && form.Controls.Find("lastOperation", true).Single().Text.Contains("未公開"), "本体対応インストーラー未公開の製品は理由だけ表示する");
+        check(calls.Count == 3 && notices.Last().Contains("未公開") && grid.Rows[3].Cells["detail"].Value?.ToString()?.Contains("未公開") == true, "未公開の導入拒否理由は通知と対象行の詳細で確認できる");
         Pump(form.OpenInstallation(false));
         check(advanced == 1 && calls.Count == 3, "詳細設定は単体操作と別の入口へ接続");
         var selected = form.Controls.Find("selectedActions", true).Single();

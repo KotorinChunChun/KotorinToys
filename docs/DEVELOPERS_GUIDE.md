@@ -90,7 +90,7 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 ツール一覧の配信は[GitHub設定の運用手順](online-tool-catalog.md)を参照してください。ToolCatalogはローカル開発定義の互換読込・共通検証、OnlineToolCatalogは公開configの検証、ToolCatalogClientは固定HTTPSの取得、ToolCatalogSourceは最後の正常一覧と予約照合用の旧登録を扱います。本番のHostApplicationContextは共有Sourceを持つToolManagerをDashboardとStartupCoordinatorへ渡します。配信用configは子ファイルに依存せず、ビルド・発行時にも本体へコピーします。公開configの更新と製品バイナリの配布は別です。
 
-`Dashboard.cs`は画面の依存・状態・寿命を保持し、`Dashboard.Layout.cs`で構築とイベント接続、`Dashboard.Display.cs`で表・下部・ボタンの有効条件、`Dashboard.Operations.cs`で操作の直列化と単体導入／詳細設定の導線、`Dashboard.Refresh.cs`で実行状態・公開版の再取得を扱います。単体の導入・アップデート・削除はメインから選択IDと操作種別を渡し、通常のInstallationFormには確認・進捗・結果だけを表示します。operation未指定の同フォームは開発者向け詳細設定となり、一括処理・台帳切替・FFmpegを表示します。
+`Dashboard.cs`は画面の依存・状態・寿命を保持し、`Dashboard.Layout.cs`で構築とイベント接続、`Dashboard.Display.cs`で表の詳細・操作失敗通知・ボタンの有効条件、`Dashboard.Operations.cs`で操作の直列化と単体導入／詳細設定の導線、`Dashboard.Refresh.cs`で実行状態・公開版の再取得を扱います。メインにフッターは作りません。単体の導入・アップデート・削除はメインから選択IDと操作種別を渡し、通常のInstallationFormには確認・進捗・結果だけを表示します。operation未指定の同フォームは開発者向け詳細設定となり、一括処理・台帳切替・FFmpegを表示します。
 
 `ToolInstallationRunner`は本体対応形式と製品識別を確認し、製品ごとに取得・実行・失敗結果を完結させます。configへの追加だけで未対応形式を実行可能にはしません。`ReleaseDisplay`はGitHubのpublished_atを日本時間の公開日へ変換し、版表示と確認文を共通化します。公開日を取得日時で代用せず、旧台帳の日付欠落も許容します。ローカル台帳の欠落製品も、停止・実行より前に日本語で拒否します。
 
@@ -112,7 +112,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 配布・Inno準備・ローカル導入のログは、既定でcatalog/host.jsonの版の`dev/history/vX.Y.Z/logs/`へ保存します。他製品や初回導入用旧版を検証する場合は`-RecordVersion vX.Y.Z`で記録の対象版を明示してください。製品版そのものを変更する引数ではありません。公開台帳の許可範囲も指定版のlogs内に限定します。
 
-製品ダウンロードはGitHubと指定されたGitHub assetホストのHTTPSだけ許可し、時間・容量・サイズ・SHA-256を検査します。同梱版は本体の固定ハッシュ、新しい公開版は既知所有者の製品別台帳とGitHub assetの照合で確定したハッシュを使用します。公開版の表示だけで導入せず、利用者の確認時にその固定スナップショットを取得します。新公開版の台帳はGitHub上の配布元を信頼する境界であり、独立したコード署名による発行元確認ではありません。未署名の注意と導入済み版→対象版を表示します。
+製品ダウンロードはGitHubと指定されたGitHub assetホストのHTTPSだけ許可し、時間・容量・サイズ・SHA-256を検査します。同梱版は本体の固定ハッシュ、新しい公開版は既知所有者の製品別台帳とGitHub assetの照合で確定したハッシュを使用します。公開版の表示だけで導入せず、利用者の確認時にその固定スナップショットを取得します。新公開版の台帳はGitHub上の配布元を信頼する境界であり、独立したコード署名による発行元確認ではありません。確認文は導入済み版→対象版と公開日・質問だけとし、未署名の注意と照合詳細はガイド・詳細ログに残します。
 
 FfmpegInstallerはこれとは別にGyanの固定HTTPS ZIP・固定容量・固定SHA-256を使用します。正式導入済みで停止中のSSCaptureだけに必要な2 EXE・ライセンス・READMEを配置し、設定／履歴／PATHを変えません。製品インストーラーへの同梱や自分のReleasesへの再配布はしません。
 
