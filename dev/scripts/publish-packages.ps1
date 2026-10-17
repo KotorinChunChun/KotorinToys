@@ -53,7 +53,11 @@ function Publish-Application([string]$Project, [string]$Output, [string]$Label, 
         if (-not $runtimePackage) { throw "ランタイムの配布通知がありません：$packageId" }
         $notices = Join-Path $runtimeLicenses $framework.name
         New-Item -ItemType Directory -Path $notices -Force | Out-Null
-        foreach ($file in @('LICENSE.TXT','THIRD-PARTY-NOTICES.TXT')) { Copy-Required (Join-Path $runtimePackage $file) $notices }
+        $licenses = @(Get-ChildItem -LiteralPath $runtimePackage -File | Where-Object Name -Match '^LICENSE(\.TXT)?$')
+        if (-not $licenses.Count) { throw "ランタイムのライセンスがありません：$packageId" }
+        foreach ($license in $licenses) { Copy-Required $license.FullName $notices }
+        $thirdParty = Join-Path $runtimePackage 'THIRD-PARTY-NOTICES.TXT'
+        if (Test-Path -LiteralPath $thirdParty -PathType Leaf) { Copy-Required $thirdParty $notices }
     }
 }
 $maintenanceOutput = Join-Path $staging 'maintenance'
