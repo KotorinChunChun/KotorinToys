@@ -2,7 +2,7 @@
 
 KotorinToysは、収録したWindows向け便利ツールの導入、起動、状態確認、自動起動予約、使い方へのアクセスをまとめて扱う管理アプリケーションです。
 
-本書はv0.1.2に対応します。導入操作整理・公開日表示・追加3ツールの本体対応配布を含みます。旧v0.1.1の公開資産は差し替えません。本体の「本体アップデート」で開発版も対象にするか、新しいsetupで更新してください。
+本書は0.1.6の開発ソースに対応します。公開済み0.1.5のEveryDB対応を維持し、HttpSelectorのMSIX管理を追加しています。0.1.6のリリース・更新インストールはまだ行っていません。公開済みの旧資産は差し替えません。
 
 2026年10月16日追加：この機能を含む本体への初回更新後は、GitHubのmain/config/tools.jsonの変更だけで一覧を差し替えます。起動時と「状態を更新」で取得し、追加・非表示・順序・一言解説を反映します。通信できない場合は前回の正常な一覧を維持します。一覧から削除しても停止・アンインストール・自動起動解除は行いません。[運用手順と制約](online-tool-catalog.md)を確認してください。
 
@@ -10,7 +10,7 @@ KotorinToysは、収録したWindows向け便利ツールの導入、起動、�
 
 一覧にツールの一言解説、導入済み版、公開版と公開日、更新の要否を表示します。公開日はGitHub Releasesのpublished_atを日本時間の日付にし、バージョンの右に「0.1.5（2026/10/14 公開）」のように表示します。取得できない日付は「公開日不明」とし、確認日時を公開日の代わりには使いません。導入済み版は正式登録された実行ファイルから取得し、開発フォルダーだけの配置は「未導入」と区別します。
 
-同梱初期一覧は9件で、取得したconfigによって変わります。LiveTextMarker／SmartPaste／SSCaptureに加え、CapchunWindow（旧CapchunScreen）／ChulipVideo C#版／ChunapTool／EveryDBの計7件が本体対応インストーラーを利用できます。EveryDBは本体0.1.5以降・EveryDB 0.1.1以降で対応します。開発版ではShortcutKeyCounterの[ポータブルZIPの公開版・公開日表示](portable-release-publication.md)に対応します。本体対応インストーラーは未公開のため、HttpSelectorの署名付きMSIXとともに、本体のInno形式の導入・削除とは別経路です。未対応のボタンは無効になり、理由を案内します。CapchunWindowとChulipVideoのFFmpegは各アプリで指定します（本体のFFmpeg導入はSSCapture専用）。ひとこと解説はconfigのsummaryで変更できます。
+同梱初期一覧は9件で、取得したconfigによって変わります。LiveTextMarker／SmartPaste／SSCaptureに加え、CapchunWindow（旧CapchunScreen）／ChulipVideo C#版／ChunapTool／EveryDBの計7件が本体対応Innoインストーラーを利用できます。EveryDBは本体0.1.5以降・EveryDB 0.1.1以降で対応します。0.1.6ソースではHttpSelectorの署名付きMSIXも本体から導入・更新・削除できます。ShortcutKeyCounterは[ポータブルZIPの公開版・公開日表示](portable-release-publication.md)に対応しますが、本体からの導入・更新は未対応です。未対応のボタンは無効になり、理由を案内します。CapchunWindowとChulipVideoのFFmpegは各アプリで指定します（本体のFFmpeg導入はSSCapture専用）。ひとこと解説はconfigのsummaryで変更できます。
 
 起動時と「状態を更新」でGitHub Releasesと製品別配布台帳を照合します。独立した「公開版を確認」ボタンはありません。公開済み開発版も対象にし、開発版であることを併記します。通信失敗・API制限・台帳欠落では「公開版を確認できません」とし、同梱台帳の版を表示しても「最新です」とは判定しません。
 
@@ -54,6 +54,6 @@ SSCaptureを正式導入し、本体の「停止させる」で停止した後�
 
 HttpSelectorは[署名付きMSIXの導入手順](../tools/HttpSelector/docs/INSTALL_MSIX.md)に従ってインストールしてください。HTTP/HTTPSの関連付け登録に必要なため、EXEのコピーだけで利用しません。MSIXの候補登録後、Windowsの「設定」→「アプリ」→「既定のアプリ」でHTTPとHTTPSにHttpSelectorを指定します。既定値を本体が強制変更することはありません。
 
-本体は登録済みの署名付きMSIXを起動・表示・停止・状態確認します。未導入、旧版、登録確認不能のときはMSIX導入・更新の案内を表示し、開発EXEには切り替えません。Inno台帳によるインストール・更新とは別の導入経路です。自動起動には「KotorinToys経由」を選んでください。
+本体0.1.6ソースでは[MSIXの導入・更新・削除](msix-management.md)にも対応し、メイン一覧から操作できます。設定・履歴は削除前に退避し、本体からの再導入時に復元します。署名や登録を確認できなければ中止し、開発EXEには切り替えません。Innoとは別の専用導入経路です。自動起動には「KotorinToys経由」を選んでください。
 
 危険性が疑われるURLやQuad9で確認できないURLは、割り込みオフやルール一致でも開く前に警告します。キャンセルが初期選択です。Quad9へ送るのはサブドメインを含むホスト名だけで、元URL・パス・クエリは送りません。詳しくは[HttpSelector利用ガイド](../tools/HttpSelector/docs/USERS_GUIDE.md)を参照してください。

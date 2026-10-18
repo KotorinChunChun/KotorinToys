@@ -91,7 +91,7 @@ internal sealed class InstallationForm : BrandedForm
         {
             using var picker = new OpenFileDialog { Title = "信頼できるローカルビルドのpackages.json", Filter = "配布台帳|packages.json", CheckFileExists = true };
             if (picker.ShowDialog(this) != DialogResult.OK) return;
-            try { InstallerAdapter.Load(picker.FileName); catalogPath = picker.FileName; source.Text = "ローカル配布台帳：" + catalogPath + "\n未署名です。設定・履歴は保持します。"; RefreshTargets(); }
+            try { InstallerAdapter.Load(picker.FileName); catalogPath = picker.FileName; source.Text = "ローカル配布台帳：" + catalogPath; RefreshTargets(); }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, WindowTitle.Create("配布台帳の確認")); }
         };
         buttons.Controls.Add(published); buttons.Controls.Add(choose);

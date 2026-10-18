@@ -42,6 +42,11 @@ internal static class MsixInstallerTests
         check(result.State == "成功" && File.ReadAllText(Path.Combine(state, "HttpSelector.db")) == "設定・履歴 fixture" &&
             File.ReadAllText(Path.Combine(state, "integrity-key.bin")) == "dummy-key", "再導入でDBと整合性キーを起動前に復元");
         using (store.AcquireLease()) check(store.Pending() == null, "復元完了後は未復元マーカーを完了へ移す");
+        using (var locked = new FileStream(Path.Combine(state, "HttpSelector.db"), FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            result = await installer.Uninstall(tool);
+            check(result.State == "失敗" && removes == 2 && reservations == 2, "データ退避不能なら予約変更もMSIX削除も行わない");
+        }
         int before = stops;
         var bad = new MsixInstaller(_ => installed, _ => { stops++; return Task.FromResult(new ToolState("停止中")); }, deployment, store,
             _ => new(true, ""), _ => new(true, ""), _ => throw new IOException("未信頼署名"));

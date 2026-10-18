@@ -2,6 +2,10 @@
 
 ## 現行版
 
+- [v0.1.6 MSIX一覧管理・EveryDB対応統合の要求](history/v0.1.6/v0.1.6-req.md)
+- [v0.1.6 実装計画・報告](history/v0.1.6/v0.1.6-imp.md)
+- [v0.1.4 MSIX取得・署名・導入基盤の記録](history/v0.1.4/v0.1.4-imp.md)
+
 - [v0.1.5 EveryDB共通導入の要求](history/v0.1.5/v0.1.5-req.md)
 - [v0.1.5 実装・実機受入・公開の報告](history/v0.1.5/v0.1.5-imp.md)
 

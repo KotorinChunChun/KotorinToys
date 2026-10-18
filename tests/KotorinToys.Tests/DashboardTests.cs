@@ -57,7 +57,8 @@ internal static class DashboardTests
         grid.CurrentCell = grid.Rows[httpSelectorIndex].Cells[0];
         check(grid.Rows[httpSelectorIndex].Cells["installed"].Value?.ToString() == tools[httpSelectorIndex].Version &&
             grid.CurrentRow?.Cells["tool"].Value?.ToString() == "HttpSelector" &&
-            !((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "HttpSelectorの4成分版を表示し未公開Innoへの更新を無効化");
+            ((Button)form.Controls.Find("updateSelected", true).Single()).Enabled == ToolVersionView.Create(installed[httpSelectorIndex], releases[httpSelectorIndex]).CanUpdate,
+            "HttpSelectorの4成分版を表示し照合済みMSIXの新旧で更新を制御");
         check(grid.Columns.Cast<DataGridViewColumn>().All(column => column.SortMode == DataGridViewColumnSortMode.NotSortable), "行順で別製品を操作しないよう手動並替を禁止");
         form.Size = form.MinimumSize; form.PerformLayout();
         check(grid.Width >= 800 && grid.Height >= 320, "最小サイズでも下部の空白を作らず一覧を広げる");

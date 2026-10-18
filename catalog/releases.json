@@ -84,6 +84,20 @@
         "signature": "unsigned-public-build"
       },
       "length": 38191228
+    },
+    {
+      "package": {
+        "id": "http-selector",
+        "name": "HttpSelector",
+        "version": "0.0.3.3",
+        "appId": "KotorinToys.HttpSelector",
+        "file": "HttpSelector_0.0.3.3_x64_dev.msix",
+        "sha256": "b5e8d8fa7b60cb81dc9d82bf0da1cfe021ba48363711b3a6f71ade41fe9dc0f4",
+        "signature": "signed-msix",
+        "kind": "msix"
+      },
+      "length": 2517124,
+      "publishedAt": "2026-10-16T18:10:50Z"
     }
   ]
 }
