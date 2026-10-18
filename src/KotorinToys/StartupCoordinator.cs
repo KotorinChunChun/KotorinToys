@@ -10,14 +10,15 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
     string Marker(HostSettings settings,string id)=>"KotorinToys:"+settings.OwnerToken+":"+id;
     public Task<ExternalStartupState[]> ExternalReservations(ToolDefinition tool)=>Task.Run(()=>
     {
+        var result=new List<ExternalStartupState>();
         try
         {
-            var executable=manager.Executable(tool);var result=ExternalStartupDetector.Detect(executable);
+            var executable=manager.Executable(tool); result.AddRange(ExternalStartupDetector.Detect(executable));
             if(gateway is TaskSchedulerGateway real)
-                result=result.Concat(real.FindExternal(executable,store.Load().OwnedTasks.Values.Select(t=>t.Name))).ToArray();
-            return result;
+                result.AddRange(real.FindExternal(executable,store.Load().OwnedTasks.Values.Select(t=>t.Name)));
         }
-        catch(Exception){return new[]{new ExternalStartupState("外部予約","未確認","実行先または予約の読取に失敗しました。")};}
+        catch(Exception ex){result.Add(new("外部予約","未確認","実行先または予約の読取に失敗しました："+ex.Message,"未確認"));}
+        return result.ToArray();
     });
     public Task<StartupState> State(ToolDefinition tool)=>Task.Run(()=>
     {

@@ -97,6 +97,11 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--startup-overview-tests"]))
+            {
+                StartupOverviewTests.Run(root, Check).GetAwaiter().GetResult();
+                Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
             if (args.Length is 1 or 2 && args[0] == "--portable-release-check")
                 return PortableReleaseTests.Live(root, args.Length == 2 ? args[1] : null).GetAwaiter().GetResult();
             if (args.Length is 1 or 2 && args[0] == "--portable-release-panel")
@@ -189,6 +194,7 @@ internal static class Program
             MsixInstallationTests.Run(fixtures, Check);
             ProductIdentityTests.Run(Check);
             StartupTests.Run(root,fixtures,Check);
+            StartupOverviewTests.Run(root,Check).GetAwaiter().GetResult();
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;

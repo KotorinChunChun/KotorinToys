@@ -219,7 +219,7 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
         {
             if (depth > 8 || inspected >= 2000)
             {
-                found.Add(new("タスク", "未確認", "読取上限に達しました。"));
+                found.Add(new("タスク", "未確認", "読取上限に達しました。", "未確認"));
                 return;
             }
 
@@ -234,7 +234,7 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
                     {
                         if (++inspected > 2000)
                         {
-                            found.Add(new("タスク", "未確認", "読取上限に達しました。"));
+                            found.Add(new("タスク", "未確認", "読取上限に達しました。", "未確認"));
                             break;
                         }
 
@@ -243,12 +243,12 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
                             continue;
                         var xml = XDocument.Parse((string)task.Xml);
                         XNamespace ns = "http://schemas.microsoft.com/windows/2004/02/mit/task";
-                        if (xml.Descendants(ns + "Exec").Any(action => string.Equals(Path.GetFullPath(action.Element(ns + "Command")?.Value ?? ""), Path.GetFullPath(executable), StringComparison.OrdinalIgnoreCase)))
-                            found.Add(new("外部タスク", name, "読取のみ。定義・所有者を自動変更しません。"));
+                        if (ClassifyExternal(xml, executable, WindowsIdentity.GetCurrent().User!.Value) is { } state)
+                            found.Add(new("外部タスク", name, "自動トリガーと有効設定を照合。日時・電源などの実行条件は別途確認。読取のみ。", state));
                     }
-                    catch (Exception ex) when (ex is COMException or IOException or ArgumentException)
+                    catch (Exception ex) when (ex is COMException or IOException or ArgumentException or System.Xml.XmlException or FormatException)
                     {
-                        found.Add(new("タスク", "未確認", "一部の予約を読めません。"));
+                        found.Add(new("タスク", "未確認", "一部の予約を読めません。" + ex.Message, "未確認"));
                     }
                     finally
                     {
@@ -272,7 +272,7 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
             }
             catch (Exception ex) when (ex is COMException or UnauthorizedAccessException)
             {
-                found.Add(new("タスク", "未確認", "一部のフォルダーに読取権限がありません。"));
+                found.Add(new("タスク", "未確認", "一部のフォルダーに読取権限がありません。", "未確認"));
             }
             finally
             {
@@ -296,6 +296,32 @@ internal sealed class TaskSchedulerGateway : IStartupGateway
         }
 
         return found.Distinct().ToArray();
+    }
+
+    internal static string? ClassifyExternal(XDocument xml, string executable, string currentSid)
+    {
+        XNamespace ns = "http://schemas.microsoft.com/windows/2004/02/mit/task";
+        if (!xml.Descendants(ns + "Exec").Any(action => ExternalStartupDetector.MatchesCommand(
+                "\"" + (action.Element(ns + "Command")?.Value ?? "").Trim('"') + "\"", executable))) return null;
+        static bool Enabled(XElement? value) => value == null || System.Xml.XmlConvert.ToBoolean(value.Value.Trim());
+        var triggers = xml.Root?.Element(ns + "Triggers")?.Elements().ToArray() ?? [];
+        var known = new[] { "BootTrigger", "LogonTrigger", "CalendarTrigger", "TimeTrigger", "EventTrigger", "IdleTrigger", "RegistrationTrigger", "SessionStateChangeTrigger" };
+        if (triggers.Any(t => t.Name.Namespace != ns || !known.Contains(t.Name.LocalName))) return "未確認";
+        bool Applies(XElement trigger)
+        {
+            var user = trigger.Element(ns + "UserId")?.Value;
+            if (string.IsNullOrWhiteSpace(user)) return true;
+            try
+            {
+                var sid = user.StartsWith("S-1-", StringComparison.OrdinalIgnoreCase) ? new SecurityIdentifier(user).Value :
+                    ((SecurityIdentifier)new NTAccount(user).Translate(typeof(SecurityIdentifier))).Value;
+                return sid == currentSid;
+            }
+            catch (IdentityNotMappedException) { throw new IOException("ログオン対象ユーザーを照合できません。"); }
+        }
+        var relevant = triggers.Where(Applies).ToArray();
+        if (relevant.Length == 0) return "対象外";
+        return Enabled(xml.Root?.Element(ns + "Settings")?.Element(ns + "Enabled")) && relevant.Any(t => Enabled(t.Element(ns + "Enabled"))) ? "有効" : "無効";
     }
 
     internal static bool Matches(ScheduledTaskState state, TaskPlan plan)
