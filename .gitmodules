@@ -25,3 +25,6 @@
 [submodule "tools/EveryDB"]
 	path = tools/EveryDB
 	url = https://github.com/KotorinChunChun/EveryDB.git
+[submodule "tools/VoiceMixerSpkRouter"]
+	path = tools/VoiceMixerSpkRouter
+	url = https://github.com/KotorinChunChun/VoiceMixerSpkRouter.git

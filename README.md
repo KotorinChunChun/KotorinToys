@@ -83,3 +83,7 @@ pwsh -File dev/scripts/start.ps1
 ## 作者
 
 KotoriChun
+
+## VoiceMixerSpkRouter（単独利用）
+
+[VoiceMixerSpkRouter](tools/VoiceMixerSpkRouter/README.md)を独立Gitとして収録しています。再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツールです。本体一覧からの管理連携は未対応です。取得は `git submodule update --init -- tools/VoiceMixerSpkRouter`。[このPCでの検証結果](dev/history/v0.1.5/voicemixer-spk-router-pc-test.md)を参照してください。
