@@ -12,8 +12,9 @@ internal sealed record StartupOverview(string Text, string Detail, bool NeedsAtt
             else if (managed.DesiredMode == "direct_task") routes.Add("OS（タスク）");
             else issue = true;
         }
+        var desired = managed.DesiredMode == "via_kotorintoys" ? "本体経由" : managed.DesiredMode == "direct_task" ? "OS（タスク）" : managed.DesiredMode ?? "未確認";
         if (managed.DesiredMode != "none" || managed.ActualState != "なし")
-            notes.Add("本体設定：" + managed.ActualState + " / " + managed.Detail);
+            notes.Add("本体設定：" + desired + " / " + managed.ActualState + " / " + managed.Detail);
         foreach (var item in external)
         {
             if (item.State == "有効") routes.Add(item.Source == "外部タスク" ? "OS（タスク）" : "OS（スタートアップ）");
@@ -21,8 +22,9 @@ internal sealed record StartupOverview(string Text, string Detail, bool NeedsAtt
             notes.Add($"{item.Source}：{item.Name}（{item.State}） / {item.Detail}");
         }
         var distinct = routes.Distinct().ToArray();
+        var pending = managed.ActualState != "登録済み" && managed.DesiredMode is "via_kotorintoys" or "direct_task" ? desired + "（要確認）" : null;
         var text = distinct.Length > 0 ? string.Join(" / ", distinct) + (issue ? "（一部未確認）" : "") :
-            issue ? "確認できない" : external.Any(e => e.State == "無効") ? "無効" : "なし";
+            pending ?? (issue ? "確認できない" : external.Any(e => e.State == "無効") ? "無効" : "なし");
         if (notes.Count == 0) notes.Add("本体の自動起動設定・ログオン／PC起動タスク・Run・スタートアップショートカットに有効な登録は見つかりませんでした。");
         notes.Add("登録の有効性の確認です。実際にサインイン後の起動が成功することを保証するものではありません。");
         return new(text, string.Join("\n", notes), issue);

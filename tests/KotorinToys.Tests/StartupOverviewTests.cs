@@ -1,4 +1,6 @@
 using System.Xml.Linq;
+using System.Security.Cryptography;
+using System.Security.Principal;
 using KotorinToys;
 
 internal static class StartupOverviewTests
@@ -23,6 +25,7 @@ internal static class StartupOverviewTests
         var mixed = StartupOverview.Create(via, [TaskEntry("未確認")]);
         check(mixed.Text.Contains("本体経由") && mixed.Text.Contains("一部未確認") && mixed.NeedsAttention, "一部の登録を読めなくても確認済み経路と不明を両方保持");
         check(StartupOverview.Create(new("via_kotorintoys", "要対応", "共有予約がありません"), []).NeedsAttention, "希望方式だけがあり実予約がない場合は有効にしない");
+        check(StartupOverview.Create(new("via_kotorintoys", "要対応", "共有予約がありません"), []).Text == "本体経由（要確認）", "未照合でも設定されている方式を示し有効とは断定しない");
         check(StartupOverview.Create(none, [TaskEntry()]).Detail.Contains("外部の起動予約") && both.Detail.Contains("共有予約を照合済み"), "登録元・予約名・照合理由をセル詳細に残す");
 
         foreach (var flag in new byte[] { 2, 3, 6, 7, 255 })
@@ -62,5 +65,32 @@ internal static class StartupOverviewTests
         reader = new(_ => throw new IOException("読取拒否の試験"), _ => Task.FromResult(Array.Empty<ExternalStartupState>()));
         var failed = await reader.Read(tool, default);
         check(failed.Text == "確認できない" && failed.Detail.Contains("読取拒否の試験"), "読取例外を具体的な原因にする");
+    }
+
+    sealed class ReadOnlyGateway(ScheduledTaskState task) : IStartupGateway
+    {
+        public ScheduledTaskState? Read(string name) => name == task.Name ? task : null;
+        public ScheduledTaskState Create(TaskPlan plan) => throw new Exception("表示検証で予約を作成してはいけません。");
+        public ScheduledTaskState Restore(string name, string xml, string securityDescriptor = "") => throw new Exception("表示検証で復元してはいけません。");
+        public void Delete(string name, string expectedFingerprint) => throw new Exception("表示検証で削除してはいけません。");
+    }
+    public static async Task VerifyMismatch(string root, string fixtures, Action<bool, string> check)
+    {
+        var store = new HostSettingsStore(Path.Combine(fixtures, "overview-readonly"));
+        var settings = store.Load(); var manager = new ToolManager(root); var tool = manager.Load()[0];
+        var sid = WindowsIdentity.GetCurrent().User!.Value; var exe = Environment.ProcessPath!;
+        var otherRoot = Path.Combine(root, "other-recorded-root");
+        var args = "--startup --launch-origin via_kotorintoys --root " + StartupCoordinator.Quote(otherRoot) + " --settings-dir " + StartupCoordinator.Quote(store.DirectoryPath);
+        var plan = new TaskPlan("KotorinToys." + sid + ".host", exe, args, Path.GetDirectoryName(exe)!, sid, "KotorinToys:" + settings.OwnerToken + ":host");
+        var task = new ScheduledTaskState(plan.Name, StartupTests.Xml(plan));
+        store.Save(settings with { StartupModes = new() { [tool.Id] = "via_kotorintoys" }, OwnedTasks = new() { ["host"] = new(task.Name, task.Fingerprint, task.Xml) } });
+        var path = Path.Combine(store.DirectoryPath, "settings.json"); var before = SHA256.HashData(File.ReadAllBytes(path));
+        var coordinator = new StartupCoordinator(store, new ReadOnlyGateway(task), manager, exe, allowDevelopment: true);
+        var state = await coordinator.State(tool);
+        check(state.ActualState == "要対応" && state.Detail.Contains("起動引数") && state.Detail.Contains(otherRoot), "予約の参照先違いは実際に比較した引数を示す");
+        var overview = await new StartupOverviewReader(coordinator.State, _ => Task.FromResult(Array.Empty<ExternalStartupState>())).Read(tool, default);
+        check(overview.Text == "本体経由（要確認）" && overview.Detail.Contains(otherRoot), "照合不能の本体経由を一覧でも理由付きで表示");
+        check(before.SequenceEqual(SHA256.HashData(File.ReadAllBytes(path))) && Directory.GetFiles(store.DirectoryPath).Length == 1,
+            "読取照合で設定・予約を変更せずロックや操作記録も作らない");
     }
 }

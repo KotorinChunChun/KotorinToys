@@ -1,4 +1,5 @@
 using System.Security.Principal;
+using System.Xml.Linq;
 
 namespace KotorinToys;
 
@@ -33,9 +34,16 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
             if(mode=="none")return new StartupState(mode,actual==null?"なし":"要対応",actual==null?"":"希望なしですが予約が残っています。");
             if(actual==null)return new StartupState(mode,"要対応","希望する予約がありません。");
             var plans=Plans(settings);
-            return plans.TryGetValue(id,out var plan) && TaskSchedulerGateway.Matches(actual,plan)
-                ? new StartupState(mode,"登録済み",mode=="via_kotorintoys"?"本体の共有サインイン予約から起動します。":"本体を介さず起動します。")
-                : new StartupState(mode,"要対応","実行先または予約条件が一致しません。");
+            if (!plans.TryGetValue(id,out var plan)) return new StartupState(mode,"要対応","現在の設定に対応する予約定義がありません。");
+            if (TaskSchedulerGateway.Matches(actual,plan))
+                return new StartupState(mode,"登録済み",mode=="via_kotorintoys"?"本体の共有サインイン予約から起動します。":"本体を介さず起動します。");
+            XNamespace ns="http://schemas.microsoft.com/windows/2004/02/mit/task";
+            var action=XDocument.Parse(actual.Xml).Descendants(ns+"Exec").SingleOrDefault();
+            var command=action?.Element(ns+"Command")?.Value;
+            var arguments=action?.Element(ns+"Arguments")?.Value ?? "";
+            if(command!=plan.Executable)return new StartupState(mode,"要対応",$"予約の実行先が現在の設定と一致しません。\n予約：{command}\n現在：{plan.Executable}");
+            if(arguments!=plan.Arguments)return new StartupState(mode,"要対応",$"予約の起動引数が現在の設定と一致しません（参照先・設定先等）。\n予約：{arguments}\n現在：{plan.Arguments}");
+            return new StartupState(mode,"要対応","予約の有効設定・トリガー・実行条件が一致しません。");
         }
         catch(Exception ex){return new StartupState(null,"確認できない",ex.Message);}
     });
