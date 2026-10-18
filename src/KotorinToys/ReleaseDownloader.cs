@@ -31,7 +31,7 @@ internal sealed partial class ReleaseDownloader : IDisposable
         {
             progress?.Report(item.Package.Name + "：ダウンロード中（固定版 " + ReleaseDisplay.Version(item) + "）");
             await Download(item, directory, cancellation);
-            progress?.Report(item.Package.Name + "：SHA-256・サイズ一致。未署名です。");
+            progress?.Report(item.Package.Name + (item.Package.Kind == "msix" ? "：SHA-256・サイズ一致。MSIX署名・製品識別は導入前に照合します。" : "：SHA-256・サイズ一致。未署名です。"));
         }
 
         var path = PathSafety.Resolve(directory, "packages.json");

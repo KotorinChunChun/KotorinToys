@@ -20,6 +20,7 @@ internal sealed partial class PublicReleaseClient : IDisposable
         try
         {
             cancellation.ThrowIfCancellationRequested();
+            if (tool.Msix != null) return await CheckMsix(tool, fallback, cancellation);
             if (tool.DistributionStatus != "published")
             {
                 if (tool.Id == "shortcut-key-counter" && tool.Name == "ShortcutKeyCounter" &&

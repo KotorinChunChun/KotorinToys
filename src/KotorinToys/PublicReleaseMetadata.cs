@@ -22,13 +22,13 @@ internal sealed class PublicReleaseMetadata
         value.ValueKind == JsonValueKind.String && DateTimeOffset.TryParse(value.GetString(),
             System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var date) ? date : null;
 
-    public static PublicReleaseMetadata Select(JsonElement list, bool includePrerelease = true)
+    public static PublicReleaseMetadata Select(JsonElement list, bool includePrerelease = true, bool msix = false)
     {
         var releases = list.EnumerateArray().ToArray();
         if (releases.Length >= 100) throw new IOException("公開版の全件照合が必要です。100件以上のリリースは自動判定しません。");
         var candidates = releases.Where(r => !r.GetProperty("draft").GetBoolean() && (includePrerelease || !r.GetProperty("prerelease").GetBoolean()))
             .Select(r => (Release: r, Tag: r.GetProperty("tag_name").GetString()))
-            .Where(r => r.Tag != null && Regex.IsMatch(r.Tag, @"^v[0-9]+\.[0-9]+\.[0-9]+$") && System.Version.TryParse(r.Tag[1..], out _))
+            .Where(r => r.Tag != null && Regex.IsMatch(r.Tag, msix ? @"^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$" : @"^v[0-9]+\.[0-9]+\.[0-9]+$") && System.Version.TryParse(r.Tag[1..], out _))
             .OrderByDescending(r => System.Version.Parse(r.Tag![1..])).ToArray();
         if (candidates.Length == 0) throw new IOException("対応する公開リリースがありません。");
         return new(candidates[0].Release, candidates[0].Tag!);
@@ -90,5 +90,25 @@ internal sealed class PublicReleaseMetadata
             !string.Equals(digest.GetString(), "sha256:" + hash, StringComparison.OrdinalIgnoreCase))
             throw new IOException("GitHubのassetハッシュとSHA256SUMSが一致しません。");
         return new(Version, PublishedAt, asset.GetProperty("browser_download_url").GetString()!, length, hash);
+    }
+
+    public ReleasePackage Msix(ToolDefinition tool, string checksums, ReleasePackage? fallback)
+    {
+        if (!MsixPolicy.Supports(tool)) throw new IOException("未対応のMSIX製品識別です。");
+        string name = MsixPolicy.FileName(Version);
+        var asset = Asset(tool, name);
+        var matches = checksums.TrimStart('\uFEFF').Split('\n').Select(line => Regex.Match(line.TrimEnd('\r'), @"^([a-fA-F0-9]{64}) [ *](.+)$"))
+            .Where(m => m.Success && m.Groups[2].Value == name).ToArray();
+        if (matches.Length != 1) throw new IOException("MSIXのSHA-256が欠落または重複しています。");
+        string hash = matches[0].Groups[1].Value.ToLowerInvariant();
+        var package = new LocalPackage(tool.Id, tool.Name, Version, tool.AppId, name, hash, "signed-msix", "msix");
+        var result = new ReleasePackage(package, asset.GetProperty("size").GetInt64(), PublishedAt);
+        ReleaseDownloader.Validate(new(1, [result]));
+        if (asset.TryGetProperty("digest", out var digest) && digest.ValueKind == JsonValueKind.String &&
+            !string.Equals(digest.GetString(), "sha256:" + hash, StringComparison.OrdinalIgnoreCase))
+            throw new IOException("GitHubのassetハッシュとSHA256SUMSが一致しません。");
+        if (fallback != null && fallback.Package.Version == Version && (fallback.Package != package || fallback.Length != result.Length))
+            throw new IOException("同じMSIX版の配布情報が変更されています。差し替えは実行しません。");
+        return result;
     }
 }

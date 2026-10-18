@@ -13,7 +13,7 @@ internal static class PublicReleaseTests
         int unsupportedRequests = 0;
         using (var client = new PublicReleaseClient(new Handler((_, _) => { unsupportedRequests++; return new(HttpStatusCode.OK); })))
         {
-            foreach (var unpublished in ToolCatalog.Load(root).Where(t => t.DistributionStatus == "unpublished" && t.Id != "shortcut-key-counter"))
+            foreach (var unpublished in ToolCatalog.Load(root).Where(t => t.DistributionStatus == "unpublished" && t.Id != "shortcut-key-counter" && t.Msix == null))
             {
                 var actual = await client.Check(unpublished, null);
                 check(unsupportedRequests == 0 && !actual.Confirmed && actual.Package == null && actual.Detail.Contains("インストーラーは未公開"), unpublished.Name + " 未公開インストーラーを通信・取得しない");

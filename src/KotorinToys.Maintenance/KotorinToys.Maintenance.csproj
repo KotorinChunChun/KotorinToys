@@ -11,6 +11,7 @@
     <Compile Include="../KotorinToys/SelfUpdateWorker.cs" Link="SelfUpdateWorker.cs" />
     <Compile Include="../KotorinToys/PackageModels.cs" Link="PackageModels.cs" />
     <Compile Include="../KotorinToys/PackageCatalogReader.cs" Link="PackageCatalogReader.cs" />
+    <Compile Include="../KotorinToys/MsixPolicy.cs" Link="MsixPolicy.cs" />
     <Compile Include="../KotorinToys/InstallerAdapter.cs" Link="InstallerAdapter.cs" />
     <Compile Include="../KotorinToys/ReleaseModels.cs" Link="ReleaseModels.cs" />
     <Compile Include="../KotorinToys/ToolCatalog.cs" Link="ToolCatalog.cs" />

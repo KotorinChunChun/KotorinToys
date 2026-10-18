@@ -22,7 +22,14 @@ internal static class PackageCatalogReader
         foreach (var package in value.Packages)
         {
             var product = ProductIdentity.FromId(package.Id) ?? throw new IOException("未登録の配布製品です。");
+            if (package.Kind == "msix")
+            {
+                if (!MsixPolicy.Valid(package) || !System.Text.RegularExpressions.Regex.IsMatch(package.Sha256, "^[a-f0-9]{64}$"))
+                    throw new IOException("MSIXの製品・版・署名方式・ハッシュの配布定義が不正です。");
+                continue;
+            }
             if (package.Name != product.Name || package.AppId != product.AppId
+                || package.Kind != "inno" || package.Id == "http-selector"
                 || !System.Text.RegularExpressions.Regex.IsMatch(package.Version, "^[0-9]+\\.[0-9]+\\.[0-9]+$")
                 || !System.Text.RegularExpressions.Regex.IsMatch(package.Sha256, "^[a-f0-9]{64}$")
                 || package.Signature != (value.DistributionStatus == "published" ? "unsigned-public-build" : "unsigned-local-build")
