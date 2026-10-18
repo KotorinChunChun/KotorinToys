@@ -33,6 +33,10 @@ internal static class Program
             if (args.Length == 2 && args[0] == "--shortcut-owned-stop" && int.TryParse(args[1], out var ownedPid))
                 return ShortcutKeyCounterIntegrationTests.StopOwned(ownedPid).GetAwaiter().GetResult();
             IconTests.Asset(Check);
+            if (args.SequenceEqual(["--upgrade-stop-host"])) return UpgradeRebootValidation.StopHost().GetAwaiter().GetResult();
+            if (args.Length == 2 && args[0] == "--upgrade-arm-boot") return UpgradeRebootValidation.Arm(args[1]).GetAwaiter().GetResult();
+            if (args.Length == 2 && args[0] == "--post-upgrade-boot-check") return UpgradeRebootValidation.Check(args[1]).GetAwaiter().GetResult();
+            if (args.Length == 2 && args[0] == "--upgrade-reboot-ready") return UpgradeRebootValidation.ReadyToReboot(args[1]).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--validate-online-catalog")
             {
                 var catalogRoot = KotorinToys.Program.FindRoot();
@@ -223,6 +227,9 @@ internal static class Program
             ReleaseDisplayTests.Run(root, Check);
             ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             BootValidation.Tests(Check);
+            UpgradeRebootValidation.Tests(Check);
+            Check(JsonDocument.Parse(File.ReadAllText(Path.Combine(root,"catalog","host.json"))).RootElement.GetProperty("version").GetString() == HostProduct.CurrentVersion,
+                "本体の製品定義とAssemblyの配布版を一致させる");
             if(args.Contains("--scheduler")) StartupTests.LiveScheduler(root,fixtures,Check);
             if(args.Contains("--installed-startup")) InstalledStartupTests.Run(fixtures,Check).GetAwaiter().GetResult();
             if (args.Contains("--live")) LiveTests().GetAwaiter().GetResult();
