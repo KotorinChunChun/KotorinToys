@@ -381,7 +381,12 @@
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
       "icon": "src-tauri/icons/icon.ico",
-      "capabilities": ["status", "show", "stop", "silent-start"],
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
       "runtimes": [
         {
           "id": "webview2",
@@ -391,6 +396,47 @@
           "guide": "Windows 11のWebView2 Runtimeが必要です。"
         }
       ]
+    },
+    {
+      "id": "voice-mixer-mic-router",
+      "name": "VoiceMixerMicRouter",
+      "version": "1.0.18",
+      "summary": "MIC・RVC・スピーカー入力を切り替え、3つの音声出力へ送る",
+      "category": "音声",
+      "executable": "src/src-tauri/target/debug/voicemixer-mic.exe",
+      "installedExecutable": "VoiceMixerMicRouter.exe",
+      "appId": "KotorinToys.VoiceMixerMicRouter",
+      "manual": "docs/installation.md",
+      "readme": "README.md",
+      "distributionStatus": "published",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "rvc-cuda",
+          "name": "RVC Python/CUDA環境と音声モデル",
+          "kind": "external",
+          "optional": true,
+          "feature": "RVC変換",
+          "guide": "docs/installation.md のRVC追加設定を確認してください。"
+        },
+        {
+          "id": "virtual-audio",
+          "name": "仮想オーディオデバイス",
+          "kind": "external",
+          "optional": true,
+          "feature": "他アプリへの仮想ケーブル出力",
+          "guide": "使用する仮想オーディオドライバーを別途導入し、設定で出力先を選択してください。"
+        }
+      ],
+      "toolRoot": "tools/VoiceMixerMicRouter",
+      "repositoryUrl": "https://github.com/KotorinChunChun/VoiceMixerMicRouter"
     }
   ]
 }

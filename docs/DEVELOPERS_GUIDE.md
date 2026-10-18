@@ -130,3 +130,11 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path a
 ```
 
 最初は専用設定・スキャン無効のDebug EXEでの管理契約試験、後者は署名付きMSIX 0.0.3.2を現在ユーザーに導入した実パッケージ試験です。既存HttpSelectorがあれば試験開始せず、試験所有PIDだけを正常停止します。MSIX試験は導入済みの利用者設定を使用するため事前に退避し、プロファイルを開いたり既定アプリを変更したりしません。結果は子の `dev/history/v0.0.3.2/` に記録します。
+
+## VoiceMixerMicRouterの管理連携
+
+公開v1.0.18を独立Gitの採用元とする。開発用EXEは `dev/scripts/build.ps1` でRust MSVCをビルドする。配布用setupは子の `dev/scripts/Build-Installer.ps1` が正本で、本体のC#製品発行対象には追加しない。本体配布には子の定義・README・docsだけを含める。
+
+隔離設定での管理実接続は、テストビルド後の `KotorinToys.Tests.exe --mic-router-ipc` で確認する。既存のMicRouterを正常終了してから実行する。通常利用の設定・モデル・予約は変更せず、送信停止・全出力OFF・RVC無効で起動する。起動、既存PID保持、別PID拒否、未対応操作、正常停止、GitHubの台帳照合を検証する。
+
+登録変更の公開はmainのconfig反映と対応本体の更新が必要である。ローカルの追加だけでは稼働中の旧本体やGitHub上の一覧は更新されない。

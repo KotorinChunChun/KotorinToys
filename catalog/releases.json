@@ -98,6 +98,19 @@
       },
       "length": 2517124,
       "publishedAt": "2026-10-16T18:10:50Z"
+    },
+    {
+      "package": {
+        "id": "voice-mixer-mic-router",
+        "name": "VoiceMixerMicRouter",
+        "version": "1.0.18",
+        "appId": "KotorinToys.VoiceMixerMicRouter",
+        "file": "VoiceMixerMicRouter-1.0.18-setup.exe",
+        "sha256": "86a0f3a05a9975ec60f786c86548da6cdccaf243fd87783d1a426c1a8ff3ffe8",
+        "signature": "unsigned-public-build"
+      },
+      "length": 38521655,
+      "publishedAt": "2026-10-18T17:18:24Z"
     }
   ]
 }

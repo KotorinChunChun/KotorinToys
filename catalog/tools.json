@@ -45,6 +45,11 @@
       "id": "every-db",
       "name": "EveryDB",
       "definition": "tools/EveryDB/tool.json"
+    },
+    {
+      "id": "voice-mixer-mic-router",
+      "name": "VoiceMixerMicRouter",
+      "definition": "tools/VoiceMixerMicRouter/tool.json"
     }
   ]
 }

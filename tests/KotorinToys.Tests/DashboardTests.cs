@@ -21,7 +21,7 @@ internal static class DashboardTests
         installed[1] = installed[1] with { Version = "0.1.3" };
         form.ApplySnapshot(installed, states, releases); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
-        check(grid.Rows.Count == 9 && grid.Rows.Cast<DataGridViewRow>().Select(row => row.Cells["summary"].Value?.ToString()).SequenceEqual(tools.Select(t => t.Summary)), "実フォームの表に9件の一言解説");
+        check(grid.Rows.Count == tools.Length && grid.Rows.Cast<DataGridViewRow>().Select(row => row.Cells["summary"].Value?.ToString()).SequenceEqual(tools.Select(t => t.Summary)), "実フォームの表に9件の一言解説");
         var expectedPublished = ReleaseDisplay.Version(releases[1].Package!) + "（開発版）";
         check(grid.Rows[1].Cells["installed"].Value?.ToString() == "0.1.3" && grid.Rows[1].Cells["published"].Value?.ToString() == expectedPublished, "実フォームに導入済み版と現在の公開台帳の版を別表示");
         grid.CurrentCell = grid.Rows[1].Cells[0];

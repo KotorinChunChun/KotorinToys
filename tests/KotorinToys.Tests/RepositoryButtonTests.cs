@@ -9,7 +9,7 @@ internal static class RepositoryButtonTests
         {
             ["live-text-marker"] = "LiveTextMarker", ["smart-paste"] = "SmartPaste",
             ["ss-capture"] = "SSCapture", ["shortcut-key-counter"] = "ShortcutKeyCounter",
-            ["every-db"] = "EveryDB", ["capchun-screen"] = "CapchunWindow",
+            ["voice-mixer-mic-router"] = "VoiceMixerMicRouter", ["every-db"] = "EveryDB", ["capchun-screen"] = "CapchunWindow",
             ["chulip-video"] = "ChulipVideo-CSharp", ["chunap-tool"] = "ChunapTool"
         };
         int opened = 0; Uri? requested = null;

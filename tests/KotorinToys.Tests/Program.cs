@@ -23,6 +23,8 @@ internal static class Program
     {
         try
         {
+            if (args.SequenceEqual(["--spk-router-ipc"])) return SpkRouterIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--mic-router-ipc"])) return MicRouterIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--shortcut-ipc"])) return ShortcutKeyCounterIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--http-selector-ipc"])) return HttpSelectorIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--http-selector-msix"])) return HttpSelectorIntegrationTests.RunMsix().GetAwaiter().GetResult();
@@ -259,10 +261,10 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 9, "schema 2でEveryDBを含む9ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 7 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応7ツールと今回公開しないShortcutKeyCounterを区別");
+        Check(tools.Length == 10, "schema 2でEveryDBを含む9ツールを解決する");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 8 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応7ツールと今回公開しないShortcutKeyCounterを区別");
         Check(tools.Count(t => t.DistributionStatus == "unpublished") == 2, "ShortcutKeyCounter・HttpSelectorは本体用Inno配布の対象外");
-        Check(tools.All(t => t.Runtimes?.Length > 0), "9ツールの依存情報を持つ");
+        Check(tools.All(t => t.Id == "voice-mixer-spk-router" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0), "SpkRouterは追加ランタイム不要、他ツールの依存情報を保持");
         Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"9ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
@@ -271,6 +273,8 @@ internal static class Program
         Check(everyDb is { Name: "EveryDB", Version: "0.1.1", AppId: "KotorinToys.EveryDB", DistributionStatus: "published" } &&
             everyDb.Executable == "src-tauri/target/kotorintoys/debug/everydb.exe" && everyDb.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]),
             "EveryDBの独立リポジトリ・開発実行先・管理能力を登録");
+        var mic = tools.Single(t => t.Id == "voice-mixer-mic-router");
+        Check(mic is { Name: "VoiceMixerMicRouter", Version: "1.0.18", AppId: "KotorinToys.VoiceMixerMicRouter", InstalledExecutable: "VoiceMixerMicRouter.exe", DistributionStatus: "published" } && mic.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]), "MicRouterの固定識別と管理契約を登録");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs")).Replace("\r\n", "\n");
         Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path)).Replace("\r\n", "\n")==contract),"改行形式を除く共通管理実装と3子コピーの一致");
         foreach (var name in new[] { "CapchunScreen", "ChulipVideo", "ChunapTool" })

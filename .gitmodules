@@ -28,3 +28,7 @@
 [submodule "tools/VoiceMixerSpkRouter"]
 	path = tools/VoiceMixerSpkRouter
 	url = https://github.com/KotorinChunChun/VoiceMixerSpkRouter.git
+
+[submodule "tools/VoiceMixerMicRouter"]
+	path = tools/VoiceMixerMicRouter
+	url = https://github.com/KotorinChunChun/VoiceMixerMicRouter.git
