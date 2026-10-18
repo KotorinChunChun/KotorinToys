@@ -45,7 +45,7 @@ internal sealed partial class ToolManager(string root, Action<ToolDefinition, Pr
     public string Executable(ToolDefinition tool)
     {
         var installed = Installation(tool);
-        if (installed.State == "導入済み")
+        if (installed.State == "導入済み" || tool.Msix != null && installed.State == "更新が必要")
             return installed.Executable!;
         if (installed.State != "未導入")
             throw new IOException(installed.Detail);

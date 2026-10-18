@@ -15,7 +15,9 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
         await gate.WaitAsync();
         try
         {
+            if (tool.Msix != null) return await MsixInstaller.Create(manager).Install(tool, catalogPath);
             var package = Load(catalogPath).Packages.SingleOrDefault(p => p.Id == tool.Id) ?? throw new IOException("対象のローカル配布物がありません。");
+            if (package.Kind != "inno") throw new IOException("EXEとMSIXの配布方式が一致しません。");
             if (package.AppId != tool.AppId || package.Name != tool.Name)
                 throw new IOException("登録情報と配布物が一致しません。");
             var file = PathSafety.Resolve(Path.GetDirectoryName(Path.GetFullPath(catalogPath))!, package.File);
@@ -67,6 +69,7 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
         await gate.WaitAsync();
         try
         {
+            if (tool.Msix != null) return await MsixInstaller.Create(manager).Uninstall(tool);
             var installed = manager.Installation(tool);
             if (installed.State != "導入済み" || installed.Uninstaller == null)
                 throw new IOException("正式導入と削除プログラムを確認できません。");

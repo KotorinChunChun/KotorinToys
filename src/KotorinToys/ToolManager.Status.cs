@@ -11,6 +11,23 @@ internal sealed partial class ToolManager
 {
     public async Task<ToolState> Status(ToolDefinition tool, CancellationToken cancellation = default)
     {
+        if (tool.Msix != null && Installation(tool).State == "未導入")
+        {
+            foreach (var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(tool.InstalledExecutable)))
+            {
+                using (process)
+                {
+                    try
+                    {
+                        if (process.SessionId == Process.GetCurrentProcess().SessionId)
+                            return new("確認できない", process.Id, "MSIX未導入ですが同名プロセスがあります。開発版などを正常終了してから導入してください。");
+                    }
+                    catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+                    { return new("確認できない", Detail: "同名プロセスの確認に失敗しました：" + ex.Message); }
+                }
+            }
+            return new("停止中", Detail: "署名付きMSIXは未導入です。");
+        }
         string path;
         try
         {

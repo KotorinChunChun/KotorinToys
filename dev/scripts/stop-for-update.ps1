@@ -35,7 +35,7 @@ foreach ($target in $targets) {
         $pipe.Dispose()
     }
 }
-$hostPath = [IO.Path]::GetFullPath((Join-Path $projectRoot 'src/KotorinToys/bin/Debug/net10.0-windows/KotorinToys.exe'))
+$hostPath = [IO.Path]::GetFullPath((Join-Path $projectRoot 'src/KotorinToys/bin/Debug/net10.0-windows10.0.19041.0/KotorinToys.exe'))
 foreach ($instance in @(Get-Process -Name KotorinToys -ErrorAction SilentlyContinue)) {
     if ($instance.SessionId -eq [Diagnostics.Process]::GetCurrentProcess().SessionId -and $instance.Path -eq $hostPath) {
         if (!$instance.CloseMainWindow() -or !$instance.WaitForExit(10000)) { throw '旧本体の正常終了を確認できません。更新しません。' }

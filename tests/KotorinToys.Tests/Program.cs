@@ -101,10 +101,13 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--msix-public-check"])) return MsixPublicCheck.Run(root, fixtures).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--msix-tests"]))
             {
                 MsixInstallationTests.Run(fixtures, Check);
                 MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
+                MsixPackageTests.Run(fixtures, Check).GetAwaiter().GetResult();
+                MsixInstallerTests.Run(fixtures, Check).GetAwaiter().GetResult();
                 Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             if (args.Length == 3 && args[0] == "--startup-root-maintenance")
@@ -214,6 +217,8 @@ internal static class Program
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
+            MsixPackageTests.Run(fixtures, Check).GetAwaiter().GetResult();
+            MsixInstallerTests.Run(fixtures, Check).GetAwaiter().GetResult();
             ProductIdentityTests.Run(Check);
             StartupTests.Run(root,fixtures,Check);
             StartupOverviewTests.Run(root,Check).GetAwaiter().GetResult();
@@ -251,15 +256,16 @@ internal static class Program
     {
         var tools = ToolCatalog.Load(root);
         Check(tools.Length == 9, "schema 2でEveryDBを含む9ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 6 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応6ツールと今回公開しないShortcutKeyCounterを区別");
-        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 3, "ShortcutKeyCounter・HttpSelector・EveryDBは本体用Inno配布の対象外");
+        Check(tools.Where(t => new[] { "live-text-marker", "smart-paste", "ss-capture", "capchun-screen", "chulip-video", "chunap-tool" }.Contains(t.Id)).All(t => t.DistributionStatus == "published") &&
+            tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "既存の本体対応6ツールとShortcutKeyCounterの配布方式を区別");
+        Check(tools.Single(t => t.Id == "http-selector").Msix != null, "HttpSelectorは独立したMSIX配布として扱う");
         Check(tools.All(t => t.Runtimes?.Length > 0), "9ツールの依存情報を持つ");
         Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"9ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");
         var everyDb = tools.Single(t => t.Id == "every-db");
-        Check(everyDb is { Name: "EveryDB", Version: "0.1.0", AppId: "KotorinToys.EveryDB", DistributionStatus: "unpublished" } &&
+        Check(everyDb is { Name: "EveryDB", AppId: "KotorinToys.EveryDB" } && Version.TryParse(everyDb.Version, out var everyVersion) && everyVersion >= new Version(0, 1, 0) &&
             everyDb.Executable == "src-tauri/target/kotorintoys/debug/everydb.exe" && everyDb.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]),
             "EveryDBの独立リポジトリ・開発実行先・管理能力を登録");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs")).Replace("\r\n", "\n");

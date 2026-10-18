@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><PlatformTarget>x64</PlatformTarget>
     <ApplicationIcon>../KotorinToys/assets/KotorinToys.ico</ApplicationIcon>
   </PropertyGroup>
@@ -12,6 +12,11 @@
     <Compile Include="../KotorinToys/PackageModels.cs" Link="PackageModels.cs" />
     <Compile Include="../KotorinToys/PackageCatalogReader.cs" Link="PackageCatalogReader.cs" />
     <Compile Include="../KotorinToys/MsixPolicy.cs" Link="MsixPolicy.cs" />
+    <Compile Include="../KotorinToys/MsixSignature.cs" Link="MsixSignature.cs" />
+    <Compile Include="../KotorinToys/MsixPackageVerifier.cs" Link="MsixPackageVerifier.cs" />
+    <Compile Include="../KotorinToys/MsixDeployment.cs" Link="MsixDeployment.cs" />
+    <Compile Include="../KotorinToys/MsixDataStore.cs" Link="MsixDataStore.cs" />
+    <Compile Include="../KotorinToys/MsixInstaller.cs" Link="MsixInstaller.cs" />
     <Compile Include="../KotorinToys/InstallerAdapter.cs" Link="InstallerAdapter.cs" />
     <Compile Include="../KotorinToys/ReleaseModels.cs" Link="ReleaseModels.cs" />
     <Compile Include="../KotorinToys/ToolCatalog.cs" Link="ToolCatalog.cs" />
