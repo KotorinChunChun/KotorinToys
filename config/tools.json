@@ -437,6 +437,30 @@
       ],
       "toolRoot": "tools/VoiceMixerMicRouter",
       "repositoryUrl": "https://github.com/KotorinChunChun/VoiceMixerMicRouter"
+    },
+    {
+      "id": "voice-mixer-spk-router",
+      "name": "VoiceMixerSpkRouter",
+      "version": "1.0.10",
+      "summary": "再生デバイス・アプリ・ブラウザの音声を2系統へ転送",
+      "category": "音声",
+      "executable": "release/SpkRouter/voicemixer-spk.exe",
+      "installedExecutable": "VoiceMixerSpkRouter.exe",
+      "appId": "KotorinToys.VoiceMixerSpkRouter",
+      "manual": "docs/kotorintoys-integration.md",
+      "readme": "README.md",
+      "distributionStatus": "published",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [],
+      "repositoryUrl": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter",
+      "toolRoot": "tools/VoiceMixerSpkRouter"
     }
   ]
 }

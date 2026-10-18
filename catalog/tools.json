@@ -50,6 +50,11 @@
       "id": "voice-mixer-mic-router",
       "name": "VoiceMixerMicRouter",
       "definition": "tools/VoiceMixerMicRouter/tool.json"
+    },
+    {
+      "id": "voice-mixer-spk-router",
+      "name": "VoiceMixerSpkRouter",
+      "definition": "tools/VoiceMixerSpkRouter/tool.json"
     }
   ]
 }

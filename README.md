@@ -4,7 +4,7 @@ KotoriChunが開発・管理するWindows向けデスクトップ便利ツール
 
 ## プロジェクトの状態
 
-LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool、HttpSelector、EveryDB、VoiceMixerMicRouterの10件を登録し、本体の一覧から起動、既存画面の表示、正常停止、状態確認、使い方の表示を行えます。現在は開発中です。ソース公開は製品の正式リリースや全機能の受入完了を意味しません。
+LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool、HttpSelector、EveryDB、VoiceMixerMicRouter、VoiceMixerSpkRouterの11件を登録し、本体の一覧から起動、既存画面の表示、正常停止、状態確認、使い方の表示を行えます。現在は開発中です。ソース公開は製品の正式リリースや全機能の受入完了を意味しません。
 
 ## ソースの取得
 
@@ -84,9 +84,9 @@ pwsh -File dev/scripts/start.ps1
 
 KotoriChun
 
-## VoiceMixerSpkRouter（単独利用）
+## VoiceMixerSpkRouter
 
-[VoiceMixerSpkRouter](tools/VoiceMixerSpkRouter/README.md)を独立Gitとして収録しています。再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツールです。本体一覧からの管理連携は未対応です。取得は `git submodule update --init -- tools/VoiceMixerSpkRouter`。[このPCでの検証結果](dev/history/v0.1.5/voicemixer-spk-router-pc-test.md)を参照してください。
+[VoiceMixerSpkRouter](tools/VoiceMixerSpkRouter/README.md)を独立Gitとして収録しています。再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツールです。v1.0.10の共通インストーラーと管理契約2を登録し、本体から導入・更新・削除、起動・画面表示・正常停止・状態確認に対応します。公開版は未署名の開発版です。[今回の検証結果](dev/history/v0.1.6/voicemixer-spk-router-imp.md)を参照してください。取得は `git submodule update --init -- tools/VoiceMixerSpkRouter`。[旧1.0.9の検証記録](dev/history/v0.1.5/voicemixer-spk-router-pc-test.md)を参照してください。
 
 ## VoiceMixerMicRouter
 

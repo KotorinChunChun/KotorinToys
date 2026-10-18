@@ -6,6 +6,7 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
     public string Repository => RepositoryName ?? Name;
     static readonly ProductIdentity[] products =
     [
+        new("voice-mixer-spk-router", "VoiceMixerSpkRouter", "KotorinToys.VoiceMixerSpkRouter"),
         new("host", "KotorinToys", "KotorinToys"),
         new("live-text-marker", "LiveTextMarker", "KotorinToys.LiveTextMarker"),
         new("smart-paste", "SmartPaste", "KotorinToys.SmartPaste"),

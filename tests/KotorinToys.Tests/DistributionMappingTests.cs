@@ -11,7 +11,7 @@ internal static class DistributionMappingTests
     {
         var tools = ToolCatalog.Load(root);
         var seven = new List<ReleasePackage>(ReleaseDownloader.Load(root).Packages.Where(p => p.Package.Id is "live-text-marker" or "smart-paste" or "ss-capture"));
-        foreach (var id in new[] { "capchun-screen", "chulip-video", "chunap-tool", "every-db", "voice-mixer-mic-router" })
+        foreach (var id in new[] { "capchun-screen", "chulip-video", "chunap-tool", "every-db", "voice-mixer-mic-router", "voice-mixer-spk-router" })
         {
             var tool = tools.Single(t => t.Id == id) with { DistributionStatus = "published" };
             var identity = ProductIdentity.FromId(id)!;
@@ -35,7 +35,7 @@ internal static class DistributionMappingTests
             seven.Add(result.Package!);
         }
         ReleaseDownloader.Validate(new(1, seven.ToArray()));
-        check(seven.Count == 8, "対応7製品の台帳を旧4件制限で拒否しない");
+        check(seven.Count == 9, "対応9製品の台帳を旧4件制限で拒否しない");
         bool rejected = false;
         try { ReleaseDownloader.Asset(seven.Last() with { Package = seven.Last().Package with { Name = "AnotherTool" } }); }
         catch (IOException) { rejected = true; }

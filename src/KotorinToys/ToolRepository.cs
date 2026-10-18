@@ -6,6 +6,7 @@ internal static class ToolRepository
 {
     static readonly Dictionary<string, string> repositories = new(StringComparer.Ordinal)
     {
+        ["voice-mixer-spk-router"] = "https://github.com/KotorinChunChun/VoiceMixerSpkRouter",
         ["live-text-marker"] = "https://github.com/KotorinChunChun/LiveTextMarker",
         ["smart-paste"] = "https://github.com/KotorinChunChun/SmartPaste",
         ["ss-capture"] = "https://github.com/KotorinChunChun/SSCapture",
