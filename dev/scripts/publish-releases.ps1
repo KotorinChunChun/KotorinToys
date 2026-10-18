@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory)][string]$CatalogPath,
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool')][string[]]$Products=@('LiveTextMarker','SmartPaste','SSCapture'),
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB')][string[]]$Products=@('LiveTextMarker','SmartPaste','SSCapture'),
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference='Stop'
@@ -44,7 +44,17 @@ foreach($name in $Products | Select-Object -Unique){
     if($name -eq 'KotorinToys'){$notes+=" メイン一覧から単体のインストール・アップデート・アンインストールを操作できます。公開日を表示し、一括操作・FFmpeg・ローカル台帳は開発者向け詳細設定へ集約しました。ShortcutKeyCounterは本体用インストーラー未公開として案内します。"}
     if($name -in @('CapchunWindow','ChulipVideo')){$notes+=" FFmpegは同梱しません。公式取得案内 https://ffmpeg.org/download.html を確認し、各アプリの設定で既存のffmpeg.exeを指定してください。"}
     if($name -eq 'CapchunWindow'){$notes+=" 仮想カメラのUnity Captureドライバーは別途必要です。入力記録は画面に映る機密情報やpassword入力を保護する保証ではありません。機密入力を含む録画・操作記録には使用しないでください。"}
-    & $ghExe release create "v$($package.version)" $file $shaFile $manifest --repo "KotorinChunChun/$($identity.Repository)" --target $commit --title "$name $($package.version) 開発版" --notes $notes --prerelease
+    $releaseAssets = @($file, $shaFile, $manifest)
+    if ($name -eq 'EveryDB') {
+        $notes += ' EveryDBはネイティブ実装で、.NETはメンテナンス用にのみ同梱します。WebView2 Runtimeが必要です。本体0.1.5以降で導入・更新・削除に対応します。旧MSI／NSISの登録を自動移行せず、既存DBは保持します。'
+        foreach ($license in @('LICENSE.md','licenses/THIRD_PARTY_NOTICES.txt')) {
+            $copy = Join-Path $directory (Split-Path $license -Leaf)
+            Copy-Item -LiteralPath (Join-Path $repoPath $license) -Destination $copy
+            $releaseAssets += $copy
+            "$((Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash.ToLowerInvariant())  $(Split-Path $copy -Leaf)" | Add-Content -LiteralPath $shaFile -Encoding utf8
+        }
+    }
+    & $ghExe release create "v$($package.version)" @releaseAssets --repo "KotorinChunChun/$($identity.Repository)" --target $commit --title "$name $($package.version) 開発版" --notes $notes --prerelease
     if($LASTEXITCODE -ne 0){throw 'Release作成が失敗しました。既存assetの上書き・再公開は自動実行しません。'}
     $published+= [ordered]@{package=$package;length=(Get-Item -LiteralPath $file).Length}
 }

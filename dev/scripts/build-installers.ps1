@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory)][string]$PackageDirectory,
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool')]
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB')]
     [string[]]$Products=@('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )

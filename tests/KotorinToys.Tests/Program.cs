@@ -32,6 +32,8 @@ internal static class Program
             if (args.SequenceEqual(["--shortcut-panel"])) return ShortcutKeyCounterIntegrationTests.Panel();
             if (args.Length == 2 && args[0] == "--shortcut-owned-stop" && int.TryParse(args[1], out var ownedPid))
                 return ShortcutKeyCounterIntegrationTests.StopOwned(ownedPid).GetAwaiter().GetResult();
+            if (args.Length == 4 && args[0] == "--everydb-installer-acceptance") return EveryDbDistributionAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2],args[3]).GetAwaiter().GetResult();
+            if (args.Length == 2 && args[0] == "--everydb-public-acceptance") return EveryDbDistributionAcceptance.Online(KotorinToys.Program.FindRoot(),args[1]).GetAwaiter().GetResult();
             IconTests.Asset(Check);
             if (args.SequenceEqual(["--upgrade-stop-host"])) return UpgradeRebootValidation.StopHost().GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--upgrade-arm-boot") return UpgradeRebootValidation.Arm(args[1]).GetAwaiter().GetResult();

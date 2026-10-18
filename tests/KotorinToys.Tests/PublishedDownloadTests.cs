@@ -9,7 +9,7 @@ internal static class PublishedDownloadTests
         var result = await source.Refresh();
         var manager = new ToolManager(root, catalogSource: source);
         var tools = manager.Load();
-        if (!result.Accepted || tools.Length != 9 || tools.Count(t => t.DistributionStatus == "published") != 6 ||
+        if (!result.Accepted || tools.Length != 9 || tools.Count(t => t.DistributionStatus == "published") != 7 ||
             tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus != "unpublished")
             throw new IOException("公開configを管理一覧へ採用できません：" + result.Detail);
         using var client = new PublicReleaseClient();
@@ -17,13 +17,13 @@ internal static class PublishedDownloadTests
         var releases = new List<PublicRelease>();
         foreach (var tool in tools.Where(t => t.DistributionStatus == "published"))
         {
-            var release = await client.Check(tool, bundled.Packages.Single(p => p.Package.Id == tool.Id));
+            var release = await client.Check(tool, bundled.Packages.SingleOrDefault(p => p.Package.Id == tool.Id));
             if (!release.Confirmed || release.Package?.PublishedAt == null) throw new IOException(tool.Name + "の公開版・日付を照合できません：" + release.Detail);
             releases.Add(release);
             Console.WriteLine(tool.Name + "：" + ReleaseDisplay.Version(release.Package));
         }
         await File.WriteAllTextAsync(Path.Combine(output, "published-catalog-receipt.json"), JsonSerializer.Serialize(new { result.Detail, Tools = tools, Releases = releases }, ToolCatalog.Json));
-        Console.WriteLine("実GitHub configから管理一覧9件へ採用、本体対応6件の公開版と公開日照合：成功（利用者設定変更なし）");
+        Console.WriteLine("実GitHub configから管理一覧9件へ採用、本体対応7件の公開版と公開日照合：成功（利用者設定変更なし）");
     }
 
     // 明示引数でのみ実行。匿名HTTPで本体と同じ検証・取得経路を使い、EXEは実行しない。
@@ -45,7 +45,7 @@ internal static class PublishedDownloadTests
             var bundled = ReleaseDownloader.Load(root);
             foreach (var tool in ToolCatalog.Load(root).Where(t => t.Id is "capchun-screen" or "chulip-video" or "chunap-tool"))
             {
-                var release = await client.Check(tool, bundled.Packages.Single(p => p.Package.Id == tool.Id));
+                var release = await client.Check(tool, bundled.Packages.SingleOrDefault(p => p.Package.Id == tool.Id));
                 if (!release.Confirmed || release.Package == null || release.Package.PublishedAt == null)
                     throw new IOException(tool.Name + "の公開を照合できません：" + release.Detail);
                 var catalog = await downloader.Prepare(new(1, [release.Package]), [tool with { Version = release.Package.Package.Version }], output,
