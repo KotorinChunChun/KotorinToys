@@ -62,8 +62,8 @@ internal sealed class StartupSettingsForm : BrandedForm
             {
                 grid.Rows[i].Cells["mode"].Value=settings.StartupModes.GetValueOrDefault(tools[i].Id,"none");
                 grid.Rows[i].Cells["actual"].Value=states[i].ActualState+"："+states[i].Detail;
-                grid.Rows[i].Cells["external"].Value=external[i].Length==0?"対象なし（タスク／Run／lnk）":string.Join(" / ",external[i].Select(e=>e.Source+"："+e.Name));
-                grid.Rows[i].Cells["external"].ToolTipText=string.Join(Environment.NewLine,external[i].Select(e=>e.Detail));
+                grid.Rows[i].Cells["external"].Value=external[i].Length==0?"対象なし（タスク／Run／lnk）":string.Join(" / ",external[i].Select(e=>e.Source+"："+e.Name+"（"+e.State+"）"));
+                grid.Rows[i].Cells["external"].ToolTipText=string.Join(Environment.NewLine,external[i].Select(e=>e.State+"："+e.Detail));
             }
         }
         catch(Exception ex){if(!IsDisposed)message.Text="設定を確認できません："+ex.Message;}

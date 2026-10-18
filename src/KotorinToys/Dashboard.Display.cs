@@ -23,8 +23,11 @@ internal sealed partial class Dashboard
             tooltips.SetToolTip(refresh, string.IsNullOrEmpty(issue) ? "実行状態・GitHubの一覧・公開版を更新します。" : issue);
         for (int i = 0; i < tools.Length; i++)
         {
+            grid.Rows[i].Cells["startup"].Value = startupSnapshots[i].Text;
+            grid.Rows[i].Cells["startup"].ToolTipText = startupSnapshots[i].Detail;
             var texts = new[] { states[i].Detail, installations[i].State != "導入済み" ? installations[i].Detail : null,
                 !releases[i].Confirmed || releases[i].Package == null ? releases[i].Detail : null,
+                startupSnapshots[i].NeedsAttention ? startupSnapshots[i].Detail : null,
                 operationErrors.GetValueOrDefault(tools[i].Id), issue };
             var detail = string.Join("\n", texts.Where(text => !string.IsNullOrWhiteSpace(text)).Distinct());
             grid.Rows[i].Cells["detail"].Value = detail;

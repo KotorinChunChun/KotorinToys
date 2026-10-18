@@ -10,13 +10,13 @@ internal sealed partial class Dashboard
         grid.ColumnHeadersDefaultCellStyle.Padding = new(4, 8, 4, 8);
         grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         foreach (var (name, label, weight) in new[] { ("tool", "ツール", 16), ("summary", "ひとこと解説", 24),
-            ("installed", "導入済み版", 10), ("published", "公開版・公開日", 22), ("update", "更新", 13), ("state", "現在の状態", 12), ("detail", "詳細", 18) })
+            ("installed", "導入済み版", 10), ("published", "公開版・公開日", 22), ("update", "更新", 13), ("state", "現在の状態", 12), ("startup", "自動起動", 18), ("detail", "詳細", 18) })
         {
             var column = grid.Columns[grid.Columns.Add(name, label)]; column.FillWeight = weight;
-            column.MinimumWidth = name == "summary" ? 150 : name == "tool" ? 125 : 80;
+            column.MinimumWidth = name == "summary" ? 150 : name is "tool" or "startup" ? 125 : 80;
             column.SortMode = DataGridViewColumnSortMode.NotSortable;
         }
-        foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "");
+        foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "未確認", "");
         grid.SelectionChanged += (_, _) => UpdateActions();
         grid.CurrentCellChanged += (_, _) => UpdateActions();
         grid.CellDoubleClick += async (_, e) =>
@@ -38,7 +38,8 @@ internal sealed partial class Dashboard
         if (settings != null && startup != null)
         {
             var button = new Button { Text = "本体設定・自動起動", Name = "hostSettings", AutoSize = true };
-            button.Click += (_, _) => { using var form = new StartupSettingsForm(settings, startup, manager.KnownTools()); form.ShowDialog(this); }; hostActions.Controls.Add(button);
+            button.Click += async (_, _) => await OpenStartupSettings(() =>
+            { using var form = new StartupSettingsForm(settings, startup, manager.KnownTools()); form.ShowDialog(this); }); hostActions.Controls.Add(button);
         }
         var installation = new Button { Name = "advancedSettings", Text = "詳細設定（開発者向け）", AutoSize = true };
         installation.Click += async (_, _) => await OpenInstallation(false); hostActions.Controls.Add(installation);

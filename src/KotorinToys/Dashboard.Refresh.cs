@@ -37,7 +37,7 @@ internal sealed partial class Dashboard
         try
         {
             // 旧一覧の非同期取得を完了させてから配列と行をまとめて切り替える。
-            await Task.WhenAll(stateRefresh ?? Task.CompletedTask, releaseRefresh ?? Task.CompletedTask);
+            await Task.WhenAll(stateRefresh ?? Task.CompletedTask, releaseRefresh ?? Task.CompletedTask, startupRefresh ?? Task.CompletedTask);
             if (IsDisposed) return;
             if (manager.CatalogSource is { } source)
             {
@@ -47,7 +47,7 @@ internal sealed partial class Dashboard
                 catalogError = result.Accepted ? null : result.Detail;
                 UpdateDetails();
             }
-            await Task.WhenAll(RefreshStates(true), RefreshReleases());
+            await Task.WhenAll(RefreshStates(true), RefreshReleases(), RefreshStartups());
         }
         catch (Exception ex) { if (!IsDisposed) { catalogError = "一覧更新失敗・現在の一覧を維持：" + ex.Message; UpdateDetails(); } }
         finally
@@ -63,11 +63,12 @@ internal sealed partial class Dashboard
         tools = next;
         installations = tools.Select(detectInstallation).ToArray();
         states = tools.Select(_ => new ToolState("確認中")).ToArray();
+        startupSnapshots = tools.Select(_ => new StartupOverview("未確認", "自動起動は未確認です。")).ToArray();
         bundledPackages = tools.Select(tool => bundledCatalog?.Packages.SingleOrDefault(p => p.Package.Id == tool.Id &&
             p.Package.Name == tool.Name && p.Package.AppId == tool.AppId)).ToArray();
         releases = bundledPackages.Select(p => new PublicRelease(p, false, false, "公開未確認・同梱台帳")).ToArray();
         grid.Rows.Clear();
-        foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "");
+        foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "未確認", "");
         if (tools.Length > 0)
         {
             var row = Array.FindIndex(tools, t => t.Id == selected);

@@ -26,6 +26,8 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Action<Uri> openRepository;
     readonly IHostSelfUpdateService selfUpdates;
     readonly Action showSelfUpdater;
+    readonly Func<ToolDefinition, CancellationToken, Task<StartupOverview>> startupCheck;
+    Task? startupRefresh;
     Task? releaseRefresh;
     Task? stateRefresh, allRefresh;
     readonly CancellationTokenSource lifetime = new();
@@ -34,6 +36,7 @@ internal sealed partial class Dashboard : BrandedForm
     InstallationState[] installations;
     ToolState[] states;
     PublicRelease[] releases;
+    StartupOverview[] startupSnapshots;
     bool busy, checkingReleases, refreshingCatalog, resourcesDisposed;
 
     public Dashboard(string root, HostSettingsStore? settings = null, StartupCoordinator? startup = null,
@@ -42,12 +45,15 @@ internal sealed partial class Dashboard : BrandedForm
         Func<ToolDefinition, InstallationState>? detectInstallation = null,
         ToolManager? toolManager = null,
         Action<Uri>? openRepository = null, IHostSelfUpdateService? selfUpdates = null, Action? showSelfUpdater = null,
-        Action<string, string, ReleaseCatalog?>? showToolInstaller = null, Action<string>? notify = null)
+        Action<string, string, ReleaseCatalog?>? showToolInstaller = null, Action<string>? notify = null,
+        Func<ToolDefinition, CancellationToken, Task<StartupOverview>>? startupCheck = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
         this.showSelfUpdater = showSelfUpdater ?? (() => { using var form = new HostUpdateForm(this.selfUpdates); form.ShowDialog(this); });
         this.notify = notify ?? (message => MessageBox.Show(this, message, WindowTitle.Create("操作できません"), MessageBoxButtons.OK, MessageBoxIcon.Warning));
+        this.startupCheck = startupCheck ?? (startup != null ? new StartupOverviewReader(startup).Read :
+            (_, _) => Task.FromResult(new StartupOverview("未確認", "本体設定付きの通常起動で自動起動を照合できます。")));
         this.releaseCheck = releaseCheck ?? CheckRelease;
         this.showInstaller = showInstaller ?? ((id, catalog) => { using var form = new InstallationForm(manager, id, catalog); form.ShowDialog(this); });
         this.showToolInstaller = showToolInstaller ?? ((id, operation, catalog) =>
@@ -57,6 +63,7 @@ internal sealed partial class Dashboard : BrandedForm
             new System.Diagnostics.ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }));
         installations = tools.Select(this.detectInstallation).ToArray();
         states = tools.Select(_ => new ToolState("確認中")).ToArray();
+        startupSnapshots = tools.Select(_ => new StartupOverview("未確認", "自動起動は未確認です。")).ToArray();
         ReleaseCatalog? bundled = null;
         try { bundled = ReleaseDownloader.Load(root); } catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException) { catalogError = "公開台帳を読めません：" + ex.Message; }
         bundledCatalog = bundled;

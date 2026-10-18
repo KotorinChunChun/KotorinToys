@@ -100,6 +100,7 @@ internal static class Program
             if (args.SequenceEqual(["--startup-overview-tests"]))
             {
                 StartupOverviewTests.Run(root, Check).GetAwaiter().GetResult();
+                StartupOverviewDashboardTests.Run(root, fixtures, Check);
                 Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             if (args.Length is 1 or 2 && args[0] == "--portable-release-check")
@@ -198,7 +199,7 @@ internal static class Program
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
-            try { InstallationSummaryTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); DashboardInstallationTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
+            try { InstallationSummaryTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); DashboardInstallationTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); StartupOverviewDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             ToolInstallationRunnerTests.Run(root, Check).GetAwaiter().GetResult();
