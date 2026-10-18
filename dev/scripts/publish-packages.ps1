@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool')]
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB')]
     [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
     [switch]$ExcludeFFmpeg,
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
@@ -41,6 +41,12 @@ function Publish-Application([string]$Project, [string]$Output, [string]$Label, 
     if ($runtimeOptions.framework -or $runtimeOptions.frameworks -or $runtimeOptions.includedFrameworks.Count -lt 2) {
         throw "$Label が自己完結型になっていません。"
     }
+    Copy-RuntimeLicenses $Output $Label
+}
+function Copy-RuntimeLicenses([string]$Output, [string]$Label) {
+    $runtimeConfig = Get-ChildItem -LiteralPath $Output -Filter '*.runtimeconfig.json' | Select-Object -First 1
+    if (-not $runtimeConfig) { throw 'ランタイム設定がありません。' }
+    $runtimeOptions = (Get-Content -LiteralPath $runtimeConfig.FullName -Raw | ConvertFrom-Json).runtimeOptions
     $runtimeLicenses = Join-Path $Output 'runtime-licenses'
     New-Item -ItemType Directory -Path $runtimeLicenses | Out-Null
     Copy-Required $dotnetLicense $runtimeLicenses
@@ -64,6 +70,7 @@ $maintenanceOutput = Join-Path $staging 'maintenance'
 & dotnet publish (Join-Path $projectRoot 'src/KotorinToys.Maintenance/KotorinToys.Maintenance.csproj') -c Release -r win-x64 --self-contained true --artifacts-path (Join-Path $staging 'build/maintenance') -p:DebugType=None -p:DebugSymbols=false -o $maintenanceOutput --nologo 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory 'maintenance.log') | Out-Host
 if ($LASTEXITCODE -ne 0) { throw '単体削除用メンテナンスの発行に失敗しました。' }
 Assert-Files $maintenanceOutput @('KotorinToys.Maintenance.exe','coreclr.dll','hostfxr.dll','hostpolicy.dll')
+Copy-RuntimeLicenses $maintenanceOutput 'maintenance'
 foreach ($product in $Products | Select-Object -Unique) {
     $identity = Get-DistributionProduct $product
     $output = Join-Path $staging $product
@@ -87,6 +94,17 @@ foreach ($product in $Products | Select-Object -Unique) {
                     Copy-Required (Join-Path $projectRoot "tools/$name/docs") $definitionOutput
                 }
             }
+        }
+        'EveryDB' {
+            $toolRoot = Join-Path $projectRoot 'tools/EveryDB'
+            $nativeTarget = Join-Path $staging 'build/EveryDB-native'
+            & (Join-Path $toolRoot 'dev/scripts/build-release-EveryDB-kotorintoys.ps1') -TargetDirectory $nativeTarget 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory 'EveryDB.log') | Out-Host
+            Copy-Required (Join-Path $nativeTarget 'release/everydb.exe') (Join-Path $output 'EveryDB.exe')
+            New-Item -ItemType Directory -Path (Join-Path $output 'samples') | Out-Null
+            Copy-Required (Join-Path $toolRoot 'src-tauri/resources/samples/customers.csv') (Join-Path $output 'samples')
+            Copy-Required (Join-Path $toolRoot 'LICENSE.md') $output
+            Copy-Required (Join-Path $toolRoot 'licenses') $output
+            Assert-Files $output @('EveryDB.exe','samples/customers.csv','LICENSE.md','licenses/THIRD_PARTY_NOTICES.txt')
         }
         'LiveTextMarker' {
             Publish-Application 'tools/LiveTextMarker/source/LiveTextMarker.csproj' $output $product @('-p:Platform=x64')
@@ -138,7 +156,8 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $configuration 'shortcuts.json') $configurationOutput
         }
     }
-    Assert-Files $output @("$product.exe", "$product.runtimeconfig.json", 'README.md')
+    Assert-Files $output @("$product.exe", 'README.md')
+    if (-not $identity.Native) { Assert-Files $output @("$product.runtimeconfig.json") }
     if ($product -in @('CapchunWindow','ChulipVideo','ChunapTool') -and @(Get-ChildItem -LiteralPath $output -Recurse -File | Where-Object Name -in @('ffmpeg.exe','ffprobe.exe')).Count) { throw '外部FFmpegが配布物へ混入しています。' }
     Copy-Required $maintenanceOutput $output
     if (Test-Path -LiteralPath (Join-Path $output 'data')) { throw '利用者データが配布対象へ混入しています。' }

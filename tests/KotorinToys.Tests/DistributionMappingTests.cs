@@ -10,8 +10,8 @@ internal static class DistributionMappingTests
     public static async Task Run(string root, Action<bool, string> check)
     {
         var tools = ToolCatalog.Load(root);
-        var six = new List<ReleasePackage>(ReleaseDownloader.Load(root).Packages.Where(p => p.Package.Id is "live-text-marker" or "smart-paste" or "ss-capture"));
-        foreach (var id in new[] { "capchun-screen", "chulip-video", "chunap-tool" })
+        var seven = new List<ReleasePackage>(ReleaseDownloader.Load(root).Packages.Where(p => p.Package.Id is "live-text-marker" or "smart-paste" or "ss-capture"));
+        foreach (var id in new[] { "capchun-screen", "chulip-video", "chunap-tool", "every-db" })
         {
             var tool = tools.Single(t => t.Id == id) with { DistributionStatus = "published" };
             var identity = ProductIdentity.FromId(id)!;
@@ -32,12 +32,12 @@ internal static class DistributionMappingTests
             var result = await client.Check(tool, null);
             check(result.Confirmed && result.Package?.Package == package && result.Package.PublishedAt != null, tool.Name + "の本体対応配布と日付を確認");
             check(ReleaseDownloader.Asset(result.Package!).AbsoluteUri == Url(package.File), tool.Name + "のダウンロード先も照合先と一致");
-            six.Add(result.Package!);
+            seven.Add(result.Package!);
         }
-        ReleaseDownloader.Validate(new(1, six.ToArray()));
-        check(six.Count == 6, "対応6製品の台帳を旧4件制限で拒否しない");
+        ReleaseDownloader.Validate(new(1, seven.ToArray()));
+        check(seven.Count == 7, "対応7製品の台帳を旧4件制限で拒否しない");
         bool rejected = false;
-        try { ReleaseDownloader.Asset(six.Last() with { Package = six.Last().Package with { Name = "AnotherTool" } }); }
+        try { ReleaseDownloader.Asset(seven.Last() with { Package = seven.Last().Package with { Name = "AnotherTool" } }); }
         catch (IOException) { rejected = true; }
         check(rejected, "配布先を分離しても製品名の差し替えを許可しない");
         var chulip = tools.Single(t => t.Id == "chulip-video") with { DistributionStatus = "published" };

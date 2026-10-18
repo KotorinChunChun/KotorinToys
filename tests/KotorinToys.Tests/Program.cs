@@ -32,6 +32,9 @@ internal static class Program
             if (args.SequenceEqual(["--shortcut-panel"])) return ShortcutKeyCounterIntegrationTests.Panel();
             if (args.Length == 2 && args[0] == "--shortcut-owned-stop" && int.TryParse(args[1], out var ownedPid))
                 return ShortcutKeyCounterIntegrationTests.StopOwned(ownedPid).GetAwaiter().GetResult();
+            if (args.Length == 4 && args[0] == "--everydb-installer-acceptance") return EveryDbDistributionAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2],args[3]).GetAwaiter().GetResult();
+            if (args.Length == 2 && args[0] == "--everydb-distribution-panel") return EveryDbDistributionAcceptance.Panel(KotorinToys.Program.FindRoot(),args[1]);
+            if (args.Length == 2 && args[0] == "--everydb-public-acceptance") return EveryDbDistributionAcceptance.Online(KotorinToys.Program.FindRoot(),args[1]).GetAwaiter().GetResult();
             IconTests.Asset(Check);
             if (args.SequenceEqual(["--upgrade-stop-host"])) return UpgradeRebootValidation.StopHost().GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--upgrade-arm-boot") return UpgradeRebootValidation.Arm(args[1]).GetAwaiter().GetResult();
@@ -256,16 +259,15 @@ internal static class Program
     {
         var tools = ToolCatalog.Load(root);
         Check(tools.Length == 9, "schema 2でEveryDBを含む9ツールを解決する");
-        Check(tools.Where(t => new[] { "live-text-marker", "smart-paste", "ss-capture", "capchun-screen", "chulip-video", "chunap-tool" }.Contains(t.Id)).All(t => t.DistributionStatus == "published") &&
-            tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "既存の本体対応6ツールとShortcutKeyCounterの配布方式を区別");
-        Check(tools.Single(t => t.Id == "http-selector").Msix != null, "HttpSelectorは独立したMSIX配布として扱う");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 7 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応7ツールと今回公開しないShortcutKeyCounterを区別");
+        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 2, "ShortcutKeyCounter・HttpSelectorは本体用Inno配布の対象外");
         Check(tools.All(t => t.Runtimes?.Length > 0), "9ツールの依存情報を持つ");
         Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"9ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");
         var everyDb = tools.Single(t => t.Id == "every-db");
-        Check(everyDb is { Name: "EveryDB", AppId: "KotorinToys.EveryDB" } && Version.TryParse(everyDb.Version, out var everyVersion) && everyVersion >= new Version(0, 1, 0) &&
+        Check(everyDb is { Name: "EveryDB", Version: "0.1.1", AppId: "KotorinToys.EveryDB", DistributionStatus: "published" } &&
             everyDb.Executable == "src-tauri/target/kotorintoys/debug/everydb.exe" && everyDb.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]),
             "EveryDBの独立リポジトリ・開発実行先・管理能力を登録");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs")).Replace("\r\n", "\n");

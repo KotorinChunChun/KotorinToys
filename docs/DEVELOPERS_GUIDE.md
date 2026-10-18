@@ -80,7 +80,7 @@ cd KotorinToys
 git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/CapchunScreen tools/ChulipVideo tools/ChunapTool
 ```
 
-本体だけを取得済みの場合も、上記の7件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソース公開と製品Releaseは別です。0.1.2から追加3ツールも本体対応Inno配布を行います。ShortcutKeyCounter・HttpSelector・EveryDBの本体用Inno配布は対象外です。
+本体だけを取得済みの場合も、上記の7件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソース公開と製品Releaseは別です。0.1.2から追加3ツールも本体対応Inno配布を行います。0.1.5からEveryDBも共通Inno配布に対応します。ShortcutKeyCounter・HttpSelectorのInno配布は対象外です。
 
 ## Releases配布
 
@@ -106,7 +106,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 本体と対応6ツールは`KotorinChunChun`配下の各Releasesへ、未署名の開発版インストーラー・SHA256SUMS・製品別台帳を公開します。`catalog/releases.json`は同梱版の製品・版・サイズ・固定SHA-256を記録します。PublicReleaseClientはProductIdentityの固定配布先（C#版ChulipVideoはChulipVideo-CSharp）を使い、公開版（開発版を含む）・台帳・製品識別・数値tag・asset・容量・GitHub digestを照合します。取得失敗時の同梱版は未確認です。同版の配布情報差替を拒否し、新しい配布物は新しい版へ進めます。旧assetを上書きしないでください。
 
-公開入力は`stage-release-source.ps1`で親コミットと各gitlinkの採用ソースだけをUTF-8 ZIPから展開して作成します。元の作業ツリーや未採用の子HEADを混ぜません。日本語パス・Windowsパス長に備え短い隔離ルートを使います。配布スクリプトは`distribution-products.ps1`の固定表を共有し、`test-distribution-scripts.ps1`で検査できます。追加3ツールは`-Products CapchunWindow,ChulipVideo,ChunapTool`で指定します。製品名とソースのフォルダー名を混同しないでください。
+公開入力は`stage-release-source.ps1`で親コミットと各gitlinkの採用ソースだけをUTF-8 ZIPから展開して作成します。元の作業ツリーや未採用の子HEADを混ぜません。日本語パス・Windowsパス長に備え短い隔離ルートを使います。配布スクリプトは`distribution-products.ps1`の固定表を共有し、`test-distribution-scripts.ps1`で検査できます。追加3ツールは`-Products CapchunWindow,ChulipVideo,ChunapTool`、EveryDBは`-Products EveryDB`で指定します。EveryDBは子のno-bundle Release入口でビルドし、サンプル・利用条件・第三者表示と共通maintenanceを同梱します。製品名とソースのフォルダー名を混同しないでください。
 
 公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。公開版SSCaptureは`publish-packages.ps1 -ExcludeFFmpeg`を指定し、FFmpeg／FFprobeと利用者dataを含めません。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
 

@@ -14,7 +14,8 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
         new("capchun-screen", "CapchunWindow", "KotorinToys.CapchunScreen"),
         new("chulip-video", "ChulipVideo", "KotorinToys.ChulipVideo", "ChulipVideo-CSharp"),
         new("chunap-tool", "ChunapTool", "KotorinToys.ChunapTool"),
-        new("http-selector", "HttpSelector", "KotorinToys.HttpSelector")
+        new("http-selector", "HttpSelector", "KotorinToys.HttpSelector"),
+        new("every-db", "EveryDB", "KotorinToys.EveryDB")
     ];
     static readonly Dictionary<string, ProductIdentity> byId = products.ToDictionary(p => p.Id, StringComparer.Ordinal);
     static readonly Dictionary<string, ProductIdentity> byName = products.ToDictionary(p => p.Name, StringComparer.Ordinal);

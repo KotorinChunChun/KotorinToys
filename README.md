@@ -30,7 +30,7 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [ChulipVideo C#版](tools/ChulipVideo/README.md) | 動画から手順書用の画像を切り出すツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [ChunapTool](tools/ChunapTool/README.md) | ウィンドウの位置・サイズ・最大化を調整するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [HttpSelector](tools/HttpSelector/README.md) | 危険なリンクを警告し、ブラウザーのプロファイルを選ぶツール | 署名付きMSIXの起動・画面表示・正常停止・状態確認に対応 |
-| [EveryDB](tools/EveryDB/README.md) | 複数のデータソースをSQLiteへ取り込み、横断検索するツール | ローカル開発版の起動・画面表示・正常停止・状態確認に対応 |
+| [EveryDB](tools/EveryDB/README.md) | 複数のデータソースをSQLiteへ取り込み、横断検索するツール | 共通インストーラーで導入・更新・削除と起動・停止・状態確認に対応 |
 
 HttpSelectorは[署名付きMSIXの導入](tools/HttpSelector/docs/INSTALL_MSIX.md)が必須です。WindowsへHTTP/HTTPSの関連付け候補を登録した後、既定のアプリ設定で利用者が選択してください。本体はMSIXの署名付き登録・Publisher・製品版を照合し、未導入や旧版を開発EXEに切り替えません。既存の本体対応Inno配布とは別の導入経路です。
 
@@ -38,11 +38,11 @@ ShortcutKeyCounterの本体連携は[管理連携の手順](tools/ShortcutKeyCou
 
 追加3ツールは独立Gitを維持し、親は採用コミットだけを記録します。[CapchunWindow 0.1.2](https://github.com/KotorinChunChun/CapchunWindow/releases/tag/v0.1.2)、[ChulipVideo C# 0.2.1](https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/tag/v0.2.1)、[ChunapTool 0.1.2](https://github.com/KotorinChunChun/ChunapTool/releases/tag/v0.1.2)をランタイム同梱の本体対応インストーラーで公開しています。旧ZIPや別実装は置き換えません。FFmpegと仮想カメラドライバーは同梱しません。各アプリの導入ガイドを確認してください。
 
-EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。[独立リポジトリ](https://github.com/KotorinChunChun/EveryDB)は公開前点検と履歴整理を実施しました。履歴整理前に取得したコピーは新規取得し直してください。本体対応Inno形式の正式インストール・更新は未対応で、単体配布を利用します。
+EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。[独立リポジトリ](https://github.com/KotorinChunChun/EveryDB)は公開前点検と履歴整理を実施しました。履歴整理前に取得したコピーは新規取得し直してください。本体0.1.5以降はEveryDB 0.1.1の共通Inno形式を照合し、導入・更新・削除できます。旧MSI／NSIS版からは手動移行です。旧版を終了・削除したうえで共通版を導入し、既存DBを引き続き利用します。WebView2 Runtimeが必要です。
 
 ## インストーラー（開発版）
 
-[本体0.1.2のReleases](https://github.com/KotorinChunChun/KotorinToys/releases/tag/v0.1.2)から`KotorinToys-0.1.2-setup.exe`を取得してください。Windows 11 x64・利用者単位・ランタイム同梱の未署名開発版です。全機能の受入完了版ではありません。既存の0.1.1からは「本体アップデート」で開発版も対象にするか、setupで保持付き更新してください。
+[本体0.1.5のReleases](https://github.com/KotorinChunChun/KotorinToys/releases/tag/v0.1.5)から`KotorinToys-0.1.5-setup.exe`を取得してください。Windows 11 x64・利用者単位・ランタイム同梱の未署名開発版です。全機能の受入完了版ではありません。既存の0.1.1からは「本体アップデート」で開発版も対象にするか、setupで保持付き更新してください。
 
 0.1.2ではメイン一覧から「インストール」「アップデート」「アンインストール」を操作できます。GitHub Releasesの固定版・容量・SHA-256を照合し、公開日を版の右に表示します。一括操作・SSCaptureのFFmpeg導入・ローカル台帳は「詳細設定（開発者向け）」にあります。未対応配布を選んでも内部検索エラーにはせず、理由を表示します。設定・履歴は保持し、正常終了を拒否した対象は更新・削除しません。SSCaptureのOneOCR外部ファイルは別途必要です。
 
