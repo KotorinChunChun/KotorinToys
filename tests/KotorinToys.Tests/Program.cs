@@ -97,6 +97,13 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.Length == 3 && args[0] == "--startup-root-maintenance")
+                return StartupRootMaintenance.Run(args[1], args[2], fixtures).GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--startup-root-tests"]))
+            {
+                StartupTests.Run(root, fixtures, Check);
+                Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
             if (args.SequenceEqual(["--startup-overview-live"]))
                 return StartupOverviewLive.Run(root, fixtures).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--startup-overview-tests"]))

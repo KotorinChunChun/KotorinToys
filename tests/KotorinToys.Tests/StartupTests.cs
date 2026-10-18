@@ -77,6 +77,7 @@ internal static class StartupTests
         coordinator.SetMode(tools[0],"none").GetAwaiter().GetResult();
         check(gateway.Tasks.Count==1,"本体自身の希望があれば共有予約を残す");
         coordinator.SetHost(false,false).GetAwaiter().GetResult();
+        VerifyRootMigration(root, fixtures, tools[0], check);
         coordinator.SetMode(tools[0],"direct_task").GetAwaiter().GetResult();
         gateway.FailNextCreate=true;
         result=coordinator.SetMode(tools[0],"via_kotorintoys").GetAwaiter().GetResult();
@@ -118,6 +119,28 @@ internal static class StartupTests
         var raw=Path.Combine(directory,"settings.json");File.WriteAllText(raw,"invalid");
         bool corrupted=false;try{store.Load();}catch(IOException){corrupted=true;}
         check(corrupted && File.ReadAllText(raw)=="invalid","破損した本体設定を既定値で上書きしない");
+    }
+    static void VerifyRootMigration(string root, string fixtures, ToolDefinition tool, Action<bool,string> check)
+    {
+        var newRoot=Path.Combine(fixtures,"new installed root");
+        Directory.CreateDirectory(Path.Combine(newRoot,"catalog"));
+        File.WriteAllText(Path.Combine(newRoot,"catalog","tools.json"),System.Text.Json.JsonSerializer.Serialize(new Catalog(1,[tool with{ToolRoot=""}]),ToolCatalog.Json));
+        var store=new HostSettingsStore(Path.Combine(fixtures,"root-migration"));var gateway=new FakeGateway();
+        var previous=new StartupCoordinator(store,gateway,new ToolManager(root),Environment.ProcessPath!,allowDevelopment:true);
+        var current=new StartupCoordinator(store,gateway,new ToolManager(newRoot),Environment.ProcessPath!,allowDevelopment:true);
+        check(previous.SetMode(tool,"via_kotorintoys").GetAwaiter().GetResult().Success,"旧ルートの共有予約を準備");
+        var before=store.Load();var old=before.OwnedTasks["host"];
+        gateway.FailNextCreate=true;
+        var failed=StartupRootMaintenance.ChangeWithRecovery(current,previous,tool).GetAwaiter().GetResult();
+        check(!failed.Success && store.Journal==null && gateway.Read(old.Name)?.Fingerprint==old.Fingerprint,"ルート変更の登録失敗時は旧ルートの所有条件で正確に復元");
+        check(store.Load().OwnerToken==before.OwnerToken && store.Load().StartupModes.SequenceEqual(before.StartupModes),"復元時に所有トークンと希望方式を保持");
+        var success=StartupRootMaintenance.ChangeWithRecovery(current,previous,tool).GetAwaiter().GetResult();
+        check(success.Success && current.State(tool).GetAwaiter().GetResult().ActualState=="登録済み","空白付き正式ルートへ共有予約と所有記録を同時切替");
+        var own=store.Load().OwnedTasks["host"];
+        check(own.Xml.Contains(newRoot) && store.Load().OwnerToken==before.OwnerToken && store.Load().StartupModes.SequenceEqual(before.StartupModes),"切替後も利用者設定は保持し参照先のみ更新");
+        gateway.Tasks[own.Name]=gateway.Tasks[own.Name] with{Xml=own.Xml.Replace("PT5S","PT9S")};
+        var external=gateway.Tasks[own.Name].Fingerprint;
+        check(!StartupRootMaintenance.ChangeWithRecovery(previous,current,tool).GetAwaiter().GetResult().Success && gateway.Read(own.Name)?.Fingerprint==external,"切替時の外部変更を復旧処理でも上書きしない");
     }
     public static void LiveScheduler(string root,string fixtures,Action<bool,string> check)
     {
