@@ -77,6 +77,17 @@ internal static class EveryDbDistributionAcceptance
             Require(originals.All(p=>p.Value==null?!File.Exists(p.Key):File.ReadAllBytes(p.Key).SequenceEqual(p.Value)),"本体の原本・削除記録・既存ショートカットを復元");
         }
     }
+    public static int Panel(string root,string output)
+    {
+        Directory.CreateDirectory(output);
+        Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+        var manager=new ToolManager(root,(_,_)=>throw new IOException("公開一覧の検証画面では製品を起動しません。"));
+        using var form=new Dashboard(root,new HostSettingsStore(Path.Combine(output,"settings")),toolManager:manager,
+            showToolInstaller:(_,_,_)=>throw new IOException("導入の実検証は専用CLI受入を使用します。"));
+        form.Shown+=(_,_)=> { var screen=Screen.FromControl(form).WorkingArea; form.Bounds=new(screen.Left+screen.Width/2,screen.Top,screen.Width-screen.Width/2,screen.Height); };
+        Application.Run(form);
+        return 0;
+    }
     public static async Task<int> Online(string root,string output)
     {
         var tool=ToolCatalog.Load(root).Single(t=>t.Id=="every-db");
