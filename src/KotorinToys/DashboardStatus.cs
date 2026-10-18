@@ -4,7 +4,7 @@ internal sealed record ToolVersionView(string Installed, string Published, strin
 {
     public static ToolVersionView Create(InstallationState installed, PublicRelease release)
     {
-        string actual = installed.State == "導入済み" ? installed.Version ?? "未確認" : installed.State;
+        string actual = MsixPolicy.Installed(installed) ? installed.Version ?? "未確認" : installed.State;
         if (release.Confirmed && release.Portable is { } portable)
             return new(actual, portable.Version + ReleaseDisplay.Date(portable.PublishedAt) + "（ポータブル版）" +
                 (release.Prerelease ? "（開発版）" : ""), "本体からの導入・更新は未対応", false);
@@ -12,7 +12,7 @@ internal sealed record ToolVersionView(string Installed, string Published, strin
         if (!release.Confirmed) return new(actual, release.Package == null ? "不明" : available + "（同梱台帳）", "公開版を確認できません", false);
         if (release.Prerelease) available += "（開発版）";
         if (installed.State == "未導入") return new(actual, available, "未導入", false);
-        if (installed.State != "導入済み" || !Version.TryParse(installed.Version, out var current) ||
+        if (!MsixPolicy.Installed(installed) || !Version.TryParse(installed.Version, out var current) ||
             !Version.TryParse(release.Package?.Package.Version, out var published)) return new(actual, available, "導入版を確認できません", false);
         return new(actual, available, current < published ? "更新あり" : current == published ? "公開版と同じ" : "公開版より新しい", current < published);
     }

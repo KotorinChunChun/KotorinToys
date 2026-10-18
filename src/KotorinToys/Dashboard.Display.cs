@@ -59,10 +59,10 @@ internal sealed partial class Dashboard
         var reason = ToolInstallationRunner.PublicReason(tools[i], candidate);
         install.Enabled = idle && installations[i].State == "未導入" && reason == null;
         update.Enabled = idle && version.CanUpdate && reason == null;
-        uninstall.Enabled = idle && installations[i].State == "導入済み" && installations[i].Uninstaller != null &&
-            ToolInstallationRunner.UnsupportedReason(tools[i]) == null;
+        uninstall.Enabled = idle && ToolInstallationRunner.CanUninstall(tools[i], installations[i]);
         tooltips.SetToolTip(install, reason ?? "未導入のツールをGitHub Releasesから導入します。");
         tooltips.SetToolTip(update, reason ?? (version.CanUpdate ? "新しい公開版へアップデートします。" : "導入済みで新しい公開版がある場合だけ利用できます。"));
-        tooltips.SetToolTip(uninstall, "正式導入と削除プログラムを確認できる場合だけ利用できます。設定・履歴は保持します。");
+        tooltips.SetToolTip(uninstall, tools[i].Msix != null ? "現在ユーザーのMSIXを削除し、設定・履歴は退避して再導入時に復元します。" :
+            "正式導入と削除プログラムを確認できる場合だけ利用できます。設定・履歴は保持します。");
     }
 }

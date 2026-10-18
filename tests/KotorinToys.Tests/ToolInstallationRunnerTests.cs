@@ -47,8 +47,14 @@ internal static class ToolInstallationRunnerTests
         results = await runner.Run([unsupported[0]], "install", null, "local-packages.json");
         check(results[0].State == "成功" && downloads == 2, "開発者のローカル台帳は公開前でも利用可能");
         var msix = tools.Single(t => t.Id == "http-selector");
-        check(ToolInstallationRunner.UnsupportedReason(msix) != null, "MSIXをInnoの導入削除へ混入させない");
+        check(ToolInstallationRunner.UnsupportedReason(msix) == null, "固定IdentityのMSIXだけを専用導入経路へ許可する");
+        check(ToolInstallationRunner.UnsupportedReason(msix with { Msix = new("Other_1234567890123", MsixPolicy.Publisher) }) != null, "未知のFamilyを本体導入許可へ追加しない");
+        check(ToolInstallationRunner.UnsupportedReason(msix with { Msix = null }) != null, "HttpSelectorのMSIX必須条件をconfigで取り外せない");
         results = await runner.Run(tools.Where(t => t.Id is "capchun-screen" or "chulip-video" or "chunap-tool").ToArray(), "install", catalog, null);
         check(results.Length == 3 && results.All(r => r.State == "成功"), "公開済み追加3製品は共通取得・導入処理へ接続できる");
+        var package = new LocalPackage(msix.Id, msix.Name, "0.0.3.3", msix.AppId, MsixPolicy.FileName("0.0.3.3"), new string('a', 64), "signed-msix", "msix");
+        results = await runner.Run([msix], "install", new(1, [new(package, 100)]), null);
+        check(results.Single().State == "成功", "MSIX公開配布も取得・専用実行へ接続する");
+        check(ToolInstallationRunner.PublicReason(msix, new(1, [new(package with { Kind = "inno" }, 100)])) != null, "MSIXにEXE種別の台帳を渡さない");
     }
 }

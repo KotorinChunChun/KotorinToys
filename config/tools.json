@@ -327,7 +327,8 @@
     {
       "id": "http-selector",
       "name": "HttpSelector",
-      "version": "0.0.3.2",
+      "version": "0.0.3.3",
+      "repositoryUrl": "https://github.com/KotorinChunChun/HttpSelector",
       "summary": "リンクの危険性を確認し、ブラウザーのプロファイルを選んで開く",
       "category": "ブラウザー・リンク",
       "executable": "target/management/debug/HttpSelector.exe",

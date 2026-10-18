@@ -15,6 +15,8 @@ internal sealed partial class ToolManager
         await gate.WaitAsync(cancellation);
         try
         {
+            if (tool.Msix != null && Installation(tool) is { State: "更新が必要" } outdated)
+                return new("確認できない", Detail: outdated.Detail);
             var state = await Status(tool, cancellation);
             if (state.State == "実行中")
             {

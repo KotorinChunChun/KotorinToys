@@ -87,8 +87,8 @@ internal sealed partial class Dashboard
             if (reason != null) { ShowOperationFailure(tool.Name + "：" + reason, tool.Id); return; }
             if (requested == "uninstall")
             {
-                if (actual.State != "導入済み" || actual.Uninstaller == null)
-                { ShowOperationFailure(tool.Name + "：正式導入と削除プログラムを確認できません。", tool.Id); return; }
+                if (!ToolInstallationRunner.CanUninstall(tool, actual))
+                { ShowOperationFailure(tool.Name + (tool.Msix != null ? "：署名付きMSIXの正式登録を確認できません。" : "：正式導入と削除プログラムを確認できません。"), tool.Id); return; }
             }
             else if (requested == "install" ? actual.State != "未導入" : !ToolVersionView.Create(actual, releases[index]).CanUpdate)
             { ShowOperationFailure(tool.Name + "：導入状態または公開版が変わりました。状態を更新して確認してください。", tool.Id); return; }
