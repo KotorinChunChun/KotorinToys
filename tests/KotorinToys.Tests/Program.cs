@@ -108,6 +108,7 @@ internal static class Program
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
             if (args.SequenceEqual(["--action-availability-tests"])) { ActionAvailabilityTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--startup-form-tests"])) { StartupSettingsFormTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ui-policy-tests"]))
             {
                 var context = SynchronizationContext.Current;
@@ -237,6 +238,7 @@ internal static class Program
             MsixInstallerTests.Run(fixtures, Check).GetAwaiter().GetResult();
             ProductIdentityTests.Run(Check);
             StartupTests.Run(root,fixtures,Check);
+            StartupSettingsFormTests.Run(root,fixtures,Check);
             StartupOverviewTests.Run(root,Check).GetAwaiter().GetResult();
             StartupOverviewTests.VerifyMismatch(root,fixtures,Check).GetAwaiter().GetResult();
             RemovalTests.Run(fixtures,Check);

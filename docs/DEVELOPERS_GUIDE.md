@@ -1,5 +1,7 @@
 # KotorinToys 開発者ガイド
 
+画面の使い方は[利用者向けガイド](USERS_GUIDE.md)・[自動起動の操作](startup-settings.md)へ分離しています。開発時の詳細は[操作可否の実装](development/operation-availability.md)・[自動起動の判定と保守](development/startup-settings.md)を参照してください。
+
 ## 前提
 
 - Windows 11 x64

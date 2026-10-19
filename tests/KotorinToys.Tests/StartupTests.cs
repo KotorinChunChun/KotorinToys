@@ -4,7 +4,7 @@ using KotorinToys;
 
 internal static class StartupTests
 {
-    sealed class FakeGateway : IStartupGateway
+    internal sealed class FakeGateway : IStartupGateway
     {
         public Dictionary<string,ScheduledTaskState> Tasks=new();
         public bool FailNextCreate;
@@ -92,7 +92,7 @@ internal static class StartupTests
         var unregistered=tools[0] with{AppId="",ToolRoot="",Executable="development.exe"};
         File.WriteAllText(Path.Combine(developmentRoot,"catalog","tools.json"),System.Text.Json.JsonSerializer.Serialize(new Catalog(1,[unregistered]),ToolCatalog.Json));
         var rejected=new StartupCoordinator(clean,new FakeGateway(),new ToolManager(developmentRoot),Environment.ProcessPath!).SetMode(unregistered,"direct_task").GetAwaiter().GetResult();
-        check(!rejected.Success && rejected.Detail.Contains("正式導入済み"),
+        check(!rejected.Success && rejected.Detail.Contains("正式") && rejected.Detail.Contains(unregistered.Name),
             "開発EXEを正式な安定起動先として予約しない");
         var recoveryStore=new HostSettingsStore(Path.Combine(fixtures,"startup-recovery"));var recoveryGateway=new FakeGateway();
         var recovery=new StartupCoordinator(recoveryStore,recoveryGateway,manager,Environment.ProcessPath!,allowDevelopment:true);

@@ -4,8 +4,41 @@ using System.Xml.Linq;
 namespace KotorinToys;
 
 internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway gateway,ToolManager manager,
-    string hostExecutable,string taskPrefix="KotorinToys",bool allowDevelopment=false)
+    string hostExecutable,string taskPrefix="KotorinToys",bool allowDevelopment=false,
+    Func<ToolDefinition, InstallationState>? installationDetector = null, Func<string, bool>? fileExists = null)
 {
+    InstallationState Detect(ToolDefinition tool) => (installationDetector ?? manager.Installation)(tool);
+    bool Exists(string? path) => path != null && (fileExists ?? File.Exists)(path);
+    public ActionAvailability ModeAvailability(ToolDefinition tool, string mode)
+    {
+        if (mode == "none") return ActionAvailability.Allow("このアプリの自動起動予約を解除します。実行中のアプリは停止しません。");
+        if (mode is not ("via_kotorintoys" or "direct_task")) return ActionAvailability.Deny("未対応の自動起動方式です。");
+        if (tool.Capabilities?.Contains("silent-start") != true) return ActionAvailability.Deny("このアプリは無表示の自動起動に対応していません。");
+        var installed = Detect(tool);
+        if (!allowDevelopment && installed.State != "導入済み") return ActionAvailability.Deny(tool.Name + "：正式インストールが必要です（" + installed.State + "）。" + installed.Detail);
+        if (!allowDevelopment && !Exists(installed.Executable)) return ActionAvailability.Deny(tool.Name + "：正式導入先の実行ファイルが見つかりません。修復してください。");
+        if (mode == "direct_task" && tool.Msix != null) return ActionAvailability.Deny("MSIX版は「KotorinToys経由」を選んでください。");
+        if (mode == "via_kotorintoys" && HostAvailability(true) is { Enabled: false } host) return host;
+        return ActionAvailability.Allow(mode == "via_kotorintoys" ? "サインイン時にKotorinToysから起動します。" : "サインイン時にWindowsのタスクから直接起動します。");
+    }
+    public ActionAvailability HostAvailability(bool enabled)
+    {
+        try
+        {
+            if (!enabled && store.Load().StartupModes.Values.Contains("via_kotorintoys"))
+                return ActionAvailability.Deny("KotorinToys経由のアプリが残っています。先に各アプリの方式を変更してください。");
+            if (enabled)
+            {
+                var host = new ToolDefinition("host", "KotorinToys", "KotorinToys.exe", "README.md", AppId: "KotorinToys", InstalledExecutable: "KotorinToys.exe");
+                var installed = (installationDetector ?? (t => new InstallationDetector().Detect(t)))(host);
+                if (!allowDevelopment && (installed.State != "導入済み" || !string.Equals(installed.Executable, hostExecutable, StringComparison.OrdinalIgnoreCase)))
+                    return ActionAvailability.Deny("本体の正式導入先から起動してください。開発用・別配置の本体では自動起動を登録できません。");
+                if (!Exists(hostExecutable)) return ActionAvailability.Deny("本体の起動ファイルが見つかりません。");
+            }
+            return ActionAvailability.Allow("画面上部の2つのチェック設定を保存します。");
+        }
+        catch (Exception ex) { return ActionAvailability.Deny("本体の起動設定を確認できません：" + ex.Message); }
+    }
     readonly string sid=WindowsIdentity.GetCurrent().User!.Value;
     string Name(string id)=>taskPrefix+"."+sid+"."+id;
     string Marker(HostSettings settings,string id)=>"KotorinToys:"+settings.OwnerToken+":"+id;
@@ -49,6 +82,8 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
     });
     public Task<StartupResult> SetMode(ToolDefinition tool,string mode)=>Change(tool.Id,before=>
     {
+        var available = ModeAvailability(tool, mode);
+        if (!available.Enabled) throw new IOException(available.Reason);
         if(mode is not ("none" or "via_kotorintoys" or "direct_task"))throw new IOException("未対応の自動起動方式です。");
         if(tool.Msix != null && mode == "direct_task")throw new IOException("MSIX版はKotorinToys経由の自動起動を選択してください。");
         var modes=new Dictionary<string,string>(before.StartupModes){[tool.Id]=mode};return before with{StartupModes=modes};
@@ -159,19 +194,19 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
         foreach(var pair in settings.StartupModes)
         {
             if(!tools.TryGetValue(pair.Key,out var tool))throw new IOException("登録されていない自動起動対象です。");
-            if(pair.Value!="none" && !allowDevelopment && manager.Installation(tool).State!="導入済み")
-                throw new IOException("自動起動には正式導入済みの安定起動先が必要です。");
+            if(pair.Value!="none" && !allowDevelopment && (Detect(tool).State!="導入済み" || !Exists(Detect(tool).Executable)))
+                throw new IOException(tool.Name + "：自動起動には正式導入済みの安定起動先が必要です。インストール状態を確認してください。");
             if(pair.Value!="direct_task")continue;
             if(tool.Msix != null)throw new IOException("MSIX版の実行ファイルは直接予約できません。KotorinToys経由を選択してください。");
-            if(!allowDevelopment && manager.Installation(tool).State!="導入済み")throw new IOException("直接予約には正式導入済みの安定起動先が必要です。");
-            var executable=manager.Executable(tool);if(!File.Exists(executable))throw new IOException("起動先がありません。");
+            if(!allowDevelopment && Detect(tool).State!="導入済み")throw new IOException(tool.Name + "：直接予約には正式導入済みの安定起動先が必要です。");
+            var executable=allowDevelopment ? manager.Executable(tool) : Detect(tool).Executable!;if(!Exists(executable))throw new IOException(tool.Name + "：起動先がありません。");
             plans[pair.Key]=new(Name(pair.Key),executable,"--startup --launch-origin direct_task",Path.GetDirectoryName(executable)!,sid,Marker(settings,pair.Key));
         }
         if(settings.HostStartup || settings.StartupModes.Values.Contains("via_kotorintoys"))
         {
-            if(!File.Exists(hostExecutable))throw new IOException("本体の起動先がありません。");
+            if(!Exists(hostExecutable))throw new IOException("本体の起動先がありません。");
             var hostIdentity=new ToolDefinition("host","KotorinToys","KotorinToys.exe","README.md",AppId:"KotorinToys",InstalledExecutable:"KotorinToys.exe");
-            var installation=new InstallationDetector().Detect(hostIdentity);
+            var installation=(installationDetector ?? (t => new InstallationDetector().Detect(t)))(hostIdentity);
             if(!allowDevelopment && (installation.State!="導入済み" || !string.Equals(installation.Executable,hostExecutable,StringComparison.OrdinalIgnoreCase)))
                 throw new IOException("本体予約には登録済みの正式導入先が必要です。開発用予約はテスト専用です。");
             var arguments="--startup --launch-origin via_kotorintoys --root "+Quote(manager.Root)+" --settings-dir "+Quote(store.DirectoryPath);
