@@ -109,6 +109,7 @@ internal static class Program
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--ux-tests"])) { OperationDetailsTests.Run(root, Check); OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--action-availability-tests"])) { ActionAvailabilityTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--startup-form-tests"])) { StartupSettingsFormTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--compact-dashboard-tests"])) { CompactDashboardTests.Run(root, fixtures, Check, true); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -235,6 +236,8 @@ internal static class Program
             }
             OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             ActionAvailabilityTests.Run(root, Check);
+            OperationDetailsTests.Run(root, Check);
+            OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult();
             CompactDashboardTests.Run(root, fixtures, Check);
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);

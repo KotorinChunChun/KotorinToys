@@ -20,9 +20,15 @@ internal sealed partial class Dashboard
         foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "未確認", "");
         grid.SelectionChanged += (_, _) => UpdateActions();
         grid.CurrentCellChanged += (_, _) => UpdateActions();
+        grid.CellClick += (_, e) => { if (e.RowIndex >= 0 && e.ColumnIndex == grid.Columns["detail"]!.Index) OpenSelectedDetails(); };
+        grid.KeyDown += (_, e) =>
+        {
+            if (e.KeyCode == Keys.Enter && grid.CurrentCell?.OwningColumn?.Name == "detail")
+            { e.Handled = e.SuppressKeyPress = true; OpenSelectedDetails(); }
+        };
         grid.CellDoubleClick += async (_, e) =>
         {
-            if (e.RowIndex < 0 || busy) return;
+            if (e.RowIndex < 0 || busy || e.ColumnIndex == grid.Columns["detail"]!.Index) return;
             grid.CurrentCell = grid.Rows[e.RowIndex].Cells["tool"]; await Execute(DashboardCommand.Start);
         };
         actions.Controls.Add(new Label { Text = "選択中アプリ：", AutoSize = true, Margin = new(3, 8, 8, 0) });

@@ -12,9 +12,9 @@ internal sealed partial class PublicReleaseClient
             if ((int)response.StatusCode is >= 300 and < 400)
             { uri = new(uri, response.Headers.Location ?? throw new IOException("公開情報の移動先がありません。")); continue; }
             if ((int)response.StatusCode == 429 || (int)response.StatusCode == 403 && response.Headers.TryGetValues("X-RateLimit-Remaining", out var remaining) && remaining.Contains("0"))
-                throw new IOException("GitHubの取得回数制限です。時間をおいて「状態を更新」で再確認してください。");
-            if ((int)response.StatusCode == 403) throw new IOException("GitHubへのアクセスが拒否されました。公開先の状態を確認し、時間をおいて再確認してください。");
-            if ((int)response.StatusCode == 404) throw new IOException("公開ファイルが見つかりません。配布元のRelease・台帳・ファイル名を確認してください。");
+                throw new ReleaseReadException(ReleaseProblem.RateLimit, "GitHubの取得回数制限です。時間をおいて「状態を更新」で再確認してください。");
+            if ((int)response.StatusCode == 403) throw new ReleaseReadException(ReleaseProblem.Connection, "GitHubへのアクセスが拒否されました。公開先の状態を確認し、時間をおいて再確認してください。");
+            if ((int)response.StatusCode == 404) throw new ReleaseReadException(ReleaseProblem.Unavailable, "公開ファイルが見つかりません。配布元のRelease・台帳・ファイル名を確認してください。");
             response.EnsureSuccessStatusCode();
             if (response.Content.Headers.ContentLength > limit) throw new IOException("公開情報の容量上限を超えました。");
             await using var stream = await response.Content.ReadAsStreamAsync(token);

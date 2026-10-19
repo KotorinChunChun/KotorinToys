@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace KotorinToys;
 
 internal sealed record PortablePublication(string Version, DateTimeOffset? PublishedAt, string DownloadUrl, long Length, string Sha256);
-internal sealed record PublicRelease(ReleasePackage? Package, bool Confirmed, bool Prerelease, string Detail, PortablePublication? Portable = null);
+internal sealed record PublicRelease(ReleasePackage? Package, bool Confirmed, bool Prerelease, string Detail, PortablePublication? Portable = null, ReleaseProblem Problem = ReleaseProblem.None);
 
 internal sealed partial class PublicReleaseClient : IDisposable
 {
@@ -26,10 +26,10 @@ internal sealed partial class PublicReleaseClient : IDisposable
                 if (tool.Id == "shortcut-key-counter" && tool.Name == "ShortcutKeyCounter" &&
                     tool.AppId == "KotorinToys.ShortcutKeyCounter" && tool.Msix == null)
                     return await CheckPortable(tool, cancellation);
-                return new(null, false, false, "本体対応インストーラーは未公開です。ポータブル版・開発版の利用方法は「使い方」を確認してください。");
+                return new(null, false, false, "本体対応インストーラーは未公開です。ポータブル版・開発版の利用方法は「使い方」を確認してください。", Problem: ReleaseProblem.Unpublished);
             }
             if (ProductIdentity.FromTool(tool) is not { } product || product.Name != tool.Name || product.AppId != tool.AppId || tool.Id == "host")
-                return new(null, false, false, "この製品のインストーラー管理には本体側の対応が必要です。「GitHubを開く」から配布方法を確認してください。");
+                return new(null, false, false, "この製品のインストーラー管理には本体側の対応が必要です。「GitHubを開く」から配布方法を確認してください。", Problem: ReleaseProblem.Unsupported);
             return await CheckCore(tool, fallback, true, false, cancellation);
         }
         catch (OperationCanceledException) { throw; }
@@ -59,7 +59,7 @@ internal sealed partial class PublicReleaseClient : IDisposable
         catch (Exception ex) when (ex is IOException or HttpRequestException or JsonException or InvalidOperationException or KeyNotFoundException or FormatException or OperationCanceledException or ArgumentException)
         {
             cancellation.ThrowIfCancellationRequested();
-            return new(fallback, false, false, (hostUpdate ? "本体公開版の確認失敗：" : "公開確認失敗。表示版は同梱台帳です：") + ex.Message);
+            return new(fallback, false, false, (hostUpdate ? "本体公開版の確認失敗：" : "公開確認失敗。表示版は同梱台帳です：") + ex.Message, Problem: ReleaseProblems.From(ex));
         }
     }
 

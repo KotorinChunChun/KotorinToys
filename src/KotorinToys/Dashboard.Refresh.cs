@@ -107,7 +107,7 @@ internal sealed partial class Dashboard
             if (!IsDisposed && ReferenceEquals(current, tools))
             {
                 var error = "公開版の確認失敗：" + ex.Message;
-                ApplySnapshot(installations, states, fallback.Select(p => new PublicRelease(p, false, false, error)).ToArray());
+                ApplySnapshot(installations, states, fallback.Select(p => new PublicRelease(p, false, false, error, Problem: ReleaseProblems.From(ex))).ToArray());
             }
         }
         finally { checkingReleases = false; if (!IsDisposed) UpdateActions(); }

@@ -9,6 +9,7 @@ internal sealed partial class Dashboard : BrandedForm
         SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false,
         AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells };
     readonly Action<string> notify;
+    readonly Action<string, string> showDetails;
     readonly Dictionary<string, string> operationErrors = new();
     string? catalogError, stateError;
     readonly Button install = new() { Name = "installSelected", Text = "インストール", AutoSize = true, Enabled = false };
@@ -50,9 +51,11 @@ internal sealed partial class Dashboard : BrandedForm
         Action<string, string, ReleaseCatalog?>? showToolInstaller = null, Action<string>? notify = null,
         Func<ToolDefinition, CancellationToken, Task<StartupOverview>>? startupCheck = null,
         Func<string, bool>? fileExists = null,
-        Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null)
+        Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null,
+        Action<string, string>? showDetails = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
+        this.showDetails = showDetails ?? ((name, explanation) => { using var form = new OperationDetailsForm(name, explanation); form.ShowDialog(this); });
         this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
         this.showSelfUpdater = showSelfUpdater ?? (() => { using var form = new HostUpdateForm(this.selfUpdates); form.ShowDialog(this); });
         this.notify = notify ?? (message => MessageBox.Show(this, message, WindowTitle.Create("操作できません"), MessageBoxButtons.OK, MessageBoxIcon.Warning));

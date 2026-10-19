@@ -22,7 +22,7 @@ internal sealed partial class PublicReleaseClient
         catch (Exception ex) when (ex is IOException or HttpRequestException or JsonException or InvalidOperationException or KeyNotFoundException or FormatException or OperationCanceledException or ArgumentException)
         {
             cancellation.ThrowIfCancellationRequested();
-            return new(fallback, false, false, "MSIX公開確認失敗：" + ex.Message);
+            return new(fallback, false, false, "MSIX公開確認失敗：" + ex.Message, Problem: ReleaseProblems.From(ex));
         }
     }
 }

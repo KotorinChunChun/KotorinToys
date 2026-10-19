@@ -21,6 +21,7 @@ internal static class DashboardText
         if (startup.NeedsAttention) return "自動起動を確認";
         if (installed.State is "修復が必要" or "確認できない") return "導入状態を確認";
         if (execution.State == "確認できない") return "状態を再確認";
+        if (ReleaseProblems.Summary(release) is { } problem) return problem;
         if (release.Portable != null || tool.Id == "shortcut-key-counter" && tool.DistributionStatus != "published") return "ZIP版を利用";
         if (tool.Msix == null && tool.DistributionStatus != "published") return "導入は未対応";
         if (!release.Confirmed) return "公開版を再確認";
@@ -29,6 +30,10 @@ internal static class DashboardText
     }
     public static string Advice(ToolDefinition tool, InstallationState installed, ToolState execution, PublicRelease release)
     {
+        if (!release.Confirmed && release.Problem is ReleaseProblem.Connection or ReleaseProblem.RateLimit)
+            return "対処：通信状態を確認し、時間をおいて「状態を更新」を押してください。配布形式の未対応とは別の状態です。";
+        if (!release.Confirmed && release.Problem is ReleaseProblem.Unavailable or ReleaseProblem.Validation)
+            return "対処：GitHubの公開ページと配布情報を確認してください。照合できない配布物は実行しません。";
         if (release.Portable != null || tool.Id == "shortcut-key-counter" && tool.DistributionStatus != "published")
             return "対処：GitHubからZIPを取得して展開してください。本体からのインストール・自動起動設定は未対応です。";
         if (installed.State is "修復が必要" or "確認できない") return "対処：導入先を確認し、必要なら配布元のsetupで修復してください。設定・履歴は削除しないでください。";
