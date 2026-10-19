@@ -3,8 +3,10 @@ $ErrorActionPreference = 'Stop'
 $project = Split-Path (Split-Path $PSScriptRoot)
 $base = [IO.Path]::GetFullPath((Join-Path $project $Output))
 if (-not $base.StartsWith((Join-Path $project 'dev/history/v0.1.7/logs/').Replace('/', '\'), [StringComparison]::OrdinalIgnoreCase)) { throw '出力は対象版logsに限定します。' }
-$scanner = Join-Path $base 'tools/gitleaks-8.30.1/gitleaks.exe'
+. (Join-Path $PSScriptRoot 'get-security-tools.ps1')
+$scanner = Get-SecurityGitleaks
 $unpacker = Join-Path $base 'tools/innounp-2.71/innounp.exe'
+if (-not (Test-Path -LiteralPath $unpacker) -or (Get-FileHash -LiteralPath $unpacker -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'aecc0d7b1a2669711cd86d50061bb68911faa832ca3c69d4b1d2deb735cb1fcd') { throw '公式固定版InnoUnp 2.71.2を準備してください。検査器が未検証なら実行しません。' }
 $summary = @()
 foreach ($repo in @(Get-Content (Join-Path $base 'source-summary.json') -Raw | ConvertFrom-Json)) {
     $repoBase = Join-Path $base $repo.repository
@@ -44,6 +46,7 @@ foreach ($repo in @(Get-Content (Join-Path $base 'source-summary.json') -Raw | C
                 $status = 'payload-extracted'
             }
             $files = if ($status -eq 'payload-extracted') { @(Get-ChildItem -LiteralPath $payload -File -Recurse) } else { @() }
+            if ($status -eq 'payload-extracted' -and -not $files.Count) { throw '配布物の空の展開結果を成功にしません。' }
             $prohibited = @($files | Where-Object { $_.Name -match '^\.env($|\.(?!example$))|credentials\.json$|secrets\.json$|\.(pfx|p12|key|pem|pdb|db|sqlite|sqlite3)$' } | ForEach-Object { [IO.Path]::GetRelativePath($payload,$_.FullName) })
             $findings = @()
             if ($status -eq 'payload-extracted') {
@@ -56,11 +59,13 @@ foreach ($repo in @(Get-Content (Join-Path $base 'source-summary.json') -Raw | C
             $signature = if ($kind -in @('.exe','.msi','.msix')) { (Get-AuthenticodeSignature -LiteralPath $path).Status.ToString() } else { $null }
             $item = [pscustomobject]@{repository=$repo.repository;tag=$release.tag;name=$asset.name;size=$asset.size;sha256=$hash;digestConfirmed=([bool]$asset.digest);signature=$signature;inspection=$status;files=$files.Count;prohibited=$prohibited;findings=$findings}
             $summary += $item
-            $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $base 'release-summary.json') -Encoding utf8
+            $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $base 'release-progress.json') -Encoding utf8
             [pscustomobject]@{repo=$repo.repository;tag=$release.tag;asset=$asset.name;status=$status;files=$files.Count;flagged=$prohibited.Count;secrets=$findings.Count} | ConvertTo-Json -Compress
         }
     }
 }
+$summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $base 'release-summary.partial.json') -Encoding utf8
+Move-Item -LiteralPath (Join-Path $base 'release-summary.partial.json') -Destination (Join-Path $base 'release-summary.json') -Force
 if (@($summary | Where-Object { $_.prohibited.Count -or $_.findings.Count -or $_.inspection -eq 'unpack-unsupported' }).Count) {
     throw '公開資産に禁止ファイル・秘密検出または未走査があります。値を表示せず台帳を確認してください。'
 }

@@ -7,14 +7,15 @@ $project = Split-Path (Split-Path $PSScriptRoot)
 $outputPath = [IO.Path]::GetFullPath((Join-Path $project $Output))
 if (-not $outputPath.StartsWith((Join-Path $project 'dev/history/v0.1.7/logs/').Replace('/', '\'), [StringComparison]::OrdinalIgnoreCase)) { throw '出力は対象版のlogs内に限定します。' }
 New-Item -ItemType Directory -Force -Path $outputPath | Out-Null
-$scanner = Join-Path $outputPath 'tools/gitleaks-8.30.1/gitleaks.exe'
-if (-not (Test-Path -LiteralPath $scanner)) { throw '固定SHA-256を検証済みのGitleaks 8.30.1を準備してください。' }
+. (Join-Path $PSScriptRoot 'get-security-tools.ps1')
+$scanner = Get-SecurityGitleaks
 $rules = Join-Path $PSScriptRoot 'security-audit.rules.toml'
 $targets = @([pscustomobject]@{ name = 'KotorinToys'; toolRoot = '.'; repositoryUrl = 'https://github.com/KotorinChunChun/KotorinToys' }) + @((Get-Content (Join-Path $project 'config/tools.json') -Raw | ConvertFrom-Json).tools)
 $receipts = @()
 foreach ($target in $targets) {
-    if ($target.repositoryUrl -notmatch '^https://github.com/KotorinChunChun/([A-Za-z0-9.-]+)$') { throw '固定所有者以外の監査は実行しません。' }
+    if ($target.repositoryUrl -notmatch '^https://github.com/KotorinChunChun/([A-Za-z0-9][A-Za-z0-9.-]{0,99})$') { throw '固定所有者以外の監査は実行しません。' }
     $repository = $Matches[1]
+    if ($target.toolRoot -ne '.' -and ($target.toolRoot -notmatch '^tools/[A-Za-z0-9][A-Za-z0-9._-]*$')) { throw 'ローカル走査先は収録ツール直下に限定します。' }
     $itemOutput = Join-Path $outputPath $repository
     New-Item -ItemType Directory -Force -Path $itemOutput | Out-Null
     $info = gh api "repos/KotorinChunChun/$repository" | ConvertFrom-Json
@@ -70,8 +71,10 @@ foreach ($target in $targets) {
     $sensitiveNames = @($files | Where-Object { $_ -match '(^|/)(\.env($|\.(?!example$))|id_(rsa|dsa|ed25519)($|\.)|credentials\.json$|secrets\.json$)|\.(pfx|p12|key|pem|db|sqlite|sqlite3)$' })
     $receipt = [pscustomobject]@{repository=$repository;folder=$target.toolRoot;visibility=$info.visibility;branch=$info.default_branch;head=$head;commits=[int]$commits;files=$files.Count;releases=$releases.Count;assets=@($releases.assets).Count;assetBytes=($releases.assets | Measure-Object size -Sum).Sum;suspiciousFiles=$sensitiveNames;findings=$findings}
     $receipts += $receipt
-    $receipts | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $outputPath 'source-summary.json') -Encoding utf8
+    $receipts | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $outputPath 'source-progress.json') -Encoding utf8
     [pscustomobject]@{repo=$repository;commits=[int]$commits;files=$files.Count;releases=$releases.Count;findings=$findings.Count;suspiciousFiles=$sensitiveNames.Count} | ConvertTo-Json -Compress
 }
+$receipts | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $outputPath 'source-summary.partial.json') -Encoding utf8
+Move-Item -LiteralPath (Join-Path $outputPath 'source-summary.partial.json') -Destination (Join-Path $outputPath 'source-summary.json') -Force
 if (@($receipts | Where-Object { $_.findings.Count -or $_.suspiciousFiles.Count }).Count) { throw '公開ソースに要対応の検出があります。値は表示せずマスク済み台帳を確認してください。' }
 Write-Output '公開ソースとGit到達可能履歴の完全マスク検査を完了しました。検出値は表示していません。'
