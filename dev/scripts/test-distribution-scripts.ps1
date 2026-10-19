@@ -1,4 +1,9 @@
 $ErrorActionPreference = 'Stop'
+foreach ($project in @('KotorinToys','KotorinToys.Maintenance')) {
+    [xml]$definition = Get-Content -LiteralPath (Join-Path $PSScriptRoot "../../src/$project/$project.csproj") -Raw
+    $runtime = @($definition.Project.PropertyGroup.RuntimeFrameworkVersion | Where-Object { $_ })
+    if ($runtime.Count -ne 1 -or [version]$runtime[0].InnerText -lt [version]'10.0.13' -or $runtime[0].Condition -ne "'`$(SelfContained)' == 'true'") { throw '本体の自己完結配布は.NET 10.0.13以上を明示してください。' }
+}
 . (Join-Path $PSScriptRoot 'distribution-products.ps1')
 foreach ($file in @('distribution-products.ps1','publish-packages.ps1','build-installers.ps1','publish-releases.ps1','stage-release-source.ps1')) {
     $tokens = $null; $parseErrors = $null
