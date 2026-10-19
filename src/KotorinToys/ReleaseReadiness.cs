@@ -24,6 +24,8 @@ internal static class ReleaseReadiness
         }
         catch(Exception error) when(error is IOException or ArgumentException or InvalidOperationException or NullReferenceException)
         { Add(null,"エラー",error.Message);return new(online!=null,items.ToArray(),publishedTools!=null); }
+        foreach(var published in publishedTools??[])
+            if(!tools.Any(tool=>tool.Id==published.Id))Add(published,"エラー","公開configだけに存在する候補があります。採用定義との登録差異を確認してください。");
         foreach(var tool in tools)
         {
             if(!Version.TryParse(tool.Version,out var declared) || declared.Build<0)

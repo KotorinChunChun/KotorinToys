@@ -34,6 +34,8 @@ internal static class ReleaseReadinessTests
         var selected=tools.Where(t=>t.Id=="smart-paste").ToArray();
         report=await ReleaseReadiness.Check(root,selected,new(1,[]),selected,(t,_)=>Good(t,catalog.Packages.Single(p=>p.Package.Id==t.Id)));
         check(report.ReadyToPublish,"新規標準製品に同梱fallback台帳の追加を強制せず定義とReleaseだけで確認可能");
+        report=await ReleaseReadiness.Check(root,selected,new(1,[]),tools,(t,_)=>Good(t,catalog.Packages.Single(p=>p.Package.Id==t.Id)));
+        check(!report.ReadyToPublish && report.Items.Any(i=>i.Detail.Contains("公開configだけ")),"公開config側だけに残った候補も公開前に拒否する");
         var publish=File.ReadAllText(Path.Combine(root,"dev/scripts/publish-releases.ps1"));
         check(publish.IndexOf("test-release-readiness.ps1",StringComparison.Ordinal)<publish.IndexOf("release create",StringComparison.Ordinal),"本体公開スクリプトはRelease作成前にオンライン整合検査を必須化");
     }

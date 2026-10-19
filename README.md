@@ -18,7 +18,7 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 ## サポートアプリ
 
-開発中の修正版では、導入Ver／公開Verと短い更新表示を使い、公開日・理由・対処はセルのツールチップへ分けます。操作説明は[利用者向け](docs/USERS_GUIDE.md)、定義の追加方法や判定条件は[開発者向け](docs/DEVELOPERS_GUIDE.md)へ分離しています。修正版の公開・このPCへの導入は別工程で、掲載済みインストーラーを差し替えたという意味ではありません。
+開発中の0.1.8では、短い一覧表示を保ち、詳細セルのクリック／Enterで理由と対処を開けます。絞り込み・表示保存、条件付きのEXE修復、用途別の一括操作タブ、公開前検査を追加しています。操作説明は[利用者向け](docs/USERS_GUIDE.md)、定義の追加方法や判定条件は[開発者向け](docs/DEVELOPERS_GUIDE.md)へ分離しています。公開・このPCへの導入は別工程で、掲載済みインストーラーを差し替えたという意味ではありません。
 
 一覧は起動時と「状態を更新」でGitHubのconfigを取得する構成です。この機能を含む本体への初回更新後は、mainの [config/tools.json](config/tools.json) だけで追加・非表示・順序・説明を変更できます。通信できないときは前回の正常な一覧を維持します。[設定更新の運用手順](docs/online-tool-catalog.md)を参照してください。以下は同梱時点の初期一覧です。
 

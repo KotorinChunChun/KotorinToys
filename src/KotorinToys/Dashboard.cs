@@ -27,6 +27,7 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Action<Uri> openRepository;
     readonly Func<string, bool> fileExists;
     readonly Func<ToolDefinition, CancellationToken, Task<ToolState>> executionCheck;
+    readonly Func<ToolDefinition,bool,Task<ToolState>> controlExecution;
     readonly IHostSelfUpdateService selfUpdates;
     readonly Action showSelfUpdater;
     readonly Func<ToolDefinition, CancellationToken, Task<StartupOverview>> startupCheck;
@@ -52,7 +53,8 @@ internal sealed partial class Dashboard : BrandedForm
         Func<ToolDefinition, CancellationToken, Task<StartupOverview>>? startupCheck = null,
         Func<string, bool>? fileExists = null,
         Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null,
-        Action<string, string>? showDetails = null, DashboardViewStore? viewStore = null)
+        Action<string, string>? showDetails = null, DashboardViewStore? viewStore = null,
+        Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.viewStore = viewStore ?? (settings == null ? null : new DashboardViewStore(settings.DirectoryPath));
@@ -69,6 +71,7 @@ internal sealed partial class Dashboard : BrandedForm
         this.detectInstallation = detectInstallation ?? manager.Installation;
         this.fileExists = fileExists ?? File.Exists;
         this.executionCheck = executionCheck ?? manager.Status;
+        this.controlExecution = controlExecution ?? ((tool,starting)=>starting?manager.Start(tool):manager.Stop(tool));
         this.openRepository = openRepository ?? (uri => System.Diagnostics.Process.Start(
             new System.Diagnostics.ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }));
         installations = tools.Select(this.detectInstallation).ToArray();

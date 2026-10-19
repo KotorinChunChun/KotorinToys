@@ -36,7 +36,7 @@ internal sealed partial class Dashboard
             else
             {
                 RowFor(index).Cells["state"].Value = command == DashboardCommand.Start ? "起動処理中" : "停止処理中";
-                var state = command == DashboardCommand.Start ? await manager.Start(tool) : await manager.Stop(tool);
+                var state = await controlExecution(tool,command==DashboardCommand.Start);
                 ReportExecution(tool, command == DashboardCommand.Start, state);
             }
             await RefreshStates(true);

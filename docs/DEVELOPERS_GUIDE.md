@@ -2,7 +2,7 @@
 
 画面の使い方は[利用者向けガイド](USERS_GUIDE.md)・[自動起動の操作](startup-settings.md)へ分離しています。開発時の詳細は[操作可否の実装](development/operation-availability.md)・[自動起動の判定と保守](development/startup-settings.md)を参照してください。
 
-新規アプリは[定義で追加する標準管理製品](development/definition-managed-products.md)を参照してください。修正版では一覧の公開日はツールチップへ分離し、更新列は4値へ短縮しています。未確認を更新不要と判定せず、理由と対処はツールチップへ保持します。「一括インストール」は既存の詳細導入画面への入口で、ローカル台帳・一括削除・SSCaptureのFFmpegも引き続き扱います。
+新規アプリは[定義で追加する標準管理製品](development/definition-managed-products.md)を参照してください。更新列は4値に保ち、理由と対処は詳細セルのクリック／Enterでも読めます。修復・表示保存・用途別タブ・公開前検査は[操作改善の設計と検証](development/operation-improvements.md)へまとめています。
 
 ## 前提
 
@@ -94,7 +94,7 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 ツール一覧の配信は[GitHub設定の運用手順](online-tool-catalog.md)を参照してください。ToolCatalogはローカル開発定義の互換読込・共通検証、OnlineToolCatalogは公開configの検証、ToolCatalogClientは固定HTTPSの取得、ToolCatalogSourceは最後の正常一覧と予約照合用の旧登録を扱います。本番のHostApplicationContextは共有Sourceを持つToolManagerをDashboardとStartupCoordinatorへ渡します。配信用configは子ファイルに依存せず、ビルド・発行時にも本体へコピーします。公開configの更新と製品バイナリの配布は別です。
 
-`Dashboard.cs`は画面の依存・状態・寿命を保持し、`Dashboard.Layout.cs`で構築とイベント接続、`Dashboard.Display.cs`で表の詳細・操作失敗通知・ボタンの有効条件、`Dashboard.Operations.cs`で操作の直列化と単体導入／詳細設定の導線、`Dashboard.Refresh.cs`で実行状態・公開版の再取得を扱います。メインにフッターは作りません。単体の導入・アップデート・削除はメインから選択IDと操作種別を渡し、通常のInstallationFormには確認・進捗・結果だけを表示します。operation未指定の同フォームは開発者向け詳細設定となり、一括処理・台帳切替・FFmpegを表示します。
+`Dashboard.cs`は画面の依存・状態・寿命を保持し、`Dashboard.Layout.cs`で構築とイベント接続、`Dashboard.Display.cs`で表の詳細・操作失敗通知・ボタンの有効条件、`Dashboard.Operations.cs`で操作の直列化と単体導入／一括操作の導線、`Dashboard.Refresh.cs`で実行状態・公開版の再取得を扱います。表示保存は`Dashboard.View.cs`、詳細ダイアログは`Dashboard.Details.cs`へ分離しています。メインにフッターは作りません。単体の導入・アップデート・修復・削除はメインから選択IDと操作種別を渡し、通常のInstallationFormには確認・進捗・結果だけを表示します。operation未指定の同フォームは「一括インストール」となり、用途別の4タブを表示します。
 
 `ToolInstallationRunner`は本体対応形式と製品識別を確認し、製品ごとに取得・実行・失敗結果を完結させます。configへの追加だけで未対応形式を実行可能にはしません。`ReleaseDisplay`はGitHubのpublished_atを日本時間の公開日へ変換し、版表示と確認文を共通化します。公開日を取得日時で代用せず、旧台帳の日付欠落も許容します。ローカル台帳の欠落製品も、停止・実行より前に日本語で拒否します。
 

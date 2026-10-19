@@ -19,7 +19,7 @@ internal static class DashboardText
         if (!string.IsNullOrEmpty(catalogError)) return "一覧を再確認";
         if (!string.IsNullOrEmpty(stateError)) return "状態を再確認";
         if (startup.NeedsAttention) return "自動起動を確認";
-        if (installed.State is "修復が必要" or "確認できない") return "導入状態を確認";
+        if (installed.State is "修復が必要" or "確認できない") return ToolActionPolicy.Evaluate("repair",tool,installed,execution,release).Enabled ? "修復できます" : "導入状態を確認";
         if (execution.State == "確認できない") return "状態を再確認";
         if (ReleaseProblems.Summary(release) is { } problem) return problem;
         if (release.Portable != null || tool.Id == "shortcut-key-counter" && tool.DistributionStatus != "published") return "ZIP版を利用";
@@ -38,6 +38,8 @@ internal static class DashboardText
             return "対処：GitHubの公開ページと配布情報を確認してください。照合できない配布物は実行しません。";
         if (release.Portable != null || tool.Id == "shortcut-key-counter" && tool.DistributionStatus != "published")
             return "対処：GitHubからZIPを取得して展開してください。本体からのインストール・自動起動設定は未対応です。";
+        if (ToolActionPolicy.Evaluate("repair",tool,installed,execution,release).Enabled)
+            return "対処：「修復」を押して、設定・履歴を保持したまま実行ファイルを入れ直してください。";
         if (installed.State is "修復が必要" or "確認できない") return "対処：導入先を確認し、必要なら配布元のsetupで修復してください。設定・履歴は削除しないでください。";
         if (!release.Confirmed) return "対処：通信状態を確認し、時間をおいて「状態を更新」で再確認してください。未確認の版を最新とは判定しません。";
         if (installed.State == "未導入") return "対処：このアプリを使うには「インストール」を押してください。開発用EXEがないことと、起動済みアプリの障害は別です。";

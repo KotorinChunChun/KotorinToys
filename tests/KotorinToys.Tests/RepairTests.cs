@@ -22,6 +22,8 @@ internal static class RepairTests
         ActionAvailability Rule(InstallationState installed, ToolState state, PublicRelease value) =>
             ToolActionPolicy.Evaluate("repair",tool,installed,state,value);
         check(Rule(actual,new("停止中"),release).Enabled, "同じ公開版の停止中の修復を許可");
+        check(DashboardText.Detail(tool,actual,new("停止中"),release,new("なし",""),null,null,null)=="修復できます" &&
+            DashboardText.Advice(tool,actual,new("停止中"),release).Contains("「修復」を押して"),"修復可能な場合は一覧と詳細から本体の修復操作を案内する");
         check(!Rule(actual,new("実行中"),release).Enabled && !Rule(actual,new("確認できない"),release).Enabled, "実行中・状態不明で修復しない");
         check(!Rule(actual with {Repairable=false},new("停止中"),release).Enabled && !Rule(actual,new("停止中"),release with{Confirmed=false}).Enabled,
             "未照合の導入先・公開版では修復しない");

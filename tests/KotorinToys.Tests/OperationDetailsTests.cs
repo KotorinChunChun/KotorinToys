@@ -28,6 +28,8 @@ internal static class OperationDetailsTests
             using var dialog = new OperationDetailsForm("Sample", text);
             check(dialog.Controls.Find("operationExplanation", true).Single() is TextBox { ReadOnly: true, Multiline: true } && dialog.Icon != null,
                 "説明は読取専用で共通アイコンを持つ");
+            using var lines = new OperationDetailsForm("Sample", "原因\n対処\r\n案内");
+            check(((TextBox)lines.Controls.Find("operationExplanation",true).Single()).Text=="原因\r\n対処\r\n案内", "詳細の改行をWindowsの複数行表示へ統一");
             foreach (var (problem, summary) in new[] { (ReleaseProblem.RateLimit,"取得制限"), (ReleaseProblem.Unavailable,"公開物なし"),
                 (ReleaseProblem.Unpublished,"未公開"), (ReleaseProblem.Unsupported,"形式未対応"), (ReleaseProblem.Validation,"公開情報を確認") })
             {
