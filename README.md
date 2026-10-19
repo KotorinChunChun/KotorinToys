@@ -31,6 +31,10 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [ChunapTool](tools/ChunapTool/README.md) | ウィンドウの位置・サイズ・最大化を調整するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [HttpSelector](tools/HttpSelector/README.md) | 危険なリンクを警告し、ブラウザーのプロファイルを選ぶツール | 0.1.6ソースで署名付きMSIXの導入・更新・削除、起動・停止・状態確認に対応 |
 | [EveryDB](tools/EveryDB/README.md) | 複数のデータソースをSQLiteへ取り込み、横断検索するツール | 共通インストーラーで導入・更新・削除と起動・停止・状態確認に対応 |
+| [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | MIC・RVC・スピーカー入力を3出力へ送るツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
+| [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | 再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
+
+音声2件の追加は開発ソースへ反映済みです。GitHub mainの配信用configと新しい固定製品識別を含む本体の公開・導入は別工程であり、公開済みの旧本体へ反映済みという意味ではありません。[登録補完と検証](dev/history/v0.1.7/voice-router-registration.md)を参照してください。
 
 HttpSelectorは署名付きMSIXが必須です。0.1.6ソースでは[本体からのMSIX管理](docs/msix-management.md)に対応しました。WindowsへHTTP/HTTPSの関連付け候補を登録した後、既定のアプリ設定で利用者が選択してください。本体は署名・Publisher・Package Identity・製品版を照合し、未導入や旧版を開発EXEに切り替えません。Inno EXEとは別の専用導入経路を使用します。
 

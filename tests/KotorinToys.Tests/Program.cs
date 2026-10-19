@@ -59,6 +59,7 @@ internal static class Program
             }
             if(args.Length==2 && args[0]=="--run-native-release-host")return InstalledStartupTests.NativeTask("--release-host "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--public-release-check") return PublicReleaseTests.Live(KotorinToys.Program.FindRoot()).GetAwaiter().GetResult();
+            if(args.SequenceEqual(["--voice-router-public-check"])) return PublicReleaseTests.Live(KotorinToys.Program.FindRoot(), ["voice-mixer-mic-router", "voice-mixer-spk-router"]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--run-native-tool-update")return InstalledStartupTests.NativeTask("--tool-update "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--tool-update")return ReleaseAcceptance.UpdateTool(args[1]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--release-host")return ReleaseAcceptance.Host(args[1]).GetAwaiter().GetResult();

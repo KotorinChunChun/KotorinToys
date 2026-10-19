@@ -138,3 +138,9 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path a
 隔離設定での管理実接続は、テストビルド後の `KotorinToys.Tests.exe --mic-router-ipc` で確認する。既存のMicRouterを正常終了してから実行する。通常利用の設定・モデル・予約は変更せず、送信停止・全出力OFF・RVC無効で起動する。起動、既存PID保持、別PID拒否、未対応操作、正常停止、GitHubの台帳照合を検証する。
 
 登録変更の公開はmainのconfig反映と対応本体の更新が必要である。ローカルの追加だけでは稼働中の旧本体やGitHub上の一覧は更新されない。
+
+## VoiceMixerSpkRouterと音声2件の登録確認
+
+SpkRouterも独立Git・管理契約2に対応します。`dev/scripts/build.ps1`は両Rustアプリを固定依存でビルドし、SpkRouterの開発EXEを子定義の`release/SpkRouter/voicemixer-spk.exe`へ配置します。稼働中の開発EXEがあれば、正常終了してから全体ビルドしてください。本体パッケージには2件の定義・README・docsのみを同梱し、音声EXE・モデル・個人設定を同梱しません。setupの生成元は各子の`dev/scripts/Build-Installer.ps1`です。
+
+`dev/scripts/test-voice-router-registration.ps1`は本番の説明書同梱処理を専用フォルダーで実行し、2件の同梱内容と開発ビルド指定を検査します。製品EXEの発行・起動は行いません。本体テスト実行ファイルの`--voice-router-public-check`は2件だけの実GitHub公開台帳を照合します。これはインストーラーの実行、音声入出力、実ブラウザー拡張の確認ではありません。

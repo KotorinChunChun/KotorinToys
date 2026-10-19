@@ -26,7 +26,20 @@ internal static class OnlineCatalogTests
         }
         var bytes = File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath));
         var bundled = OnlineToolCatalog.Parse(bytes, root);
-        check(bundled.Select(t => t.Id).SequenceEqual(ToolCatalog.Load(root).Select(t => t.Id)), "同梱configは現行9ツールと同じ順序");
+        check(bundled.Select(t => t.Id).SequenceEqual(ToolCatalog.Load(root).Select(t => t.Id)), "同梱configは現行11ツールと同じ順序");
+        foreach (var (id, name) in new[] { ("voice-mixer-mic-router", "VoiceMixerMicRouter"), ("voice-mixer-spk-router", "VoiceMixerSpkRouter") })
+        {
+            check(bundled.Count(t => t.Id == id) == 1, name + "をオンライン一覧に重複なく登録");
+            var voice = bundled.Single(t => t.Id == id);
+            var local = ToolCatalog.Load(root).Single(t => t.Id == id);
+            check(voice.Name == name && voice.AppId == "KotorinToys." + name && voice.ToolRoot == "tools/" + name &&
+                voice.Executable == local.Executable && voice.InstalledExecutable == name + ".exe" &&
+                voice.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]), name + "の独立配置と共通管理契約を保持");
+            check(ToolRepository.Find(voice)?.AbsoluteUri == "https://github.com/KotorinChunChun/" + name &&
+                ProductIdentity.FromId(id)?.Repository == name, name + "のリンクと配布先を指定GitHubに固定");
+            check(ReleaseDownloader.Load(root).Packages.Single(p => p.Package.Id == id).Package.Name == name &&
+                voice.DistributionStatus == "published" && !string.IsNullOrWhiteSpace(voice.Summary), name + "の公開台帳と一言解説を登録");
+        }
         var tool = bundled[0];
         check(ToolRepository.Find(OnlineToolCatalog.Parse(Encode(tool with { RepositoryUrl = null }), root).Single()) == null,
             "configで公開先を未設定にすると旧固定URLへ補完しない");

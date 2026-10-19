@@ -96,11 +96,14 @@ internal static class PublicReleaseTests
         check(rejected, "利用者の公開照合取消を成功へ変換しない");
     }
 
-    public static async Task<int> Live(string root)
+    public static async Task<int> Live(string root, IReadOnlyCollection<string>? toolIds = null)
     {
         var bundled = ReleaseDownloader.Load(root); using var client = new PublicReleaseClient();
         bool success = true;
-        foreach (var tool in ToolCatalog.Load(root).Where(t => t.DistributionStatus == "published"))
+        var tools = ToolCatalog.Load(root).Where(t => t.DistributionStatus == "published" && (toolIds == null || toolIds.Contains(t.Id))).ToArray();
+        if (toolIds != null && !tools.Select(t => t.Id).Order().SequenceEqual(toolIds.Distinct().Order()))
+            throw new IOException("指定された公開照合対象が登録されていません。");
+        foreach (var tool in tools)
         {
             var result = await client.Check(tool, bundled.Packages.SingleOrDefault(p => p.Package.Id == tool.Id));
             Console.WriteLine($"{tool.Name}: {(result.Package is { } item ? ReleaseDisplay.Version(item) : "公開版なし")} / {result.Confirmed} / {result.Detail}");
