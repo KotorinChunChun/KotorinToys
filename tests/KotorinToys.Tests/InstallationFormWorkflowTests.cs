@@ -51,9 +51,9 @@ internal static class InstallationFormWorkflowTests
         Pump(canceled.RunSelected());
         check(executions == 1 && canceled.Controls.Find("installationSummary", true).Single().Text.Contains("変更していません"), "確認をキャンセルした場合は導入を実行しない");
         using var advanced = new InstallationForm(manager, releases: catalog); advanced.CreateControl(); advanced.PerformLayout();
-        check(advanced.Text == WindowTitle.Create("詳細設定（開発者向け）") &&
+        check(advanced.Text == WindowTitle.Create("一括インストール") &&
             new[] { "chooseLocalCatalog", "useGithubReleases", "installFfmpeg", "batchInstall", "batchUninstall", "selectInstallable" }
-                .All(name => advanced.Controls.Find(name, true).Length == 1), "一括導入削除・FFmpeg・台帳は開発者向け詳細設定へ集約");
+                .All(name => advanced.Controls.Find(name, true).Length == 1), "一括画面で導入削除・FFmpeg・台帳を用途別ページへ集約");
         var target = (CheckedListBox)advanced.Controls.Find("installationTargets", true).Single();
         check(target.Items.Cast<string>().Any(text => text.Contains("未公開")) && target.Items.Cast<string>().Any(text => text.Contains("2026/10/17 公開")), "詳細設定の一覧に未対応理由と公開日を表示");
         advanced.Size = advanced.MinimumSize; advanced.PerformLayout();

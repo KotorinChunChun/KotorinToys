@@ -4,7 +4,7 @@ internal delegate Task<InstallResult[]> InstallationExecution(ToolDefinition[] t
     ReleaseCatalog? catalog, string? localCatalog, IProgress<InstallResult>? progress,
     IProgress<string>? downloadProgress, CancellationToken cancellation);
 
-internal sealed class InstallationForm : BrandedForm
+internal sealed partial class InstallationForm : BrandedForm
 {
     readonly ToolManager manager;
     readonly ToolDefinition[] tools;
@@ -31,6 +31,8 @@ internal sealed class InstallationForm : BrandedForm
     readonly Button close = new() { Name = "closeInstallation", Text = "閉じる", AutoSize = true };
     readonly Label media = new() { Name = "ffmpegState", AutoSize = true, Dock = DockStyle.Fill, Padding = new(8) };
     readonly TableLayoutPanel detail = new() { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3 };
+    readonly TableLayoutPanel content = new() { Dock = DockStyle.Fill, ColumnCount = 2 };
+    readonly TabControl operationTabs = new() { Name="installationModes", Dock=DockStyle.Fill };
     string? catalogPath;
     CancellationTokenSource? cancellation;
     bool running, singleStarted, checkingAvailability;
@@ -56,7 +58,7 @@ internal sealed class InstallationForm : BrandedForm
             new ToolInstallationRunner(manager).Run(selected, verb, catalog, path, progress, download, token));
         publicCatalog = releases;
         if (publicCatalog != null) ReleaseDownloader.Validate(publicCatalog, manager.KnownTools());
-        Text = WindowTitle.Create(operation == null ? "詳細設定（開発者向け）" :
+        Text = WindowTitle.Create(operation == null ? "一括インストール" :
             operation == "install" ? "インストール" : operation == "update" ? "アップデート" : operation == "repair" ? "修復" : "アンインストール");
         Size = new(980, 600); MinimumSize = new(850, 520);
         Font = new("Yu Gothic UI", 11); StartPosition = FormStartPosition.CenterParent;
@@ -71,16 +73,15 @@ internal sealed class InstallationForm : BrandedForm
         detail.RowStyles.Add(new(SizeType.Percent, 100)); detail.RowStyles.Add(new(SizeType.AutoSize)); detail.RowStyles.Add(new(SizeType.Absolute, 0));
         detail.Controls.Add(results, 0, 0); detail.Controls.Add(showLog, 0, 1); detail.Controls.Add(log, 0, 2);
         showLog.CheckedChanged += (_, _) => { detail.RowStyles[2].Height = showLog.Checked ? 150 : 0; };
-        var content = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2 };
         content.ColumnStyles.Add(new(SizeType.Absolute, operation == null ? 300 : 0)); content.ColumnStyles.Add(new(SizeType.Percent, 100));
         content.Controls.Add(targets, 0, 0); content.Controls.Add(detail, 1, 0);
         targets.Visible = media.Visible = operation == null;
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5 };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 6 };
         layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
-        layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
+        layout.RowStyles.Add(new(SizeType.Absolute,operation==null?115:0)); layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
         layout.Controls.Add(source, 0, 0); layout.Controls.Add(completion, 0, 1);
-        layout.Controls.Add(content, 0, 2); layout.Controls.Add(media, 0, 3); layout.Controls.Add(buttons, 0, 4); Controls.Add(layout);
-        if (operation == null) AddAdvancedButtons();
+        layout.Controls.Add(content, 0, 3); layout.Controls.Add(media, 0, 4); layout.Controls.Add(buttons, 0, 5); Controls.Add(layout);
+        if (operation == null) { AddAdvancedButtons(); layout.Controls.Add(operationTabs,0,2); }
         cancel.Text = operation == null ? "残りをキャンセル" : "キャンセル";
         cancel.Click += (_, _) => { cancellation?.Cancel(); ActionHints.Apply(cancel, ActionAvailability.Deny("キャンセル要求済みです。進行中の処理の終了を待っています。"), hints); }; buttons.Controls.Add(cancel);
         close.Click += (_, _) => Close(); buttons.Controls.Add(close);
@@ -93,6 +94,7 @@ internal sealed class InstallationForm : BrandedForm
         targets.ItemCheck += (_, e) => UpdateAdvancedButtons(e.Index, e.NewValue == CheckState.Checked);
         Shown += async (_, _) => { if (operation != null) await RunSelected(); else await RefreshAvailability(); };
         ActionHints.Attach(buttons, hints);
+        if(operation==null)ActionHints.Attach(operationTabs,hints);
         Disposed += (_, _) => hints.Dispose();
         RefreshMedia();
         SetRunning(false);
@@ -100,32 +102,41 @@ internal sealed class InstallationForm : BrandedForm
 
     void AddAdvancedButtons()
     {
-        source.Text = "開発者向け：一括操作・依存ツールの導入・ローカル配布物の検証を行います。\n" + PublicSource;
+        var installPage=AddMode("インストール・更新","installMode");
+        var uninstallPage=AddMode("アンインストール","uninstallMode");
+        var ffmpegPage=AddMode("FFmpeg","ffmpegMode");
+        var developerPage=AddMode("開発者向け","developerMode");
         var published = new Button { Name = "useGithubReleases", Text = "取得元をGitHub Releasesに戻す", AutoSize = true };
-        published.Click += (_, _) => { catalogPath = null; source.Text = PublicSource; RefreshTargets(); };
+        published.Click += (_, _) => { catalogPath = null; source.Text = PublicSource; RefreshTargets(); operationTabs.SelectedIndex=0; };
         var choose = new Button { Name = "chooseLocalCatalog", Text = "ローカル配布台帳を選択", AutoSize = true };
         choose.Click += (_, _) =>
         {
             using var picker = new OpenFileDialog { Title = "信頼できるローカルビルドのpackages.json", Filter = "配布台帳|packages.json", CheckFileExists = true };
             if (picker.ShowDialog(this) != DialogResult.OK) return;
-            try { InstallerAdapter.Load(picker.FileName, manager.KnownTools()); catalogPath = picker.FileName; source.Text = "ローカル配布台帳：" + catalogPath; RefreshTargets(); }
+            try { InstallerAdapter.Load(picker.FileName, manager.KnownTools()); catalogPath = picker.FileName; RefreshTargets(); operationTabs.SelectedIndex=0; source.Text = "ローカル配布台帳：" + catalogPath; }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, WindowTitle.Create("配布台帳の確認")); }
         };
-        buttons.Controls.Add(published); buttons.Controls.Add(choose);
+        developerPage.Controls.Add(new Label { Text="通常はGitHub Releasesを使用します。ローカル台帳は開発・検証用です。",AutoSize=true });
+        developerPage.Controls.Add(published); developerPage.Controls.Add(choose);
         var select = new Button { Name = "selectInstallable", Text = "導入可能な全件を選択", AutoSize = true };
         select.Click += (_, _) =>
         {
             for (int i = 0; i < tools.Length; i++)
                 targets.SetItemChecked(i, InstallAvailability(tools[i], "install").Enabled);
         };
-        buttons.Controls.Add(select);
-        Add("選択を一括インストール / 更新", "install"); Add("選択を一括アンインストール", "uninstall");
+        installPage.Controls.Add(select);
+        Add("選択を一括インストール / 更新", "install",installPage);
+        var selectRemoval=new Button {Name="selectUninstallable",Text="削除可能な全件を選択",AutoSize=true};
+        selectRemoval.Click += (_,_)=>{for(int i=0;i<tools.Length;i++)targets.SetItemChecked(i,InstallAvailability(tools[i],"uninstall").Enabled);};
+        uninstallPage.Controls.Add(selectRemoval); Add("選択を一括アンインストール", "uninstall",uninstallPage);
         var ffmpeg = new Button { Name = "installFfmpeg", Text = "FFmpegを導入 / 修復", AutoSize = true };
-        ffmpeg.Click += async (_, _) => await InstallFfmpeg(); buttons.Controls.Add(ffmpeg);
+        media.Dock=DockStyle.None;media.MaximumSize=new(800,0);ffmpegPage.Controls.Add(media);
+        ffmpeg.Click += async (_, _) => await InstallFfmpeg(); ffmpegPage.Controls.Add(ffmpeg);
+        operationTabs.SelectedIndex=0;operationTabs.SelectedIndexChanged += (_,_)=>ModeChanged();ModeChanged();
     }
     void SetRunning(bool value)
     {
-        running = value; targets.Enabled = !value;
+        running = value; targets.Enabled = !value && (singleOperation!=null || operationTabs.SelectedIndex is 0 or 1);
         foreach (Control control in buttons.Controls) control.Enabled = !value;
         cancel.Enabled = value; close.Enabled = !value;
         cancel.AccessibleDescription = value ? "取得または未着手の処理をキャンセルします。実行中のインストーラーは強制終了しません。" : "処理中だけキャンセルできます。";
@@ -178,28 +189,32 @@ internal sealed class InstallationForm : BrandedForm
     {
         if (singleOperation != null) return;
         bool busy = running || checkingAvailability;
+        operationTabs.Enabled=!busy;
         var selected = tools.Where((_, i) => i == changing ? newChecked : targets.GetItemChecked(i)).ToArray();
         foreach (var (name, operation) in new[] { ("batchInstall", "install"), ("batchUninstall", "uninstall") })
         {
-            if (buttons.Controls.Find(name, false).SingleOrDefault() is not Button button) continue;
+            if (Controls.Find(name, true).SingleOrDefault() is not Button button) continue;
             var decisions = selected.Select(t => (Tool: t, Rule: InstallAvailability(t, operation))).ToArray();
             var blocked = decisions.FirstOrDefault(x => !x.Rule.Enabled);
-            ActionHints.Apply(button, busy ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") : selected.Length == 0 ?
+            bool currentMode=operationTabs.SelectedIndex==(operation=="install"?0:1);
+            ActionHints.Apply(button, !currentMode?ActionAvailability.Deny("操作するタブを先に選択してください。") : busy ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") : selected.Length == 0 ?
                 ActionAvailability.Deny("先に対象アプリへチェックを入れてください。") : blocked.Tool != null ?
                 ActionAvailability.Deny(blocked.Tool.Name + "：" + blocked.Rule.Reason) : ActionAvailability.Allow("チェックしたアプリを順番に処理します。"), hints);
         }
-        if (buttons.Controls.Find("selectInstallable", false).SingleOrDefault() is Button select)
+        if (Controls.Find("selectInstallable", true).SingleOrDefault() is Button select)
             ActionHints.Apply(select, busy ? ActionAvailability.Deny("処理中です。") : tools.Any(t => InstallAvailability(t, "install").Enabled) ?
                 ActionAvailability.Allow("今インストール・更新できるアプリだけを選択します。") : ActionAvailability.Deny("現在インストール・更新できるアプリがありません。"), hints);
-        if (buttons.Controls.Find("installFfmpeg", false).SingleOrDefault() is Button ffmpeg)
+        if (Controls.Find("selectUninstallable",true).SingleOrDefault() is Button selectRemoval)
+            ActionHints.Apply(selectRemoval,busy?ActionAvailability.Deny("処理中です。") : tools.Any(t=>InstallAvailability(t,"uninstall").Enabled)?ActionAvailability.Allow("削除できるアプリだけ選択します。") :ActionAvailability.Deny("削除できるアプリがありません。"),hints);
+        if (Controls.Find("installFfmpeg", true).SingleOrDefault() is Button ffmpeg)
         {
             var tool = tools.SingleOrDefault(t => t.Id == "ss-capture");
             ActionHints.Apply(ffmpeg, tool == null ? ActionAvailability.Deny("一覧にSSCaptureがありません。") : InstallAvailability(tool, "ffmpeg"), hints);
         }
-        if (buttons.Controls.Find("useGithubReleases", false).SingleOrDefault() is Button github)
+        if (Controls.Find("useGithubReleases", true).SingleOrDefault() is Button github)
             ActionHints.Apply(github, busy ? ActionAvailability.Deny("処理中です。") : catalogPath == null ?
                 ActionAvailability.Deny("すでにGitHub Releasesを使用しています。") : ActionAvailability.Allow("ローカル台帳の選択を解除します。インストールは開始しません。"), hints);
-        if (buttons.Controls.Find("chooseLocalCatalog", false).SingleOrDefault() is Button choose)
+        if (Controls.Find("chooseLocalCatalog", true).SingleOrDefault() is Button choose)
             ActionHints.Apply(choose, busy ? ActionAvailability.Deny("処理中です。") : ActionAvailability.Allow("信頼できる開発用配布台帳を選択します。通常はGitHub Releasesを使用してください。"), hints);
     }
     void AppendLog(string text) { if (!IsDisposed) log.AppendText(text + "\r\n"); }
@@ -237,7 +252,7 @@ internal sealed class InstallationForm : BrandedForm
     }
     async Task InstallFfmpeg()
     {
-        if (running) return;
+        if (running || singleOperation==null && operationTabs.SelectedIndex!=2) return;
         SetRunning(true);
         await RefreshAvailability();
         if (IsDisposed) return;
@@ -269,15 +284,16 @@ internal sealed class InstallationForm : BrandedForm
         finally { SetRunning(false); cancellation = null; current.Dispose(); RefreshMedia(); }
         ShowSummary(InstallationSummary.Create([tool], "ffmpeg", [result]));
     }
-    void Add(string label, string operation)
+    void Add(string label, string operation, Control? parent=null)
     {
-        var button = new Button { Name = operation == "install" ? "batchInstall" : "batchUninstall", Text = label, AutoSize = true }; buttons.Controls.Add(button);
+        var button = new Button { Name = operation == "install" ? "batchInstall" : "batchUninstall", Text = label, AutoSize = true }; (parent??buttons).Controls.Add(button);
         button.Click += async (_, _) => await Run(operation);
     }
     internal Task RunSelected() => singleOperation == null ? Task.CompletedTask : Run(singleOperation == "uninstall" ? "uninstall" : singleOperation == "repair" ? "repair" : "install");
     async Task Run(string operation)
     {
         if (running || IsDisposed || singleOperation != null && singleStarted) return;
+        if(singleOperation==null && operationTabs.SelectedIndex!=(operation=="install"?0:1))return;
         if (singleOperation != null) singleStarted = true;
         var selected = targets.CheckedIndices.Cast<int>().Select(i => tools[i]).ToArray();
         if (selected.Length == 0) { completion.Text = "対象を選択してください。"; return; }

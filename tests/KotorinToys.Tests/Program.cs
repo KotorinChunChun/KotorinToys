@@ -109,6 +109,7 @@ internal static class Program
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--installation-mode-tests"])) { InstallationModeTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--view-tests"])) { DashboardViewTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--repair-tests"])) { RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); RepairTests.Form(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ux-tests"])) { OperationDetailsTests.Run(root, Check); OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -238,6 +239,7 @@ internal static class Program
             }
             OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             ActionAvailabilityTests.Run(root, Check);
+            InstallationModeTests.Run(root, Check);
             DashboardViewTests.Run(root, fixtures, Check);
             RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             RepairTests.Form(root, Check);
