@@ -7,10 +7,10 @@
     <Nullable>enable</Nullable>
     <PlatformTarget>x64</PlatformTarget>
     <Version>0.1.7</Version>
-    <RuntimeFrameworkVersion Condition="'$(SelfContained)' == 'true'">10.0.13</RuntimeFrameworkVersion>
     <ApplicationIcon>assets/KotorinToys.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <FrameworkReference Update="Microsoft.NETCore.App;Microsoft.WindowsDesktop.App.WindowsForms" RuntimeFrameworkVersion="10.0.13" Condition="'$(SelfContained)' == 'true'" />
     <EmbeddedResource Include="assets/KotorinToys.ico" LogicalName="KotorinToys.AppIcon.ico" />
     <None Include="../../catalog/tools.json" Link="catalog/tools.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../config/tools.json" Link="config/tools.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
