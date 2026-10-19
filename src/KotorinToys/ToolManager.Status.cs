@@ -31,7 +31,8 @@ internal sealed partial class ToolManager
         string path;
         try
         {
-            path = Executable(tool);
+            var installed = Installation(tool);
+            path = installed is { State: "修復が必要", Repairable: true, Executable: not null } ? installed.Executable : Executable(tool);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
         {

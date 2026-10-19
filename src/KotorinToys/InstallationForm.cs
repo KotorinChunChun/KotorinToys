@@ -46,17 +46,18 @@ internal sealed class InstallationForm : BrandedForm
         this.executionState = executionState ?? (tool => manager.Status(tool));
         this.fileExists = fileExists ?? File.Exists;
         foreach (var tool in tools) executionStates[tool.Id] = new("確認中");
-        if (operation != null && (operation is not ("install" or "update" or "uninstall") || tools.All(t => t.Id != initialTarget)))
+        if (operation != null && (operation is not ("install" or "update" or "repair" or "uninstall") || tools.All(t => t.Id != initialTarget)))
             throw new ArgumentException("単体操作の対象・種別が不正です。");
         singleOperation = operation;
         if (operation == "uninstall") source.Text = "選択したツールをアンインストールします。";
+        if (operation == "repair") source.Text = "設定・履歴を保持し、登録済みの導入先へ修復します。";
         this.confirm = confirm ?? (text => MessageBox.Show(this, text, WindowTitle.Create("対象の確認"), MessageBoxButtons.OKCancel) == DialogResult.OK);
         this.execute = execute ?? ((selected, verb, catalog, path, progress, download, token) =>
             new ToolInstallationRunner(manager).Run(selected, verb, catalog, path, progress, download, token));
         publicCatalog = releases;
         if (publicCatalog != null) ReleaseDownloader.Validate(publicCatalog, manager.KnownTools());
         Text = WindowTitle.Create(operation == null ? "詳細設定（開発者向け）" :
-            operation == "install" ? "インストール" : operation == "update" ? "アップデート" : "アンインストール");
+            operation == "install" ? "インストール" : operation == "update" ? "アップデート" : operation == "repair" ? "修復" : "アンインストール");
         Size = new(980, 600); MinimumSize = new(850, 520);
         Font = new("Yu Gothic UI", 11); StartPosition = FormStartPosition.CenterParent;
         foreach (var tool in tools) targets.Items.Add(TargetText(tool), tool.Id == initialTarget);
@@ -273,7 +274,7 @@ internal sealed class InstallationForm : BrandedForm
         var button = new Button { Name = operation == "install" ? "batchInstall" : "batchUninstall", Text = label, AutoSize = true }; buttons.Controls.Add(button);
         button.Click += async (_, _) => await Run(operation);
     }
-    internal Task RunSelected() => singleOperation == null ? Task.CompletedTask : Run(singleOperation == "uninstall" ? "uninstall" : "install");
+    internal Task RunSelected() => singleOperation == null ? Task.CompletedTask : Run(singleOperation == "uninstall" ? "uninstall" : singleOperation == "repair" ? "repair" : "install");
     async Task Run(string operation)
     {
         if (running || IsDisposed || singleOperation != null && singleStarted) return;

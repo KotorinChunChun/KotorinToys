@@ -16,6 +16,6 @@ internal sealed record ToolDefinition(
     string? Icon = null, string[]? Capabilities = null, string InvestigationStatus = "uninvestigated", MsixDefinition? Msix = null,
     string? RepositoryUrl = null);
 internal sealed record Catalog(int SchemaVersion, ToolDefinition[] Tools);
-internal sealed record InstallationState(string State, string? Version, string? Directory, string? Executable, string? Uninstaller = null, string Detail = "");
+internal sealed record InstallationState(string State, string? Version, string? Directory, string? Executable, string? Uninstaller = null, string Detail = "", bool Repairable = false);
 internal sealed record StartupState(string? DesiredMode = null, string ActualState = "未確認", string Detail = "");
 internal sealed record ToolSnapshot(ToolDefinition Definition, InstallationState Installation, RuntimeState[] Runtimes, ToolState Execution, StartupState Startup, DateTimeOffset RetrievedAt, string Evidence);

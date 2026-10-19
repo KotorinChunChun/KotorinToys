@@ -42,10 +42,19 @@ internal static class ToolActionPolicy
             return ToolInstallationRunner.CanUninstall(tool, installed) && (tool.Msix != null || uninstallerExists)
                 ? ActionAvailability.Allow("設定・履歴を保持してアンインストールします。")
                 : ActionAvailability.Deny("正式導入または削除プログラムを確認できません。");
-        if (operation is not ("install" or "update")) return ActionAvailability.Deny("未対応の操作です。");
+        if (operation is not ("install" or "update" or "repair")) return ActionAvailability.Deny("未対応の操作です。");
         if (checkingReleases) return ActionAvailability.Deny("公開版を確認しています。完了するまでお待ちください。");
         var candidate = release is { Confirmed: true, Package: not null } ? new ReleaseCatalog(1, [release.Package]) : null;
         if (ToolInstallationRunner.PublicReason(tool, candidate) is { } reason) return ActionAvailability.Deny(reason);
+        if (operation == "repair")
+        {
+            if (tool.Msix != null || !installed.Repairable || installed.State != "修復が必要" || string.IsNullOrEmpty(installed.Directory))
+                return ActionAvailability.Deny("登録先・製品定義を照合できるEXE欠落だけ修復できます。MSIXの破損はWindowsのアプリ設定で確認してください。");
+            if (execution.State != "停止中") return ActionAvailability.Deny("修復の前にアプリを正常終了してください。");
+            if (!Version.TryParse(installed.Version, out var current) || !Version.TryParse(release?.Package?.Package.Version, out var published) || published < current)
+                return ActionAvailability.Deny("同じ版以上の照合済み公開版が必要です。古い版へ戻す修復は行いません。");
+            return ActionAvailability.Allow("登録済みの導入先へ再導入し、設定・履歴を保持して実行ファイルを修復します。");
+        }
         if (operation == "install") return installed.State == "未導入" && execution.State == "停止中"
             ? ActionAvailability.Allow("GitHub Releasesからインストールします。")
             : ActionAvailability.Deny(installed.State == "未導入" ? "実行中の開発版を先に停止してください。" : "導入済み、または導入状態を確認できません。更新・修復を確認してください。");

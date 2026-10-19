@@ -15,7 +15,7 @@ internal sealed record InstallationSummary(string Title, string Detail, bool All
         }).ToArray();
         int Count(string state) => rows.Count(row => row.State == state);
         var succeeded = rows.Length > 0 && Count("成功") == rows.Length;
-        var verb = operation == "uninstall" ? "アンインストール" : operation == "ffmpeg" ? "FFmpeg導入" : "インストール";
+        var verb = operation == "uninstall" ? "アンインストール" : operation == "ffmpeg" ? "FFmpeg導入" : operation == "repair" ? "修復" : "インストール";
         var title = succeeded ? $"すべての{verb}が完了しました。" : $"{verb}処理が終了しました（要対応あり）";
         var detail = $"成功 {Count("成功")}件 / 失敗 {Count("失敗")}件 / 要確認 {Count("要確認")}件 / 再起動待ち {Count("再起動待ち")}件 / 未実行 {Count("未実行")}件";
         detail += Count("再起動待ち") > 0 ? "\nPCの再起動が必要です。自動再起動は行いません。"

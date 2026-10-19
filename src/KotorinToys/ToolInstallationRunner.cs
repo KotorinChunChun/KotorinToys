@@ -36,7 +36,7 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
         ReleaseCatalog? catalog, string? localCatalog, IProgress<InstallResult>? progress = null,
         IProgress<string>? downloadProgress = null, CancellationToken cancellation = default)
     {
-        if (operation is not ("install" or "uninstall")) throw new IOException("未対応の導入操作です。");
+        if (operation is not ("install" or "repair" or "uninstall")) throw new IOException("未対応の導入操作です。");
         var results = new List<InstallResult>();
         foreach (var tool in targets.DistinctBy(t => t.Id))
         {
@@ -46,7 +46,7 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
                 cancellation.ThrowIfCancellationRequested();
                 if (UnsupportedReason(tool) is { } unsupported) throw new IOException(unsupported);
                 string? path = localCatalog;
-                if (operation == "install" && path == null)
+                if (operation is "install" or "repair" && path == null)
                 {
                     if (PublicReason(tool, catalog) is { } reason) throw new IOException(reason);
                     ReleaseDownloader.Validate(catalog!, manager.KnownTools());
@@ -65,6 +65,7 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
                     : "取得が時間上限に達しました。インストーラーは実行していません。");
             }
             catch (Exception ex) { result = new(tool.Id, operation, "失敗", ex.Message); }
+            result = result with { Operation = operation };
             results.Add(result); progress?.Report(result);
         }
         return results.ToArray();

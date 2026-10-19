@@ -52,7 +52,7 @@ internal sealed partial class Dashboard
         installation.Click += async (_, _) => await OpenInstallation(false); hostActions.Controls.Add(installation);
         var hostUpdate = new Button { Name = "hostUpdate", Text = "本体アップデート", AutoSize = true };
         hostUpdate.Click += (_, _) => OpenSelfUpdate(); hostActions.Controls.Add(hostUpdate);
-        install.Click += async (_, _) => await OpenToolInstallation("install"); actions.Controls.Add(install);
+        install.Click += async (_, _) => await OpenToolInstallation(install.Text == "修復" ? "repair" : "install"); actions.Controls.Add(install);
         update.Click += async (_, _) => await OpenToolInstallation("update"); actions.Controls.Add(update);
         uninstall.Click += async (_, _) => await OpenToolInstallation("uninstall"); actions.Controls.Add(uninstall);
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1 };

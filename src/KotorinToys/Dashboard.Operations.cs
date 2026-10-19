@@ -71,7 +71,7 @@ internal sealed partial class Dashboard
 
     internal async Task OpenToolInstallation(string requested)
     {
-        if (requested is not ("install" or "update" or "uninstall")) throw new ArgumentException("未対応の操作です。", nameof(requested));
+        if (requested is not ("install" or "update" or "repair" or "uninstall")) throw new ArgumentException("未対応の操作です。", nameof(requested));
         if (busy || refreshingCatalog || checkingReleases || IsDisposed) return;
         var index = grid.CurrentRow?.Index ?? -1;
         if (index < 0 || index >= tools.Length) return;
@@ -94,7 +94,7 @@ internal sealed partial class Dashboard
                 if (!ToolInstallationRunner.CanUninstall(tool, actual))
                 { ShowOperationFailure(tool.Name + (tool.Msix != null ? "：署名付きMSIXの正式登録を確認できません。" : "：正式導入と削除プログラムを確認できません。"), tool.Id); return; }
             }
-            else if (requested == "install" ? actual.State != "未導入" : !ToolVersionView.Create(actual, releases[index]).CanUpdate)
+            else if (requested != "repair" && (requested == "install" ? actual.State != "未導入" : !ToolVersionView.Create(actual, releases[index]).CanUpdate))
             { ShowOperationFailure(tool.Name + "：導入状態または公開版が変わりました。状態を更新して確認してください。", tool.Id); return; }
             operationErrors.Remove(tool.Id);
             showToolInstaller(tool.Id, requested, catalog);

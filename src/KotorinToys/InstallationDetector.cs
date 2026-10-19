@@ -23,7 +23,7 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             directory = Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory));
             var executable = PathSafety.Resolve(directory, tool.InstalledExecutable);
             if (!File.Exists(executable))
-                return new("修復が必要", null, directory, executable, Detail: "登録された実行ファイルがありません。");
+                return MissingExecutable(tool, directory, executable);
             using var identity = System.Text.Json.JsonDocument.Parse(File.ReadAllText(PathSafety.Resolve(directory, "tool.json")));
             if (identity.RootElement.GetProperty("id").GetString() != tool.Id || identity.RootElement.GetProperty("appId").GetString() != tool.AppId)
                 return new("確認できない", null, directory, null, Detail: "製品識別が一致しません。");
@@ -34,10 +34,25 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             var uninstaller = PathSafety.Resolve(directory, "unins000.exe");
             return new("導入済み", installedVersion, directory, executable, File.Exists(uninstaller) ? uninstaller : null, File.Exists(uninstaller) ? "" : "削除プログラムがありません。");
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException or ArgumentException or System.Text.Json.JsonException or KeyNotFoundException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException or ArgumentException or System.Text.Json.JsonException or KeyNotFoundException or InvalidOperationException)
         {
             return new("確認できない", null, null, null, Detail: ex.Message);
         }
+    }
+
+    static InstallationState MissingExecutable(ToolDefinition tool, string directory, string executable)
+    {
+        var path = PathSafety.Resolve(directory, "tool.json");
+        if (!File.Exists(path) || new FileInfo(path).Length > OnlineToolCatalog.MaximumBytes)
+            return new("修復が必要", null, directory, executable, Detail: "実行ファイルがありません。製品定義を照合できないため、配布元の手順で修復してください。");
+        using var identity = System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(path));
+        var value = identity.RootElement;
+        if (value.GetProperty("id").GetString() != tool.Id || value.GetProperty("appId").GetString() != tool.AppId ||
+            value.GetProperty("name").GetString() != tool.Name || value.GetProperty("installedExecutable").GetString() != tool.InstalledExecutable ||
+            !Version.TryParse(value.GetProperty("version").GetString(), out var version) || version.Build < 0 || version.Revision >= 0)
+            throw new IOException("欠落した実行ファイルの製品定義・版が一致しません。自動修復しません。");
+        return new("修復が必要", version.ToString(), directory, executable,
+            Detail: "登録された実行ファイルがありません。製品定義と登録先を照合済みです。「修復」で設定・履歴を保持して再導入できます。", Repairable: true);
     }
 
     private static InstallationRegistration? ReadRegistration(string appId)

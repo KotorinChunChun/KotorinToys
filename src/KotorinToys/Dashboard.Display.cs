@@ -53,7 +53,9 @@ internal sealed partial class Dashboard
         foreach (var name in new[] { "start", "stop", "manual" })
             if (actions.Controls.Find(name, false).SingleOrDefault() is Button button)
                 ActionHints.Apply(button, Availability(i, name), tooltips);
-        ActionHints.Apply(install, Availability(i, "install"), tooltips);
+        bool repair = i >= 0 && i < installations.Length && installations[i].State == "修復が必要";
+        install.Text = repair ? "修復" : "インストール";
+        ActionHints.Apply(install, Availability(i, repair ? "repair" : "install"), tooltips);
         ActionHints.Apply(update, Availability(i, "update"), tooltips);
         ActionHints.Apply(uninstall, Availability(i, "uninstall"), tooltips);
     }
