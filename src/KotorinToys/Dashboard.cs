@@ -24,6 +24,8 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Action<string, string, ReleaseCatalog?> showToolInstaller;
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
     readonly Action<Uri> openRepository;
+    readonly Func<string, bool> fileExists;
+    readonly Func<ToolDefinition, CancellationToken, Task<ToolState>> executionCheck;
     readonly IHostSelfUpdateService selfUpdates;
     readonly Action showSelfUpdater;
     readonly Func<ToolDefinition, CancellationToken, Task<StartupOverview>> startupCheck;
@@ -46,7 +48,9 @@ internal sealed partial class Dashboard : BrandedForm
         ToolManager? toolManager = null,
         Action<Uri>? openRepository = null, IHostSelfUpdateService? selfUpdates = null, Action? showSelfUpdater = null,
         Action<string, string, ReleaseCatalog?>? showToolInstaller = null, Action<string>? notify = null,
-        Func<ToolDefinition, CancellationToken, Task<StartupOverview>>? startupCheck = null)
+        Func<ToolDefinition, CancellationToken, Task<StartupOverview>>? startupCheck = null,
+        Func<string, bool>? fileExists = null,
+        Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
@@ -59,6 +63,8 @@ internal sealed partial class Dashboard : BrandedForm
         this.showToolInstaller = showToolInstaller ?? ((id, operation, catalog) =>
         { using var form = new InstallationForm(manager, id, catalog, operation); form.ShowDialog(this); });
         this.detectInstallation = detectInstallation ?? manager.Installation;
+        this.fileExists = fileExists ?? File.Exists;
+        this.executionCheck = executionCheck ?? manager.Status;
         this.openRepository = openRepository ?? (uri => System.Diagnostics.Process.Start(
             new System.Diagnostics.ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }));
         installations = tools.Select(this.detectInstallation).ToArray();

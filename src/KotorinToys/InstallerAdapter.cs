@@ -71,7 +71,7 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
         {
             if (tool.Msix != null) return await MsixInstaller.Create(manager).Uninstall(tool);
             var installed = manager.Installation(tool);
-            if (installed.State != "導入済み" || installed.Uninstaller == null)
+            if (installed.State != "導入済み" || installed.Uninstaller == null || !File.Exists(installed.Uninstaller))
                 throw new IOException("正式導入と削除プログラムを確認できません。");
             var stopped = await manager.Stop(tool);
             if (stopped.State != "停止中")

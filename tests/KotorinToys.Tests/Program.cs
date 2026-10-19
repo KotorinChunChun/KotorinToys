@@ -107,6 +107,14 @@ internal static class Program
             root = KotorinToys.Program.FindRoot();
             fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--action-availability-tests"])) { ActionAvailabilityTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--ui-policy-tests"]))
+            {
+                var context = SynchronizationContext.Current;
+                try { ActionAvailabilityTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardInstallationTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); }
+                finally { SynchronizationContext.SetSynchronizationContext(context); }
+                Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
             if (args.SequenceEqual(["--msix-public-check"])) return MsixPublicCheck.Run(root, fixtures).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--msix-tests"]))
             {
@@ -221,6 +229,7 @@ internal static class Program
                 Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+            ActionAvailabilityTests.Run(root, Check);
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();

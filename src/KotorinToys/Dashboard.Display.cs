@@ -44,25 +44,24 @@ internal sealed partial class Dashboard
     {
         int i = grid.CurrentRow?.Index ?? -1;
         var repository = i >= 0 && i < tools.Length ? ToolRepository.Find(tools[i]) : null;
-        github.Enabled = !busy && !refreshingCatalog && repository != null;
-        github.AccessibleDescription = repository?.AbsoluteUri ?? "GitHub公開先が未設定です。";
-        tooltips.SetToolTip(github, github.AccessibleDescription);
+        ActionHints.Apply(github, busy || refreshingCatalog ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") :
+            repository != null ? ActionAvailability.Allow(repository.AbsoluteUri) : ActionAvailability.Deny("GitHub公開先が未設定、またはツールが未選択です。"), tooltips);
         foreach (var name in new[] { "start", "stop", "manual" })
             if (actions.Controls.Find(name, false).SingleOrDefault() is Button button)
-                button.Enabled = !busy && !refreshingCatalog && i >= 0 && i < tools.Length && (name != "stop" || states[i].State != "停止中");
-        install.Enabled = update.Enabled = uninstall.Enabled = false;
-        if (i < 0 || i >= tools.Length) return;
-        var version = ToolVersionView.Create(installations[i], releases[i]);
-        bool idle = !busy && !refreshingCatalog && !checkingReleases;
-        var candidate = releases[i].Confirmed && releases[i].Package != null
-            ? new ReleaseCatalog(1, [releases[i].Package!]) : null;
-        var reason = ToolInstallationRunner.PublicReason(tools[i], candidate);
-        install.Enabled = idle && installations[i].State == "未導入" && reason == null;
-        update.Enabled = idle && version.CanUpdate && reason == null;
-        uninstall.Enabled = idle && ToolInstallationRunner.CanUninstall(tools[i], installations[i]);
-        tooltips.SetToolTip(install, reason ?? "未導入のツールをGitHub Releasesから導入します。");
-        tooltips.SetToolTip(update, reason ?? (version.CanUpdate ? "新しい公開版へアップデートします。" : "導入済みで新しい公開版がある場合だけ利用できます。"));
-        tooltips.SetToolTip(uninstall, tools[i].Msix != null ? "現在ユーザーのMSIXを削除し、設定・履歴は退避して再導入時に復元します。" :
-            "正式導入と削除プログラムを確認できる場合だけ利用できます。設定・履歴は保持します。");
+                ActionHints.Apply(button, Availability(i, name), tooltips);
+        ActionHints.Apply(install, Availability(i, "install"), tooltips);
+        ActionHints.Apply(update, Availability(i, "update"), tooltips);
+        ActionHints.Apply(uninstall, Availability(i, "uninstall"), tooltips);
+    }
+
+    ActionAvailability Availability(int index, string operation, bool duringOperation = false)
+    {
+        if (index < 0 || index >= tools.Length) return ActionAvailability.Deny("先に対象アプリを選択してください。");
+        var tool = tools[index]; var installed = installations[index];
+        bool Exists(Func<string?> path) { try { var value = path(); return !string.IsNullOrEmpty(value) && fileExists(value); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException) { return false; } }
+        var exe = Exists(() => installed.State is "導入済み" or "更新が必要" ? installed.Executable : installed.State == "未導入" && tool.Msix == null ? PathSafety.Resolve(manager.DevelopmentRoot(tool), tool.Executable) : null);
+        var manual = Exists(() => PathSafety.Resolve(tool.Msix != null ? manager.DevelopmentRoot(tool) : installed.Directory ?? manager.DevelopmentRoot(tool), tool.Manual));
+        return ToolActionPolicy.Evaluate(operation, tool, installed, states[index], releases[index], exe, manual,
+            Exists(() => installed.Uninstaller), (!duringOperation && busy) || refreshingCatalog, checkingReleases);
     }
 }

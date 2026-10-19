@@ -28,7 +28,9 @@ internal sealed partial class Dashboard
             var index = grid.CurrentRow?.Index ?? -1;
             if (index < 0 || index >= tools.Length) return;
             var tool = tools[index]; operationErrors.Remove(tool.Id);
-            if (command == DashboardCommand.Stop && states[index].State == "停止中") return;
+            await RefreshStates(true);
+            var availability = Availability(index, command.ToString().ToLowerInvariant(), true);
+            if (!availability.Enabled) { ShowOperationFailure(tool.Name + "：" + availability.Reason, tool.Id); return; }
             if (command == DashboardCommand.Manual)
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(PathSafety.Resolve(manager.DocumentRoot(tool), tool.Manual)) { UseShellExecute = true });
             else
@@ -82,6 +84,8 @@ internal sealed partial class Dashboard
             await RefreshStates(true);
             if (IsDisposed) return;
             var actual = installations[index];
+            var availability = Availability(index, requested, true);
+            if (!availability.Enabled) { ShowOperationFailure(tool.Name + "：" + availability.Reason, tool.Id); return; }
             var catalog = ConfirmedCatalog();
             string? reason = requested == "uninstall" ? ToolInstallationRunner.UnsupportedReason(tool) : ToolInstallationRunner.PublicReason(tool, catalog);
             if (reason != null) { ShowOperationFailure(tool.Name + "：" + reason, tool.Id); return; }
@@ -104,6 +108,7 @@ internal sealed partial class Dashboard
         if (busy || refreshingCatalog || IsDisposed) return false;
         busy = true;
         actions.Enabled = hostActions.Enabled = false;
+        UpdateActions();
         return true;
     }
 

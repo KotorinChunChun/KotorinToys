@@ -31,7 +31,9 @@ internal static class InstallationFormWorkflowTests
         };
         bool Confirm(string text)
         { confirmations++; check(text.Contains("2026/10/17 公開") && text.EndsWith("\n\nインストール / アップデートしてもよろしいですか？") && !text.Contains("設定・履歴を保持"), "単体操作の確認は公開日と短い質問にする"); return approved; }
-        using var form = new InstallationForm(manager, item.Package.Id, catalog, "update", Confirm, execute);
+        using var form = new InstallationForm(manager, item.Package.Id, catalog, "update", Confirm, execute,
+            detectInstallation: _ => new("導入済み", "0.0.1", root, "test.exe", "unins000.exe"),
+            executionState: _ => Task.FromResult(new ToolState("停止中")), fileExists: _ => true);
         form.CreateControl(); form.PerformLayout();
         check(form.Controls.Find("installationSource", true).Single().Text == "GitHub Releasesの検証版をインストールします。", "取得元の案内を指定の短い文にする");
         check(form.Text == WindowTitle.Create("アップデート") && form.Icon != null, "単体アップデートも共通タイトル・04アイコン");
@@ -44,7 +46,8 @@ internal static class InstallationFormWorkflowTests
             "単体操作の完了を表示し閉じる操作を復旧");
         Pump(form.RunSelected()); check(executions == 1, "完了画面から同じ操作を再実行しない");
         approved = false;
-        using var canceled = new InstallationForm(manager, item.Package.Id, catalog, "install", Confirm, execute);
+        using var canceled = new InstallationForm(manager, item.Package.Id, catalog, "install", Confirm, execute,
+            detectInstallation: _ => new("未導入", null, null, null), executionState: _ => Task.FromResult(new ToolState("停止中")));
         Pump(canceled.RunSelected());
         check(executions == 1 && canceled.Controls.Find("installationSummary", true).Single().Text.Contains("変更していません"), "確認をキャンセルした場合は導入を実行しない");
         using var advanced = new InstallationForm(manager, releases: catalog); advanced.CreateControl(); advanced.PerformLayout();

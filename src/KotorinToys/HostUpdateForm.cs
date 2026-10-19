@@ -15,6 +15,7 @@ internal sealed class HostUpdateForm : BrandedForm
     readonly Button cancel = new() { Name = "cancelHostUpdate", Text = "取得・準備を取り消す", AutoSize = true, Enabled = false };
     readonly Button close = new() { Text = "閉じる", AutoSize = true };
     readonly CancellationTokenSource lifetime = new();
+    readonly ToolTip hints = new();
     CancellationTokenSource? active;
     PublicRelease? offered;
     bool running, transferred, closeRequested;
@@ -45,6 +46,7 @@ internal sealed class HostUpdateForm : BrandedForm
         }
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, Padding = new(10) };
         buttons.Controls.AddRange([refresh, install, cancel, close]); Controls.Add(content); Controls.Add(buttons);
+        ActionHints.Attach(buttons, hints);
         refresh.Click += async (_, _) => await RefreshRelease();
         preview.CheckedChanged += async (_, _) => await RefreshRelease();
         consent.CheckedChanged += (_, _) => UpdateButtons();
@@ -124,7 +126,13 @@ internal sealed class HostUpdateForm : BrandedForm
         blocked.Text = reason ?? ""; blocked.Visible = reason != null;
         refresh.Enabled = preview.Enabled = consent.Enabled = !running && !transferred;
         install.Enabled = !running && !transferred && CanInstall(reason);
-        cancel.Enabled = running && !transferred; close.Enabled = !transferred;
+        cancel.Enabled = running && !transferred && active?.IsCancellationRequested != true; close.Enabled = !transferred;
+        install.AccessibleDescription = running || transferred ? "処理中、または更新プロセスへ引継ぎ済みです。" : reason ??
+            (offered is not { Confirmed: true, Package: not null } ? "先に公開版を確認してください。" :
+            !HostProduct.IsNewer(offered.Package, service.CurrentVersion) ? "新しい公開版がありません。" :
+            !consent.Checked ? "更新への同意にチェックを入れてください。" : "本体だけを更新し、再起動します。");
+        cancel.AccessibleDescription = cancel.Enabled ? "取得・準備を取り消します。" : "取消可能な処理がないか、すでに取消要求済みです。";
+        hints.SetToolTip(install, install.AccessibleDescription); hints.SetToolTip(cancel, cancel.AccessibleDescription);
     }
 
     void EndOperation()
@@ -137,7 +145,7 @@ internal sealed class HostUpdateForm : BrandedForm
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && !IsDisposed) { lifetime.Cancel(); lifetime.Dispose(); }
+        if (disposing && !IsDisposed) { lifetime.Cancel(); lifetime.Dispose(); hints.Dispose(); }
         base.Dispose(disposing);
     }
 }

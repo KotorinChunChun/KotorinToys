@@ -14,7 +14,7 @@ internal sealed partial class Dashboard
         var current = tools;
         try
         {
-            var execution = await Task.WhenAll(current.Select(tool => manager.Status(tool, lifetime.Token)));
+            var execution = await Task.WhenAll(current.Select(tool => executionCheck(tool, lifetime.Token)));
             if (IsDisposed || busy && !afterOperation || !ReferenceEquals(current, tools)) return;
             stateError = null;
             ApplySnapshot(current.Select(detectInstallation).ToArray(), execution, releases);

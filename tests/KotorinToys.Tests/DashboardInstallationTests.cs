@@ -23,10 +23,11 @@ internal static class DashboardInstallationTests
         }
         using var form = new Dashboard(root, releaseCheck: Fetch, detectInstallation: t => actual[t.Id],
             showToolInstaller: (id, operation, releases) => calls.Add((id, operation, releases)),
-            showInstaller: (_, _) => advanced++, notify: notices.Add);
+            showInstaller: (_, _) => advanced++, notify: notices.Add, fileExists: _ => true,
+            executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")));
         form.CreateControl(); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
-        Pump(form.RefreshReleases()); grid.CurrentCell = grid.Rows[0].Cells[0];
+        Pump(form.RefreshAll()); grid.CurrentCell = grid.Rows[0].Cells[0];
         check(form.Controls.Find("installSelected", true).Single().Enabled && !form.Controls.Find("updateSelected", true).Single().Enabled,
             "メインで未導入の公開製品はインストールだけ可能");
         gate = new(TaskCreationOptions.RunContinuationsAsynchronously);

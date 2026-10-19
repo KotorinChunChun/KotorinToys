@@ -51,6 +51,8 @@ internal sealed partial class Dashboard
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1 };
         layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
         layout.Controls.Add(grid, 0, 0); layout.Controls.Add(actions, 0, 1); layout.Controls.Add(hostActions, 0, 2); Controls.Add(layout);
+        ActionHints.Attach(actions, tooltips); ActionHints.Attach(hostActions, tooltips);
+        ActionHints.Attach(layout, tooltips);
         ApplySnapshot(installations, states, releases);
         Shown += async (_, _) => { timer.Start(); await RefreshAll(); };
         timer.Tick += async (_, _) => { if (!busy) await RefreshStates(); };

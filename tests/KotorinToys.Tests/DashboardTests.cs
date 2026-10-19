@@ -7,7 +7,7 @@ internal static class DashboardTests
         var tools = ToolCatalog.Load(root);
         var catalog = ReleaseDownloader.Load(root);
         var releases = tools.Select(t => new PublicRelease(catalog.Packages.SingleOrDefault(p => p.Package.Id == t.Id), t.DistributionStatus == "published", true, "テスト")).ToArray();
-        var installed = tools.Select(t => new InstallationState("導入済み", t.Version, null, null, "test-uninstaller.exe")).ToArray();
+        var installed = tools.Select(t => new InstallationState("導入済み", t.Version, null, "test.exe", "test-uninstaller.exe")).ToArray();
         var view = ToolVersionView.Create(installed[1] with { Version = "0.1.3" }, releases[1]);
         check(view.CanUpdate && view.Update == "更新あり", "公開版が新しいときだけ更新可能");
         check(ToolVersionView.Create(installed[1], releases[1]).Update == "公開版と同じ", "同一版は更新不要");
@@ -17,7 +17,7 @@ internal static class DashboardTests
         check(!ToolVersionView.Create(installed[1] with { State = "確認できない" }, releases[1]).CanUpdate, "未確認の導入状態を更新対象にしない");
         var states = tools.Select(_ => new ToolState("実行中")).ToArray();
         var notices = new List<string>();
-        using var form = new Dashboard(root, notify: notices.Add); form.CreateControl();
+        using var form = new Dashboard(root, notify: notices.Add, fileExists: _ => true); form.CreateControl();
         installed[1] = installed[1] with { Version = "0.1.3" };
         form.ApplySnapshot(installed, states, releases); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
@@ -44,7 +44,7 @@ internal static class DashboardTests
             "実行中のまま返る正常終了拒否も通知し状態再取得後に理由を消さない");
         form.ReportExecution(tools[2], true, new("実行中"));
         check(notices.Count == 1, "正常な起動成功は通知しない");
-        installed[2] = new("未導入", null, null, null); form.ApplySnapshot(installed, states, releases);
+        installed[2] = new("未導入", null, null, null); states[2] = new("停止中"); form.ApplySnapshot(installed, states, releases);
         check(form.Controls.Find("installSelected", true).Single().Enabled && !form.Controls.Find("uninstallSelected", true).Single().Enabled &&
             !form.Controls.Find("updateSelected", true).Single().Enabled, "未導入で公開配布照合済みの場合だけインストールを有効にする");
         form.ApplySnapshot(installed, states, releases.Select(r => r with { Confirmed = false }).ToArray());
