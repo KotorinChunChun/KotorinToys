@@ -98,8 +98,10 @@ internal sealed class ToolCatalogSource
             next.Select(t => t.AppId).Distinct(StringComparer.OrdinalIgnoreCase).Count() != next.Length)
             throw new IOException("キャッシュまたは一覧の製品識別が重複しています。");
         foreach (var tool in next)
-            if (known.TryGetValue(tool.Id, out var old) && (old.AppId != tool.AppId || old.Msix != tool.Msix))
-                throw new IOException("既存IDの製品識別・MSIX識別は変更できません：" + tool.Id);
+            if (known.TryGetValue(tool.Id, out var old) && (old.AppId != tool.AppId || old.Name != tool.Name || old.Msix != tool.Msix ||
+                !string.IsNullOrEmpty(old.RepositoryUrl) && old.RepositoryUrl != tool.RepositoryUrl &&
+                    (!string.IsNullOrEmpty(tool.RepositoryUrl) || ProductIdentity.FromId(tool.Id) == null)))
+                throw new IOException("既存IDの製品名・識別・MSIX識別・公開先は変更できません：" + tool.Id);
     }
 
     void Save(byte[] bytes)

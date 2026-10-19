@@ -7,11 +7,13 @@ internal sealed class ToolUpdateCoordinator(
     Func<ToolDefinition, Task<ToolState>> stop,
     Func<ToolDefinition, string, Task<ToolState>> restart,
     Func<ToolDefinition, string, string?, Task<InstallResult>> install,
-    Func<string, MsixSigner>? msixSignature = null)
+    Func<string, MsixSigner>? msixSignature = null,
+    Func<IReadOnlyCollection<ToolDefinition>>? definitions = null)
 {
     public ToolUpdateCoordinator(ToolManager manager, InstallerAdapter adapter) : this(manager.Installation,
         tool => manager.Status(tool), tool => manager.Stop(tool),
-        (tool, origin) => manager.Start(tool, false, origin), (tool, catalog, directory) => adapter.Install(tool, catalog, directory)) { }
+        (tool, origin) => manager.Start(tool, false, origin), (tool, catalog, directory) => adapter.Install(tool, catalog, directory),
+        definitions: manager.KnownTools) { }
 
     public async Task<InstallResult> Run(ToolDefinition tool, string catalog)
     {
@@ -21,7 +23,7 @@ internal sealed class ToolUpdateCoordinator(
         {
             var actual = installation(tool);
             if (!MsixPolicy.Installed(actual) && actual.State != "未導入") throw new IOException(actual.Detail);
-            var package = InstallerAdapter.Load(catalog).Packages.SingleOrDefault(p => p.Id == tool.Id)
+            var package = InstallerAdapter.Load(catalog, definitions?.Invoke() ?? [tool]).Packages.SingleOrDefault(p => p.Id == tool.Id)
                 ?? throw new IOException("配布台帳に対象製品がありません：" + tool.Name);
             if (MsixPolicy.Installed(actual) && Version.TryParse(actual.Version, out var installedVersion) &&
                 Version.TryParse(package.Version, out var requestedVersion) && installedVersion > requestedVersion)

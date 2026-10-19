@@ -15,7 +15,7 @@ internal sealed partial class ReleaseDownloader : IDisposable
 
     public async Task<string> Prepare(ReleaseCatalog catalog, IReadOnlyList<ToolDefinition> tools, string cache, IProgress<string>? progress = null, CancellationToken cancellation = default)
     {
-        Validate(catalog);
+        Validate(catalog, tools);
         var selected = tools.DistinctBy(t => t.Id).Select(tool =>
         {
             var item = catalog.Packages.SingleOrDefault(p => p.Package.Id == tool.Id) ?? throw new IOException("公開配布物がありません：" + tool.Name);
@@ -30,7 +30,7 @@ internal sealed partial class ReleaseDownloader : IDisposable
         foreach (var item in selected)
         {
             progress?.Report(item.Package.Name + "：ダウンロード中（固定版 " + ReleaseDisplay.Version(item) + "）");
-            await Download(item, directory, cancellation);
+            await Download(item, directory, cancellation, tools.Single(t => t.Id == item.Package.Id));
             progress?.Report(item.Package.Name + (item.Package.Kind == "msix" ? "：SHA-256・サイズ一致。MSIX署名・製品識別は導入前に照合します。" : "：SHA-256・サイズ一致。未署名です。"));
         }
 

@@ -71,7 +71,7 @@ internal sealed partial class Dashboard : BrandedForm
         states = tools.Select(_ => new ToolState("確認中")).ToArray();
         startupSnapshots = tools.Select(_ => new StartupOverview("未確認", "自動起動は未確認です。")).ToArray();
         ReleaseCatalog? bundled = null;
-        try { bundled = ReleaseDownloader.Load(root); } catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException) { catalogError = "公開台帳を読めません：" + ex.Message; }
+        try { bundled = ReleaseDownloader.Load(root, manager.KnownTools()); } catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException) { catalogError = "公開台帳を読めません：" + ex.Message; }
         bundledCatalog = bundled;
         bundledPackages = tools.Select(tool => bundled?.Packages.SingleOrDefault(p => p.Package.Id == tool.Id)).ToArray();
         releases = bundledPackages.Select(package => new PublicRelease(package, false, false, "公開未確認・同梱台帳")).ToArray();

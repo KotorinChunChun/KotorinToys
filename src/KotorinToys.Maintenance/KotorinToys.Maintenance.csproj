@@ -39,5 +39,6 @@
     <Compile Include="../KotorinToys/HostSettingsModels.cs" Link="HostSettingsModels.cs" />
     <Compile Include="../KotorinToys/TaskModels.cs" Link="TaskModels.cs" />
     <Compile Include="../KotorinToys/ProductIdentity.cs" Link="ProductIdentity.cs" />
+    <Compile Include="../KotorinToys/ManagedProductDeclaration.cs" Link="ManagedProductDeclaration.cs" />
   </ItemGroup>
 </Project>

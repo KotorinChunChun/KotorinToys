@@ -9,9 +9,10 @@ internal static class ReleaseDisplay
         : "（公開日不明）";
 
     public static string Confirmation(IReadOnlyList<ToolDefinition> tools, string operation,
-        Func<ToolDefinition, InstallationState> installed, ReleaseCatalog? catalog, string? localCatalog)
+        Func<ToolDefinition, InstallationState> installed, ReleaseCatalog? catalog, string? localCatalog,
+        IReadOnlyCollection<ToolDefinition>? definitions = null)
     {
-        var local = localCatalog == null || operation != "install" ? null : InstallerAdapter.Load(localCatalog);
+        var local = localCatalog == null || operation != "install" ? null : InstallerAdapter.Load(localCatalog, definitions ?? tools);
         var lines = tools.Select(tool =>
         {
             var actual = installed(tool);

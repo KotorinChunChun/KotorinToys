@@ -4,7 +4,7 @@ namespace KotorinToys;
 
 internal sealed partial class ReleaseDownloader
 {
-    async Task Download(ReleasePackage item, string directory, CancellationToken cancellation)
+    async Task Download(ReleasePackage item, string directory, CancellationToken cancellation, ToolDefinition? definition = null)
     {
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         deadline.CancelAfter(TimeSpan.FromMinutes(5));
@@ -13,7 +13,7 @@ internal sealed partial class ReleaseDownloader
         var partial = PathSafety.Resolve(directory, item.Package.File + ".partial");
         try
         {
-            response = await OpenResponse(Asset(item), token);
+            response = await OpenResponse(Asset(item, definition), token);
             if (response.Content.Headers.ContentLength is long length && length != item.Length)
                 throw new IOException("配布物のサイズが公開台帳と一致しません。");
             await WriteVerified(response.Content, item, partial, token);

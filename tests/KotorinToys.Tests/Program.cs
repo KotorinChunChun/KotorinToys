@@ -109,6 +109,7 @@ internal static class Program
             Directory.CreateDirectory(fixtures);
             if (args.SequenceEqual(["--action-availability-tests"])) { ActionAvailabilityTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--startup-form-tests"])) { StartupSettingsFormTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--definition-product-tests"])) { DefinitionManagedProductTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); DefinitionManagedProductTests.Form(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ui-policy-tests"]))
             {
                 var context = SynchronizationContext.Current;
@@ -237,6 +238,8 @@ internal static class Program
             MsixPackageTests.Run(fixtures, Check).GetAwaiter().GetResult();
             MsixInstallerTests.Run(fixtures, Check).GetAwaiter().GetResult();
             ProductIdentityTests.Run(Check);
+            DefinitionManagedProductTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+            DefinitionManagedProductTests.Form(root, fixtures, Check);
             StartupTests.Run(root,fixtures,Check);
             StartupSettingsFormTests.Run(root,fixtures,Check);
             StartupOverviewTests.Run(root,Check).GetAwaiter().GetResult();

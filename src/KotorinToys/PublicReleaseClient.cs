@@ -28,7 +28,7 @@ internal sealed partial class PublicReleaseClient : IDisposable
                     return await CheckPortable(tool, cancellation);
                 return new(null, false, false, "本体対応インストーラーは未公開です。ポータブル版・開発版の利用方法は「使い方」を確認してください。");
             }
-            if (ProductIdentity.FromId(tool.Id) is not { } product || product.Name != tool.Name || product.AppId != tool.AppId || tool.Id == "host")
+            if (ProductIdentity.FromTool(tool) is not { } product || product.Name != tool.Name || product.AppId != tool.AppId || tool.Id == "host")
                 return new(null, false, false, "この製品のインストーラー管理には本体側の対応が必要です。「GitHubを開く」から配布方法を確認してください。");
             return await CheckCore(tool, fallback, true, false, cancellation);
         }
@@ -45,7 +45,7 @@ internal sealed partial class PublicReleaseClient : IDisposable
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var token = deadline.Token;
-            var repository = ProductIdentity.FromId(tool.Id)?.Repository ?? throw new IOException("公開製品の固定配布先がありません。");
+            var repository = ProductIdentity.FromTool(tool)?.Repository ?? throw new IOException("公開製品の検証済み配布先がありません。");
             using var list = JsonDocument.Parse(await Read(new($"https://api.github.com/repos/KotorinChunChun/{repository}/releases?per_page=100"), 2 * 1024 * 1024, token));
             var latest = PublicReleaseMetadata.Select(list.RootElement, includePrerelease);
             var manifest = latest.Asset(tool, tool.Name + "-packages.json");

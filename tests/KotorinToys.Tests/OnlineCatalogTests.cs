@@ -146,8 +146,8 @@ internal static class OnlineCatalogTests
         {
             var unpublished = await client.Check(newTool, null);
             check(installerRequests == 0 && !unpublished.Confirmed && unpublished.Package == null && unpublished.Detail.Contains("未公開"), "新規config登録の未公開製品は照合エラーにしない");
-            var published = await client.Check(newTool with { DistributionStatus = "published" }, null);
-            check(installerRequests == 0 && !published.Confirmed && published.Package == null && published.Detail.Contains("本体側の対応"), "新規製品をconfigだけでインストーラー許可リストへ追加しない");
+            var published = await client.Check(newTool with { DistributionStatus = "published", RepositoryUrl = null }, null);
+            check(installerRequests == 0 && !published.Confirmed && published.Package == null && published.Detail.Contains("本体側の対応"), "新規製品でも公開先が未宣言ならインストーラー取得を許可しない");
         }
     }
 }

@@ -8,7 +8,7 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
 {
     readonly SemaphoreSlim gate = new(1);
     // 既存の呼び出し元を保持しつつ、配布定義の検証を純粋な読取責務へ委譲する。
-    public static PackageCatalog Load(string path) => PackageCatalogReader.Load(path);
+    public static PackageCatalog Load(string path, IReadOnlyCollection<ToolDefinition>? definitions = null) => PackageCatalogReader.Load(path, definitions);
     internal static void Validate(PackageCatalog value) => PackageCatalogReader.Validate(value);
     public async Task<InstallResult> Install(ToolDefinition tool, string catalogPath, string? directory = null)
     {
@@ -16,7 +16,7 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
         try
         {
             if (tool.Msix != null) return await MsixInstaller.Create(manager).Install(tool, catalogPath);
-            var package = Load(catalogPath).Packages.SingleOrDefault(p => p.Id == tool.Id) ?? throw new IOException("対象のローカル配布物がありません。");
+            var package = Load(catalogPath, manager.KnownTools()).Packages.SingleOrDefault(p => p.Id == tool.Id) ?? throw new IOException("対象のローカル配布物がありません。");
             if (package.Kind != "inno") throw new IOException("EXEとMSIXの配布方式が一致しません。");
             if (package.AppId != tool.AppId || package.Name != tool.Name)
                 throw new IOException("登録情報と配布物が一致しません。");

@@ -40,7 +40,7 @@ internal sealed class PublicReleaseMetadata
         var matches = assets.Where(a => a.GetProperty("name").GetString() == name).ToArray();
         if (matches.Length != 1 || matches[0].GetProperty("state").GetString() != "uploaded")
             throw new IOException("公開assetが欠落・重複・未準備です：" + name);
-        var product = ProductIdentity.FromId(tool.Id) ?? throw new IOException("公開製品の固定配布先がありません。");
+        var product = ProductIdentity.FromTool(tool) ?? throw new IOException("公開製品の検証済み配布先がありません。");
         if (product.Name != tool.Name || product.AppId != tool.AppId) throw new IOException("公開製品の識別が一致しません。");
         var url = $"https://github.com/KotorinChunChun/{product.Repository}/releases/download/{tag}/{name}";
         if (matches[0].GetProperty("browser_download_url").GetString() != url)
@@ -55,7 +55,7 @@ internal sealed class PublicReleaseMetadata
             ?? throw new IOException("公開台帳が空です。");
         if (catalog.Packages == null || catalog.Packages.Any(p => p == null))
             throw new IOException("公開台帳の製品定義が欠落しています。");
-        PackageCatalogReader.Validate(catalog);
+        PackageCatalogReader.Validate(catalog, [tool]);
         if (catalog.DistributionStatus != "published" || catalog.Packages.Length != 1)
             throw new IOException("公開製品別台帳が不正です。");
         var package = catalog.Packages[0];
@@ -63,7 +63,7 @@ internal sealed class PublicReleaseMetadata
             throw new IOException("公開台帳と製品・リリースtagが一致しません。");
         var item = new ReleasePackage(package, installer.GetProperty("size").GetInt64(), PublishedAt);
         if (hostUpdate) HostProduct.Validate(item);
-        else ReleaseDownloader.Validate(new(1, [item]));
+        else ReleaseDownloader.Validate(new(1, [item]), [tool]);
         // 同梱済み固定版のasset差し替えを、オンライン台帳で許容しない。
         if (fallback != null && System.Version.Parse(fallback.Package.Version) == System.Version.Parse(Version) &&
             (fallback.Package != package || fallback.Length != item.Length))

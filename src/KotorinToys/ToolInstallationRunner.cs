@@ -7,7 +7,7 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
 {
     internal static string? UnsupportedReason(ToolDefinition tool)
     {
-        var product = ProductIdentity.FromId(tool.Id);
+        var product = ProductIdentity.FromTool(tool);
         if (tool.Msix != null) return MsixPolicy.Supports(tool) ? null : "このMSIXの固定製品識別には未対応です。配布元の導入手順を確認してください。";
         if (tool.Id == "http-selector") return "HttpSelectorには署名付きMSIXの固定製品定義が必要です。";
         if (tool.Id == "host" || product == null || product.Name != tool.Name || product.AppId != tool.AppId)
@@ -49,7 +49,7 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
                 if (operation == "install" && path == null)
                 {
                     if (PublicReason(tool, catalog) is { } reason) throw new IOException(reason);
-                    ReleaseDownloader.Validate(catalog!);
+                    ReleaseDownloader.Validate(catalog!, manager.KnownTools());
                     var item = catalog!.Packages.Single(p => p.Package.Id == tool.Id);
                     progress?.Report(new(tool.Id, operation, "処理中", "公開配布物を取得・検証しています。"));
                     path = await (prepare ?? Prepare)(new(1, [item]), tool with { Version = item.Package.Version }, downloadProgress, cancellation);

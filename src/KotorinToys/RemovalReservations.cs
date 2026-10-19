@@ -5,7 +5,8 @@ using System.Xml.Linq;
 namespace KotorinToys;
 
 internal sealed record RemovalJournal(string TargetId, HostSettings Before, HostSettings After, Dictionary<string,TaskOwnership> Removed, string Phase);
-internal sealed class RemovalReservations(HostSettingsStore store, IStartupGateway gateway, string prefix="KotorinToys")
+internal sealed class RemovalReservations(HostSettingsStore store, IStartupGateway gateway, string prefix="KotorinToys",
+    IReadOnlyCollection<ToolDefinition>? definitions = null)
 {
     readonly string sid=WindowsIdentity.GetCurrent().User!.Value;
     string JournalFile=>Path.Combine(store.DirectoryPath,"removal-operation.json");
@@ -21,7 +22,7 @@ internal sealed class RemovalReservations(HostSettingsStore store, IStartupGatew
     {
         try
         {
-            if(ProductIdentity.FromId(id) is null)throw new IOException("未登録の削除対象です。");
+            if(ProductIdentity.FromId(id, definitions) is null)throw new IOException("未登録の削除対象です。");
             using var lease=store.AcquireLease();
             if(store.Journal!=null || File.Exists(JournalFile))throw new IOException("未完了の操作があります。削除せず復旧してください。");
             var before=store.Load();var modes=new Dictionary<string,string>(before.StartupModes);

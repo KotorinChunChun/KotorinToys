@@ -53,7 +53,7 @@ internal sealed class InstallationForm : BrandedForm
         this.execute = execute ?? ((selected, verb, catalog, path, progress, download, token) =>
             new ToolInstallationRunner(manager).Run(selected, verb, catalog, path, progress, download, token));
         publicCatalog = releases;
-        if (publicCatalog != null) ReleaseDownloader.Validate(publicCatalog);
+        if (publicCatalog != null) ReleaseDownloader.Validate(publicCatalog, manager.KnownTools());
         Text = WindowTitle.Create(operation == null ? "詳細設定（開発者向け）" :
             operation == "install" ? "インストール" : operation == "update" ? "アップデート" : "アンインストール");
         Size = new(980, 600); MinimumSize = new(850, 520);
@@ -106,7 +106,7 @@ internal sealed class InstallationForm : BrandedForm
         {
             using var picker = new OpenFileDialog { Title = "信頼できるローカルビルドのpackages.json", Filter = "配布台帳|packages.json", CheckFileExists = true };
             if (picker.ShowDialog(this) != DialogResult.OK) return;
-            try { InstallerAdapter.Load(picker.FileName); catalogPath = picker.FileName; source.Text = "ローカル配布台帳：" + catalogPath; RefreshTargets(); }
+            try { InstallerAdapter.Load(picker.FileName, manager.KnownTools()); catalogPath = picker.FileName; source.Text = "ローカル配布台帳：" + catalogPath; RefreshTargets(); }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, WindowTitle.Create("配布台帳の確認")); }
         };
         buttons.Controls.Add(published); buttons.Controls.Add(choose);
@@ -148,7 +148,7 @@ internal sealed class InstallationForm : BrandedForm
         {
             try
             {
-                var local = InstallerAdapter.Load(catalogPath).Packages.SingleOrDefault(p => p.Id == tool.Id);
+                var local = InstallerAdapter.Load(catalogPath, manager.KnownTools()).Packages.SingleOrDefault(p => p.Id == tool.Id);
                 if (local == null || !fileExists(PathSafety.Resolve(Path.GetDirectoryName(catalogPath)!, local.File)))
                     return ActionAvailability.Deny("選択したローカル台帳に配布物がありません。");
                 package = new(local with { Signature = "unsigned-public-build" }, 1);
@@ -272,7 +272,7 @@ internal sealed class InstallationForm : BrandedForm
         var denied = selected.Select(t => (Tool: t, Rule: InstallAvailability(t, singleOperation ?? operation))).FirstOrDefault(x => !x.Rule.Enabled);
         if (denied.Tool != null) { completion.Text = denied.Tool.Name + "：" + denied.Rule.Reason; return; }
         string confirmation;
-        try { confirmation = ReleaseDisplay.Confirmation(selected, operation, detectInstallation, publicCatalog, catalogPath); }
+        try { confirmation = ReleaseDisplay.Confirmation(selected, operation, detectInstallation, publicCatalog, catalogPath, manager.KnownTools()); }
         catch (Exception ex) { completion.Text = "操作内容を確認できません：" + ex.Message; return; }
         if (!confirm(confirmation)) { completion.Text = "操作をキャンセルしました。変更していません。"; return; }
         SetRunning(true); cancellation = new(); var current = cancellation;
