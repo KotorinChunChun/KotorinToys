@@ -52,9 +52,10 @@ internal sealed partial class Dashboard : BrandedForm
         Func<ToolDefinition, CancellationToken, Task<StartupOverview>>? startupCheck = null,
         Func<string, bool>? fileExists = null,
         Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null,
-        Action<string, string>? showDetails = null)
+        Action<string, string>? showDetails = null, DashboardViewStore? viewStore = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
+        this.viewStore = viewStore ?? (settings == null ? null : new DashboardViewStore(settings.DirectoryPath));
         this.showDetails = showDetails ?? ((name, explanation) => { using var form = new OperationDetailsForm(name, explanation); form.ShowDialog(this); });
         this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
         this.showSelfUpdater = showSelfUpdater ?? (() => { using var form = new HostUpdateForm(this.selfUpdates); form.ShowDialog(this); });

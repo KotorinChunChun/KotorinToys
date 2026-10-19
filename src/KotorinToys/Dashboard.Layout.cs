@@ -14,10 +14,11 @@ internal sealed partial class Dashboard
         {
             var column = grid.Columns[grid.Columns.Add(name, label)]; column.FillWeight = weight;
             column.MinimumWidth = name == "summary" ? 150 : name is "tool" or "startup" ? 125 : 80;
-            column.SortMode = DataGridViewColumnSortMode.NotSortable;
+            column.SortMode = DataGridViewColumnSortMode.Programmatic;
             if (name is "installed" or "published" or "update" or "detail") column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         }
-        foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "未確認", "");
+        foreach (var tool in tools) AddToolRow(tool);
+        InitializeView();
         grid.SelectionChanged += (_, _) => UpdateActions();
         grid.CurrentCellChanged += (_, _) => UpdateActions();
         grid.CellClick += (_, e) => { if (e.RowIndex >= 0 && e.ColumnIndex == grid.Columns["detail"]!.Index) OpenSelectedDetails(); };
@@ -55,9 +56,9 @@ internal sealed partial class Dashboard
         install.Click += async (_, _) => await OpenToolInstallation(install.Text == "修復" ? "repair" : "install"); actions.Controls.Add(install);
         update.Click += async (_, _) => await OpenToolInstallation("update"); actions.Controls.Add(update);
         uninstall.Click += async (_, _) => await OpenToolInstallation("uninstall"); actions.Controls.Add(uninstall);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1 };
-        layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
-        layout.Controls.Add(grid, 0, 0); layout.Controls.Add(actions, 0, 1); layout.Controls.Add(hostActions, 0, 2); Controls.Add(layout);
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 1 };
+        layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
+        layout.Controls.Add(viewBar,0,0); layout.Controls.Add(grid, 0, 1); layout.Controls.Add(actions, 0, 2); layout.Controls.Add(hostActions, 0, 3); Controls.Add(layout);
         ActionHints.Attach(actions, tooltips); ActionHints.Attach(hostActions, tooltips);
         ActionHints.Attach(layout, tooltips);
         ApplySnapshot(installations, states, releases);

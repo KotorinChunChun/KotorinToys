@@ -8,7 +8,7 @@ internal sealed partial class Dashboard
         installations = actual; states = execution; releases = published;
         for (int i = 0; i < tools.Length; i++)
         {
-            var version = ToolVersionView.Create(actual[i], published[i]); var row = grid.Rows[i];
+            var version = ToolVersionView.Create(actual[i], published[i]); var row = RowFor(i);
             row.Cells["installed"].Value = version.Installed; row.Cells["published"].Value = version.Published;
             row.Cells["published"].Value = DashboardText.Published(published[i]);
             row.Cells["published"].ToolTipText = version.Published + "\n" + published[i].Detail;
@@ -16,7 +16,7 @@ internal sealed partial class Dashboard
             row.Cells["update"].ToolTipText = version.Update + "\n" + published[i].Detail;
             row.Cells["state"].Value = execution[i].State;
         }
-        UpdateDetails(); UpdateActions();
+        UpdateDetails(); ApplyView(); UpdateActions();
     }
     void UpdateDetails()
     {
@@ -26,15 +26,16 @@ internal sealed partial class Dashboard
             tooltips.SetToolTip(refresh, string.IsNullOrEmpty(issue) ? "実行状態・GitHubの一覧・公開版を更新します。" : issue);
         for (int i = 0; i < tools.Length; i++)
         {
-            grid.Rows[i].Cells["startup"].Value = startupSnapshots[i].Text;
-            grid.Rows[i].Cells["startup"].ToolTipText = startupSnapshots[i].Detail;
+            var row = RowFor(i);
+            row.Cells["startup"].Value = startupSnapshots[i].Text;
+            row.Cells["startup"].ToolTipText = startupSnapshots[i].Detail;
             var texts = new[] { states[i].Detail, installations[i].State != "導入済み" ? installations[i].Detail : null,
                 !releases[i].Confirmed || releases[i].Package == null ? releases[i].Detail : null,
                 startupSnapshots[i].NeedsAttention ? startupSnapshots[i].Detail : null,
                 operationErrors.GetValueOrDefault(tools[i].Id), issue };
             var detail = string.Join("\n", texts.Append(DashboardText.Advice(tools[i], installations[i], states[i], releases[i])).Where(text => !string.IsNullOrWhiteSpace(text)).Distinct());
-            grid.Rows[i].Cells["detail"].Value = DashboardText.Detail(tools[i], installations[i], states[i], releases[i], startupSnapshots[i], operationErrors.GetValueOrDefault(tools[i].Id), catalogError, stateError);
-            grid.Rows[i].Cells["detail"].ToolTipText = detail;
+            row.Cells["detail"].Value = DashboardText.Detail(tools[i], installations[i], states[i], releases[i], startupSnapshots[i], operationErrors.GetValueOrDefault(tools[i].Id), catalogError, stateError);
+            row.Cells["detail"].ToolTipText = detail;
         }
     }
     void ShowOperationFailure(string message, string? toolId = null)
@@ -46,7 +47,7 @@ internal sealed partial class Dashboard
     void UpdateActions()
     {
         actions.AccessibleDescription = hostActions.AccessibleDescription = busy || refreshingCatalog ? "処理中です。完了するまでお待ちください。" : null;
-        int i = grid.CurrentRow?.Index ?? -1;
+        int i = SelectedIndex;
         var repository = i >= 0 && i < tools.Length ? ToolRepository.Find(tools[i]) : null;
         ActionHints.Apply(github, busy || refreshingCatalog ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") :
             repository != null ? ActionAvailability.Allow(repository.AbsoluteUri) : ActionAvailability.Deny("GitHub公開先が未設定、またはツールが未選択です。"), tooltips);

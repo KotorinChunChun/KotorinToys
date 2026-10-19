@@ -5,9 +5,9 @@ internal sealed partial class Dashboard
     internal void OpenSelectedDetails()
     {
         if (busy || refreshingCatalog || IsDisposed) return;
-        var index = grid.CurrentRow?.Index ?? -1;
+        var index = SelectedIndex;
         if (index < 0 || index >= tools.Length) return;
-        var tool = tools[index]; var row = grid.Rows[index];
+        var tool = tools[index]; var row = RowFor(index);
         var reasons = new[] { "start", "stop", "install", "update", "uninstall" }.Select(operation =>
         {
             var rule = Availability(index, operation);

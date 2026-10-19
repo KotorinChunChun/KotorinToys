@@ -52,7 +52,7 @@ internal static class StartupOverviewDashboardTests
             grid.Rows[0].Cells["startup"].Value?.ToString() == values[tools[0].Id].Text, "1製品の読取例外で他製品の確認結果を失わない");
         form.Size = form.MinimumSize; form.PerformLayout();
         check(column.Width >= 125 && grid.ColumnHeadersHeight >= 40 && grid.Height >= 320, "最小画面でも自動起動列幅・ヘッダー・一覧領域を確保");
-        check(!form.Controls.Find("overallStatus", true).Any() && grid.Parent is TableLayoutPanel layout && layout.RowCount == 3, "下部の常設説明を復活させない");
+        check(!form.Controls.Find("overallStatus", true).Any() && grid.Parent is TableLayoutPanel layout && layout.RowCount == 4 && form.Controls.Find("viewBar",true).Length==1, "絞り込みを加えても下部の常設説明を復活させない");
     }
     static void InFlight(string root, string fixtures, Action<bool, string> check)
     {

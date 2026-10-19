@@ -30,7 +30,8 @@ internal static class DashboardTests
         check(grid.CurrentRow?.Cells["tool"].Value?.ToString() == "SSCapture" && grid.Rows.Cast<DataGridViewRow>().All(row => row.Cells["state"].Value?.ToString() == "実行中"), "選択変更後も状態は表の各行で確認できる");
         check(new[] { "overallStatus", "selectedStatus", "lastOperation", "catalogStatus", "selfUpdateStatus" }
             .All(name => form.Controls.Find(name, true).Length == 0), "メイン下部の状態・説明ラベルを生成しない");
-        check(grid.Parent is TableLayoutPanel layout && layout.RowCount == 3 && layout.Controls.Count == 3, "メインは一覧と2つの操作行だけでフッター領域を残さない");
+        check(grid.Parent is TableLayoutPanel layout && layout.RowCount == 4 && layout.Controls.Count == 4 && form.Controls.Find("viewBar",true).Length==1,
+            "メインは上部の絞り込み・一覧・2つの操作行でフッター領域を残さない");
         check(!((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版はアップデートを無効にする");
         check(((Button)form.Controls.Find("uninstallSelected", true).Single()).Enabled &&
             !((Button)form.Controls.Find("installSelected", true).Single()).Enabled, "導入済みはインストールを無効・アンインストールを有効にする");
@@ -59,7 +60,8 @@ internal static class DashboardTests
             grid.CurrentRow?.Cells["tool"].Value?.ToString() == "HttpSelector" &&
             ((Button)form.Controls.Find("updateSelected", true).Single()).Enabled == ToolVersionView.Create(installed[httpSelectorIndex], releases[httpSelectorIndex]).CanUpdate,
             "HttpSelectorの4成分版を表示し照合済みMSIXの新旧で更新を制御");
-        check(grid.Columns.Cast<DataGridViewColumn>().All(column => column.SortMode == DataGridViewColumnSortMode.NotSortable), "行順で別製品を操作しないよう手動並替を禁止");
+        check(grid.Columns.Cast<DataGridViewColumn>().All(column => column.SortMode == DataGridViewColumnSortMode.Programmatic) &&
+            grid.Rows.Cast<DataGridViewRow>().Select(row=>row.Tag?.ToString()).SequenceEqual(tools.Select(t=>t.Id)), "並べ替えをアプリIDに紐付けて別製品を操作しない");
         form.Size = form.MinimumSize; form.PerformLayout();
         check(grid.Width >= 800 && grid.Height >= 320, "最小サイズでも下部の空白を作らず一覧を広げる");
         form.Dispose(); // 二度目のDisposeでもタイマー・取消資源が例外にならない。

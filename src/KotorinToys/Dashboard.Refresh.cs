@@ -59,7 +59,7 @@ internal sealed partial class Dashboard
 
     void ReplaceTools(ToolDefinition[] next)
     {
-        string? selected = grid.CurrentRow is { Index: var index } && index < tools.Length ? tools[index].Id : null;
+        string? selected = SelectedIndex is var index && index >= 0 ? tools[index].Id : null;
         tools = next;
         installations = tools.Select(detectInstallation).ToArray();
         states = tools.Select(_ => new ToolState("確認中")).ToArray();
@@ -68,7 +68,7 @@ internal sealed partial class Dashboard
             p.Package.Name == tool.Name && p.Package.AppId == tool.AppId)).ToArray();
         releases = bundledPackages.Select(p => new PublicRelease(p, false, false, "公開未確認・同梱台帳")).ToArray();
         grid.Rows.Clear();
-        foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "未確認", "");
+        foreach (var tool in tools) AddToolRow(tool);
         if (tools.Length > 0)
         {
             var row = Array.FindIndex(tools, t => t.Id == selected);

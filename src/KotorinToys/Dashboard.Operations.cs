@@ -5,7 +5,7 @@ internal sealed partial class Dashboard
     internal void OpenRepository()
     {
         if (busy || IsDisposed) return;
-        var index = grid.CurrentRow?.Index ?? -1;
+        var index = SelectedIndex;
         if (index < 0 || index >= tools.Length) return;
         var tool = tools[index];
         var repository = ToolRepository.Find(tool);
@@ -25,7 +25,7 @@ internal sealed partial class Dashboard
         if (!TryBeginOperation()) return;
         try
         {
-            var index = grid.CurrentRow?.Index ?? -1;
+            var index = SelectedIndex;
             if (index < 0 || index >= tools.Length) return;
             var tool = tools[index]; operationErrors.Remove(tool.Id);
             await RefreshStates(true);
@@ -35,7 +35,7 @@ internal sealed partial class Dashboard
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(PathSafety.Resolve(manager.DocumentRoot(tool), tool.Manual)) { UseShellExecute = true });
             else
             {
-                grid.Rows[index].Cells["state"].Value = command == DashboardCommand.Start ? "起動処理中" : "停止処理中";
+                RowFor(index).Cells["state"].Value = command == DashboardCommand.Start ? "起動処理中" : "停止処理中";
                 var state = command == DashboardCommand.Start ? await manager.Start(tool) : await manager.Stop(tool);
                 ReportExecution(tool, command == DashboardCommand.Start, state);
             }
@@ -73,7 +73,7 @@ internal sealed partial class Dashboard
     {
         if (requested is not ("install" or "update" or "repair" or "uninstall")) throw new ArgumentException("未対応の操作です。", nameof(requested));
         if (busy || refreshingCatalog || checkingReleases || IsDisposed) return;
-        var index = grid.CurrentRow?.Index ?? -1;
+        var index = SelectedIndex;
         if (index < 0 || index >= tools.Length) return;
         var tool = tools[index];
         if (requested == "update" && !ToolVersionView.Create(installations[index], releases[index]).CanUpdate) return;
