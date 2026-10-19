@@ -270,11 +270,11 @@ internal static class Program
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");
         var everyDb = tools.Single(t => t.Id == "every-db");
-        Check(everyDb is { Name: "EveryDB", Version: "0.1.1", AppId: "KotorinToys.EveryDB", DistributionStatus: "published" } &&
+        Check(everyDb is { Name: "EveryDB", Version: "0.1.2", AppId: "KotorinToys.EveryDB", DistributionStatus: "published" } &&
             everyDb.Executable == "src-tauri/target/kotorintoys/debug/everydb.exe" && everyDb.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]),
             "EveryDBの独立リポジトリ・開発実行先・管理能力を登録");
         var mic = tools.Single(t => t.Id == "voice-mixer-mic-router");
-        Check(mic is { Name: "VoiceMixerMicRouter", Version: "1.0.18", AppId: "KotorinToys.VoiceMixerMicRouter", InstalledExecutable: "VoiceMixerMicRouter.exe", DistributionStatus: "published" } && mic.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]), "MicRouterの固定識別と管理契約を登録");
+        Check(mic is { Name: "VoiceMixerMicRouter", Version: "1.0.19", AppId: "KotorinToys.VoiceMixerMicRouter", InstalledExecutable: "VoiceMixerMicRouter.exe", DistributionStatus: "published" } && mic.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]), "MicRouterの固定識別と管理契約を登録");
         var contract=File.ReadAllText(Path.Combine(root,"contracts","ManagementEndpoint.cs")).Replace("\r\n", "\n");
         Check(new[] {"tools/LiveTextMarker/source/ManagementEndpoint.cs","tools/SmartPaste/SmartPaste/ManagementEndpoint.cs","tools/SSCapture/src/SSCapture/ManagementEndpoint.cs"}.All(path=>File.ReadAllText(Path.Combine(root,path)).Replace("\r\n", "\n")==contract),"改行形式を除く共通管理実装と3子コピーの一致");
         foreach (var name in new[] { "CapchunScreen", "ChulipVideo", "ChunapTool" })
