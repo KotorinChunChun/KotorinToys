@@ -105,10 +105,29 @@ internal static class Program
             if(args.Length==3 && args[0]=="--cleanup-task") {StartupTests.Cleanup(args[1],args[2]);return 0;}
             if(args.Contains("--scheduler-probe")){InstalledStartupTests.Probe().GetAwaiter().GetResult();return 0;}
             root = KotorinToys.Program.FindRoot();
+            if(args.Length is 2 or 3 && args[0]=="--check-release-readiness")
+            {
+                bool online=args.Length==3 && args[2]=="--online";
+                if(args.Length==3 && !online)throw new IOException("未対応の検査オプションです。");
+                var reportPath=Path.GetFullPath(args[1]);
+                if(!reportPath.StartsWith(Path.Combine(root,"dev","history")+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase))throw new IOException("検査結果は版別ログへ保存してください。");
+                var tools=OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root,OnlineToolCatalog.RelativePath)),root);
+                using var publicClient=new PublicReleaseClient();using var configClient=new ToolCatalogClient();
+                var published=online?OnlineToolCatalog.Parse(configClient.Fetch().GetAwaiter().GetResult(),root):null;
+                var report=ReleaseReadiness.Check(root,tools,ReleaseDownloader.Load(root,tools),published,
+                    online?(tool,fallback)=>publicClient.Check(tool,fallback):null).GetAwaiter().GetResult();
+                Directory.CreateDirectory(Path.GetDirectoryName(reportPath)!);
+                File.WriteAllText(reportPath,JsonSerializer.Serialize(report,ToolCatalog.Json));
+                Console.WriteLine(online?"公開config・GitHub配布物の照合":"定義・台帳の静的検査（実公開は未照合）");
+                Console.WriteLine($"確認 {report.Items.Count(i=>i.Level!="エラー")}件 / エラー {report.Items.Count(i=>i.Level=="エラー")}件");
+                Console.WriteLine(report.ReadyToPublish?"公開前照合成功":report.Passed?"静的検査成功。公開時にはオンライン照合が必要です。":"公開不可：結果の理由を確認してください。");
+                return (online?report.ReadyToPublish:report.Passed)?0:1;
+            }
             var recordVersion = Environment.GetEnvironmentVariable("KOTORINTOYS_TEST_RECORD_VERSION") ?? "v" + HostProduct.CurrentVersion;
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--readiness-tests"])) { ReleaseReadinessTests.Run(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-mode-tests"])) { InstallationModeTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--view-tests"])) { DashboardViewTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--repair-tests"])) { RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); RepairTests.Form(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -239,6 +258,7 @@ internal static class Program
             }
             OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             ActionAvailabilityTests.Run(root, Check);
+            ReleaseReadinessTests.Run(root, Check).GetAwaiter().GetResult();
             InstallationModeTests.Run(root, Check);
             DashboardViewTests.Run(root, fixtures, Check);
             RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult();

@@ -17,7 +17,28 @@ if(-not (Test-Path -LiteralPath $ghExe)){throw 'GitHub CLIがありません。'
 $account=& $ghExe api user --jq '.login'
 if($LASTEXITCODE -ne 0 -or $account -ne 'KotorinChunChun'){throw 'KotorinChunChunの認証が必要です。'}
 $directory=Split-Path $catalogFile
+if($Products -contains 'KotorinToys'){
+    # 公開config・候補・GitHub資産の不一致を、最初のRelease作成より前に拒否する。
+    & (Join-Path $PSScriptRoot 'test-release-readiness.ps1') -ProjectRoot $projectRoot -RecordVersion $RecordVersion -Online
+}
 $published=@()
+# 複数対象の後半が不正でも、前半だけを先に公開しない。
+foreach($name in $Products | Select-Object -Unique){
+    $entries=@($catalog.packages | Where-Object name -eq $name)
+    if($entries.Count -ne 1){throw "公開前検査：対象が一意ではありません：$name"}
+    $entry=$entries[0]; $identity=Get-DistributionProduct $name
+    if($entry.id -ne $identity.Id -or $entry.appId -ne $identity.AppId -or $entry.version -notmatch '^\d+\.\d+\.\d+$' -or
+       $entry.file -ne "$name-$($entry.version)-setup.exe" -or $entry.signature -ne 'unsigned-local-build' -or $entry.sha256 -notmatch '^[a-f0-9]{64}$'){
+        throw '公開前検査：配布製品・版・形式が不正です。'
+    }
+    $candidate=Join-Path $directory $entry.file
+    if((Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.sha256){throw '公開前検査：配布物のハッシュが不一致です。'}
+    $repoPath=if($identity.Id -eq 'host'){$projectRoot}else{Join-Path $projectRoot "tools/$($identity.Folder)"}
+    $commit=git -c "safe.directory=$repoPath" -C $repoPath rev-parse HEAD
+    if($LASTEXITCODE){throw '公開前検査：採用コミットがありません。'}
+    $remote=git -c "safe.directory=$repoPath" -C $repoPath ls-remote origin refs/heads/main
+    if($LASTEXITCODE -or ($remote -split '\s+')[0] -ne $commit){throw '公開前検査：採用コミットが公開mainと一致しません。'}
+}
 foreach($name in $Products | Select-Object -Unique){
     $package=@($catalog.packages | Where-Object name -eq $name)
     if($package.Count -ne 1){throw "対象が一意ではありません：$name"}

@@ -5,7 +5,7 @@ foreach ($project in @('KotorinToys','KotorinToys.Maintenance')) {
     if ($runtime.Count -ne 1 -or [version]$runtime[0].RuntimeFrameworkVersion -lt [version]'10.0.13' -or $runtime[0].Condition -ne "'`$(SelfContained)' == 'true'" -or $runtime[0].Update -notlike '*Microsoft.NETCore.App*') { throw '本体の自己完結配布は対象FrameworkReferenceに.NET 10.0.13以上を明示してください。' }
 }
 . (Join-Path $PSScriptRoot 'distribution-products.ps1')
-foreach ($file in @('distribution-products.ps1','publish-packages.ps1','build-installers.ps1','publish-releases.ps1','stage-release-source.ps1')) {
+foreach ($file in @('distribution-products.ps1','publish-packages.ps1','build-installers.ps1','publish-releases.ps1','stage-release-source.ps1','test-release-readiness.ps1')) {
     $tokens = $null; $parseErrors = $null
     [void][Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $file), [ref]$tokens, [ref]$parseErrors)
     if ($parseErrors.Count) { throw "$file のPowerShell構文が不正です。" }
@@ -18,4 +18,4 @@ if ($every.Id -ne 'every-db' -or $every.AppId -ne 'KotorinToys.EveryDB' -or $eve
 $rejected = $false
 try { Get-DistributionProduct 'ShortcutKeyCounter' | Out-Null } catch { $rejected = $true }
 if (-not $rejected) { throw '今回公開しない製品を許可してしまいます。' }
-Write-Output '配布スクリプト5件の構文・固定配布先・公開対象外製品の拒否：成功'
+Write-Output '配布スクリプト6件の構文・固定配布先・公開対象外製品の拒否：成功'
