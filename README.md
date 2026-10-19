@@ -16,9 +16,11 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 公開リポジトリのある7ツールは、それぞれ本体が採用した版を取得します。CapchunScreenフォルダーの製品名はCapchunWindow、ChulipVideoは専用のChulipVideo-CSharpを取得します。EveryDBは [独立リポジトリ](https://github.com/KotorinChunChun/EveryDB) から `git submodule update --init -- tools/EveryDB` で取得できます。HttpSelectorはローカル管理のため、9件構成の開発ビルドには別途ソースが必要です。全体への`--recurse-submodules`は現段階では使用しないでください。配布本体の利用に子ソースの取得は不要です。
 
+0.1.8の本体ソースは公開済みですが、一部の採用子コミットのpushは別途確認中です。ソースビルドで採用SHAを取得できない場合は公開待ちとなります。setupの利用には影響しません。
+
 ## サポートアプリ
 
-開発中の0.1.8では、短い一覧表示を保ち、詳細セルのクリック／Enterで理由と対処を開けます。絞り込み・表示保存、条件付きのEXE修復、用途別の一括操作タブ、公開前検査を追加しています。操作説明は[利用者向け](docs/USERS_GUIDE.md)、定義の追加方法や判定条件は[開発者向け](docs/DEVELOPERS_GUIDE.md)へ分離しています。公開・このPCへの導入は別工程で、掲載済みインストーラーを差し替えたという意味ではありません。
+公開0.1.8では、短い一覧表示を保ち、詳細セルのクリック／Enterで理由と対処を開けます。絞り込み・表示保存、条件付きのEXE修復、用途別の一括操作タブ、公開前検査を追加しています。操作説明は[利用者向け](docs/USERS_GUIDE.md)、定義の追加方法や判定条件は[開発者向け](docs/DEVELOPERS_GUIDE.md)へ分離しています。旧版の配布物は差し替えず、新しい0.1.8を公開しています。
 
 一覧は起動時と「状態を更新」でGitHubのconfigを取得する構成です。この機能を含む本体への初回更新後は、mainの [config/tools.json](config/tools.json) だけで追加・非表示・順序・説明を変更できます。通信できないときは前回の正常な一覧を維持します。[設定更新の運用手順](docs/online-tool-catalog.md)を参照してください。以下は同梱時点の初期一覧です。
 
@@ -36,7 +38,7 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | MIC・RVC・スピーカー入力を3出力へ送るツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
 | [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | 再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
 
-音声2件の追加は開発ソースへ反映済みです。GitHub mainの配信用configと新しい固定製品識別を含む本体の公開・導入は別工程であり、公開済みの旧本体へ反映済みという意味ではありません。[登録補完と検証](dev/history/v0.1.7/voice-router-registration.md)を参照してください。
+音声2件は0.1.8とGitHub mainの配信用configへ公開済みです。旧本体の固定識別では対応できない場合があるため、本体も0.1.8へ更新してください。[登録補完と検証](dev/history/v0.1.7/voice-router-registration.md)を参照してください。
 
 HttpSelectorは署名付きMSIXが必須です。0.1.6ソースでは[本体からのMSIX管理](docs/msix-management.md)に対応しました。WindowsへHTTP/HTTPSの関連付け候補を登録した後、既定のアプリ設定で利用者が選択してください。本体は署名・Publisher・Package Identity・製品版を照合し、未導入や旧版を開発EXEに切り替えません。Inno EXEとは別の専用導入経路を使用します。
 
@@ -48,9 +50,9 @@ EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)
 
 ## インストーラー（開発版）
 
-[本体0.1.5のReleases](https://github.com/KotorinChunChun/KotorinToys/releases/tag/v0.1.5)から`KotorinToys-0.1.5-setup.exe`を取得してください。Windows 11 x64・利用者単位・ランタイム同梱の未署名開発版です。全機能の受入完了版ではありません。既存の0.1.1からは「本体アップデート」で開発版も対象にするか、setupで保持付き更新してください。
+[本体0.1.8のReleases](https://github.com/KotorinChunChun/KotorinToys/releases/tag/v0.1.8)から`KotorinToys-0.1.8-setup.exe`を取得してください。Windows 11 x64・利用者単位・.NET 10.0.13同梱の未署名開発版です。全機能の受入完了版ではありません。自己更新対応の既存本体では「本体アップデート」で開発版も対象にするか、setupで保持付き更新してください。
 
-0.1.2ではメイン一覧から「インストール」「アップデート」「アンインストール」を操作できます。GitHub Releasesの固定版・容量・SHA-256を照合し、公開日を版の右に表示します。一括操作・SSCaptureのFFmpeg導入・ローカル台帳は「詳細設定（開発者向け）」にあります。未対応配布を選んでも内部検索エラーにはせず、理由を表示します。設定・履歴は保持し、正常終了を拒否した対象は更新・削除しません。SSCaptureのOneOCR外部ファイルは別途必要です。
+メイン一覧から「インストール」「アップデート」「アンインストール」と条件付きの「修復」を操作できます。GitHub Releasesの固定版・容量・SHA-256を照合し、公開日はツールチップで確認できます。一括操作・SSCaptureのFFmpeg導入・ローカル台帳は「一括インストール」の用途別タブにあります。設定・履歴は保持し、正常終了を拒否した対象は更新・削除しません。SSCaptureのOneOCR外部ファイルは別途必要です。
 
 ## 開発版の起動
 
