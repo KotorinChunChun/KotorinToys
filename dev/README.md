@@ -2,6 +2,9 @@
 
 ## 現行版
 
+- [v0.1.7 全公開プログラムのセキュリティ点検要求](history/v0.1.7/v0.1.7-req.md)
+- [v0.1.7 点検・修正・残存リスクの報告](history/v0.1.7/v0.1.7-imp.md)
+
 - [v0.1.6 MSIX一覧管理・EveryDB対応統合の要求](history/v0.1.6/v0.1.6-req.md)
 - [v0.1.6 実装計画・報告](history/v0.1.6/v0.1.6-imp.md)
 - [v0.1.4 MSIX取得・署名・導入基盤の記録](history/v0.1.4/v0.1.4-imp.md)

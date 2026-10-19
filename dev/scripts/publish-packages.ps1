@@ -161,6 +161,7 @@ foreach ($product in $Products | Select-Object -Unique) {
     if ($product -in @('CapchunWindow','ChulipVideo','ChunapTool') -and @(Get-ChildItem -LiteralPath $output -Recurse -File | Where-Object Name -in @('ffmpeg.exe','ffprobe.exe')).Count) { throw '外部FFmpegが配布物へ混入しています。' }
     Copy-Required $maintenanceOutput $output
     if (Test-Path -LiteralPath (Join-Path $output 'data')) { throw '利用者データが配布対象へ混入しています。' }
+    & (Join-Path $PSScriptRoot 'test-public-payload-security.ps1') -Payload $output -ReportDirectory (Join-Path $logDirectory "$product-security")
     $files = @(Get-ChildItem -LiteralPath $output -File -Recurse | Sort-Object FullName | ForEach-Object {
         [ordered]@{path=[IO.Path]::GetRelativePath($output,$_.FullName).Replace('\','/');length=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
     })

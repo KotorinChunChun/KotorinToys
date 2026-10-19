@@ -19,6 +19,7 @@ New-Item -ItemType Directory -Path $output | Out-Null
 $packages=@()
 foreach($product in $Products | Select-Object -Unique) {
     $payload=Join-Path $packageRoot $product
+    & (Join-Path $PSScriptRoot 'test-public-payload-security.ps1') -Payload $payload -ReportDirectory (Join-Path $output "$product-security")
     $definition=Get-Content -LiteralPath (Join-Path $payload 'tool.json') -Raw | ConvertFrom-Json
     $manifest=Get-Content -LiteralPath (Join-Path $packageRoot "$product.files.json") -Raw | ConvertFrom-Json
     foreach($entry in $manifest.files){

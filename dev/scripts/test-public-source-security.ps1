@@ -32,7 +32,7 @@ foreach ($target in $targets) {
     $head = & git -C $mirror rev-parse ('refs/heads/' + $info.default_branch)
     $commits = & git -C $mirror rev-list --all --count
     $archive = Join-Path $itemOutput 'public-head.zip'
-    $snapshot = Join-Path $itemOutput 'public-head'
+    $snapshot = Join-Path $itemOutput ('public-head-' + $head.Substring(0,12))
     if (-not (Test-Path -LiteralPath $snapshot)) {
         & git -C $mirror archive --format=zip "--output=$archive" $head
         if ($LASTEXITCODE -ne 0) { throw "$repository の公開HEADを抽出できません。" }
@@ -73,4 +73,5 @@ foreach ($target in $targets) {
     $receipts | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $outputPath 'source-summary.json') -Encoding utf8
     [pscustomobject]@{repo=$repository;commits=[int]$commits;files=$files.Count;releases=$releases.Count;findings=$findings.Count;suspiciousFiles=$sensitiveNames.Count} | ConvertTo-Json -Compress
 }
+if (@($receipts | Where-Object { $_.findings.Count -or $_.suspiciousFiles.Count }).Count) { throw '公開ソースに要対応の検出があります。値は表示せずマスク済み台帳を確認してください。' }
 Write-Output '公開ソースとGit到達可能履歴の完全マスク検査を完了しました。検出値は表示していません。'
