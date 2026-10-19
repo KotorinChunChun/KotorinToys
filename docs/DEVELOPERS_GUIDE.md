@@ -2,6 +2,8 @@
 
 画面の使い方は[利用者向けガイド](USERS_GUIDE.md)・[自動起動の操作](startup-settings.md)へ分離しています。開発時の詳細は[操作可否の実装](development/operation-availability.md)・[自動起動の判定と保守](development/startup-settings.md)を参照してください。
 
+新規アプリは[定義で追加する標準管理製品](development/definition-managed-products.md)を参照してください。修正版では一覧の公開日はツールチップへ分離し、更新列は4値へ短縮しています。未確認を更新不要と判定せず、理由と対処はツールチップへ保持します。「一括インストール」は既存の詳細導入画面への入口で、ローカル台帳・一括削除・SSCaptureのFFmpegも引き続き扱います。
+
 ## 前提
 
 - Windows 11 x64

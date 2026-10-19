@@ -105,10 +105,13 @@ internal static class Program
             if(args.Length==3 && args[0]=="--cleanup-task") {StartupTests.Cleanup(args[1],args[2]);return 0;}
             if(args.Contains("--scheduler-probe")){InstalledStartupTests.Probe().GetAwaiter().GetResult();return 0;}
             root = KotorinToys.Program.FindRoot();
-            fixtures = Path.Combine(root, "dev", "history", "v" + HostProduct.CurrentVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
+            var recordVersion = Environment.GetEnvironmentVariable("KOTORINTOYS_TEST_RECORD_VERSION") ?? "v" + HostProduct.CurrentVersion;
+            if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
+            fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
             if (args.SequenceEqual(["--action-availability-tests"])) { ActionAvailabilityTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--startup-form-tests"])) { StartupSettingsFormTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--compact-dashboard-tests"])) { CompactDashboardTests.Run(root, fixtures, Check, true); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--definition-product-tests"])) { DefinitionManagedProductTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); DefinitionManagedProductTests.Form(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ui-policy-tests"]))
             {
@@ -232,6 +235,7 @@ internal static class Program
             }
             OnlineCatalogTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             ActionAvailabilityTests.Run(root, Check);
+            CompactDashboardTests.Run(root, fixtures, Check);
             CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();

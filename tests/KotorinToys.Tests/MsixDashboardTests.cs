@@ -21,12 +21,12 @@ internal static class MsixDashboardTests
         var calls = new List<string>(); var notices = new List<string>();
         using var form = new Dashboard(root, releaseCheck: (t, _, _) => Task.FromResult(releases[Array.FindIndex(tools, tool => tool.Id == t.Id)]),
             detectInstallation: t => actual[Array.FindIndex(tools, tool => tool.Id == t.Id)],
-            showToolInstaller: (id, operation, catalog) => calls.Add(id + ":" + operation + ":" + catalog?.Packages.Single().Package.Kind), notify: notices.Add);
+            showToolInstaller: (id, operation, catalog) => calls.Add(id + ":" + operation + ":" + catalog?.Packages.Single().Package.Kind), notify: notices.Add, fileExists: _ => true);
         form.CreateControl(); form.ApplySnapshot(actual, states, releases); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single(); grid.CurrentCell = grid.Rows[i].Cells[0];
         bool Enabled(string name) => form.Controls.Find(name, true).Single().Enabled;
         check(Enabled("installSelected") && !Enabled("updateSelected") && !Enabled("uninstallSelected"), "未導入MSIXではインストールだけ有効");
-        check(grid.Rows[i].Cells["published"].Value?.ToString() == "0.0.3.3（2026/10/17 公開）", "MSIXの4成分版と日本時間の公開日を一覧表示");
+        check(grid.Rows[i].Cells["published"].Value?.ToString() == "0.0.3.3" && grid.Rows[i].Cells["published"].ToolTipText.Contains("2026/10/17 公開"), "MSIXの4成分版を簡潔に表示し公開日はツールチップへ分離");
         Pump(form.OpenToolInstallation("install"));
         check(calls.SequenceEqual(["http-selector:install:msix"]), "MSIX導入ボタンは選択対象1件の専用配布種別を渡す");
         actual[i] = new("更新が必要", "0.0.3.1", "fixture", "fixture.exe"); form.ApplySnapshot(actual, states, releases);
@@ -40,7 +40,7 @@ internal static class MsixDashboardTests
         check(!Enabled("installSelected") && !Enabled("updateSelected") && !Enabled("uninstallSelected"), "登録確認不能のMSIXでは全導入操作を無効にする");
         actual[i] = actual[i] with { State = "導入済み", Version = "0.0.3.1" }; releases[i] = releases[i] with { Confirmed = false, Detail = "MSIX公開確認失敗：証拠fixture" };
         form.ApplySnapshot(actual, states, releases);
-        check(!Enabled("updateSelected") && Enabled("uninstallSelected") && grid.Rows[i].Cells["detail"].Value?.ToString()?.Contains("MSIX公開確認失敗") == true,
+        check(!Enabled("updateSelected") && Enabled("uninstallSelected") && grid.Rows[i].Cells["detail"].ToolTipText.Contains("MSIX公開確認失敗") == true,
             "公開確認失敗でも正式MSIX削除は可能、更新不可の原因は詳細へ表示");
         check(notices.Count == 0, "正常なMSIX一覧・画面接続の操作はエラー通知なし");
     }

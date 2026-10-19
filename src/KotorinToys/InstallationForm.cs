@@ -33,7 +33,8 @@ internal sealed class InstallationForm : BrandedForm
     readonly TableLayoutPanel detail = new() { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3 };
     string? catalogPath;
     CancellationTokenSource? cancellation;
-    bool running, singleStarted;
+    bool running, singleStarted, checkingAvailability;
+    Task? availabilityRefresh;
 
     public InstallationForm(ToolManager toolManager, string? initialTarget = null, ReleaseCatalog? releases = null,
         string? operation = null, Func<string, bool>? confirm = null, InstallationExecution? execute = null,
@@ -131,13 +132,23 @@ internal sealed class InstallationForm : BrandedForm
         UpdateAdvancedButtons();
     }
 
-    internal async Task RefreshAvailability()
+    internal Task RefreshAvailability()
     {
-        var states = await Task.WhenAll(tools.Select(async tool =>
-        { try { return await executionState(tool); } catch (Exception ex) { return new ToolState("確認できない", Detail: ex.Message); } }));
-        if (IsDisposed) return;
-        for (int i = 0; i < tools.Length; i++) executionStates[tools[i].Id] = states[i];
-        UpdateAdvancedButtons();
+        if (IsDisposed) return Task.CompletedTask;
+        if (availabilityRefresh is { IsCompleted: false }) return availabilityRefresh;
+        return availabilityRefresh = RefreshAvailabilityCore();
+    }
+    async Task RefreshAvailabilityCore()
+    {
+        checkingAvailability = true; UpdateAdvancedButtons();
+        try
+        {
+            var states = await Task.WhenAll(tools.Select(async tool =>
+            { try { return await executionState(tool); } catch (Exception ex) { return new ToolState("確認できない", Detail: ex.Message); } }));
+            if (IsDisposed) return;
+            for (int i = 0; i < tools.Length; i++) executionStates[tools[i].Id] = states[i];
+        }
+        finally { checkingAvailability = false; if (!IsDisposed) UpdateAdvancedButtons(); }
     }
 
     ActionAvailability InstallAvailability(ToolDefinition tool, string operation)
@@ -157,26 +168,27 @@ internal sealed class InstallationForm : BrandedForm
         }
         if (operation == "install" && installed.State != "未導入") operation = "update";
         bool exe = installed.Executable != null && fileExists(installed.Executable);
-        return ToolActionPolicy.Evaluate(operation, tool, installed, state,
+        return ToolActionPolicy.Evaluate(operation, catalogPath != null ? tool with { DistributionStatus = "published" } : tool, installed, state,
             package == null ? null : new(package, true, true, "配布台帳照合済み"), exe,
-            uninstallerExists: installed.Uninstaller != null && fileExists(installed.Uninstaller), busy: running);
+            uninstallerExists: installed.Uninstaller != null && fileExists(installed.Uninstaller), busy: running || checkingAvailability);
     }
 
     void UpdateAdvancedButtons(int changing = -1, bool newChecked = false)
     {
         if (singleOperation != null) return;
+        bool busy = running || checkingAvailability;
         var selected = tools.Where((_, i) => i == changing ? newChecked : targets.GetItemChecked(i)).ToArray();
         foreach (var (name, operation) in new[] { ("batchInstall", "install"), ("batchUninstall", "uninstall") })
         {
             if (buttons.Controls.Find(name, false).SingleOrDefault() is not Button button) continue;
             var decisions = selected.Select(t => (Tool: t, Rule: InstallAvailability(t, operation))).ToArray();
             var blocked = decisions.FirstOrDefault(x => !x.Rule.Enabled);
-            ActionHints.Apply(button, running ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") : selected.Length == 0 ?
+            ActionHints.Apply(button, busy ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") : selected.Length == 0 ?
                 ActionAvailability.Deny("先に対象アプリへチェックを入れてください。") : blocked.Tool != null ?
                 ActionAvailability.Deny(blocked.Tool.Name + "：" + blocked.Rule.Reason) : ActionAvailability.Allow("チェックしたアプリを順番に処理します。"), hints);
         }
         if (buttons.Controls.Find("selectInstallable", false).SingleOrDefault() is Button select)
-            ActionHints.Apply(select, running ? ActionAvailability.Deny("処理中です。") : tools.Any(t => InstallAvailability(t, "install").Enabled) ?
+            ActionHints.Apply(select, busy ? ActionAvailability.Deny("処理中です。") : tools.Any(t => InstallAvailability(t, "install").Enabled) ?
                 ActionAvailability.Allow("今インストール・更新できるアプリだけを選択します。") : ActionAvailability.Deny("現在インストール・更新できるアプリがありません。"), hints);
         if (buttons.Controls.Find("installFfmpeg", false).SingleOrDefault() is Button ffmpeg)
         {
@@ -184,8 +196,10 @@ internal sealed class InstallationForm : BrandedForm
             ActionHints.Apply(ffmpeg, tool == null ? ActionAvailability.Deny("一覧にSSCaptureがありません。") : InstallAvailability(tool, "ffmpeg"), hints);
         }
         if (buttons.Controls.Find("useGithubReleases", false).SingleOrDefault() is Button github)
-            ActionHints.Apply(github, running ? ActionAvailability.Deny("処理中です。") : catalogPath == null ?
+            ActionHints.Apply(github, busy ? ActionAvailability.Deny("処理中です。") : catalogPath == null ?
                 ActionAvailability.Deny("すでにGitHub Releasesを使用しています。") : ActionAvailability.Allow("ローカル台帳の選択を解除します。インストールは開始しません。"), hints);
+        if (buttons.Controls.Find("chooseLocalCatalog", false).SingleOrDefault() is Button choose)
+            ActionHints.Apply(choose, busy ? ActionAvailability.Deny("処理中です。") : ActionAvailability.Allow("信頼できる開発用配布台帳を選択します。通常はGitHub Releasesを使用してください。"), hints);
     }
     void AppendLog(string text) { if (!IsDisposed) log.AppendText(text + "\r\n"); }
     internal void ShowSummary(InstallationSummary summary)

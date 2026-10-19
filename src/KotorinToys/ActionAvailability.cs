@@ -49,6 +49,7 @@ internal static class ToolActionPolicy
         if (operation == "install") return installed.State == "未導入" && execution.State == "停止中"
             ? ActionAvailability.Allow("GitHub Releasesからインストールします。")
             : ActionAvailability.Deny(installed.State == "未導入" ? "実行中の開発版を先に停止してください。" : "導入済み、または導入状態を確認できません。更新・修復を確認してください。");
+        if (!executableExists) return ActionAvailability.Deny("導入先の実行ファイルが見つかりません。状態を更新し、修復を確認してください。");
         var view = ToolVersionView.Create(installed, release!);
         if (!view.CanUpdate) return ActionAvailability.Deny(installed.State is "導入済み" or "更新が必要" ? "新しい公開版が確認できません。同じ版や古い版へは更新しません。" : "正式導入済みのアプリだけアップデートできます。");
         return ActionAvailability.Allow("新しい公開版へアップデートします。設定・履歴は保持します。");

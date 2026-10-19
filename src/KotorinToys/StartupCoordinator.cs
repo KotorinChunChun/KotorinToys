@@ -80,7 +80,17 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
         }
         catch(Exception ex){return new StartupState(null,"確認できない",ex.Message);}
     });
-    public Task<StartupResult> SetMode(ToolDefinition tool,string mode)=>Change(tool.Id,before=>
+    public Task<StartupResult> SetMode(ToolDefinition tool,string mode)
+    {
+        // 解除は消えたEXEや他の壊れた対象に妨げられない。所有条件は削除側で再照合する。
+        if(mode=="none")return Task.Run(()=>
+        {
+            var known=manager.KnownTools().SingleOrDefault(t=>t.Id==tool.Id);
+            if(tool.Id=="host" || known==null || known.Name!=tool.Name || known.AppId!=tool.AppId)
+                return new StartupResult(false,"自動起動を解除する対象の識別が一致しません。");
+            return new RemovalReservations(store,gateway,taskPrefix,manager.KnownTools()).Remove(tool.Id);
+        });
+        return Change(tool.Id,before=>
     {
         var available = ModeAvailability(tool, mode);
         if (!available.Enabled) throw new IOException(available.Reason);
@@ -88,6 +98,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
         if(tool.Msix != null && mode == "direct_task")throw new IOException("MSIX版はKotorinToys経由の自動起動を選択してください。");
         var modes=new Dictionary<string,string>(before.StartupModes){[tool.Id]=mode};return before with{StartupModes=modes};
     });
+    }
     public Task<StartupResult> SetHost(bool enabled,bool showDashboard)=>Change("host",before=>
     {
         if(!enabled && before.StartupModes.Values.Contains("via_kotorintoys"))

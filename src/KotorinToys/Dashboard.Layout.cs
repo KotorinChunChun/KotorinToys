@@ -10,11 +10,12 @@ internal sealed partial class Dashboard
         grid.ColumnHeadersDefaultCellStyle.Padding = new(4, 8, 4, 8);
         grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         foreach (var (name, label, weight) in new[] { ("tool", "ツール", 16), ("summary", "ひとこと解説", 24),
-            ("installed", "導入済み版", 10), ("published", "公開版・公開日", 22), ("update", "更新", 13), ("state", "現在の状態", 12), ("startup", "自動起動", 18), ("detail", "詳細", 18) })
+            ("installed", "導入Ver", 10), ("published", "公開Ver", 10), ("update", "更新", 7), ("state", "現在の状態", 12), ("startup", "自動起動", 18), ("detail", "詳細", 14) })
         {
             var column = grid.Columns[grid.Columns.Add(name, label)]; column.FillWeight = weight;
             column.MinimumWidth = name == "summary" ? 150 : name is "tool" or "startup" ? 125 : 80;
             column.SortMode = DataGridViewColumnSortMode.NotSortable;
+            if (name is "installed" or "published" or "update" or "detail") column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         }
         foreach (var tool in tools) grid.Rows.Add(tool.Name, tool.Summary, "", "", "", "確認中", "未確認", "");
         grid.SelectionChanged += (_, _) => UpdateActions();
@@ -41,7 +42,7 @@ internal sealed partial class Dashboard
             button.Click += async (_, _) => await OpenStartupSettings(() =>
             { using var form = new StartupSettingsForm(settings, startup, manager.KnownTools()); form.ShowDialog(this); }); hostActions.Controls.Add(button);
         }
-        var installation = new Button { Name = "advancedSettings", Text = "詳細設定（開発者向け）", AutoSize = true };
+        var installation = new Button { Name = "advancedSettings", Text = "一括インストール", AutoSize = true };
         installation.Click += async (_, _) => await OpenInstallation(false); hostActions.Controls.Add(installation);
         var hostUpdate = new Button { Name = "hostUpdate", Text = "本体アップデート", AutoSize = true };
         hostUpdate.Click += (_, _) => OpenSelfUpdate(); hostActions.Controls.Add(hostUpdate);

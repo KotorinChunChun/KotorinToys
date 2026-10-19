@@ -6,7 +6,7 @@
 
 設定の正本は利用者のLocalAppData/KotorinToys/settings.json。開発・試験は`--settings-dir`で別フォルダーを指定する。StartupModesは希望方式、OwnedTasksは所有記録であり、希望だけで有効とは判定しない。secret相当の所有トークンや生設定を公開ログ・Gitへ置かない。
 
-`StartupCoordinator.ModeAvailability`が方式の候補と実行直前の正式導入・EXE存在・能力・本体導入・MSIX制限を判定する。画面は未導入行を読取専用にし、理由列に案内する。既存予約があるが実体が壊れた行では「自動起動なし」への変更候補を残す。実適用はChange／Plansで再検証し、他の無効な既存対象も製品名付きで報告する。
+`StartupCoordinator.ModeAvailability`が方式の候補と実行直前の正式導入・EXE存在・能力・本体導入・MSIX制限を判定する。画面は未導入行を読取専用にし、理由列に案内する。既存予約があるが実体が壊れた行では「自動起動なし」への変更候補を残す。有効化はChange／Plansで再検証し、他の無効な既存対象も製品名付きで報告する。解除は対象の識別を照合してRemovalReservationsへ渡し、他の対象のEXE欠落では妨げない。削除する予約のSID・所有マーカー・fingerprintは再照合し、他対象の希望方式を保持する。
 
 共有サインイン予約は本体EXE、`--root`、`--settings-dir`、SID、トリガー、有効設定、所有マーカー、fingerprintを照合する。外部変更・同名予約は上書きしない。直接タスクは正式導入EXEに固定し、MSIXは本体経由だけを許可する。起動／停止と予約登録／解除は別操作。
 

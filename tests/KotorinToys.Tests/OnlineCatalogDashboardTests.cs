@@ -52,7 +52,7 @@ internal static class OnlineCatalogDashboardTests
         requestedReleases.Clear(); Pump(form.RefreshAll());
         check(grid.Rows.Count == 2 && grid.CurrentRow?.Index == 1 && grid.Rows[0].Cells["summary"].Value?.ToString() == "もう一度更新", "連続したconfig変更でも選択を行番号でなくIDで追従");
         response = System.Text.Encoding.UTF8.GetBytes("bad JSON"); Pump(form.RefreshAll());
-        check(grid.Rows.Count == 2 && grid.CurrentRow?.Index == 1 && grid.Rows[0].Cells["detail"].Value?.ToString()?.Contains("維持") == true, "取得したconfigが壊れても表示・選択を維持し理由を表へ残す");
+        check(grid.Rows.Count == 2 && grid.CurrentRow?.Index == 1 && grid.Rows[0].Cells["detail"].ToolTipText.Contains("維持") == true, "取得したconfigが壊れても表示・選択を維持し理由を表へ残す");
         response = OnlineCatalogTests.Encode(); Pump(form.RefreshAll());
         check(grid.Rows.Count == 0 && grid.AccessibleDescription?.Contains("登録ツールなし") == true &&
             !form.Controls.Find("start", true).Single().Enabled && !form.Controls.Find("github", true).Single().Enabled, "空一覧は理由を表示し選択操作を無効にする");

@@ -26,7 +26,7 @@ internal static class DashboardRefreshTests
         }
         using var form = new Dashboard(root, releaseCheck: Fetch,
             showToolInstaller: (id, operation, catalog) => { dialogs++; selected = id; offered = catalog; check(operation == "update", "アップデートは単体操作画面へ接続"); },
-            detectInstallation: tool => new("導入済み", tool.Version, null, null), notify: _ => { });
+            detectInstallation: tool => new("導入済み", tool.Version, null, "fixture.exe"), notify: _ => { }, fileExists: _ => true);
         form.CreateControl(); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
         var selectedRow = form.Controls.Find("selectedActions", true).Single();
@@ -59,8 +59,8 @@ internal static class DashboardRefreshTests
         newer = true; Pump(form.RefreshAll());
         failure = true;
         Pump(form.OpenInstallation(true));
-        check(dialogs == 1 && grid.Rows[1].Cells["update"].Value?.ToString() == "公開版を確認できません", "照合例外時に古い確認済み情報で更新しない");
-        check(grid.Rows[1].Cells["detail"].Value?.ToString()?.Contains("照合失敗の注入") == true, "下部表示を削除しても公開照合の具体的な失敗を表へ残す");
+        check(dialogs == 1 && grid.Rows[1].Cells["update"].Value?.ToString() == "未対応", "照合例外時に古い確認済み情報で更新しない");
+        check(grid.Rows[1].Cells["detail"].ToolTipText.Contains("照合失敗の注入") == true, "下部表示を削除しても公開照合の具体的な失敗を表へ残す");
         check(selectedRow.Enabled && hostRow.Enabled && !update.Enabled, "照合失敗後はアップデートを無効にし状態更新で再確認できる");
         failure = false; before = requests;
         Pump(form.RefreshAll());

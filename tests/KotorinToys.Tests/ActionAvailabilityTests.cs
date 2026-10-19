@@ -22,6 +22,7 @@ internal static class ActionAvailabilityTests
         foreach (var operation in new[] { "start", "stop", "manual", "install", "update", "uninstall", "ffmpeg" })
             check(!Rule(operation, "実行中", busy: true).Enabled, "画面処理中の" + operation + "を無効化");
         check(!Rule("start", exists: false).Enabled && Rule("start", exists: false).Reason.Contains("実行ファイル"), "実行ファイル欠落を起動前に説明");
+        check(!Rule("update", exists: false).Enabled, "実行ファイルが消えた導入済みスナップショットでも更新を進めない");
         check(Rule("start").Enabled && !Rule("stop").Enabled && Rule("stop", "実行中").Enabled, "停止・実行状態に応じて起動と停止を切替");
         check(!Rule("manual", exists: false).Enabled && Rule("manual").Enabled, "使い方もファイルの存在に連動");
         check(!Rule("uninstall", exists: false).Enabled && Rule("uninstall").Enabled, "削除プログラム欠落を操作前に拒否");

@@ -101,7 +101,7 @@ internal static class PortableReleaseTests
             tools.Select(_ => new ToolState("停止中")).ToArray(), releases);
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
         grid.CurrentCell = grid.Rows[index].Cells[0];
-        check(grid.Rows[index].Cells["published"].Value?.ToString()?.Contains("0.1.5（2026/10/17 公開）") == true,
+        check(grid.Rows[index].Cells["published"].Value?.ToString() == "0.1.5" && grid.Rows[index].Cells["published"].ToolTipText.Contains("2026/10/17 公開"),
             "実フォームへポータブル公開版と公開日を掲載");
         check(!form.Controls.Find("installSelected", true).Single().Enabled && !form.Controls.Find("updateSelected", true).Single().Enabled,
             "実フォームでもZIP掲載と導入ボタンの有効条件を分離");

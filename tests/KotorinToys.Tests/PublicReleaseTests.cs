@@ -86,6 +86,12 @@ internal static class PublicReleaseTests
             check(!(await client.Check(tool, new(package with { Sha256 = new string('0', 64) }, bytes.Length))).Confirmed, "同梱固定版の同版asset差替をオンライン台帳で許容しない");
         using (var client = new PublicReleaseClient(new Handler((_, _) => new(HttpStatusCode.Forbidden))))
             check(!(await client.Check(tool, fallback)).Confirmed, "API制限では最新確認済みにしない");
+        foreach (var (code, expected) in new[] { (429, "取得回数制限"), (403, "アクセスが拒否"), (404, "公開ファイルが見つかりません") })
+        {
+            using var deniedClient = new PublicReleaseClient(new Handler((_, _) => new((HttpStatusCode)code)));
+            var denied = await deniedClient.Check(tool, fallback);
+            check(!denied.Confirmed && denied.Detail.Contains(expected), "HTTP" + code + "の意味と対処を日本語で案内");
+        }
         using (var client = new PublicReleaseClient(new Handler((_, _) => new(HttpStatusCode.Redirect) { Headers = { Location = new("https://example.com/evil") } })))
             check(!(await client.Check(tool, fallback)).Confirmed, "公開APIの許可外リダイレクトを拒否");
         using (var client = new PublicReleaseClient(new Handler((_, _) => new(HttpStatusCode.OK) { Content = new StringContent(new string('x', 2 * 1024 * 1024 + 1)) })))

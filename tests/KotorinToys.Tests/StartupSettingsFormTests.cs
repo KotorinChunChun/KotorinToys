@@ -45,6 +45,8 @@ internal static class StartupSettingsFormTests
             check(!coordinator.ModeAvailability(msix,"direct_task").Enabled,"MSIXの直接タスクを設定前に拒否");
             exists=false;
             check(!coordinator.ModeAvailability(tools[1],"via_kotorintoys").Enabled && coordinator.ModeAvailability(tools[1],"none").Enabled,"EXE消失時は新規自動起動を拒否し解除の選択は残す");
+            check(coordinator.SetMode(tools[1],"none").GetAwaiter().GetResult().Success && store.Load().StartupModes[tools[2].Id]=="direct_task","複数のEXEが消失しても選択対象だけを解除でき他の予約は保持");
+            check(coordinator.SetMode(tools[2],"none").GetAwaiter().GetResult().Success && gateway.Tasks.Count==0,"最後の消失対象も所有条件を確認して解除できる");
             var help=form.Controls.Find("startupButtonHelp",true).Single();
             check(new[]{"本体設定を適用：","選択ツールの方式を適用：","未完了操作を復旧：","状態を再取得："}.All(help.Text.Contains),"画面内で4ボタンの意味を説明");
             form.Size=form.MinimumSize;form.PerformLayout();

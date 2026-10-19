@@ -42,13 +42,13 @@ internal static class StartupOverviewDashboardTests
         grid.CurrentCell = grid.Rows[2].Cells[0]; gate.SetResult(); Pump(first); gate = null;
         check(grid.Rows.Cast<DataGridViewRow>().Select(row => row.Cells["startup"].Value?.ToString()).SequenceEqual(tools.Select(tool => values[tool.Id].Text)), "本体経由・OS側・なし・無効・不明・重複を各行へ表示");
         check(grid.CurrentRow?.Index == 2 && grid.Rows[0].Cells["startup"].ToolTipText.Contains(tools[0].Name + "の登録詳細"), "選択を維持し自動起動セルに照合詳細を表示");
-        check(grid.Rows[5].Cells["detail"].Value?.ToString()?.Contains(tools[5].Name + "の登録詳細") == true, "確認不能の理由は詳細欄にも残す");
+        check(grid.Rows[5].Cells["detail"].ToolTipText.Contains(tools[5].Name + "の登録詳細") == true, "確認不能の理由は詳細欄にも残す");
         var before = reads; Pump(form.RefreshAll());
         check(reads == before + tools.Length, "状態を更新には自動起動の再取得も含める");
         before = reads; Pump(form.OpenStartupSettings(() => values[tools[2].Id] = new("なし", "設定後の確認")));
         check(reads == before + tools.Length && grid.Rows[2].Cells["startup"].Value?.ToString() == "なし", "本体設定を閉じたら自動起動列を更新する");
         failure = true; Pump(form.RefreshStartups());
-        check(grid.Rows[1].Cells["startup"].Value?.ToString() == "確認できない" && grid.Rows[1].Cells["detail"].Value?.ToString()?.Contains("予約の読取拒否") == true &&
+        check(grid.Rows[1].Cells["startup"].Value?.ToString() == "確認できない" && grid.Rows[1].Cells["detail"].ToolTipText.Contains("予約の読取拒否") == true &&
             grid.Rows[0].Cells["startup"].Value?.ToString() == values[tools[0].Id].Text, "1製品の読取例外で他製品の確認結果を失わない");
         form.Size = form.MinimumSize; form.PerformLayout();
         check(column.Width >= 125 && grid.ColumnHeadersHeight >= 40 && grid.Height >= 320, "最小画面でも自動起動列幅・ヘッダー・一覧領域を確保");

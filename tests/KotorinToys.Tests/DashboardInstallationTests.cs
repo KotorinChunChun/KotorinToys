@@ -38,7 +38,7 @@ internal static class DashboardInstallationTests
             calls[0].Catalog?.Packages.Any(p => p.Package.Id == tools[0].Id) == true && advanced == 0,
             "インストールは通信中の選択変更・二重操作に影響されず元の1件へ進む");
         grid.CurrentCell = grid.Rows[0].Cells[0];
-        actual[tools[0].Id] = new("導入済み", "0.0.1", null, null, "test-uninstaller.exe");
+        actual[tools[0].Id] = new("導入済み", "0.0.1", null, "fixture.exe", "test-uninstaller.exe");
         Pump(form.RefreshAll());
         check(form.Controls.Find("updateSelected", true).Single().Enabled && form.Controls.Find("uninstallSelected", true).Single().Enabled,
             "導入済み・新公開版ありでアップデートと削除が有効");
@@ -57,7 +57,7 @@ internal static class DashboardInstallationTests
             "同版の無効ボタン相当の直接呼出しでも更新を開始しない");
         grid.CurrentCell = grid.Rows[3].Cells[0];
         Pump(form.OpenToolInstallation("install"));
-        check(calls.Count == 3 && notices.Last().Contains("未公開") && grid.Rows[3].Cells["detail"].Value?.ToString()?.Contains("未公開") == true, "未公開の導入拒否理由は通知と対象行の詳細で確認できる");
+        check(calls.Count == 3 && notices.Last().Contains("未公開") && grid.Rows[3].Cells["detail"].ToolTipText.Contains("未公開") == true, "未公開の導入拒否理由は通知と対象行の詳細で確認できる");
         Pump(form.OpenInstallation(false));
         check(advanced == 1 && calls.Count == 3, "詳細設定は単体操作と別の入口へ接続");
         var selected = form.Controls.Find("selectedActions", true).Single();

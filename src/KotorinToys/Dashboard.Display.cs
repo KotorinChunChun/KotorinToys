@@ -10,8 +10,11 @@ internal sealed partial class Dashboard
         {
             var version = ToolVersionView.Create(actual[i], published[i]); var row = grid.Rows[i];
             row.Cells["installed"].Value = version.Installed; row.Cells["published"].Value = version.Published;
-            row.Cells["published"].ToolTipText = published[i].Detail;
-            row.Cells["update"].Value = version.Update; row.Cells["state"].Value = execution[i].State;
+            row.Cells["published"].Value = DashboardText.Published(published[i]);
+            row.Cells["published"].ToolTipText = version.Published + "\n" + published[i].Detail;
+            row.Cells["update"].Value = DashboardText.Update(tools[i], actual[i], published[i]);
+            row.Cells["update"].ToolTipText = version.Update + "\n" + published[i].Detail;
+            row.Cells["state"].Value = execution[i].State;
         }
         UpdateDetails(); UpdateActions();
     }
@@ -29,8 +32,8 @@ internal sealed partial class Dashboard
                 !releases[i].Confirmed || releases[i].Package == null ? releases[i].Detail : null,
                 startupSnapshots[i].NeedsAttention ? startupSnapshots[i].Detail : null,
                 operationErrors.GetValueOrDefault(tools[i].Id), issue };
-            var detail = string.Join("\n", texts.Where(text => !string.IsNullOrWhiteSpace(text)).Distinct());
-            grid.Rows[i].Cells["detail"].Value = detail;
+            var detail = string.Join("\n", texts.Append(DashboardText.Advice(tools[i], installations[i], states[i], releases[i])).Where(text => !string.IsNullOrWhiteSpace(text)).Distinct());
+            grid.Rows[i].Cells["detail"].Value = DashboardText.Detail(tools[i], installations[i], states[i], releases[i], startupSnapshots[i], operationErrors.GetValueOrDefault(tools[i].Id), catalogError, stateError);
             grid.Rows[i].Cells["detail"].ToolTipText = detail;
         }
     }
@@ -42,6 +45,7 @@ internal sealed partial class Dashboard
     }
     void UpdateActions()
     {
+        actions.AccessibleDescription = hostActions.AccessibleDescription = busy || refreshingCatalog ? "処理中です。完了するまでお待ちください。" : null;
         int i = grid.CurrentRow?.Index ?? -1;
         var repository = i >= 0 && i < tools.Length ? ToolRepository.Find(tools[i]) : null;
         ActionHints.Apply(github, busy || refreshingCatalog ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") :

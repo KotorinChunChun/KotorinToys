@@ -108,6 +108,13 @@ internal sealed partial class StartupSettingsForm
         Set("applyToolStartup",Decide(selected));
         Set("recoverStartup",working || refreshing ? ActionAvailability.Deny("処理中です。") : Pending ? ActionAvailability.Allow("中断した変更を、記録された変更前の状態へ復元します。") : ActionAvailability.Deny("復旧が必要な中断操作はありません。"));
         Set("refreshStartup",working || refreshing ? ActionAvailability.Deny("処理中です。") : ActionAvailability.Allow("保存済み設定と予約を読み直します。編集中の方式は保持します。"));
-        grid.Enabled=hostStartup.Enabled=showDashboard.Enabled=!working && !refreshing && loaded && loadError==null && !Pending;
+        bool editable=!working && !refreshing && loaded && loadError==null && !Pending;
+        grid.Enabled=editable;
+        var hostStart=coordinator.HostAvailability(true);
+        hostStartup.Enabled=editable && (hostStart.Enabled || saved.HostStartup);
+        showDashboard.Enabled=editable && hostStart.Enabled && (hostStartup.Checked || saved.StartupModes.Values.Contains("via_kotorintoys"));
+        hostStartup.AccessibleDescription=hostStart.Reason;hints.SetToolTip(hostStartup,hostStart.Reason);
+        showDashboard.AccessibleDescription=showDashboard.Enabled?"サインイン時に管理画面も開くかを選びます。":"本体または本体経由の自動起動を有効にしたときに選べます。";
+        hints.SetToolTip(showDashboard,showDashboard.AccessibleDescription);
     }
 }

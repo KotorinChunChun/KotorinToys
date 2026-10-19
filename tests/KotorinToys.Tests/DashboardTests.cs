@@ -22,7 +22,7 @@ internal static class DashboardTests
         form.ApplySnapshot(installed, states, releases); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
         check(grid.Rows.Count == tools.Length && grid.Rows.Cast<DataGridViewRow>().Select(row => row.Cells["summary"].Value?.ToString()).SequenceEqual(tools.Select(t => t.Summary)), "実フォームの表に9件の一言解説");
-        var expectedPublished = ReleaseDisplay.Version(releases[1].Package!) + "（開発版）";
+        var expectedPublished = releases[1].Package!.Package.Version;
         check(grid.Rows[1].Cells["installed"].Value?.ToString() == "0.1.3" && grid.Rows[1].Cells["published"].Value?.ToString() == expectedPublished, "実フォームに導入済み版と現在の公開台帳の版を別表示");
         grid.CurrentCell = grid.Rows[1].Cells[0];
         check(((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "更新あり行を選択すると更新導線が有効");
@@ -40,7 +40,7 @@ internal static class DashboardTests
         check(form.Controls.Find("stop", true).Single().Enabled, "実行中へ変化すると停止ボタンを復旧する");
         form.ReportExecution(tools[2], false, new("実行中", Detail: "録画中のため停止できません。"));
         form.ApplySnapshot(installed, states, releases);
-        check(notices.Single().Contains("録画中のため停止できません") && grid.Rows[2].Cells["detail"].Value?.ToString()?.Contains("録画中のため停止できません") == true,
+        check(notices.Single().Contains("録画中のため停止できません") && grid.Rows[2].Cells["detail"].ToolTipText.Contains("録画中のため停止できません") == true,
             "実行中のまま返る正常終了拒否も通知し状態再取得後に理由を消さない");
         form.ReportExecution(tools[2], true, new("実行中"));
         check(notices.Count == 1, "正常な起動成功は通知しない");

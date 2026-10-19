@@ -45,7 +45,7 @@ internal static class RepositoryButtonTests
         using var failing = new Dashboard(root, openRepository: _ => throw new IOException("ブラウザー起動失敗の注入"), notify: text => notice = text);
         failing.CreateControl(); failing.OpenRepository();
         var failedGrid = (DataGridView)failing.Controls.Find("toolTable", true).Single();
-        check(notice?.Contains("GitHubを開けません") == true && failedGrid.Rows[0].Cells["detail"].Value?.ToString()?.Contains("ブラウザー起動失敗の注入") == true &&
+        check(notice?.Contains("GitHubを開けません") == true && failedGrid.Rows[0].Cells["detail"].ToolTipText.Contains("ブラウザー起動失敗の注入") == true &&
             failing.Controls.Find("selectedActions", true).Single().Enabled, "ブラウザー起動失敗を通知し操作行を復旧");
     }
 }
