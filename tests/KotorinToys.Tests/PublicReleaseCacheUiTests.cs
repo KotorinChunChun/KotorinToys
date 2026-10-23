@@ -48,8 +48,8 @@ internal static class PublicReleaseCacheUiTests
             grid.CurrentCell = grid.Rows.Cast<DataGridViewRow>().Single(r => r.Cells["tool"].Value?.ToString() == tool.Name).Cells["detail"];
             var install = Find<Button>(form, "installSelected");
             check(!install.Enabled && install.AccessibleDescription!.Contains("15:40:00"), "実一覧の無効導入ボタンにも解除時刻を保持");
-            check(grid.CurrentRow!.Cells["detail"].Value?.ToString() == "取得制限" && grid.CurrentRow.Cells["detail"].ToolTipText.Contains("15:40:00"),
-                "一覧は短い取得制限表示、詳細は解除時刻を表示");
+            check(grid.CurrentRow!.Cells["detail"].Value?.ToString() == "-" && grid.CurrentRow.Cells["detail"].ToolTipText.Contains("15:40:00"),
+                "未導入の一覧はハイフン、詳細は取得制限の解除時刻を表示");
             form.OpenSelectedDetails();
             check(details.Contains("解除予定") && details.Contains("15:40:00") && details.Contains("導入不可"), "クリックして読む説明にも原因と解除予定と無効理由を表示");
             Pump(form.OpenToolInstallation("install"));
