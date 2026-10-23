@@ -9,10 +9,12 @@ internal static class ReleaseReadinessTests
         var report=await ReleaseReadiness.Check(root,tools,catalog);
         check(report.Passed && !report.Online && !report.ReadyToPublish,"静的検査を実公開の照合成功と混同しない");
         check(report.Items.Any(i=>i.Level=="案内のみ") && !report.Items.Any(i=>i.Id=="shortcut-key-counter" && i.Level=="公開照合済み"),"未公開・ZIP候補を導入可能として数えない");
-        Task<PublicRelease> Good(ToolDefinition t,ReleasePackage? fallback)=>Task.FromResult(new PublicRelease(fallback,true,true,"fixture"));
+        var managedCount=tools.Count(t=>t.Msix!=null || t.DistributionStatus=="published");
+        Task<PublicRelease> Good(ToolDefinition t,ReleasePackage? fallback)=>Task.FromResult(new PublicRelease(fallback ??
+            new(new(t.Id,t.Name,t.Version,t.AppId,t.Name+"-"+t.Version+"-setup.exe",new string('a',64),"unsigned-public-build"),1),true,true,"fixture"));
         report=await ReleaseReadiness.Check(root,tools,catalog,tools,Good);
         check(!(await ReleaseReadiness.Check(root,tools,catalog,online:Good)).ReadyToPublish,"公開configを省略したオンライン検査を公開準備完了にしない");
-        check(report.ReadyToPublish && report.Items.Count(i=>i.Level=="公開照合済み")==10,"公開configと全対応製品の配布物が一致した場合だけ公開準備完了");
+        check(report.ReadyToPublish && report.Items.Count(i=>i.Level=="公開照合済み")==managedCount,"公開configと全対応製品の配布物が一致した場合だけ公開準備完了");
         report=await ReleaseReadiness.Check(root,tools,catalog,tools.Skip(1).ToArray(),Good);
         check(!report.ReadyToPublish && report.Items.Any(i=>i.Level=="エラー" && i.Detail.Contains("公開configに登録")),"公開configへ未反映の候補を公開前に検出");
         var altered=tools.ToArray();altered[0]=altered[0] with{DistributionStatus="unpublished"};
@@ -28,7 +30,7 @@ internal static class ReleaseReadinessTests
         altered=tools.ToArray();altered[0]=altered[0] with{RepositoryUrl="https://github.com/OtherOwner/LiveTextMarker"};
         check(!(await ReleaseReadiness.Check(root,altered,catalog)).Passed,"別所有者への定義差替を公開前に拒否");
         report=await ReleaseReadiness.Check(root,tools,catalog,tools,(t,f)=>Task.FromResult(new PublicRelease(f,false,false,"通信失敗",Problem:ReleaseProblem.Connection)));
-        check(!report.ReadyToPublish && report.Items.Count(i=>i.Level=="エラー")==10,"通信失敗や未照合を全件成功にしない");
+        check(!report.ReadyToPublish && report.Items.Count(i=>i.Level=="エラー")==managedCount,"通信失敗や未照合を全件成功にしない");
         report=await ReleaseReadiness.Check(root,tools,catalog,tools,(t,f)=>Task.FromResult(new PublicRelease(catalog.Packages[0],true,true,"別製品fixture")));
         check(!report.Passed && report.Items.Any(i=>i.Detail.Contains("製品")),"公開確認が返した別製品も再照合して拒否");
         var selected=tools.Where(t=>t.Id=="smart-paste").ToArray();

@@ -37,9 +37,9 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [EveryDB](tools/EveryDB/README.md) | 複数のデータソースをSQLiteへ取り込み、横断検索するツール | 共通インストーラーで導入・更新・削除と起動・停止・状態確認に対応 |
 | [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | MIC・RVC・スピーカー入力を3出力へ送るツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
 | [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | 再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
-| [OperationRecorder](tools/OperationRecorder/README.md) | PC操作を静止画で記録し、画像付きの手順書を作るツール | 開発版の起動・画面表示・正常停止・状態確認に対応 |
+| [OperationRecorder](tools/OperationRecorder/README.md) | PC操作を静止画で記録し、画像付きの手順書を作るツール | 導入・更新・削除、起動・画面表示・正常停止・状態確認に対応 |
 
-OperationRecorderは独立Gitを維持し、0.1.9のソースで本体の管理契約2へ対応する開発版をローカル一覧と同梱configに追加しています。[管理連携ガイド](tools/OperationRecorder/docs/kotorintoys-integration.md)の専用Debugビルド後に`pwsh -File dev/scripts/start.ps1 -LocalCatalog`で本体を起動すると使用できます。専用設定フォルダーでローカル一覧を読み込み、GitHubの一覧更新による置換を止めます。既存本体が動作中の場合は正常終了してから実行してください。本体対応インストーラーは未公開で、GitHubの公開先は未設定です。この追加はソース内の一覧への反映であり、配信中のconfigや導入済み本体の更新は別工程です。
+OperationRecorder 1.3.2は[公開リポジトリ](https://github.com/KotorinChunChun/OperationRecorder)で管理し、本体対応のランタイム同梱インストーラーを提供します。本体0.1.9以降の「状態を更新」でオンライン一覧と公開版を取得し、一覧から導入できます。[管理連携ガイド](tools/OperationRecorder/docs/kotorintoys-integration.md)を参照してください。開発時は専用Debugビルド後に`pwsh -File dev/scripts/start.ps1 -LocalCatalog`でローカル一覧を確認できます。実際の公開・導入検証の結果は[実装・公開記録](dev/history/v0.1.9/v0.1.9-imp.md)へまとめています。
 
 音声2件は0.1.8とGitHub mainの配信用configへ公開済みです。旧本体の固定識別では対応できない場合があるため、本体も0.1.8へ更新してください。[登録補完と検証](dev/history/v0.1.7/voice-router-registration.md)を参照してください。
 

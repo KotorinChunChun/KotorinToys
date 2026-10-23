@@ -153,7 +153,7 @@ SpkRouterも独立Git・管理契約2に対応します。`dev/scripts/build.ps1
 
 ## OperationRecorderの管理連携
 
-0.1.9のソースでOperationRecorderを`tools/OperationRecorder`の独立Gitとして追加しています。ローカルの`catalog/tools.json`と自己完結した`config/tools.json`へ`operation-recorder`として登録し、管理契約2で起動・既存画面の表示・状態確認・正常停止を扱います。公開先は未確認のため空欄、本体対応インストーラーは`unpublished`とし、製品配布の固定表へは追加しません。本体配布に含めるのは定義・README・docs・原本マニュアル・キー一覧・アイコンです。
+0.1.9のソースでOperationRecorderを`tools/OperationRecorder`の独立Gitとして追加しています。ローカルの`catalog/tools.json`と自己完結した`config/tools.json`へ`operation-recorder`として登録し、管理契約2で起動・既存画面の表示・状態確認・正常停止を扱います。公開先はKotorinChunChun/OperationRecorder、本体対応インストーラーは`published`とし、検証済み定義を渡す汎用経路で導入します。製品配布の固定C#表は拡張しません。本体配布に含めるのは定義・README・docs・原本マニュアル・キー一覧・アイコンです。
 
 通常の引数なし起動は利用画面を表示し、本体の管理起動は`--startup`で無表示にします。自動起動は初期OFFです。単体と本体でOS予約を重複登録しない扱いと、記録中の停止拒否は[子の管理連携ガイド](../tools/OperationRecorder/docs/kotorintoys-integration.md)を参照してください。
 
@@ -170,3 +170,5 @@ pwsh -File dev/scripts/start.ps1 -LocalCatalog
 `-LocalCatalog`は開発用の明示指定です。本体へ`--local-catalog`と版別`logs/local-catalog-<実行ID>/settings`の専用設定先を渡し、`catalog/tools.json`のローカル一覧を使用します。「状態を更新」でもGitHubの一覧へ置換しません。通常の利用者設定・一覧キャッシュは変更しません。引数なし起動は従来どおりGitHubの配信用一覧を更新します。単一起動のMutexは共通のため、既存本体が動作中の場合はその画面を表示します。ローカル一覧へ切り替える際は本体を正常終了してから実行してください。
 
 本体回帰の`--local-catalog-tests`は通常起動のキャッシュ利用、ローカル一覧によるOperationRecorderの保持、状態更新後の行とオンラインキャッシュの保持を検査します。
+
+共通配布のOperationRecorder単独指定で自己完結発行・Inno生成・prerelease公開に対応します。現在ユーザー用setupには定義と共通Maintenanceを同梱し、更新・削除前の正常停止と製品識別を確認します。具体的な引数は[子のリリース手順](../tools/OperationRecorder/docs/release.md)を参照してください。

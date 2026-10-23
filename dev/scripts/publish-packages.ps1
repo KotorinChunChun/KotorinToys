@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB')]
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB','OperationRecorder')]
     [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste'),
     [switch]$ExcludeFFmpeg,
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
@@ -134,7 +134,7 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/windowsdesktop-LICENSE.txt') (Join-Path $output 'licenses')
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/dotnet-THIRD-PARTY-NOTICES.txt') (Join-Path $output 'licenses')
         }
-        { $_ -in @('CapchunWindow','ChulipVideo','ChunapTool') } {
+        { $_ -in @('CapchunWindow','ChulipVideo','ChunapTool','OperationRecorder') } {
             Publish-Application $identity.Project $output $product
             $licenses = Join-Path $projectRoot "tools/$($identity.Folder)/licenses"
             if (Test-Path -LiteralPath $licenses -PathType Container) { Copy-Required $licenses $output }

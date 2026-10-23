@@ -15,7 +15,7 @@ internal static class ReleaseTests
         var item=new ReleasePackage(package,bytes.Length);var catalog=new ReleaseCatalog(1,[item]);
         var cache=Path.Combine(fixtures,"release-cache");Directory.CreateDirectory(cache);
         var pinned=ReleaseDownloader.Load(root);
-        check(ToolCatalog.Load(root).Where(t=>t.DistributionStatus=="published").All(t=>pinned.Packages.Any(p=>p.Package.Id==t.Id && Version.Parse(p.Package.Version)<=Version.Parse(t.Version) && p.Package.AppId==t.AppId)),"公開固定台帳の製品識別と版を照合し、開発ソースの先行を許容");
+        check(ToolCatalog.Load(root).Where(t=>t.DistributionStatus=="published" && ProductIdentity.FromId(t.Id)!=null).All(t=>pinned.Packages.Any(p=>p.Package.Id==t.Id && Version.Parse(p.Package.Version)<=Version.Parse(t.Version) && p.Package.AppId==t.AppId)),"既存の固定製品台帳を照合し、定義追加製品のRelease取得に同梱fallbackを強制しない");
         check(!pinned.Packages.Any(p=>p.Package.Id=="shortcut-key-counter"),"ポータブルZIPへ架空のInno公開情報を追加しない");
         HttpResponseMessage Ok(byte[] data)=>new(HttpStatusCode.OK){Content=new ByteArrayContent(data)};
         using(var downloader=new ReleaseDownloader(new Handler((request,_)=>

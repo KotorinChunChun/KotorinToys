@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory)][string]$CatalogPath,
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB')][string[]]$Products=@('LiveTextMarker','SmartPaste'),
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB','OperationRecorder')][string[]]$Products=@('LiveTextMarker','SmartPaste'),
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference='Stop'

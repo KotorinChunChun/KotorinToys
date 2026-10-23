@@ -35,4 +35,4 @@
 
 [submodule "tools/OperationRecorder"]
 	path = tools/OperationRecorder
-	update = none
+	url = https://github.com/KotorinChunChun/OperationRecorder.git

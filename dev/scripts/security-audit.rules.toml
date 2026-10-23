@@ -1,3 +1,9 @@
 title = "KotorinToys public security audit"
 [extend]
 useDefault = true
+
+# 既知の公開ショートカット文字列だけを除外する。ファイル全体や任意のキー値は除外しない。
+[allowlist]
+description = "操作キーの公開既定値（APIキーではない）"
+regexTarget = "secret"
+regexes = ['''^Ctrl\+Shift\+F(?:10|12)$''']

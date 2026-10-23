@@ -20,6 +20,7 @@ function Test-Case([string]$Name, [string]$File, [string]$Content, [bool]$Expect
     Write-Output "PASS: $Name"
 }
 Test-Case 'clean' 'README.md' '公開可能な説明だけを含むテストです。' $true
+Test-Case 'public-shortcuts' 'shortcuts.json' '{"keys":"Ctrl+Shift+F10","otherKeys":"Ctrl+Shift+F12"}' $true
 foreach ($extension in @('pfx','p12','pem','key','pdb','db','sqlite','sqlite3')) {
     Test-Case "reject-$extension" "fixture.$extension" '実データではない架空入力' $false
 }
@@ -27,6 +28,7 @@ Test-Case 'reject-dotenv' '.env' '架空設定' $false
 # 実際の認証情報ではない。実行ごとに無効な文字列を生成し、値は表示しない。
 $fake = 'gh' + 'p_' + [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N').Substring(0,4)
 Test-Case 'reject-synthetic-token' 'fixture.txt' ('github_token = "' + $fake + '"') $false '秘密情報の検出'
+Test-Case 'reject-token-near-shortcuts' 'shortcuts.json' ('{"keys":"Ctrl+Shift+F10","github_token":"' + $fake + '"}') $false '秘密情報の検出'
 $secretReport = Get-Content (Join-Path $base 'reject-synthetic-token/reports/secrets-redacted.json') -Raw | ConvertFrom-Json
 if (@($secretReport | Where-Object { $_.RuleID -eq 'github-pat' }).Count -ne 1) { throw '架空トークンの検出結果を確認できません。' }
 $obsolete = '{"runtimeOptions":{"includedFrameworks":[{"name":"Microsoft.NETCore.App","version":"10.0.0"}]}}'
