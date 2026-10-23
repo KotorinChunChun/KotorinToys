@@ -57,4 +57,42 @@ function Test-RecorderPublishSelection {
     if ($calls.Count -ne 1 -or $calls[0][0] -ne 'tools/OperationRecorder/OperationRecorderApp.csproj' -or $calls[0][1] -ne $output -or $calls[0][2] -ne $product) { throw 'OperationRecorderが共通C#発行入口へ到達しません。' }
 }
 Test-RecorderPublishSelection
-Write-Output '配布スクリプト6件の構文・固定配布先・汎用8製品・OperationRecorderの共通C#発行分岐・SSCapture専用経路の副作用前拒否3件：成功'
+
+function Test-SnapshotRevisions {
+    $repoRoot = Split-Path (Split-Path $PSScriptRoot)
+    $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'publish-packages.ps1'), [ref]$null, [ref]$null)
+    $reader = $ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Get-SnapshotRevision'}, $true)
+    if (-not $reader) { throw '採用ソースのコミット読取関数がありません。' }
+    . ([scriptblock]::Create($reader.Extent.Text))
+    $version = 'v' + (Get-Content -LiteralPath (Join-Path $repoRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version
+    $projectRoot = Join-Path $repoRoot ("dev/history/$version/logs/distribution-revision-" + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $projectRoot | Out-Null
+    $manifest = Join-Path $projectRoot 'release-source.json'
+    if ($null -ne (Get-SnapshotRevision) -or $null -ne (Get-SnapshotRevision 'OperationRecorder')) { throw '通常配置で採用コミットを捏造しています。' }
+    $parent = 'a' * 40; $child = 'b' * 40
+    $source = @{ commit = $parent; children = @(@{ path = 'tools/OperationRecorder'; commit = $child }) }
+    $source | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $manifest -Encoding utf8
+    if ((Get-SnapshotRevision) -ne $parent -or (Get-SnapshotRevision 'OperationRecorder') -ne $child) { throw '隔離ソースの親・子コミットが取り違えられています。' }
+    function Reject-Snapshot([string]$Folder, [string]$Reason) {
+        $rejected = $false
+        try { Get-SnapshotRevision $Folder | Out-Null } catch { $rejected = $true }
+        if (-not $rejected) { throw "採用ソースの不正を拒否しませんでした：$Reason" }
+    }
+    Reject-Snapshot 'SmartPaste' '対象の子が欠落'
+    $source.commit = 'invalid'
+    $source | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $manifest -Encoding utf8
+    Reject-Snapshot '' '親SHA不正'
+    $source.commit = $parent; $source.children[0].commit = 'invalid'
+    $source | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $manifest -Encoding utf8
+    Reject-Snapshot '' '子SHA不正を本体発行でも拒否'
+    $source.children[0].commit = $child
+    $source.children += @{ path = 'tools/OperationRecorder'; commit = $child }
+    $source | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $manifest -Encoding utf8
+    Reject-Snapshot 'OperationRecorder' '子宣言の重複'
+    @{ commit = $parent } | ConvertTo-Json | Set-Content -LiteralPath $manifest -Encoding utf8
+    Reject-Snapshot '' '子一覧の欠落'
+    '{ invalid json' | Set-Content -LiteralPath $manifest -Encoding utf8
+    Reject-Snapshot '' 'JSON不正'
+}
+Test-SnapshotRevisions
+Write-Output '配布スクリプト6件の構文・固定配布先・汎用8製品・OperationRecorder共通発行・採用ソースの親子SHAと不正拒否・SSCapture専用経路の副作用前拒否3件：成功'

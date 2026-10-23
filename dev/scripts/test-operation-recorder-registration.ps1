@@ -22,7 +22,7 @@ $body = $hostClause[0].Item2.Extent.Text.Trim()
 & ([scriptblock]::Create($body.Substring(1, $body.Length - 2)))
 
 $definitionOutput = Join-Path $output 'tools/OperationRecorder'
-foreach ($relative in @('tool.json','README.md','docs/kotorintoys-integration.md','operation-recorder/MANUAL.md','config/shortcuts.json','Assets/app.ico')) {
+foreach ($relative in @('tool.json','README.md','THIRD-PARTY-NOTICES.md','docs/kotorintoys-integration.md','operation-recorder/MANUAL.md','config/shortcuts.json','Assets/app.ico')) {
     $source = Join-Path $projectRoot "tools/OperationRecorder/$relative"
     $actual = Join-Path $definitionOutput $relative
     if (-not (Test-Path -LiteralPath $actual -PathType Leaf) -or (Get-FileHash -LiteralPath $source).Hash -ne (Get-FileHash -LiteralPath $actual).Hash) {
