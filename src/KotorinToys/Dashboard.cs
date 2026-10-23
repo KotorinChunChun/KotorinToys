@@ -65,9 +65,9 @@ internal sealed partial class Dashboard : BrandedForm
         this.startupCheck = startupCheck ?? (startup != null ? new StartupOverviewReader(startup).Read :
             (_, _) => Task.FromResult(new StartupOverview("未確認", "本体設定付きの通常起動で自動起動を照合できます。")));
         this.releaseCheck = releaseCheck ?? CheckRelease;
-        this.showInstaller = showInstaller ?? ((id, catalog) => { using var form = new InstallationForm(manager, id, catalog); form.ShowDialog(this); });
+        this.showInstaller = showInstaller ?? ((id, catalog) => { using var form = new InstallationForm(manager, id, catalog, publications: PublicationSnapshot()); form.ShowDialog(this); });
         this.showToolInstaller = showToolInstaller ?? ((id, operation, catalog) =>
-        { using var form = new InstallationForm(manager, id, catalog, operation); form.ShowDialog(this); });
+        { using var form = new InstallationForm(manager, id, catalog, operation, publications: PublicationSnapshot()); form.ShowDialog(this); });
         this.detectInstallation = detectInstallation ?? manager.Installation;
         this.fileExists = fileExists ?? File.Exists;
         this.executionCheck = executionCheck ?? manager.Status;

@@ -11,9 +11,9 @@ internal sealed partial class Dashboard
             var version = ToolVersionView.Create(actual[i], published[i]); var row = RowFor(i);
             row.Cells["installed"].Value = version.Installed; row.Cells["published"].Value = version.Published;
             row.Cells["published"].Value = DashboardText.Published(published[i]);
-            row.Cells["published"].ToolTipText = version.Published + "\n" + published[i].Detail;
+            row.Cells["published"].ToolTipText = version.Published + "\n" + ReleaseProblems.Explanation(published[i]);
             row.Cells["update"].Value = DashboardText.Update(tools[i], actual[i], published[i]);
-            row.Cells["update"].ToolTipText = version.Update + "\n" + published[i].Detail;
+            row.Cells["update"].ToolTipText = version.Update + "\n" + ReleaseProblems.Explanation(published[i]);
             row.Cells["state"].Value = execution[i].State;
         }
         UpdateDetails(); ApplyView(); UpdateActions();
@@ -23,14 +23,14 @@ internal sealed partial class Dashboard
         var issue = string.Join("\n", new[] { catalogError, stateError }.Where(text => !string.IsNullOrWhiteSpace(text)));
         grid.AccessibleDescription = string.IsNullOrEmpty(issue) && tools.Length == 0 ? "登録ツールなし（configで一覧が空に設定されています）" : issue;
         if (hostActions.Controls.Find("refresh", false).SingleOrDefault() is Button refresh)
-            tooltips.SetToolTip(refresh, string.IsNullOrEmpty(issue) ? "実行状態・GitHubの一覧・公開版を更新します。" : issue);
+            tooltips.SetToolTip(refresh, string.IsNullOrEmpty(issue) ? "実行状態・一覧・公開版を更新します。公開情報は5分のキャッシュを使い、期限後に再取得します。取得制限の解除待ち中は通信しません。" : issue);
         for (int i = 0; i < tools.Length; i++)
         {
             var row = RowFor(i);
             row.Cells["startup"].Value = startupSnapshots[i].Text;
             row.Cells["startup"].ToolTipText = startupSnapshots[i].Detail;
             var texts = new[] { states[i].Detail, installations[i].State != "導入済み" ? installations[i].Detail : null,
-                !releases[i].Confirmed || releases[i].Package == null ? releases[i].Detail : null,
+                !releases[i].Confirmed || releases[i].Package == null ? ReleaseProblems.Explanation(releases[i]) : null,
                 startupSnapshots[i].NeedsAttention ? startupSnapshots[i].Detail : null,
                 operationErrors.GetValueOrDefault(tools[i].Id), issue };
             var detail = string.Join("\n", texts.Append(DashboardText.Advice(tools[i], installations[i], states[i], releases[i])).Where(text => !string.IsNullOrWhiteSpace(text)).Distinct());

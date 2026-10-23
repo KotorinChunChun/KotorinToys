@@ -32,7 +32,9 @@ internal static class DashboardText
     {
         if (tool.Msix != null && installed.State == "確認できない")
             return "対処：Windowsの「設定 → アプリ」でMSIXの修復を確認してください。リセット・削除はデータへ影響するため自動実行しません。";
-        if (!release.Confirmed && release.Problem is ReleaseProblem.Connection or ReleaseProblem.RateLimit)
+        if (!release.Confirmed && release.Problem == ReleaseProblem.RateLimit)
+            return "対処：" + ReleaseProblems.Explanation(release);
+        if (!release.Confirmed && release.Problem == ReleaseProblem.Connection)
             return "対処：通信状態を確認し、時間をおいて「状態を更新」を押してください。配布形式の未対応とは別の状態です。";
         if (!release.Confirmed && release.Problem is ReleaseProblem.Unavailable or ReleaseProblem.Validation)
             return "対処：GitHubの公開ページと配布情報を確認してください。照合できない配布物は実行しません。";
