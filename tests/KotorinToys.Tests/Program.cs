@@ -320,11 +320,11 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 12, "schema 2でOperationRecorderを含む12ツールを解決する");
+        Check(tools.Length == 13, "schema 2でTimecardOCRを含む13ツールを解決する");
         Check(tools.Count(t => t.DistributionStatus == "published") == 10 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応10ツールと今回公開しないShortcutKeyCounterを区別");
-        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 2, "ShortcutKeyCounter・HttpSelectorは本体用Inno配布の対象外");
+        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 3, "ShortcutKeyCounter・HttpSelector・TimecardOCRは本体用Inno配布の対象外");
         Check(tools.All(t => t.Id == "voice-mixer-spk-router" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0), "SpkRouterは追加ランタイム不要、他ツールの依存情報を保持");
-        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"12ツールの確認済み能力と環境");
+        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"13ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

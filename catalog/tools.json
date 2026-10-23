@@ -60,6 +60,11 @@
       "id": "operation-recorder",
       "name": "OperationRecorder",
       "definition": "tools/OperationRecorder/tool.json"
+    },
+    {
+      "id": "timecard-ocr",
+      "name": "TimecardOCR",
+      "definition": "tools/TimecardOCR/tool.json"
     }
   ]
 }
