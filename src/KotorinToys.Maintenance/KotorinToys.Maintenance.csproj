@@ -19,6 +19,7 @@
     <Compile Include="../KotorinToys/MsixDataStore.cs" Link="MsixDataStore.cs" />
     <Compile Include="../KotorinToys/MsixInstaller.cs" Link="MsixInstaller.cs" />
     <Compile Include="../KotorinToys/InstallerAdapter.cs" Link="InstallerAdapter.cs" />
+    <Compile Include="../KotorinToys/InstallerDiagnostics.cs" Link="InstallerDiagnostics.cs" />
     <Compile Include="../KotorinToys/ReleaseModels.cs" Link="ReleaseModels.cs" />
     <Compile Include="../KotorinToys/ToolCatalog.cs" Link="ToolCatalog.cs" />
     <Compile Include="../KotorinToys/OnlineToolCatalog.cs" Link="OnlineToolCatalog.cs" />
