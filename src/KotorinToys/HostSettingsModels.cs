@@ -13,6 +13,6 @@ internal sealed record HostSettings
     public Dictionary<string, TaskOwnership> OwnedTasks { get; init; } = new();
 }
 
-internal sealed record StartupJournal(string OperationId, string ToolId, HostSettings Before, string Phase, Dictionary<string, TaskOwnership> CreatedTasks, Dictionary<string, TaskPlan> PlannedTasks);
+internal sealed record StartupJournal(string OperationId, string ToolId, HostSettings Before, string Phase, Dictionary<string, TaskOwnership> CreatedTasks, Dictionary<string, TaskPlan> PlannedTasks, bool SingleToolOperation = false);
 internal sealed record StartupAttemptItem(string ToolId, string Result, string Detail, int? Pid = null);
 internal sealed record StartupAttempt(DateTimeOffset AttemptedAt, StartupAttemptItem[] Items);

@@ -11,7 +11,7 @@ internal sealed class HostApplicationContext : ApplicationContext
     readonly Dashboard dashboard;
     internal Dashboard Dashboard => dashboard;
     bool exiting;
-    public HostApplicationContext(string root, bool startup,string? settingsDirectory=null)
+    public HostApplicationContext(string root, bool startup,string? settingsDirectory=null, bool hidden=false)
     {
         var settings=new HostSettingsStore(settingsDirectory??HostSettingsStore.DefaultDirectory);
         var source = new ToolCatalogSource(root, settings.DirectoryPath);
@@ -28,14 +28,14 @@ internal sealed class HostApplicationContext : ApplicationContext
         tray = new NotifyIcon { Text = "KotorinToys", Icon = icon, ContextMenuStrip = menu, Visible = true };
         tray.MouseDoubleClick += (_, _) => ShowDashboard();
         management = new("dashboard", dispatcher, ShowDashboard, ExitThread);
-        if (!startup) ShowDashboard();
+        if (!startup) { if (!hidden) ShowDashboard(); }
         else
         {
             dispatcher.BeginInvoke(new Action(async()=>
             {
                 try
                 {
-                    if(settings.Load().ShowDashboardAtLogon)ShowDashboard();
+                    if(!hidden && settings.Load().ShowDashboardAtLogon)ShowDashboard();
                     await coordinator.StartViaTargets();
                     // 画面非表示のサインイン起動でも一覧を更新する。新規ツールを自動起動はしない。
                     if (!dashboard.Visible) await dashboard.RefreshAll();

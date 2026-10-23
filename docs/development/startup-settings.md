@@ -4,6 +4,17 @@
 
 ## 設定と実予約
 
+### 単体アプリからの設定と共通起動規約
+
+- 引数なしの手動起動は利用者向けの主画面/設定画面を表示し、既存インスタンスがあればその画面を開く。自動起動と管理起動は共通の`--startup`で無表示。明示的な`--hidden`を受け付ける製品では無表示を優先する。
+- 自動起動は新規OFF。単体アプリでも新たなRun登録/lnk/設定フラグを作らず、`StandaloneStartup`から既存HostSettingsStore・IStartupGateway・SID別タスク・所有マーカーを使う。本体の直接タスク表示と同じ予約になる。
+- 単体からは自製品の直接タスクだけを変更する。別製品を再計画せず、共有本体経由の予約は本体へ案内する。正式導入先のみ許可し、旧lnk等の外部予約を上書き・削除しない。読取不能も登録を見送る。
+- `StartupJournal.SingleToolOperation`は対象1製品だけの変更・復元を示す。`StartupCoordinator.Recover`は専用復元へ渡し、別製品のタスクに触れない。既存journalは省略時falseとして従来経路で復旧する。この復旧入口は対応する新版の本体に必要。
+- SSCapture同梱保守補助の`startup-status`/`startup-enable`/`startup-disable`がUIとスクリプトの共通入口。原子的保存と操作ロックを使い、更新・削除は既存の所有予約経路と整合する。
+- 単体側は独立した「適用」で予約だけを確定し、設定全体やプリセットの保存とは分離する。テストとビルドでは実予約を有効にしない。
+
+`KotorinToys.Tests --standalone-startup-tests`は専用設定/FakeGatewayで登録・解除・外部変更拒否・別製品保持・本体経由の非重複・中断からの本体復旧を検証する。実サインインの発火を確認する試験ではない。
+
 設定の正本は利用者のLocalAppData/KotorinToys/settings.json。開発・試験は`--settings-dir`で別フォルダーを指定する。StartupModesは希望方式、OwnedTasksは所有記録であり、希望だけで有効とは判定しない。secret相当の所有トークンや生設定を公開ログ・Gitへ置かない。
 
 `StartupCoordinator.ModeAvailability`が方式の候補と実行直前の正式導入・EXE存在・能力・本体導入・MSIX制限を判定する。画面は未導入行を読取専用にし、理由列に案内する。既存予約があるが実体が壊れた行では「自動起動なし」への変更候補を残す。有効化はChange／Plansで再検証し、他の無効な既存対象も製品名付きで報告する。解除は対象の識別を照合してRemovalReservationsへ渡し、他の対象のEXE欠落では妨げない。削除する予約のSID・所有マーカー・fingerprintは再照合し、他対象の希望方式を保持する。

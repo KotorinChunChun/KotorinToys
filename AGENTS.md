@@ -7,4 +7,5 @@
 - 本体と収録ツールのタイトルは[共通タイトル規約](docs/window-title-rule.md)に従う。新規画面もWindowTitle.Createを使用する。
 - 本体のアイコンは[共通アイコン規約](docs/app-icon-rule.md)に従う。新規の独自画面もBrandedFormを継承し、採用04の共通ICOを使用する。
 - 収録ツールの独立Git管理を維持する。
+- 起動は[共通起動規約](docs/development/startup-settings.md)に従う。通常の引数なし起動は利用者向け画面を表示し、自動・管理起動は`--startup`で無表示とする。新規の自動起動はOFFとし、単体と本体でOS予約を二重管理しない。
 - 開発用の秘密情報は `C:\AI\env\<ツール名>\` に保存する。ソース配下や版別ログへ秘密値を置かない。

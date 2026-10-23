@@ -127,6 +127,7 @@ internal static class Program
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--standalone-startup-tests"])) { StandaloneStartupTests.Run(fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ux-preview"])) return UxPreview.Run(root,fixtures);
             if (args.SequenceEqual(["--readiness-tests"])) { ReleaseReadinessTests.Run(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-mode-tests"])) { InstallationModeTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }

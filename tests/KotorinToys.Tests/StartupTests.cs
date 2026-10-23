@@ -40,6 +40,7 @@ internal static class StartupTests
     }
     public static void Run(string root,string fixtures,Action<bool,string> check)
     {
+        StandaloneStartupTests.Run(fixtures, check);
         var directory=Path.Combine(fixtures,"startup");var store=new HostSettingsStore(directory);
         var gateway=new FakeGateway();var manager=new ToolManager(root);var tools=manager.Load();
         var coordinator=new StartupCoordinator(store,gateway,manager,Environment.ProcessPath!,allowDevelopment:true);
