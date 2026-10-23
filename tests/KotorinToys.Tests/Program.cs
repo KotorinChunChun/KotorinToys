@@ -137,6 +137,7 @@ internal static class Program
             if (args.SequenceEqual(["--local-catalog-tests"])) { LocalCatalogTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--operation-recorder-registration-tests"])) { OperationRecorderRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-diagnosis-tests"])) { InstallationDiagnosisTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--installer-diagnostics-tests"])) { InstallerDiagnosticsTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--standalone-startup-tests"])) { StandaloneStartupTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ux-preview"])) return UxPreview.Run(root,fixtures);
             if (args.SequenceEqual(["--readiness-tests"])) { ReleaseReadinessTests.Run(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -293,6 +294,7 @@ internal static class Program
             RemovalTests.Run(fixtures,Check);
             InstallerTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             InstallationDiagnosisTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
+            InstallerDiagnosticsTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
             try { InstallationSummaryTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); DashboardInstallationTests.Run(root, Check); MsixDashboardTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); StartupOverviewDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
