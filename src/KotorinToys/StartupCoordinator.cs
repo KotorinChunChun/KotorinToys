@@ -167,9 +167,11 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
     });
     StartupResult Rollback(StartupJournal journal)
     {
-        if (journal.SingleToolOperation) return StandaloneStartup.Restore(store, gateway, journal, taskPrefix);
         try
         {
+            if (journal.SingleToolOperation)
+                return StandaloneStartup.Restore(store, gateway, journal, taskPrefix,
+                    ProductIdentity.FromId(journal.ToolId) == null ? manager.KnownTools() : null);
             var beforePlans=Plans(journal.Before);
             foreach(var pair in journal.Before.OwnedTasks)
             {

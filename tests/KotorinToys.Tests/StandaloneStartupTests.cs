@@ -3,7 +3,7 @@ using System.Security.Principal;
 
 internal static class StandaloneStartupTests
 {
-    public static void Run(string fixtures, Action<bool, string> check)
+    public static void Run(string root, string fixtures, Action<bool, string> check)
     {
         var store = new HostSettingsStore(Path.Combine(fixtures, "standalone-" + Guid.NewGuid().ToString("N")));
         var gateway = new Gateway();
@@ -51,6 +51,61 @@ internal static class StandaloneStartupTests
         check(via.Enabled && !via.CanChange && !service.SetEnabled(true).Success, "本体経由なら単体で直接予約を重ねない");
         gateway.Tasks.Remove(host.Name);
         check(!service.State().Enabled && !service.State().CanChange, "希望だけで有効と表示しない");
+        DefinedProduct(root, fixtures, check);
+    }
+
+    static void DefinedProduct(string root, string fixtures, Action<bool, string> check)
+    {
+        var tool = ToolCatalog.Load(root)[0] with
+        {
+            Id = "standalone-defined", Name = "StandaloneDefined", AppId = "KotorinToys.StandaloneDefined",
+            InstalledExecutable = "StandaloneDefined.exe", Executable = "StandaloneDefined.exe",
+            ToolRoot = "tools/StandaloneDefined", Msix = null, Version = "1.0.0", DistributionStatus = "published",
+            RepositoryUrl = "https://github.com/KotorinChunChun/StandaloneDefined"
+        };
+        var directory = Path.Combine(fixtures, "standalone-defined");
+        var source = new ToolCatalogSource(root, Path.Combine(directory, "cache"), _ => Task.FromResult(OnlineCatalogTests.Encode(tool)));
+        check(source.Refresh().GetAwaiter().GetResult().Accepted && ProductIdentity.FromId(tool.Id) == null,
+            "定義追加製品を固定許可表に登録せず受け入れる");
+        var store = new HostSettingsStore(Path.Combine(directory, "settings"));
+        var gateway = new Gateway();
+        var initial = store.Load();
+        var sid = WindowsIdentity.GetCurrent().User!.Value;
+        var other = gateway.Create(new("unrelated-task", "other.exe", "", directory, sid, "external"));
+        store.Save(initial with { StartupModes = new() { ["smart-paste"] = "via_kotorintoys" } });
+        var service = new StandaloneStartup(store, gateway, tool, Path.Combine(directory, tool.InstalledExecutable),
+            () => true, externalReservations: () => []);
+        gateway.FailAfterCreate = true;
+        check(!service.SetEnabled(true).Success && store.Journal == null && gateway.Tasks.Count == 1 &&
+            store.Load().StartupModes["smart-paste"] == "via_kotorintoys", "新規定義でも登録直後の失敗を単体から復元し別製品を保持");
+        check(service.SetEnabled(true).Success, "定義追加製品の正常な単体予約を作成できる");
+        var before = store.Load();
+        var own = before.OwnedTasks[tool.Id];
+        var journal = new StartupJournal(Guid.NewGuid().ToString("N"), tool.Id, before, "中断", new(), new(), true);
+        store.SaveJournal(journal);
+        gateway.Tasks.Remove(own.Name);
+        check(!StandaloneStartup.Restore(store, gateway, journal).Success && store.Journal != null,
+            "未知製品の復元を定義なしでは許可しない");
+        check(!StandaloneStartup.Restore(store, gateway, journal, definitions: [tool with { AppId = "KotorinToys.SmartPaste" }]).Success &&
+            !StandaloneStartup.Restore(store, gateway, journal, definitions: [tool, tool]).Success && gateway.Tasks.Count == 1,
+            "識別不一致と重複定義の復元を副作用なしで拒否");
+        var coordinator = new StartupCoordinator(store, gateway, new ToolManager(root, catalogSource: source), "host.exe");
+        check(coordinator.Recover().GetAwaiter().GetResult().Success && service.State().Enabled &&
+            gateway.Tasks[other.Name].Fingerprint == other.Fingerprint && store.Load().StartupModes["smart-paste"] == "via_kotorintoys",
+            "本体は検証済み既知定義から新規製品の予約だけ復元");
+        var plan = new TaskPlan(own.Name, Path.Combine(directory, tool.InstalledExecutable), "--startup --launch-origin direct_task", directory,
+            sid, "KotorinToys:" + before.OwnerToken + ":" + tool.Id);
+        var planned = journal with { PlannedTasks = new() { [tool.Id] = plan }, CreatedTasks = new() { [tool.Id] = own } };
+        var foreign = gateway.Tasks[own.Name] with { Xml = own.Xml.Replace("PT0S", "PT72H") };
+        gateway.Tasks[own.Name] = foreign;
+        store.SaveJournal(planned);
+        check(!coordinator.Recover().GetAwaiter().GetResult().Success && gateway.Tasks[own.Name].Fingerprint == foreign.Fingerprint &&
+            store.Journal != null, "定義追加でも外部変更された予約を削除しない");
+        gateway.Tasks[own.Name] = new(own.Name, own.Xml, own.SecurityDescriptor);
+        var invalid = planned with { PlannedTasks = new() { [tool.Id] = plan with { Sid = "S-1-0-0" } } };
+        store.SaveJournal(invalid);
+        check(!coordinator.Recover().GetAwaiter().GetResult().Success && gateway.Tasks.Count == 2,
+            "SID不一致の新規製品復元は他の予約も変更しない");
     }
     sealed class Gateway : IStartupGateway
     {

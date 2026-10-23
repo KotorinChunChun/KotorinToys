@@ -96,19 +96,20 @@ internal sealed class StandaloneStartup(HostSettingsStore store, IStartupGateway
             }
             catch (Exception ex)
             {
-                var restored = Restore(store, gateway, journal, prefix);
+                var restored = Restore(store, gateway, journal, prefix, [tool]);
                 return new(false, ex.Message + " / " + restored.Detail);
             }
         }
         catch (Exception ex) { return new(false, ex.Message); }
     }
 
-    internal static StartupResult Restore(HostSettingsStore store, IStartupGateway gateway, StartupJournal journal, string prefix = "KotorinToys")
+    internal static StartupResult Restore(HostSettingsStore store, IStartupGateway gateway, StartupJournal journal, string prefix = "KotorinToys",
+        IReadOnlyCollection<ToolDefinition>? definitions = null)
     {
         try
         {
             var sid = WindowsIdentity.GetCurrent().User!.Value;
-            if (!journal.SingleToolOperation || ProductIdentity.FromId(journal.ToolId) == null ||
+            if (!journal.SingleToolOperation || ProductIdentity.FromId(journal.ToolId, definitions) == null ||
                 journal.PlannedTasks.Keys.Any(id => id != journal.ToolId) || journal.CreatedTasks.Keys.Any(id => id != journal.ToolId))
                 throw new IOException("単体設定の復元記録が不正です。");
             foreach (var pair in journal.PlannedTasks)
