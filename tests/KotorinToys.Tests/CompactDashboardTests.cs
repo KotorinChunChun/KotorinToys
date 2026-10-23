@@ -20,17 +20,17 @@ internal static class CompactDashboardTests
             using var form=new Dashboard(root,settings,startup,notify:_=>{},fileExists:path=>!path.EndsWith("ShortcutKeyCounter.exe",StringComparison.OrdinalIgnoreCase));form.CreateControl();
             form.ApplySnapshot(actual,states,releases);form.PerformLayout();
             var grid=(DataGridView)form.Controls.Find("toolTable",true).Single();
-            check(grid.Columns["installed"]!.HeaderText=="導入Ver" && grid.Columns["published"]!.HeaderText=="公開Ver","導入Ver・公開Verへ短縮");
-            check(grid.Rows[0].Cells["published"].Value?.ToString()==releases[0].Package!.Package.Version && grid.Rows[0].Cells["published"].ToolTipText.Contains("2026/10/19 公開"),"公開Verは番号だけ、公開日はツールチップへ保持");
-            check(grid.Rows.Cast<DataGridViewRow>().All(r=>new[]{"あり","なし","未導入","未対応"}.Contains(r.Cells["update"].Value?.ToString())),"更新列は指定の4値だけを表示");
-            check(grid.Rows[portable].Cells["update"].Value?.ToString()=="未対応" && grid.Rows[portable].Cells["detail"].Value?.ToString()=="ZIP版を利用" && grid.Rows[portable].Cells["detail"].ToolTipText.Contains("ZIPを取得"),"ZIP版の制約を障害と混ぜず短い案内と対処に分ける");
+            check(grid.Columns["installed"]!.HeaderText=="導入Ver" && !grid.Columns.Contains("published") && grid.Columns.Contains("category"),"公開Ver列を除去しカテゴリ列を追加");
+            check(grid.Rows[0].Cells["update"].ToolTipText.Contains("2026/10/19 公開"),"公開日は更新列のツールチップへ保持");
+            check(grid.Rows.Cast<DataGridViewRow>().All(r=>new[]{"なし","-","未対応"}.Contains(r.Cells["update"].Value?.ToString()) || r.Cells["update"].Value?.ToString()?.StartsWith("要(")==true),"更新列は対象版または短い状態だけを表示");
+            check(new[]{"update","state","startup","detail"}.All(name=>grid.Rows[portable].Cells[name].Value?.ToString()=="-"),"未導入行はZIP案内や停止中を表示せずハイフンに統一");
             form.ReportExecution(tools[0],false,new("実行中",Detail:"停止を拒否しました。"+new string('長',2500)));
             grid.AutoResizeRows();
             check(grid.Rows[0].Cells["detail"].Value?.ToString()=="操作できません" && grid.Rows[0].Cells["detail"].ToolTipText.Contains("停止を拒否"),"長い操作エラーも短い詳細とツールチップへ分離");
             check(grid.Rows[0].Height<100 && grid.Columns["detail"]!.DefaultCellStyle.WrapMode==DataGridViewTriState.False,"長文の詳細で一覧の行が巨大化しない");
             check(form.Controls.Find("advancedSettings",true).Single().Text=="一括インストール","詳細設定ボタンを一括インストールへ改名");
             var missing=actual[0] with{State="未導入",Version=null};
-            check(DashboardText.Update(tools[0],missing,releases[0])=="未導入","未導入表示を更新なしと混同しない");
+            check(DashboardText.Update(tools[0],missing,releases[0])=="-","未導入表示を更新なしと混同しない");
             check(DashboardText.Update(tools[0],actual[0],releases[0] with{Confirmed=false})=="未対応" && DashboardText.Published(releases[0] with{Confirmed=false})=="—","未確認の同梱版を公開Verや最新と誤表示しない");
             if(saveImage)
             {

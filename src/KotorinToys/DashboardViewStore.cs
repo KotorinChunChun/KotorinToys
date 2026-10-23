@@ -9,7 +9,7 @@ internal sealed record DashboardView(int SchemaVersion = 1, int Width = 1180, in
 // 起動予約や所有記録とは別の、表示だけの設定。
 internal sealed class DashboardViewStore(string directory)
 {
-    public static readonly string[] ColumnNames = ["tool","summary","installed","published","update","state","startup","detail"];
+    public static readonly string[] ColumnNames = ["tool","summary","category","installed","update","state","startup","detail"];
     string FilePath => Path.Combine(directory, "dashboard-view.json");
     public DashboardView Load()
     {
@@ -18,10 +18,11 @@ internal sealed class DashboardViewStore(string directory)
             if (!File.Exists(FilePath) || new FileInfo(FilePath).Length > 65536) return new();
             var view = JsonSerializer.Deserialize<DashboardView>(File.ReadAllBytes(FilePath), ToolCatalog.Json);
             if (view == null || view.SchemaVersion != 1 || view.Width is < 980 or > 6000 || view.Height is < 540 or > 4000 ||
-                view.Filter is not ("all" or "installed" or "updates") || view.SortColumn != null && !ColumnNames.Contains(view.SortColumn) ||
+                view.Filter is not ("all" or "installed" or "updates" or "missing") || view.SortColumn != null && view.SortColumn != "published" && !ColumnNames.Contains(view.SortColumn) ||
                 view.Columns?.Length > 32 || view.Columns?.Any(c => c == null || c.Width is < 40 or > 3000 || c.Order is < 0 or > 31) == true)
                 return new();
-            return view with { Columns = view.Columns?.Where(c => ColumnNames.Contains(c.Name)).DistinctBy(c=>c.Name).ToArray() };
+            return view with { SortColumn = view.SortColumn == "published" ? "update" : view.SortColumn,
+                Columns = view.Columns?.Where(c => ColumnNames.Contains(c.Name) && c.Name != "startup").DistinctBy(c=>c.Name).ToArray() };
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or JsonException or ArgumentException) { return new(); }
     }

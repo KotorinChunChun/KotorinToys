@@ -10,10 +10,10 @@ internal sealed partial class Dashboard
         grid.ColumnHeadersDefaultCellStyle.Padding = new(4, 8, 4, 8);
         grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         foreach (var (name, label, weight) in new[] { ("tool", "ツール", 16), ("summary", "ひとこと解説", 24),
-            ("installed", "導入Ver", 10), ("published", "公開Ver", 10), ("update", "更新", 7), ("state", "現在の状態", 12), ("startup", "自動起動", 18), ("detail", "詳細", 14) })
+            ("category", "カテゴリ", 15), ("installed", "導入Ver", 9), ("update", "更新", 10), ("state", "現在の状態", 11), ("startup", "自動起動", 10), ("detail", "詳細", 12) })
         {
             var column = grid.Columns[grid.Columns.Add(name, label)]; column.FillWeight = weight;
-            column.MinimumWidth = name == "summary" ? 150 : name is "tool" or "startup" ? 125 : 80;
+            column.MinimumWidth = name == "summary" ? 150 : name == "tool" ? 125 : name == "startup" ? 85 : 70;
             column.SortMode = DataGridViewColumnSortMode.Programmatic;
             if (name is "installed" or "published" or "update" or "detail") column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         }

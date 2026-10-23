@@ -9,12 +9,10 @@ internal sealed partial class Dashboard
         for (int i = 0; i < tools.Length; i++)
         {
             var version = ToolVersionView.Create(actual[i], published[i]); var row = RowFor(i);
-            row.Cells["installed"].Value = version.Installed; row.Cells["published"].Value = version.Published;
-            row.Cells["published"].Value = DashboardText.Published(published[i]);
-            row.Cells["published"].ToolTipText = version.Published + "\n" + ReleaseProblems.Explanation(published[i]);
+            row.Cells["installed"].Value = version.Installed;
             row.Cells["update"].Value = DashboardText.Update(tools[i], actual[i], published[i]);
-            row.Cells["update"].ToolTipText = version.Update + "\n" + ReleaseProblems.Explanation(published[i]);
-            row.Cells["state"].Value = execution[i].State;
+            row.Cells["update"].ToolTipText = version.Published + "\n" + version.Update + "\n" + ReleaseProblems.Explanation(published[i]);
+            row.Cells["state"].Value = actual[i].State == "未導入" ? "-" : execution[i].State;
         }
         UpdateDetails(); ApplyView(); UpdateActions();
     }
@@ -27,7 +25,7 @@ internal sealed partial class Dashboard
         for (int i = 0; i < tools.Length; i++)
         {
             var row = RowFor(i);
-            row.Cells["startup"].Value = startupSnapshots[i].Text;
+            row.Cells["startup"].Value = installations[i].State == "未導入" ? "-" : startupSnapshots[i].Text;
             row.Cells["startup"].ToolTipText = startupSnapshots[i].Detail;
             var texts = new[] { states[i].Detail, installations[i].State != "導入済み" ? installations[i].Detail : null,
                 !releases[i].Confirmed || releases[i].Package == null ? ReleaseProblems.Explanation(releases[i]) : null,
@@ -35,6 +33,14 @@ internal sealed partial class Dashboard
                 operationErrors.GetValueOrDefault(tools[i].Id), issue };
             var detail = string.Join("\n", texts.Append(DashboardText.Advice(tools[i], installations[i], states[i], releases[i])).Where(text => !string.IsNullOrWhiteSpace(text)).Distinct());
             row.Cells["detail"].Value = DashboardText.Detail(tools[i], installations[i], states[i], releases[i], startupSnapshots[i], operationErrors.GetValueOrDefault(tools[i].Id), catalogError, stateError);
+            if (installations[i].State == "未導入")
+            {
+                row.Cells["update"].Value = row.Cells["state"].Value = row.Cells["startup"].Value = row.Cells["detail"].Value = "-";
+                row.Cells["detail"].ToolTipText = "未導入です。インストール可否はボタンにカーソルを合わせて確認できます。";
+                row.Cells["startup"].ToolTipText = "導入後に設定できます。";
+                row.Cells["detail"].ToolTipText += "\n" + detail;
+                continue;
+            }
             row.Cells["detail"].ToolTipText = detail;
         }
     }
