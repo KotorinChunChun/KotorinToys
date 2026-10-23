@@ -51,7 +51,8 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
 
     static System.Text.Json.JsonDocument ReadIdentity(string path)
     {
-        try { return System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(path)); }
+        // 既存の導入定義はBOM付きUTF-8／UTF-16も読めていたため、文字コード検出を維持する。
+        try { return System.Text.Json.JsonDocument.Parse(File.ReadAllText(path)); }
         catch (System.Text.Json.JsonException error) { throw new IOException("製品定義 tool.json のJSON形式が不正です。配布元へ確認してください。",error); }
     }
 

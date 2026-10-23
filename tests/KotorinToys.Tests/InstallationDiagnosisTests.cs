@@ -23,6 +23,10 @@ internal static class InstallationDiagnosisTests
         check(detector.Detect(tool).Detail.Contains("必須項目"),"製品定義の必須項目欠落を具体化");
         File.WriteAllText(definition,JsonSerializer.Serialize(new{id=tool.Id,appId=tool.AppId}));
         check(detector.Detect(tool).State=="導入済み","旧2項目の製品定義は正常EXEとの照合を維持");
+        File.WriteAllText(definition,JsonSerializer.Serialize(new{id=tool.Id,appId=tool.AppId}),new System.Text.UTF8Encoding(true));
+        check(detector.Detect(tool).State=="導入済み","既存のBOM付きUTF-8製品定義を正常に検出");
+        File.WriteAllText(definition,JsonSerializer.Serialize(new{id=tool.Id,appId=tool.AppId}),System.Text.Encoding.Unicode);
+        check(detector.Detect(tool).State=="導入済み","既存のBOM付きUTF-16製品定義を正常に検出");
         check(detector.Detect(tool with{Name="OtherProduct"}).Detail.Contains("対象：OtherProduct / 検出：KotorinToys.Tests"),
             "実EXEの別製品名を期待値と実測値付きで拒否");
 
