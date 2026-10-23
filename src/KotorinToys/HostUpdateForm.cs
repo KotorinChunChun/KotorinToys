@@ -79,7 +79,7 @@ internal sealed class HostUpdateForm : BrandedForm
             if (IsDisposed) return;
             if (includePreview != preview.Checked) { available.Text = "公開版：未確認"; status.Text = "対象が変更されました。公開版を再確認してください。"; return; }
             if (!result.Confirmed || result.Package == null)
-            { available.Text = "公開版：未確認"; status.Text = result.Detail; return; }
+            { available.Text = "公開版：未確認"; status.Text = ReleaseProblems.Explanation(result); return; }
             HostProduct.Validate(result.Package);
             if (result.Prerelease && !includePreview) throw new IOException("開発版を更新対象にしていません。");
             offered = result;

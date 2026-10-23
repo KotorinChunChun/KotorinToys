@@ -9,6 +9,7 @@ internal sealed partial class InstallationForm : BrandedForm
     readonly ToolManager manager;
     readonly ToolDefinition[] tools;
     readonly ReleaseCatalog? publicCatalog;
+    readonly IReadOnlyDictionary<string, PublicRelease>? publications;
     readonly string? singleOperation;
     readonly Func<string, bool> confirm;
     readonly InstallationExecution execute;
@@ -41,7 +42,8 @@ internal sealed partial class InstallationForm : BrandedForm
     public InstallationForm(ToolManager toolManager, string? initialTarget = null, ReleaseCatalog? releases = null,
         string? operation = null, Func<string, bool>? confirm = null, InstallationExecution? execute = null,
         Func<ToolDefinition, InstallationState>? detectInstallation = null,
-        Func<ToolDefinition, Task<ToolState>>? executionState = null, Func<string, bool>? fileExists = null)
+        Func<ToolDefinition, Task<ToolState>>? executionState = null, Func<string, bool>? fileExists = null,
+        IReadOnlyDictionary<string, PublicRelease>? publications = null)
     {
         manager = toolManager; tools = manager.Load();
         this.detectInstallation = detectInstallation ?? manager.Installation;
@@ -57,6 +59,7 @@ internal sealed partial class InstallationForm : BrandedForm
         this.execute = execute ?? ((selected, verb, catalog, path, progress, download, token) =>
             new ToolInstallationRunner(manager).Run(selected, verb, catalog, path, progress, download, token));
         publicCatalog = releases;
+        this.publications = publications;
         if (publicCatalog != null) ReleaseDownloader.Validate(publicCatalog, manager.KnownTools());
         Text = WindowTitle.Create(operation == null ? "一括インストール" :
             operation == "install" ? "インストール" : operation == "update" ? "アップデート" : operation == "repair" ? "修復" : "アンインストール");
@@ -181,7 +184,8 @@ internal sealed partial class InstallationForm : BrandedForm
         if (operation == "install" && installed.State != "未導入") operation = "update";
         bool exe = installed.Executable != null && fileExists(installed.Executable);
         return ToolActionPolicy.Evaluate(operation, catalogPath != null ? tool with { DistributionStatus = "published" } : tool, installed, state,
-            package == null ? null : new(package, true, true, "配布台帳照合済み"), exe,
+            catalogPath == null && publications?.GetValueOrDefault(tool.Id) is { } publication ? publication :
+                package == null ? null : new(package, true, true, "配布台帳照合済み"), exe,
             uninstallerExists: installed.Uninstaller != null && fileExists(installed.Uninstaller), busy: running || checkingAvailability);
     }
 
@@ -241,7 +245,7 @@ internal sealed partial class InstallationForm : BrandedForm
     string TargetText(ToolDefinition tool)
     {
         var item = publicCatalog?.Packages.SingleOrDefault(p => p.Package.Id == tool.Id);
-        string? reason = catalogPath == null ? ToolInstallationRunner.PublicReason(tool, publicCatalog) : ToolInstallationRunner.UnsupportedReason(tool);
+        string? reason = catalogPath == null ? ToolInstallationRunner.PublicReason(tool, publicCatalog, publications?.GetValueOrDefault(tool.Id)) : ToolInstallationRunner.UnsupportedReason(tool);
         return tool.Name + "：" + detectInstallation(tool).State + (catalogPath == null && item != null ? " → " + ReleaseDisplay.Version(item) : "") +
             (reason == null ? "" : " / " + reason);
     }

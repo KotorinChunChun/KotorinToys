@@ -29,7 +29,7 @@ internal sealed partial class PublicReleaseClient
             if (previous?.ETag is { } tag && EntityTagHeaderValue.TryParse(tag, out var parsedTag)) request.Headers.IfNoneMatch.Add(parsedTag);
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false);
             bool emptyQuota = response.Headers.TryGetValues("X-RateLimit-Remaining", out var remaining) && remaining.Any(v => v.Trim() == "0");
-            bool secondaryLimit = response.StatusCode == HttpStatusCode.Forbidden &&
+            bool secondaryLimit = response.StatusCode == HttpStatusCode.Forbidden && !emptyQuota &&
                 (response.Headers.RetryAfter != null || await IsSecondaryLimit(response, token).ConfigureAwait(false));
             if (response.StatusCode == HttpStatusCode.TooManyRequests || response.StatusCode == HttpStatusCode.Forbidden && (emptyQuota || secondaryLimit))
             {

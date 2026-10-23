@@ -63,6 +63,9 @@ internal sealed partial class Dashboard
         finally { EndOperation(); }
     }
 
+    IReadOnlyDictionary<string, PublicRelease> PublicationSnapshot() =>
+        tools.Select((tool, i) => (tool.Id, Release: releases[i])).ToDictionary(p => p.Id, p => p.Release);
+
     ReleaseCatalog? ConfirmedCatalog()
     {
         var packages = releases.Where(r => r.Confirmed && r.Package != null).Select(r => r.Package!).ToArray();
@@ -87,7 +90,7 @@ internal sealed partial class Dashboard
             var availability = Availability(index, requested, true);
             if (!availability.Enabled) { ShowOperationFailure(tool.Name + "：" + availability.Reason, tool.Id); return; }
             var catalog = ConfirmedCatalog();
-            string? reason = requested == "uninstall" ? ToolInstallationRunner.UnsupportedReason(tool) : ToolInstallationRunner.PublicReason(tool, catalog);
+            string? reason = requested == "uninstall" ? ToolInstallationRunner.UnsupportedReason(tool) : ToolInstallationRunner.PublicReason(tool, catalog, releases[index]);
             if (reason != null) { ShowOperationFailure(tool.Name + "：" + reason, tool.Id); return; }
             if (requested == "uninstall")
             {

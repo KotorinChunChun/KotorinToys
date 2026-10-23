@@ -45,7 +45,7 @@ internal static class ToolActionPolicy
         if (operation is not ("install" or "update" or "repair")) return ActionAvailability.Deny("未対応の操作です。");
         if (checkingReleases) return ActionAvailability.Deny("公開版を確認しています。完了するまでお待ちください。");
         var candidate = release is { Confirmed: true, Package: not null } ? new ReleaseCatalog(1, [release.Package]) : null;
-        if (ToolInstallationRunner.PublicReason(tool, candidate) is { } reason) return ActionAvailability.Deny(reason);
+        if (ToolInstallationRunner.PublicReason(tool, candidate, release) is { } reason) return ActionAvailability.Deny(reason);
         if (operation == "repair")
         {
             if (tool.Msix != null || !installed.Repairable || installed.State != "修復が必要" || string.IsNullOrEmpty(installed.Directory))

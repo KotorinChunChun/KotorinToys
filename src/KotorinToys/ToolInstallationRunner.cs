@@ -15,11 +15,12 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
         return null;
     }
 
-    internal static string? PublicReason(ToolDefinition tool, ReleaseCatalog? catalog)
+    internal static string? PublicReason(ToolDefinition tool, ReleaseCatalog? catalog, PublicRelease? publication = null)
     {
         if (UnsupportedReason(tool) is { } reason) return reason;
         if (tool.Msix == null && tool.DistributionStatus != "published")
             return "本体対応インストーラーは未公開です。ポータブル版などの利用方法は「GitHubを開く」または「使い方」を確認してください。";
+        if (publication is { Confirmed: false }) return ReleaseProblems.Explanation(publication);
         var package = catalog?.Packages.SingleOrDefault(p => p.Package.Id == tool.Id)?.Package;
         if (package == null) return "照合済みの公開インストーラーがありません。「状態を更新」で再確認してください。";
         if (package.Name != tool.Name || package.AppId != tool.AppId ||
