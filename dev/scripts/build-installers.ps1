@@ -1,12 +1,13 @@
 param(
     [Parameter(Mandatory)][string]$PackageDirectory,
     [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB')]
-    [string[]]$Products=@('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
+    [string[]]$Products=@('KotorinToys','LiveTextMarker','SmartPaste'),
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path (Split-Path $PSScriptRoot)
 . (Join-Path $PSScriptRoot 'distribution-products.ps1')
+Assert-CommonDistributionProducts $Products
 if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $packageRoot=[IO.Path]::GetFullPath($PackageDirectory)
 $allowedRoot=[IO.Path]::GetFullPath((Join-Path $projectRoot 'artifacts/packages')) + [IO.Path]::DirectorySeparatorChar

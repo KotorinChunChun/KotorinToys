@@ -18,4 +18,21 @@ if ($every.Id -ne 'every-db' -or $every.AppId -ne 'KotorinToys.EveryDB' -or $eve
 $rejected = $false
 try { Get-DistributionProduct 'ShortcutKeyCounter' | Out-Null } catch { $rejected = $true }
 if (-not $rejected) { throw '今回公開しない製品を許可してしまいます。' }
-Write-Output '配布スクリプト6件の構文・固定配布先・公開対象外製品の拒否：成功'
+Assert-CommonDistributionProducts @('KotorinToys','LiveTextMarker','SmartPaste','CapchunWindow','ChulipVideo','ChunapTool','EveryDB')
+$capture = Get-DistributionProduct 'SSCapture'
+if ($capture.Id -ne 'ss-capture' -or $capture.AppId -ne 'KotorinToys.SSCapture' -or $capture.PackagingScript -ne 'tools/SSCapture/scripts/package.ps1') { throw 'SSCaptureの固定識別と専用配布入口が不正です。' }
+foreach ($file in @('publish-packages.ps1','build-installers.ps1','publish-releases.ps1')) {
+    $script = Join-Path $PSScriptRoot $file
+    $text = Get-Content -LiteralPath $script -Raw
+    if ($text -notmatch "(?m)^\. \(Join-Path \`$PSScriptRoot 'distribution-products.ps1'\)\r?\nAssert-CommonDistributionProducts \`$Products") { throw "$file の共通読込直後に専用配布製品の事前検査がありません。" }
+    $ast = [Management.Automation.Language.Parser]::ParseFile($script, [ref]$null, [ref]$null)
+    $defaults = $ast.ParamBlock.Parameters | Where-Object { $_.Name.VariablePath.UserPath -eq 'Products' }
+    if ($defaults.DefaultValue.Extent.Text -match 'SSCapture') { throw "$file の既定対象に専用配布製品が含まれています。" }
+    $arguments = @{ Products = @('KotorinToys','SSCapture') }
+    if ($file -eq 'build-installers.ps1') { $arguments.PackageDirectory = 'unused-fixture-path' }
+    if ($file -eq 'publish-releases.ps1') { $arguments.CatalogPath = 'unused-fixture-path' }
+    $message = ''
+    try { & $script @arguments | Out-Null } catch { $message = $_.Exception.Message }
+    if ($message -notlike '*SSCapture*専用配布*tools/SSCapture/scripts/package.ps1*') { throw "$file が副作用前に専用入口へ誘導しませんでした：$message" }
+}
+Write-Output '配布スクリプト6件の構文・固定配布先・汎用7製品・SSCapture専用経路の副作用前拒否3件：成功'

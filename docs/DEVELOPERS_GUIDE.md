@@ -112,7 +112,9 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 公開入力は`stage-release-source.ps1`で親コミットと各gitlinkの採用ソースだけをUTF-8 ZIPから展開して作成します。元の作業ツリーや未採用の子HEADを混ぜません。日本語パス・Windowsパス長に備え短い隔離ルートを使います。配布スクリプトは`distribution-products.ps1`の固定表を共有し、`test-distribution-scripts.ps1`で検査できます。追加3ツールは`-Products CapchunWindow,ChulipVideo,ChunapTool`、EveryDBは`-Products EveryDB`で指定します。EveryDBは子のno-bundle Release入口でビルドし、サンプル・利用条件・第三者表示と共通maintenanceを同梱します。製品名とソースのフォルダー名を混同しないでください。
 
-公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。公開版SSCaptureは`publish-packages.ps1 -ExcludeFFmpeg`を指定し、FFmpeg／FFprobeと利用者dataを含めません。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
+汎用製品の公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。既定対象は本体・LiveTextMarker・SmartPasteです。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
+
+SSCaptureは[子のRelease規則](../tools/SSCapture/dev/RELEASE_RULE.md)と`tools/SSCapture/scripts/package.ps1`が正本です。専用maintenanceとtransaction付きsetupが必要なため、親の上記3経路はSSCaptureを明示指定しても副作用前に拒否します。旧`-ExcludeFFmpeg`指定では専用経路へ切り替わりません。親は子の生成や公開を自動実行しません。FFmpeg／FFprobe・OneOCR外部ファイル・利用者dataは同梱しません。本体の通常のRelease取得・導入・更新・削除は継続します。
 
 配布・Inno準備・ローカル導入のログは、既定でcatalog/host.jsonの版の`dev/history/vX.Y.Z/logs/`へ保存します。他製品や初回導入用旧版を検証する場合は`-RecordVersion vX.Y.Z`で記録の対象版を明示してください。製品版そのものを変更する引数ではありません。公開台帳の許可範囲も指定版のlogs内に限定します。
 

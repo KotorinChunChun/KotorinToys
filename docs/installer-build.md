@@ -28,10 +28,10 @@ cd C:\develop\KotorinToys
 pwsh -File dev/scripts/publish-packages.ps1
 ```
 
-本体・3ツールとSmartPasteのOCRワーカーを、毎回新しい`artifacts/packages/packages-<実行識別子>/`へ発行する。既存の開発出力や稼働中のEXEを上書きしない。`-Products SmartPaste`などで対象を限定できる。
+既定では本体・LiveTextMarker・SmartPasteとSmartPasteのOCRワーカーを、毎回新しい`artifacts/packages/packages-<実行識別子>/`へ発行する。既存の開発出力や稼働中のEXEを上書きしない。`-Products SmartPaste`などで対象を限定できる。
 
-SSCaptureには事前に`tools/SSCapture/scripts/setup-media.ps1`で準備した固定版FFmpegが必要。署名されていないリポジトリスクリプトの実行をローカルポリシーが拒否する場合は、内容を確認したうえで`pwsh -NoProfile -ExecutionPolicy Bypass -File tools/SSCapture/scripts/setup-media.ps1`を用いる。この指定はそのプロセスだけに適用され、Windowsの実行ポリシーは変更しない。
+SSCaptureは専用maintenanceと更新・復旧のtransaction契約を持つため、[子のRelease規則](../tools/SSCapture/dev/RELEASE_RULE.md)に沿って`tools/SSCapture/scripts/package.ps1`で生成する。共通の発行・インストーラー生成・公開スクリプトへ指定すると、ビルド・依存導入・認証より前に拒否する。旧`-ExcludeFFmpeg`指定でも共通経路は使用できない。専用生成はFFmpeg／FFprobe・OneOCR外部ファイル・利用者dataを含めない。子の作業中ソースを無条件に採用・生成しない。
 
-発行はランタイム設定と主要DLL、OCRワーカー、学習データ・TesseractネイティブDLL、FFmpeg・ffprobe、文書・ライセンスを検査する。全ファイルの長さとSHA-256を`<製品名>.files.json`へ記録する。学習済みデータ以外の利用者設定・画像・履歴・OneOCRの外部ファイルはコピーしない。
+共通発行はランタイム設定と主要DLL、OCRワーカー、学習データ・TesseractネイティブDLL、文書・ライセンスを検査する。全ファイルの長さとSHA-256を`<製品名>.files.json`へ記録する。学習済みデータ以外の利用者設定・画像・履歴・OneOCRの外部ファイルはコピーしない。
 
 これはインストーラーの入力準備であり、機能の実動作や正式導入・削除の合格を示さない。FFmpegを外部へ再配布する際の対応ソース提供条件と、VC++／OneOCR等の外部依存は別途確認する。GitHubへの公開は行わない。

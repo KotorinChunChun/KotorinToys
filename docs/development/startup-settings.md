@@ -10,6 +10,7 @@
 - 自動起動は新規OFF。単体アプリでも新たなRun登録/lnk/設定フラグを作らず、`StandaloneStartup`から既存HostSettingsStore・IStartupGateway・SID別タスク・所有マーカーを使う。本体の直接タスク表示と同じ予約になる。
 - 単体からは自製品の直接タスクだけを変更する。別製品を再計画せず、共有本体経由の予約は本体へ案内する。正式導入先のみ許可し、旧lnk等の外部予約を上書き・削除しない。読取不能も登録を見送る。
 - `StartupJournal.SingleToolOperation`は対象1製品だけの変更・復元を示す。`StartupCoordinator.Recover`は専用復元へ渡し、別製品のタスクに触れない。既存journalは省略時falseとして従来経路で復旧する。この復旧入口は対応する新版の本体に必要。
+- 定義追加製品の単体復旧は呼出し元のToolDefinition、本体復旧はKnownToolsの検証済み定義を明示的に渡す。定義なし・不正識別・重複は拒否し、固定製品の許可表を拡張しない。SID・marker・fingerprintと対象1製品の制限は同じ。
 - SSCapture同梱保守補助の`startup-status`/`startup-enable`/`startup-disable`がUIとスクリプトの共通入口。原子的保存と操作ロックを使い、更新・削除は既存の所有予約経路と整合する。
 - 単体側は独立した「適用」で予約だけを確定し、設定全体やプリセットの保存とは分離する。テストとビルドでは実予約を有効にしない。
 

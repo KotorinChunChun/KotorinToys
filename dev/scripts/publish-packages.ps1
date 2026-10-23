@@ -1,12 +1,13 @@
 param(
     [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB')]
-    [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste','SSCapture'),
+    [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste'),
     [switch]$ExcludeFFmpeg,
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot)
 . (Join-Path $PSScriptRoot 'distribution-products.ps1')
+Assert-CommonDistributionProducts $Products
 if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $dotnetCommand = Get-Command dotnet -CommandType Application -ErrorAction Stop
 $dotnetRoot = Split-Path $dotnetCommand.Source
@@ -122,20 +123,6 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/dotnet-LICENSE.txt') (Join-Path $output 'licenses')
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/windowsdesktop-LICENSE.txt') (Join-Path $output 'licenses')
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/dotnet-THIRD-PARTY-NOTICES.txt') (Join-Path $output 'licenses')
-        }
-        'SSCapture' {
-            $mediaRoot = Join-Path $projectRoot 'tools/SSCapture/.tools/ffmpeg/ffmpeg-9.0.2-essentials_build'
-            if(-not $ExcludeFFmpeg){Assert-Files $mediaRoot @('bin/ffmpeg.exe','bin/ffprobe.exe','LICENSE','README.txt')}
-            Publish-Application 'tools/SSCapture/src/SSCapture/SSCapture.csproj' $output $product
-            if(-not $ExcludeFFmpeg){
-                $mediaOutput = Join-Path $output 'tools'
-                New-Item -ItemType Directory -Path $mediaOutput | Out-Null
-                foreach ($file in @('bin/ffmpeg.exe','bin/ffprobe.exe','LICENSE','README.txt')) {
-                    Copy-Required (Join-Path $mediaRoot $file) $mediaOutput
-                }
-            }
-            Copy-Required (Join-Path $projectRoot 'tools/SSCapture/licenses/NAudio-LICENSE.txt') $output
-            Copy-Required (Join-Path $projectRoot 'tools/SSCapture/THIRD_PARTY.md') $output
         }
         { $_ -in @('CapchunWindow','ChulipVideo','ChunapTool') } {
             Publish-Application $identity.Project $output $product
