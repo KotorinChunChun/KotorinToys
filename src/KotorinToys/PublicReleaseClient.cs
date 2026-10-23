@@ -3,13 +3,18 @@ using System.Text.Json;
 namespace KotorinToys;
 
 internal sealed record PortablePublication(string Version, DateTimeOffset? PublishedAt, string DownloadUrl, long Length, string Sha256);
-internal sealed record PublicRelease(ReleasePackage? Package, bool Confirmed, bool Prerelease, string Detail, PortablePublication? Portable = null, ReleaseProblem Problem = ReleaseProblem.None);
+internal sealed record PublicRelease(ReleasePackage? Package, bool Confirmed, bool Prerelease, string Detail,
+    PortablePublication? Portable = null, ReleaseProblem Problem = ReleaseProblem.None,
+    DateTimeOffset? FetchedAt = null, bool Cached = false, DateTimeOffset? RetryAt = null);
 
 internal sealed partial class PublicReleaseClient : IDisposable
 {
     readonly HttpClient client;
-    public PublicReleaseClient(HttpMessageHandler? handler = null)
+    readonly PublicReleaseCache cache;
+    public PublicReleaseClient(HttpMessageHandler? handler = null, PublicReleaseCache? cache = null)
     {
+        // 注入HTTPは通常利用の共有/永続キャッシュへ接続しない。
+        this.cache = cache ?? (handler == null ? PublicReleaseCache.Shared : new PublicReleaseCache());
         client = new(handler ?? new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = Timeout.InfiniteTimeSpan };
         client.DefaultRequestHeaders.UserAgent.ParseAdd("KotorinToys/0.1.0");
         client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
@@ -46,22 +51,36 @@ internal sealed partial class PublicReleaseClient : IDisposable
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var token = deadline.Token;
             var repository = ProductIdentity.FromTool(tool)?.Repository ?? throw new IOException("公開製品の検証済み配布先がありません。");
-            using var list = JsonDocument.Parse(await Read(new($"https://api.github.com/repos/KotorinChunChun/{repository}/releases?per_page=100"), 2 * 1024 * 1024, token));
+            var listText = await Read(new($"https://api.github.com/repos/KotorinChunChun/{repository}/releases?per_page=100"), 2 * 1024 * 1024, token);
+            using var list = JsonDocument.Parse(listText.Value);
             var latest = PublicReleaseMetadata.Select(list.RootElement, includePrerelease);
             var manifest = latest.Asset(tool, tool.Name + "-packages.json");
             var installer = latest.Asset(tool, $"{tool.Name}-{latest.Version}-setup.exe");
             if (manifest.GetProperty("size").GetInt64() is <= 0 or > 32768) throw new IOException("公開台帳の容量が不正です。");
             var json = await Read(new(manifest.GetProperty("browser_download_url").GetString()!), 32768, token);
-            var item = latest.Package(tool, json, installer, fallback, hostUpdate);
+            var item = latest.Package(tool, json.Value, installer, fallback, hostUpdate);
             bool prerelease = latest.Prerelease;
-            return new(item, true, prerelease, $"GitHub公開版・配布台帳照合済み（{DateTime.Now:MM/dd HH:mm}）。未署名です。");
+            return Confirmed(item, prerelease, "GitHub公開版・配布台帳照合済み。未署名です。", null, listText, json);
         }
         catch (Exception ex) when (ex is IOException or HttpRequestException or JsonException or InvalidOperationException or KeyNotFoundException or FormatException or OperationCanceledException or ArgumentException)
         {
             cancellation.ThrowIfCancellationRequested();
-            return new(fallback, false, false, (hostUpdate ? "本体公開版の確認失敗：" : "公開確認失敗。表示版は同梱台帳です：") + ex.Message, Problem: ReleaseProblems.From(ex));
+            return Failed(fallback, (hostUpdate ? "本体公開版の確認失敗：" : "公開確認失敗。表示版は同梱台帳です："), ex);
         }
     }
+
+    static PublicRelease Confirmed(ReleasePackage? package, bool prerelease, string detail, PortablePublication? portable,
+        params PublicReleaseText[] texts)
+    {
+        var fetched = texts.Min(t => t.FetchedAt);
+        bool cached = texts.Any(t => t.Cached);
+        detail += cached ? $" 公開情報キャッシュ：{ReleaseProblems.JapanTime(fetched)}取得（日本時間・5分間有効）。"
+            : $" 公開情報取得：{ReleaseProblems.JapanTime(fetched)}（日本時間）。";
+        return new(package, true, prerelease, detail, portable, FetchedAt: fetched, Cached: cached);
+    }
+
+    static PublicRelease Failed(ReleasePackage? fallback, string prefix, Exception error) =>
+        new(fallback, false, false, prefix + error.Message, Problem: ReleaseProblems.From(error), RetryAt: (error as ReleaseReadException)?.RetryAt);
 
     public void Dispose() => client.Dispose();
 }

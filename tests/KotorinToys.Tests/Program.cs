@@ -131,6 +131,7 @@ internal static class Program
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--public-release-cache-tests"])) { Task.Run(() => PublicReleaseCacheTests.Run(root, fixtures, Check)).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--local-catalog-tests"])) { LocalCatalogTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--operation-recorder-registration-tests"])) { OperationRecorderRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-diagnosis-tests"])) { InstallationDiagnosisTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -300,6 +301,7 @@ internal static class Program
             PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             PublicReleaseMetadataTests.Run(root, Check);
             PortableReleaseTests.Run(root, Check).GetAwaiter().GetResult();
+            Task.Run(() => PublicReleaseCacheTests.Run(root, fixtures, Check)).GetAwaiter().GetResult();
             PortableReleaseTests.Form(root, Check);
             ReleaseDisplayTests.Run(root, Check);
             ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
