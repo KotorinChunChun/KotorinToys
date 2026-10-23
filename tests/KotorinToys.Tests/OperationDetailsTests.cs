@@ -21,7 +21,10 @@ internal static class OperationDetailsTests
             grid.CurrentCell = grid.Rows[0].Cells["detail"];
             form.OpenSelectedDetails();
             check(shown == 1 && text.Contains("接続が失敗") && text.Contains("対処：") && text.Contains("起動不可"), "クリックで読む詳細に原因・対処・無効理由を残す");
-            check(grid.Rows[0].Cells["detail"].Value?.ToString() == "通信エラー", "通信失敗と配布形式未対応を区別する");
+            check(grid.Rows[0].Cells["detail"].Value?.ToString() == "-" && grid.Rows[0].Cells["detail"].ToolTipText.Contains("接続が失敗"),
+                "未導入はハイフンで簡素化し、通信失敗の根拠はツールチップに残す");
+            check(DashboardText.Detail(tools[0], new("導入済み", "0.1.0", root, "missing.exe"), states[0], releases[0], new("なし", ""), null, null, null) == "通信エラー",
+                "導入済みでは通信失敗と配布形式未対応を区別する");
             var key = new KeyEventArgs(Keys.Enter);
             typeof(Control).GetMethod("OnKeyDown", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(grid, [key]);
             check(shown == 2 && key.SuppressKeyPress, "詳細セルのEnterでも説明を読める");
