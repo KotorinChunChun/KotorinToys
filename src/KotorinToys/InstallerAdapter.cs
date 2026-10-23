@@ -4,7 +4,8 @@ using System.Text.Json;
 
 namespace KotorinToys;
 
-internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOnlyList<string>, Task<int>>? execute = null)
+internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOnlyList<string>, Task<int>>? execute = null,
+    Func<ToolDefinition,InstallationState>? detectInstallation = null)
 {
     readonly SemaphoreSlim gate = new(1);
     // 既存の呼び出し元を保持しつつ、配布定義の検証を純粋な読取責務へ委譲する。
@@ -43,12 +44,15 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
             var result = Classify(tool.Id, "install", code);
             if (result.State == "成功")
             {
-                var actual = manager.Installation(tool);
+                var actual = (detectInstallation ?? manager.Installation)(tool);
                 if (actual.State != "導入済み" || actual.Version != package.Version)
                     return result with
                     {
                         State = "要確認",
-                        Detail = "導入処理は終了しましたが、登録・製品識別・実EXEの版を照合できません。"
+                        Detail = "導入後の確認が必要です。" +
+                            (actual.State == "導入済み" ? "実EXEの版が対象版と一致しません。" :
+                                string.IsNullOrWhiteSpace(actual.Detail) ? "正式導入を確認できません（" + actual.State + "）。" : actual.Detail) +
+                            $" 対象版：{package.Version} / 検出版：{actual.Version ?? "不明"}。"
                     };
             }
 

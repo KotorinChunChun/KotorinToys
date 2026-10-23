@@ -24,20 +24,35 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             var executable = PathSafety.Resolve(directory, tool.InstalledExecutable);
             if (!File.Exists(executable))
                 return MissingExecutable(tool, directory, executable);
-            using var identity = System.Text.Json.JsonDocument.Parse(File.ReadAllText(PathSafety.Resolve(directory, "tool.json")));
+            var definition = PathSafety.Resolve(directory, "tool.json");
+            if (!File.Exists(definition))
+                return new("確認できない", null, directory, null, Detail: "製品定義 tool.json がありません。配布元の修正版setupで設定・履歴を保持して修復してください。");
+            if (new FileInfo(definition).Length > OnlineToolCatalog.MaximumBytes)
+                return new("確認できない", null, directory, null, Detail: "製品定義 tool.json の容量が上限を超えています。配布元へ確認してください。");
+            using var identity = ReadIdentity(definition);
             if (identity.RootElement.GetProperty("id").GetString() != tool.Id || identity.RootElement.GetProperty("appId").GetString() != tool.AppId)
-                return new("確認できない", null, directory, null, Detail: "製品識別が一致しません。");
+                return new("確認できない", null, directory, null, Detail: "製品定義 tool.json のIDまたはAppIdが一致しません。別製品として起動・上書きしません。");
             var version = FileVersionInfo.GetVersionInfo(executable);
             if (!string.Equals(version.ProductName, tool.Name, StringComparison.Ordinal))
-                return new("確認できない", null, directory, null, Detail: "実行ファイルの製品名が一致しません。");
+                return new("確認できない", null, directory, null, Detail: $"実行ファイルの製品名が一致しません。対象：{tool.Name} / 検出：{version.ProductName ?? "不明"}。");
             var installedVersion = $"{version.FileMajorPart}.{version.FileMinorPart}.{version.FileBuildPart}";
             var uninstaller = PathSafety.Resolve(directory, "unins000.exe");
             return new("導入済み", installedVersion, directory, executable, File.Exists(uninstaller) ? uninstaller : null, File.Exists(uninstaller) ? "" : "削除プログラムがありません。");
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException or ArgumentException or System.Text.Json.JsonException or KeyNotFoundException or InvalidOperationException)
+        catch (Exception ex) when (ex is KeyNotFoundException or InvalidOperationException)
+        {
+            return new("確認できない", null, null, null, Detail: "製品定義 tool.json の必須項目または値の形式が不正です。配布元へ確認してください。");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException or ArgumentException or System.Text.Json.JsonException)
         {
             return new("確認できない", null, null, null, Detail: ex.Message);
         }
+    }
+
+    static System.Text.Json.JsonDocument ReadIdentity(string path)
+    {
+        try { return System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(path)); }
+        catch (System.Text.Json.JsonException error) { throw new IOException("製品定義 tool.json のJSON形式が不正です。配布元へ確認してください。",error); }
     }
 
     static InstallationState MissingExecutable(ToolDefinition tool, string directory, string executable)
@@ -45,7 +60,7 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
         var path = PathSafety.Resolve(directory, "tool.json");
         if (!File.Exists(path) || new FileInfo(path).Length > OnlineToolCatalog.MaximumBytes)
             return new("修復が必要", null, directory, executable, Detail: "実行ファイルがありません。製品定義を照合できないため、配布元の手順で修復してください。");
-        using var identity = System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(path));
+        using var identity = ReadIdentity(path);
         var value = identity.RootElement;
         if (value.GetProperty("id").GetString() != tool.Id || value.GetProperty("appId").GetString() != tool.AppId ||
             value.GetProperty("name").GetString() != tool.Name || value.GetProperty("installedExecutable").GetString() != tool.InstalledExecutable ||
