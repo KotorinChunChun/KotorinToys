@@ -100,12 +100,16 @@ internal static class PublicReleaseCacheUiTests
                     executionState: Stopped, fileExists: _ => false, publications: publications);
                 advanced.ShowDialog();
             });
+        // 通常画面の配置は変えず、検証用画面だけを現在の作業領域の右半分へ出す。
+        var working = Screen.PrimaryScreen!.WorkingArea;
+        form.StartPosition = FormStartPosition.Manual;
+        form.Bounds = new(working.Left + working.Width / 2, working.Top, working.Width - working.Width / 2, working.Height);
         form.Shown += (_, _) =>
         {
             var grid = Find<DataGridView>(form, "toolTable");
             grid.CurrentCell = grid.Rows.Cast<DataGridViewRow>().Single(r => r.Cells["tool"].Value?.ToString() == "SSCapture").Cells["detail"];
         };
-        using var timeout = new System.Windows.Forms.Timer { Interval = 300000 };
+        using var timeout = new System.Windows.Forms.Timer { Interval = 600000 };
         timeout.Tick += (_, _) => form.Close(); timeout.Start();
         Application.Run(form); return 0;
     }
