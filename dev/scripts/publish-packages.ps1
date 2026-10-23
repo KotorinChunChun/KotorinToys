@@ -8,6 +8,30 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot)
 . (Join-Path $PSScriptRoot 'distribution-products.ps1')
 Assert-CommonDistributionProducts $Products
+function Get-SnapshotRevision([string]$Folder = '') {
+    $manifest = Join-Path $projectRoot 'release-source.json'
+    if (-not (Test-Path -LiteralPath $manifest)) { return $null }
+    $source = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
+    if ($source.commit -isnot [string] -or $source.commit -cnotmatch '^[a-f0-9]{40}$' -or $source.children -isnot [array]) {
+        throw '採用ソース台帳の親コミットまたは子一覧が不正です。'
+    }
+    $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($child in $source.children) {
+        if ($child.path -isnot [string] -or $child.path -cnotmatch '^tools/[A-Za-z0-9][A-Za-z0-9._-]*$' -or
+            $child.commit -isnot [string] -or $child.commit -cnotmatch '^[a-f0-9]{40}$' -or -not $paths.Add($child.path)) {
+            throw '採用ソース台帳の子パス・コミットまたは一意性が不正です。'
+        }
+    }
+    if (-not $Folder) { return $source.commit }
+    $children = @($source.children | Where-Object { $_.path -ceq "tools/$Folder" })
+    if ($children.Count -ne 1) { throw "採用ソース台帳に対象の子コミットがありません：tools/$Folder" }
+    return $children[0].commit
+}
+# 隔離ソースの祖先Git情報を使わず、発行前に全対象の採用コミットを確定する。
+$maintenanceRevision = Get-SnapshotRevision
+foreach ($selected in $Products | Select-Object -Unique) {
+    [void](Get-SnapshotRevision (Get-DistributionProduct $selected).Folder)
+}
 if (-not $RecordVersion) { $RecordVersion = 'v' + (Get-Content (Join-Path $projectRoot 'catalog/host.json') -Raw | ConvertFrom-Json).version }
 $dotnetCommand = Get-Command dotnet -CommandType Application -ErrorAction Stop
 $dotnetRoot = Split-Path $dotnetCommand.Source
@@ -32,8 +56,11 @@ function Assert-Files([string]$Root, [string[]]$RelativePaths) {
     }
 }
 function Publish-Application([string]$Project, [string]$Output, [string]$Label, [string[]]$Extra = @()) {
+    $revisionProduct = if ($Label -eq 'SmartPaste.Ocr') { 'SmartPaste' } else { $Label }
+    $revision = Get-SnapshotRevision (Get-DistributionProduct $revisionProduct).Folder
+    $revisionArguments = @(if ($revision) { "-p:SourceRevisionId=$revision" })
     & dotnet publish (Join-Path $projectRoot $Project) -c Release -r win-x64 --self-contained true `
-        --artifacts-path (Join-Path $staging "build/$Label") -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false -o $Output --nologo @Extra 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory "$Label.log") | Out-Host
+        --artifacts-path (Join-Path $staging "build/$Label") -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false -o $Output --nologo @Extra @revisionArguments 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory "$Label.log") | Out-Host
     if ($LASTEXITCODE -ne 0) { throw "$Label の自己完結型発行に失敗しました。" }
     Assert-Files $Output @('coreclr.dll','hostfxr.dll','hostpolicy.dll','System.Private.CoreLib.dll','System.Windows.Forms.dll')
     $runtimeConfig = Get-ChildItem -LiteralPath $Output -Filter '*.runtimeconfig.json' | Select-Object -First 1
@@ -68,7 +95,8 @@ function Copy-RuntimeLicenses([string]$Output, [string]$Label) {
     }
 }
 $maintenanceOutput = Join-Path $staging 'maintenance'
-& dotnet publish (Join-Path $projectRoot 'src/KotorinToys.Maintenance/KotorinToys.Maintenance.csproj') -c Release -r win-x64 --self-contained true --artifacts-path (Join-Path $staging 'build/maintenance') -p:DebugType=None -p:DebugSymbols=false -o $maintenanceOutput --nologo 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory 'maintenance.log') | Out-Host
+$maintenanceRevisionArguments = @(if ($maintenanceRevision) { "-p:SourceRevisionId=$maintenanceRevision" })
+& dotnet publish (Join-Path $projectRoot 'src/KotorinToys.Maintenance/KotorinToys.Maintenance.csproj') -c Release -r win-x64 --self-contained true --artifacts-path (Join-Path $staging 'build/maintenance') -p:DebugType=None -p:DebugSymbols=false -o $maintenanceOutput --nologo @maintenanceRevisionArguments 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory 'maintenance.log') | Out-Host
 if ($LASTEXITCODE -ne 0) { throw '単体削除用メンテナンスの発行に失敗しました。' }
 Assert-Files $maintenanceOutput @('KotorinToys.Maintenance.exe','coreclr.dll','hostfxr.dll','hostpolicy.dll')
 Copy-RuntimeLicenses $maintenanceOutput 'maintenance'
@@ -95,6 +123,7 @@ foreach ($product in $Products | Select-Object -Unique) {
                     Copy-Required (Join-Path $projectRoot "tools/$name/docs") $definitionOutput
                 }
                 if ($name -eq 'OperationRecorder') {
+                    Copy-Required (Join-Path $projectRoot 'tools/OperationRecorder/THIRD-PARTY-NOTICES.md') $definitionOutput
                     $manualOutput = Join-Path $definitionOutput 'operation-recorder'
                     New-Item -ItemType Directory -Path $manualOutput -Force | Out-Null
                     Copy-Required (Join-Path $projectRoot 'tools/OperationRecorder/operation-recorder/MANUAL.md') $manualOutput
