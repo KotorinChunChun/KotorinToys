@@ -85,14 +85,24 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'README.md') $output
             Copy-Required (Join-Path $projectRoot 'docs') $output
             Copy-Required (Join-Path $projectRoot 'catalog/host.json') (Join-Path $output 'tool.json')
-            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter')) {
+            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder')) {
                 $definitionOutput = Join-Path $output "tools/$name"
                 New-Item -ItemType Directory -Path $definitionOutput -Force | Out-Null
                 Copy-Required (Join-Path $projectRoot "tools/$name/tool.json") $definitionOutput
                 Copy-Required (Join-Path $projectRoot "tools/$name/README.md") $definitionOutput
-                if ($name -in @('ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter')) {
+                if ($name -in @('ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder')) {
                     # 同梱READMEから辿れる説明だけを含める。子EXE・利用者DBは含めない。
                     Copy-Required (Join-Path $projectRoot "tools/$name/docs") $definitionOutput
+                }
+                if ($name -eq 'OperationRecorder') {
+                    $manualOutput = Join-Path $definitionOutput 'operation-recorder'
+                    New-Item -ItemType Directory -Path $manualOutput -Force | Out-Null
+                    Copy-Required (Join-Path $projectRoot 'tools/OperationRecorder/operation-recorder/MANUAL.md') $manualOutput
+                    foreach ($document in @('config/shortcuts.json','Assets/app.ico')) {
+                        $documentOutput = Join-Path $definitionOutput (Split-Path $document -Parent)
+                        New-Item -ItemType Directory -Path $documentOutput -Force | Out-Null
+                        Copy-Required (Join-Path $projectRoot "tools/OperationRecorder/$document") $documentOutput
+                    }
                 }
             }
         }

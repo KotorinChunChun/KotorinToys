@@ -12,7 +12,7 @@ internal static class Program
         if (args.Contains("--self-test")) { Environment.ExitCode = SelfTest.Run(root); return; }
         using var mutex = new Mutex(true, @"Local\KotorinToys.Dashboard", out var first);
         if (!first) { if (!args.Contains("--startup") && !args.Contains("--hidden")) Integration.ManagementEndpoint.ShowExisting("dashboard"); return; }
-        using var context = new HostApplicationContext(root, args.Contains("--startup"),settingsDirectory, args.Contains("--hidden"));
+        using var context = new HostApplicationContext(root, args.Contains("--startup"),settingsDirectory, args.Contains("--hidden"), args.Contains("--local-catalog"));
         Application.Run(context);
     }
     internal static string FindRoot()

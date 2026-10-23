@@ -11,11 +11,13 @@ internal sealed class HostApplicationContext : ApplicationContext
     readonly Dashboard dashboard;
     internal Dashboard Dashboard => dashboard;
     bool exiting;
-    public HostApplicationContext(string root, bool startup,string? settingsDirectory=null, bool hidden=false)
+    internal static ToolManager CreateManager(string root, string settingsDirectory, bool localCatalog = false) =>
+        new(root, catalogSource: localCatalog ? null : new ToolCatalogSource(root, settingsDirectory));
+
+    public HostApplicationContext(string root, bool startup,string? settingsDirectory=null, bool hidden=false, bool localCatalog=false)
     {
         var settings=new HostSettingsStore(settingsDirectory??HostSettingsStore.DefaultDirectory);
-        var source = new ToolCatalogSource(root, settings.DirectoryPath);
-        var manager = new ToolManager(root, catalogSource: source);
+        var manager = CreateManager(root, settings.DirectoryPath, localCatalog);
         var coordinator=new StartupCoordinator(settings,new TaskSchedulerGateway(),manager,Environment.ProcessPath!);
         dashboard = new Dashboard(root,settings,coordinator, toolManager: manager);
         dashboard.FormClosing += (_, args) =>

@@ -150,3 +150,23 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path a
 SpkRouterも独立Git・管理契約2に対応します。`dev/scripts/build.ps1`は両Rustアプリを固定依存でビルドし、SpkRouterの開発EXEを子定義の`release/SpkRouter/voicemixer-spk.exe`へ配置します。稼働中の開発EXEがあれば、正常終了してから全体ビルドしてください。本体パッケージには2件の定義・README・docsのみを同梱し、音声EXE・モデル・個人設定を同梱しません。setupの生成元は各子の`dev/scripts/Build-Installer.ps1`です。
 
 `dev/scripts/test-voice-router-registration.ps1`は本番の説明書同梱処理を専用フォルダーで実行し、2件の同梱内容と開発ビルド指定を検査します。製品EXEの発行・起動は行いません。本体テスト実行ファイルの`--voice-router-public-check`は2件だけの実GitHub公開台帳を照合します。これはインストーラーの実行、音声入出力、実ブラウザー拡張の確認ではありません。
+
+## OperationRecorderの管理連携
+
+0.1.9のソースでOperationRecorderを`tools/OperationRecorder`の独立Gitとして追加しています。ローカルの`catalog/tools.json`と自己完結した`config/tools.json`へ`operation-recorder`として登録し、管理契約2で起動・既存画面の表示・状態確認・正常停止を扱います。公開先は未確認のため空欄、本体対応インストーラーは`unpublished`とし、製品配布の固定表へは追加しません。本体配布に含めるのは定義・README・docs・原本マニュアル・キー一覧・アイコンです。
+
+通常の引数なし起動は利用画面を表示し、本体の管理起動は`--startup`で無表示にします。自動起動は初期OFFです。単体と本体でOS予約を重複登録しない扱いと、記録中の停止拒否は[子の管理連携ガイド](../tools/OperationRecorder/docs/kotorintoys-integration.md)を参照してください。
+
+全体の`dev/scripts/build.ps1`に専用Debugビルドを含めています。OperationRecorderだけをビルドする場合は次の入口を使います。
+
+```powershell
+cd C:\develop\KotorinToys
+dotnet build tools/OperationRecorder/OperationRecorderApp.csproj -c Debug --artifacts-path tools/OperationRecorder/artifacts/management
+pwsh -File dev/scripts/start.ps1 -LocalCatalog
+```
+
+本体回帰の`--operation-recorder-registration-tests`は定義・配信用config・公開先未設定・開発起動と未公開導入の操作可否を確認します。`pwsh -File dev/scripts/test-operation-recorder-registration.ps1`は本番の本体説明書同梱処理を隔離実行し、子の定義・README・管理連携ガイド・マニュアルを照合します。どちらも公開、インストーラー実行、実操作の記録は行いません。
+
+`-LocalCatalog`は開発用の明示指定です。本体へ`--local-catalog`と版別`logs/local-catalog-<実行ID>/settings`の専用設定先を渡し、`catalog/tools.json`のローカル一覧を使用します。「状態を更新」でもGitHubの一覧へ置換しません。通常の利用者設定・一覧キャッシュは変更しません。引数なし起動は従来どおりGitHubの配信用一覧を更新します。単一起動のMutexは共通のため、既存本体が動作中の場合はその画面を表示します。ローカル一覧へ切り替える際は本体を正常終了してから実行してください。
+
+本体回帰の`--local-catalog-tests`は通常起動のキャッシュ利用、ローカル一覧によるOperationRecorderの保持、状態更新後の行とオンラインキャッシュの保持を検査します。

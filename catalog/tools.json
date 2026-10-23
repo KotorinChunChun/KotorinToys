@@ -55,6 +55,11 @@
       "id": "voice-mixer-spk-router",
       "name": "VoiceMixerSpkRouter",
       "definition": "tools/VoiceMixerSpkRouter/tool.json"
+    },
+    {
+      "id": "operation-recorder",
+      "name": "OperationRecorder",
+      "definition": "tools/OperationRecorder/tool.json"
     }
   ]
 }

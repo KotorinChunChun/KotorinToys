@@ -29,4 +29,6 @@ try {
         dotnet build "tools/$name/src/$name/$name.csproj" -c Debug --artifacts-path "tools/$name/artifacts/management" --nologo
         if ($LASTEXITCODE) { throw "$name の管理連携ビルドに失敗しました。" }
     }
+    dotnet build tools/OperationRecorder/OperationRecorderApp.csproj -c Debug --artifacts-path tools/OperationRecorder/artifacts/management --nologo
+    if ($LASTEXITCODE) { throw 'OperationRecorderの管理連携ビルドに失敗しました。' }
 } finally { Pop-Location }

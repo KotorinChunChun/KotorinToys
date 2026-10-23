@@ -23,6 +23,8 @@ internal static class Program
     {
         try
         {
+            if (args.SequenceEqual(["--operation-recorder-ipc"])) return OperationRecorderIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--operation-recorder-panel"])) return OperationRecorderIntegrationTests.Panel();
             if (args.SequenceEqual(["--spk-router-ipc"])) return SpkRouterIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--mic-router-ipc"])) return MicRouterIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--shortcut-ipc"])) return ShortcutKeyCounterIntegrationTests.Run().GetAwaiter().GetResult();
@@ -127,6 +129,8 @@ internal static class Program
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--local-catalog-tests"])) { LocalCatalogTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--operation-recorder-registration-tests"])) { OperationRecorderRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-diagnosis-tests"])) { InstallationDiagnosisTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--standalone-startup-tests"])) { StandaloneStartupTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ux-preview"])) return UxPreview.Run(root,fixtures);
@@ -269,7 +273,7 @@ internal static class Program
             OperationDetailsTests.Run(root, Check);
             OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult();
             CompactDashboardTests.Run(root, fixtures, Check);
-            CatalogTests(); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
+            CatalogTests(); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
             MsixPackageTests.Run(fixtures, Check).GetAwaiter().GetResult();
@@ -314,11 +318,11 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 11, "schema 2でSpkRouterを含む11ツールを解決する");
+        Check(tools.Length == 12, "schema 2でOperationRecorderを含む12ツールを解決する");
         Check(tools.Count(t => t.DistributionStatus == "published") == 9 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応9ツールと今回公開しないShortcutKeyCounterを区別");
-        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 2, "ShortcutKeyCounter・HttpSelectorは本体用Inno配布の対象外");
+        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 3, "ShortcutKeyCounter・HttpSelector・OperationRecorderは本体用Inno配布の対象外");
         Check(tools.All(t => t.Id == "voice-mixer-spk-router" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0), "SpkRouterは追加ランタイム不要、他ツールの依存情報を保持");
-        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"11ツールの確認済み能力と環境");
+        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"12ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

@@ -26,7 +26,7 @@ internal static class OnlineCatalogTests
         }
         var bytes = File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath));
         var bundled = OnlineToolCatalog.Parse(bytes, root);
-        check(bundled.Select(t => t.Id).SequenceEqual(ToolCatalog.Load(root).Select(t => t.Id)), "同梱configは現行11ツールと同じ順序");
+        check(bundled.Select(t => t.Id).SequenceEqual(ToolCatalog.Load(root).Select(t => t.Id)), "同梱configは現行12ツールと同じ順序");
         foreach (var (id, name) in new[] { ("voice-mixer-mic-router", "VoiceMixerMicRouter"), ("voice-mixer-spk-router", "VoiceMixerSpkRouter") })
         {
             check(bundled.Count(t => t.Id == id) == 1, name + "をオンライン一覧に重複なく登録");
