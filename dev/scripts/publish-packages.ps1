@@ -149,7 +149,7 @@ foreach ($product in $Products | Select-Object -Unique) {
         $configuration = Join-Path $toolRoot 'config'
         if (Test-Path -LiteralPath (Join-Path $configuration 'shortcuts.json') -PathType Leaf) {
             $configurationOutput = Join-Path $output 'config'
-            New-Item -ItemType Directory -Path $configurationOutput | Out-Null
+            New-Item -ItemType Directory -Path $configurationOutput -Force | Out-Null
             Copy-Required (Join-Path $configuration 'shortcuts.json') $configurationOutput
         }
     }
