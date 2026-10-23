@@ -11,21 +11,21 @@ internal static class StartupOverviewTests
         var via = new StartupState("via_kotorintoys", "登録済み", "共有予約を照合済み");
         ExternalStartupState TaskEntry(string state = "有効") => new("外部タスク", "外部の起動予約", "fixture", state);
         check(StartupOverview.Create(none, []).Text == "なし", "本体もOSも登録なしの場合だけなしにする");
-        check(StartupOverview.Create(via, []).Text == "本体経由", "希望設定だけでなく照合済みの本体経由を表示");
+        check(StartupOverview.Create(via, []).Text == "Toys経由", "希望設定だけでなく照合済みのToys経由を表示");
         check(StartupOverview.Create(new("direct_task", "登録済み"), []).Text == "OS（タスク）", "本体管理の直接予約もOSタスクに分類");
         check(StartupOverview.Create(none, [TaskEntry()]).Text == "OS（タスク）", "外部の有効なタスクを表示");
         foreach (var source in new[] { "Run登録", "スタートアップ" })
             check(StartupOverview.Create(none, [new(source, "起動項目", "fixture")]).Text == "OS（スタートアップ）", "OSの有効な起動登録を表示：" + source);
         var both = StartupOverview.Create(via, [TaskEntry(), new("Run登録", "例", "fixture")]);
-        check(both.Text == "本体経由 / OS（タスク） / OS（スタートアップ）", "重複した自動起動経路を隠さず併記");
+        check(both.Text == "Toys経由 / OS（タスク） / OS（スタートアップ）", "重複した自動起動経路を隠さず併記");
         check(StartupOverview.Create(new("direct_task", "登録済み"), [TaskEntry()]).Text == "OS（タスク）", "同じ方式の重複表示を抑え詳細は残す");
         check(StartupOverview.Create(none, [TaskEntry("無効")]).Text == "無効", "無効な予約だけでは自動起動有効と表示しない");
         check(StartupOverview.Create(none, [TaskEntry("対象外")]).Text == "なし", "手動専用・別ユーザーの予約を有効な自動起動にしない");
         check(StartupOverview.Create(none, [TaskEntry("未確認")]).Text == "確認できない", "読取失敗を登録なしにしない");
         var mixed = StartupOverview.Create(via, [TaskEntry("未確認")]);
-        check(mixed.Text.Contains("本体経由") && mixed.Text.Contains("一部未確認") && mixed.NeedsAttention, "一部の登録を読めなくても確認済み経路と不明を両方保持");
+        check(mixed.Text.Contains("Toys経由") && mixed.Text.Contains("一部未確認") && mixed.NeedsAttention, "一部の登録を読めなくても確認済み経路と不明を両方保持");
         check(StartupOverview.Create(new("via_kotorintoys", "要対応", "共有予約がありません"), []).NeedsAttention, "希望方式だけがあり実予約がない場合は有効にしない");
-        check(StartupOverview.Create(new("via_kotorintoys", "要対応", "共有予約がありません"), []).Text == "本体経由（要確認）", "未照合でも設定されている方式を示し有効とは断定しない");
+        check(StartupOverview.Create(new("via_kotorintoys", "要対応", "共有予約がありません"), []).Text == "Toys経由（要確認）", "未照合でも設定されている方式を示し有効とは断定しない");
         check(StartupOverview.Create(none, [TaskEntry()]).Detail.Contains("外部の起動予約") && both.Detail.Contains("共有予約を照合済み"), "登録元・予約名・照合理由をセル詳細に残す");
 
         foreach (var flag in new byte[] { 2, 3, 6, 7, 255 })
@@ -58,7 +58,7 @@ internal static class StartupOverviewTests
 
         var tool = ToolCatalog.Load(root)[0]; int reads = 0;
         var reader = new StartupOverviewReader(_ => { reads++; return Task.FromResult(via); }, _ => { reads++; return Task.FromResult(new[] { TaskEntry() }); });
-        check((await reader.Read(tool, default)).Text.Contains("本体経由 / OS") && reads == 2, "読取専用の2経路を集約する");
+        check((await reader.Read(tool, default)).Text.Contains("Toys経由 / OS") && reads == 2, "読取専用の2経路を集約する");
         using var cancellation = new CancellationTokenSource(); cancellation.Cancel(); bool canceled = false;
         try { await reader.Read(tool, cancellation.Token); } catch (OperationCanceledException) { canceled = true; }
         check(canceled && reads == 2, "取消後はOSの読取を開始しない");
@@ -89,7 +89,7 @@ internal static class StartupOverviewTests
         var state = await coordinator.State(tool);
         check(state.ActualState == "要対応" && state.Detail.Contains("起動引数") && state.Detail.Contains(otherRoot), "予約の参照先違いは実際に比較した引数を示す");
         var overview = await new StartupOverviewReader(coordinator.State, _ => Task.FromResult(Array.Empty<ExternalStartupState>())).Read(tool, default);
-        check(overview.Text == "本体経由（要確認）" && overview.Detail.Contains(otherRoot), "照合不能の本体経由を一覧でも理由付きで表示");
+        check(overview.Text == "Toys経由（要確認）" && overview.Detail.Contains(otherRoot), "照合不能のToys経由を一覧でも理由付きで表示");
         check(before.SequenceEqual(SHA256.HashData(File.ReadAllBytes(path))) && Directory.GetFiles(store.DirectoryPath).Length == 1,
             "読取照合で設定・予約を変更せずロックや操作記録も作らない");
     }

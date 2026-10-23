@@ -29,6 +29,10 @@ internal static class CompactDashboardTests
             check(grid.Rows[0].Cells["detail"].Value?.ToString()=="操作できません" && grid.Rows[0].Cells["detail"].ToolTipText.Contains("停止を拒否"),"長い操作エラーも短い詳細とツールチップへ分離");
             check(grid.Rows[0].Height<100 && grid.Columns["detail"]!.DefaultCellStyle.WrapMode==DataGridViewTriState.False,"長文の詳細で一覧の行が巨大化しない");
             check(form.Controls.Find("advancedSettings",true).Single().Text=="一括インストール","詳細設定ボタンを一括インストールへ改名");
+            check(DashboardText.ExecutionIssue(new("確認できない",Detail:"別の配置またはセッション"))=="別配置で実行中" &&
+                DashboardText.ExecutionIssue(new("確認できない",Detail:"プロセスは存在しますが管理窓口が応答しません。"))=="管理応答なし","状態不明を具体的な短い理由へ分離");
+            check(DashboardText.Detail(tools[portable],actual[0],states[0],new(null,true,false,"fixture"),new("なし",""),null,null,null)!="ZIP版を利用" &&
+                !DashboardText.Detail(tools[portable],actual[0],states[0],new(null,true,false,"fixture"),new("なし",""),null,null,null).Contains("ZIP"),"固定製品条件だけでZIPの存在や利用を断定しない");
             var missing=actual[0] with{State="未導入",Version=null};
             check(DashboardText.Update(tools[0],missing,releases[0])=="-","未導入表示を更新なしと混同しない");
             check(DashboardText.Update(tools[0],actual[0],releases[0] with{Confirmed=false})=="未対応" && DashboardText.Published(releases[0] with{Confirmed=false})=="—","未確認の同梱版を公開Verや最新と誤表示しない");

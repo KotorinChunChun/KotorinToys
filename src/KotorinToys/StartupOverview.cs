@@ -8,11 +8,11 @@ internal sealed record StartupOverview(string Text, string Detail, bool NeedsAtt
         bool issue = managed.ActualState is not ("登録済み" or "なし");
         if (managed.ActualState == "登録済み")
         {
-            if (managed.DesiredMode == "via_kotorintoys") routes.Add("本体経由");
+            if (managed.DesiredMode == "via_kotorintoys") routes.Add("Toys経由");
             else if (managed.DesiredMode == "direct_task") routes.Add("OS（タスク）");
             else issue = true;
         }
-        var desired = managed.DesiredMode == "via_kotorintoys" ? "本体経由" : managed.DesiredMode == "direct_task" ? "OS（タスク）" : managed.DesiredMode ?? "未確認";
+        var desired = managed.DesiredMode == "via_kotorintoys" ? "Toys経由" : managed.DesiredMode == "direct_task" ? "OS（タスク）" : managed.DesiredMode ?? "未確認";
         if (managed.DesiredMode != "none" || managed.ActualState != "なし")
             notes.Add("本体設定：" + desired + " / " + managed.ActualState + " / " + managed.Detail);
         foreach (var item in external)
@@ -27,6 +27,7 @@ internal sealed record StartupOverview(string Text, string Detail, bool NeedsAtt
             pending ?? (issue ? "確認できない" : external.Any(e => e.State == "無効") ? "無効" : "なし");
         if (notes.Count == 0) notes.Add("本体の自動起動設定・ログオン／PC起動タスク・Run・スタートアップショートカットに有効な登録は見つかりませんでした。");
         notes.Add("登録の有効性の確認です。実際にサインイン後の起動が成功することを保証するものではありません。");
+        if (managed.DesiredMode == "via_kotorintoys") notes.Add("Toys経由：Windowsサインイン時にKotorinToysが起動し、そこからこのアプリを起動します。");
         return new(text, string.Join("\n", notes), issue);
     }
 }
