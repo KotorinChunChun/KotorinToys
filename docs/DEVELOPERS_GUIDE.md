@@ -6,6 +6,8 @@
 
 ## 前提
 
+EXE導入・削除の診断はInstallerDiagnosticsが実行ごとに保存します。Inno終了コードはInstallerAdapterで分類し、MSIXの既存診断とは区別します。/LOGは引数リストで渡し、空白や日本語のパスも単一引数に保持します。SSCapture補助は導入先ハッシュ・root・operation・今回のutcを照合してからmessageだけを取り込みます。ログなし・壊れたログでは原因を推測せず、読取不能を表示します。診断作成失敗ではsetupを開始せず、実行後の結果保存失敗でsetupを再実行しません。詳細ログの自動アップロード・設定や履歴の収集はしません。
+
 - Windows 11 x64
 - PowerShellコマンドは `pwsh` で実行する
 - 本体と各ツールは独立したGitリポジトリとして扱う

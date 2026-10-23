@@ -30,6 +30,7 @@ internal sealed partial class InstallationForm : BrandedForm
     readonly Label source = new() { Name = "installationSource", Dock = DockStyle.Fill, AutoSize = true, Padding = new(8), Text = PublicSource };
     readonly Button cancel = new() { Name = "cancelRemaining", Text = "残りをキャンセル", AutoSize = true, Enabled = false };
     readonly Button close = new() { Name = "closeInstallation", Text = "閉じる", AutoSize = true };
+    readonly Button saveLog = new() { Name = "saveInstallationLog", Text = "詳細ログを保存", AutoSize = true, Enabled = false };
     readonly Label media = new() { Name = "ffmpegState", AutoSize = true, Dock = DockStyle.Fill, Padding = new(8) };
     readonly TableLayoutPanel detail = new() { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3 };
     readonly TableLayoutPanel content = new() { Dock = DockStyle.Fill, ColumnCount = 2 };
@@ -88,6 +89,14 @@ internal sealed partial class InstallationForm : BrandedForm
         cancel.Text = operation == null ? "残りをキャンセル" : "キャンセル";
         cancel.Click += (_, _) => { cancellation?.Cancel(); ActionHints.Apply(cancel, ActionAvailability.Deny("キャンセル要求済みです。進行中の処理の終了を待っています。"), hints); }; buttons.Controls.Add(cancel);
         close.Click += (_, _) => Close(); buttons.Controls.Add(close);
+        saveLog.Click += (_, _) =>
+        {
+            using var picker = new SaveFileDialog { Filter = "テキストログ|*.txt", FileName = "KotorinToys-installation-log.txt", OverwritePrompt = true };
+            if (picker.ShowDialog(this) != DialogResult.OK) return;
+            try { SaveLog(picker.FileName); }
+            catch (Exception ex) { MessageBox.Show(this, "ログを保存できません：" + ex.Message, WindowTitle.Create("ログ保存")); }
+        };
+        buttons.Controls.Add(saveLog);
         FormClosing += (_, e) =>
         {
             if (!running) return;
@@ -142,6 +151,7 @@ internal sealed partial class InstallationForm : BrandedForm
         running = value; targets.Enabled = !value && (singleOperation!=null || operationTabs.SelectedIndex is 0 or 1);
         foreach (Control control in buttons.Controls) control.Enabled = !value;
         cancel.Enabled = value; close.Enabled = !value;
+        saveLog.Enabled = !value && log.TextLength > 0;
         cancel.AccessibleDescription = value ? "取得または未着手の処理をキャンセルします。実行中のインストーラーは強制終了しません。" : "処理中だけキャンセルできます。";
         close.AccessibleDescription = value ? "処理の完了後に閉じられます。" : "この画面を閉じます。";
         UpdateAdvancedButtons();
@@ -221,7 +231,12 @@ internal sealed partial class InstallationForm : BrandedForm
         if (Controls.Find("chooseLocalCatalog", true).SingleOrDefault() is Button choose)
             ActionHints.Apply(choose, busy ? ActionAvailability.Deny("処理中です。") : ActionAvailability.Allow("信頼できる開発用配布台帳を選択します。通常はGitHub Releasesを使用してください。"), hints);
     }
-    void AppendLog(string text) { if (!IsDisposed) log.AppendText(text + "\r\n"); }
+    void AppendLog(string text) { if (!IsDisposed) { log.AppendText(text + "\r\n"); saveLog.Enabled = !running && log.TextLength > 0; } }
+    internal void SaveLog(string path)
+    {
+        if (running || log.TextLength == 0) throw new IOException("処理完了後にログを保存してください。");
+        File.WriteAllText(path, log.Text, new System.Text.UTF8Encoding(true));
+    }
     internal void ShowSummary(InstallationSummary summary)
     {
         results.Rows.Clear();
