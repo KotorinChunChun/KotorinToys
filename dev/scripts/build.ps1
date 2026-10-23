@@ -31,4 +31,6 @@ try {
     }
     dotnet build tools/OperationRecorder/OperationRecorderApp.csproj -c Debug --artifacts-path tools/OperationRecorder/artifacts/management --nologo
     if ($LASTEXITCODE) { throw 'OperationRecorderの管理連携ビルドに失敗しました。' }
+    dotnet build tools/TimecardOCR/src/TimecardOCR/TimecardOCR.csproj -c Debug --artifacts-path tools/TimecardOCR/artifacts/management --nologo
+    if ($LASTEXITCODE) { throw 'TimecardOCRの管理連携ビルドに失敗しました。' }
 } finally { Pop-Location }

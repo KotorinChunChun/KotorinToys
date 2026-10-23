@@ -495,6 +495,53 @@
       ],
       "toolRoot": "tools/OperationRecorder",
       "repositoryUrl": "https://github.com/KotorinChunChun/OperationRecorder"
+    },
+    {
+      "id": "timecard-ocr",
+      "name": "TimecardOCR",
+      "version": "1.0.0",
+      "summary": "タイムカード画像をオフラインOCRで読み取り、CSV出力と目視修正を行う",
+      "category": "OCR・業務支援",
+      "executable": "artifacts/management/bin/TimecardOCR/debug/TimecardOCR.exe",
+      "installedExecutable": "TimecardOCR.exe",
+      "appId": "KotorinToys.TimecardOCR",
+      "manual": "docs/kotorintoys-integration.md",
+      "readme": "README.md",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "dotnet-desktop",
+          "name": ".NET 10 Desktop x64",
+          "kind": "dotnet-desktop",
+          "major": 10
+        },
+        {
+          "id": "python",
+          "name": "Python 3.12とOCR依存パッケージ",
+          "kind": "file",
+          "path": ".venv/Scripts/python.exe",
+          "optional": true,
+          "feature": "校正・OCR・結果確認",
+          "guide": "READMEの初回セットアップを実施してください。"
+        },
+        {
+          "id": "models",
+          "name": "固定ハッシュ検証済みOCRモデル",
+          "kind": "external",
+          "optional": true,
+          "feature": "OCR",
+          "guide": "setup_windows.batで初回取得。画像補正だけなら不要です。"
+        }
+      ],
+      "toolRoot": "tools/TimecardOCR"
     }
   ]
 }

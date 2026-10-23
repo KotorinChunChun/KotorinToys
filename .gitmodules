@@ -36,3 +36,7 @@
 [submodule "tools/OperationRecorder"]
 	path = tools/OperationRecorder
 	url = https://github.com/KotorinChunChun/OperationRecorder.git
+
+[submodule "tools/TimecardOCR"]
+	path = tools/TimecardOCR
+	update = none
