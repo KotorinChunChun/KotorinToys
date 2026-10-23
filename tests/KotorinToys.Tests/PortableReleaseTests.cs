@@ -101,12 +101,12 @@ internal static class PortableReleaseTests
             tools.Select(_ => new ToolState("停止中")).ToArray(), releases);
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
         grid.CurrentCell = grid.Rows[index].Cells[0];
-        check(grid.Rows[index].Cells["published"].Value?.ToString() == "0.1.5" && grid.Rows[index].Cells["published"].ToolTipText.Contains("2026/10/17 公開"),
-            "実フォームへポータブル公開版と公開日を掲載");
+        check(!grid.Columns.Contains("published") && grid.Rows[index].Cells["update"].Value?.ToString() == "-" && grid.Rows[index].Cells["update"].ToolTipText.Contains("0.1.5") && grid.Rows[index].Cells["update"].ToolTipText.Contains("2026/10/17 公開"),
+            "未導入ZIPの一覧はハイフン、公開版と公開日は更新セルの説明へ保持");
         check(!form.Controls.Find("installSelected", true).Single().Enabled && !form.Controls.Find("updateSelected", true).Single().Enabled,
             "実フォームでもZIP掲載と導入ボタンの有効条件を分離");
-        check(grid.Rows[index].Cells["published"].ToolTipText.Contains("ZIP公開済み・本体導入未対応"),
-            "公開確認済みZIPの利用経路を公開版セルの説明に保持");
+        check(grid.Rows[index].Cells["update"].ToolTipText.Contains("ZIP公開済み・本体導入未対応") && grid.Rows[index].Cells["detail"].ToolTipText.Contains("利用中と検出したものではありません"),
+            "ZIP公開の根拠を保持し利用中の検出とは区別");
     }
 
     // API回数制限中も、CLIで取得した公開API応答を実際の匿名asset取得と照合できる。
