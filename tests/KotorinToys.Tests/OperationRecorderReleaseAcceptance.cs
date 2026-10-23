@@ -287,7 +287,17 @@ internal static class OperationRecorderReleaseAcceptance
     {
         output = OutputDirectory(root, output);
         Directory.CreateDirectory(output);
-        var tool = Definition;
+        using var catalogClient = new ToolCatalogClient();
+        var catalogBytes = await catalogClient.Fetch();
+        var publicTools = OnlineToolCatalog.Parse(catalogBytes, root);
+        var matches = publicTools.Where(tool => tool.Id == ToolId).ToArray();
+        Require(matches.Length == 1, "公開mainの一覧configにOperationRecorderが一意に登録済み");
+        var tool = matches.Single();
+        Require(tool.DistributionStatus == "published" && tool.Version == ProductVersion &&
+            tool.Name == Definition.Name && tool.AppId == Definition.AppId &&
+            tool.RepositoryUrl == Definition.RepositoryUrl,
+            "公開mainの登録が公開状態・製品名・AppId・配布先・1.3.2に一致");
+        await File.WriteAllBytesAsync(Path.Combine(output, "published-tools.json"), catalogBytes);
         using var client = new PublicReleaseClient();
         var release = await client.Check(tool, null);
         Require(release.Confirmed && release.Package?.Package.Version == ProductVersion && release.Package.PublishedAt != null,
