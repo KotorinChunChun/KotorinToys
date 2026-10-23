@@ -63,5 +63,20 @@ internal static class InstallerDiagnosticsTests
         check(result.ExitCode==7 && result.State=="失敗" && result.Detail.Contains("保存できません"),"結果保存不能でも終了コードと失敗を保持し再実行しない");
         foreach (int code in new[]{1,2,3,4,5,6,7,8,10,12345})
             check(InstallerAdapter.Classify(tool.Id,"install",code).State=="失敗","未知を含む非0コードを成功にしない："+code);
+        var previous = SynchronizationContext.Current;
+        try
+        {
+            using var form = new InstallationForm(new(root)); form.CreateControl();
+            var button = form.Controls.Find("saveInstallationLog",true).Single();
+            check(!button.Enabled,"空の詳細ログは保存ボタンを無効化");
+            form.ShowSummary(InstallationSummary.Create([tool],"install",[new(tool.Id,"install","失敗","終了コード：7 / 原因：対象不一致")]));
+            var exported = Path.Combine(folder,"画面 詳細ログ.txt");form.SaveLog(exported);
+            check(button.Enabled && File.ReadAllText(exported).Contains("終了コード：7 / 原因：対象不一致"),"実フォームの詳細ログをUTF8テキストへ保存");
+            var setRunning=typeof(InstallationForm).GetMethod("SetRunning",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!;
+            setRunning.Invoke(form,[true]);bool denied=false;
+            try { form.SaveLog(exported); } catch(IOException) { denied=true; }
+            check(!button.Enabled && denied,"処理中は保存と直接呼出しの双方を拒否");
+        }
+        finally { SynchronizationContext.SetSynchronizationContext(previous); }
     }
 }
