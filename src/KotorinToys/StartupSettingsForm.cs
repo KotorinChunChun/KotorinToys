@@ -21,10 +21,12 @@ internal sealed partial class StartupSettingsForm : BrandedForm
         grid.ColumnHeadersHeightSizeMode=DataGridViewColumnHeadersHeightSizeMode.AutoSize;grid.ColumnHeadersDefaultCellStyle.Padding=new(4,8,4,8);
         grid.Columns.Add(new DataGridViewTextBoxColumn{Name="tool",HeaderText="ツール",ReadOnly=true});
         var mode=new DataGridViewComboBoxColumn{Name="mode",HeaderText="次回サインインの希望方式",DisplayMember="Value",ValueMember="Key",
-            DataSource=new[]{new KeyValuePair<string,string>("none","自動起動なし"),new("via_kotorintoys","KotorinToys経由"),new("direct_task","直接タスク")}};
+            DataSource=new[]{new KeyValuePair<string,string>("none","自動起動なし"),new("via_kotorintoys","Toys経由"),new("direct_task","OSから直接")}};
         grid.Columns.Add(mode);grid.Columns.Add(new DataGridViewTextBoxColumn{Name="actual",HeaderText="実予約",ReadOnly=true});
         grid.Columns.Add(new DataGridViewTextBoxColumn{Name="external",HeaderText="外部登録（読取のみ）",ReadOnly=true});
         grid.Columns.Add(new DataGridViewTextBoxColumn{Name="availability",HeaderText="設定できない理由・案内",ReadOnly=true,FillWeight=170});
+        foreach (DataGridViewColumn column in grid.Columns) column.HeaderCell.ToolTipText = ColumnHelp(column.Name);
+        grid.ShowCellToolTips = true;
         grid.DefaultCellStyle.WrapMode=DataGridViewTriState.True; grid.AutoSizeRowsMode=DataGridViewAutoSizeRowsMode.AllCells;
         foreach (DataGridViewColumn column in grid.Columns) column.SortMode=DataGridViewColumnSortMode.NotSortable;
         foreach(var tool in tools)grid.Rows.Add(tool.Name,"none","確認中","確認中");
@@ -42,6 +44,14 @@ internal sealed partial class StartupSettingsForm : BrandedForm
         InitializeEditing();
         Shown+=async(_,_)=>await Reload();
     }
+    internal static string ColumnHelp(string name) => name switch
+    {
+        "tool" => "自動起動を設定するアプリです。行を選んで方式を変更します。",
+        "mode" => "次回Windowsサインイン時の希望です。Toys経由：KotorinToysから起動。OSから直接：Windowsのタスクから起動。自動起動なし：予約解除。方式の変更後、選択行を適用してください。",
+        "actual" => "Windowsに実際に登録された予約との照合結果です。希望方式を選んだだけでは予約は変わりません。",
+        "external" => "本体以外が登録したタスク・スタートアップです。読取専用で、この画面から削除しません。",
+        _ => "設定できない理由と、次に行う操作です。保存・予約変更とアプリの起動停止は別です。"
+    };
     void Add(string name,string text,Func<Task<StartupResult>> action)
     {
         var button=new Button{Name=name,Text=text,AutoSize=true};actions.Controls.Add(button);

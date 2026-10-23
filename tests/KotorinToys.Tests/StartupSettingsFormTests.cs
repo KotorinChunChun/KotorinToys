@@ -25,6 +25,9 @@ internal static class StartupSettingsFormTests
             var grid=(DataGridView)form.Controls.Find("startupTools",true).Single();
             var apply=(Button)form.Controls.Find("applyToolStartup",true).Single();
             var recover=(Button)form.Controls.Find("recoverStartup",true).Single();
+            check(grid.Columns.Cast<DataGridViewColumn>().All(c=>!string.IsNullOrWhiteSpace(c.HeaderCell.ToolTipText)) &&
+                grid.Rows[1].Cells["mode"].ToolTipText.Contains("Toys経由") && grid.Rows[1].Cells["external"].ToolTipText.Contains("読取専用"),"全列とセルに自動起動の意味を説明するツールチップ");
+            check(apply.AccessibleDescription!.Contains("ほかの行") && recover.AccessibleDescription!.Contains("再起動ボタンではありません"),"無効なボタンでも操作の目的と現在の可否を説明");
             check(grid.Rows[0].Cells["mode"].ReadOnly && grid.Rows[0].Cells["availability"].Value!.ToString()!.Contains("正式インストール"),"未導入行は方式をグレーアウトし理由を表示");
             check(!apply.Enabled && !recover.Enabled && recover.AccessibleDescription!.Contains("ありません"),"未変更の適用と不要な復旧を無効化");
             var before=File.ReadAllBytes(Path.Combine(store.DirectoryPath,"settings.json"));

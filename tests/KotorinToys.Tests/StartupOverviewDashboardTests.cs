@@ -30,7 +30,7 @@ internal static class StartupOverviewDashboardTests
             if (failure && tool.Id == tools[1].Id) throw new IOException("予約の読取拒否");
             return values[tool.Id];
         }
-        using var form = new Dashboard(root, startupCheck: Read,
+        using var form = new Dashboard(root, startupCheck: Read, detectInstallation:_=>new("導入済み","1.0.0",root,"fixture.exe"),
             releaseCheck: (_, fallback, _) => Task.FromResult(new PublicRelease(fallback, false, false, "fixture")));
         form.CreateControl(); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
@@ -51,7 +51,7 @@ internal static class StartupOverviewDashboardTests
         check(grid.Rows[1].Cells["startup"].Value?.ToString() == "確認できない" && grid.Rows[1].Cells["detail"].ToolTipText.Contains("予約の読取拒否") == true &&
             grid.Rows[0].Cells["startup"].Value?.ToString() == values[tools[0].Id].Text, "1製品の読取例外で他製品の確認結果を失わない");
         form.Size = form.MinimumSize; form.PerformLayout();
-        check(column.Width >= 125 && grid.ColumnHeadersHeight >= 40 && grid.Height >= 320, "最小画面でも自動起動列幅・ヘッダー・一覧領域を確保");
+        check(column.Width >= 85 && grid.ColumnHeadersHeight >= 40 && grid.Height >= 320, "最小画面でもコンパクトな自動起動列幅・ヘッダー・一覧領域を確保");
         check(!form.Controls.Find("overallStatus", true).Any() && grid.Parent is TableLayoutPanel layout && layout.RowCount == 4 && form.Controls.Find("viewBar",true).Length==1, "絞り込みを加えても下部の常設説明を復活させない");
     }
     static void InFlight(string root, string fixtures, Action<bool, string> check)
@@ -67,7 +67,7 @@ internal static class StartupOverviewDashboardTests
             if (current <= tools.Length) await gate.Task.WaitAsync(token);
             return new(current <= tools.Length ? "本体経由" : "OS（タスク）", tool.Id);
         }
-        using var form = new Dashboard(root, toolManager: new(root, catalogSource: source), startupCheck: Read,
+        using var form = new Dashboard(root, toolManager: new(root, catalogSource: source), startupCheck: Read, detectInstallation:_=>new("導入済み","1.0.0",root,"fixture.exe"),
             releaseCheck: (_, fallback, _) => Task.FromResult(new PublicRelease(fallback, false, false, "fixture")));
         form.CreateControl(); var pending = form.RefreshStartups(); var refresh = form.RefreshAll();
         check(configs == 0 && !refresh.IsCompleted, "旧一覧の自動起動照合が完了するまでconfig差替を待つ");

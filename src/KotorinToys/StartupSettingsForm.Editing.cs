@@ -54,21 +54,23 @@ internal sealed partial class StartupSettingsForm
                 var tool=tools[i];var current=next.StartupModes.GetValueOrDefault(tool.Id,"none");
                 if(drafts.GetValueOrDefault(tool.Id)==current)drafts.Remove(tool.Id);
                 var choices=new List<KeyValuePair<string,string>>{new("none","自動起動なし")};
-                foreach(var (key,label) in new[]{("via_kotorintoys","KotorinToys経由"),("direct_task","直接タスク")})
+                foreach(var (key,label) in new[]{("via_kotorintoys","Toys経由"),("direct_task","OSから直接")})
                     if(coordinator.ModeAvailability(tool,key).Enabled)choices.Add(new(key,label));
                 var desired=drafts.GetValueOrDefault(tool.Id,current);
-                if(choices.All(p=>p.Key!=desired))choices.Add(new(desired,desired=="direct_task"?"直接タスク（要確認）":"KotorinToys経由（要確認）"));
+                if(choices.All(p=>p.Key!=desired))choices.Add(new(desired,desired=="direct_task"?"OSから直接（要確認）":"Toys経由（要確認）"));
                 var cell=(DataGridViewComboBoxCell)grid.Rows[i].Cells["mode"];
                 cell.DataSource=choices;cell.Value=desired;cell.ReadOnly=choices.Count==1;
                 cell.Style.BackColor=cell.ReadOnly?SystemColors.Control:SystemColors.Window;
                 cell.Style.ForeColor=cell.ReadOnly?SystemColors.GrayText:SystemColors.WindowText;
                 var availability=coordinator.ModeAvailability(tool,"via_kotorintoys");
                 var explanation=availability.Enabled ? drafts.ContainsKey(tool.Id)?"未保存です。選択行の方式を適用してください。":"方式を変更し、選択行の方式を適用してください。" : availability.Reason;
-                grid.Rows[i].Cells["availability"].Value=explanation;cell.ToolTipText=explanation;
+                grid.Rows[i].Cells["availability"].Value=explanation;cell.ToolTipText=ColumnHelp("mode")+"\n"+explanation;
                 grid.Rows[i].Cells["actual"].Value=states[i].ActualState+"："+states[i].Detail;
-                grid.Rows[i].Cells["actual"].ToolTipText=states[i].Detail;
+                grid.Rows[i].Cells["actual"].ToolTipText=ColumnHelp("actual")+"\n"+states[i].Detail;
                 grid.Rows[i].Cells["external"].Value=external[i].Length==0?"対象なし（タスク／Run／lnk）":string.Join(" / ",external[i].Select(e=>e.Source+"："+e.Name+"（"+e.State+"）"));
-                grid.Rows[i].Cells["external"].ToolTipText=string.Join(Environment.NewLine,external[i].Select(e=>e.State+"："+e.Detail));
+                grid.Rows[i].Cells["external"].ToolTipText=ColumnHelp("external")+"\n"+string.Join(Environment.NewLine,external[i].Select(e=>e.State+"："+e.Detail));
+                grid.Rows[i].Cells["tool"].ToolTipText=ColumnHelp("tool");
+                grid.Rows[i].Cells["availability"].ToolTipText=explanation;
             }
             loaded=true;
         }
@@ -92,7 +94,14 @@ internal sealed partial class StartupSettingsForm
         ActionAvailability Decide(ActionAvailability action) => working || refreshing ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") :
             !loaded ? ActionAvailability.Deny("先に設定の読取りが必要です。") : loadError!=null ? ActionAvailability.Deny(loadError) :
             Pending ? ActionAvailability.Deny("中断した予約変更があります。「未完了操作を復旧」を先に実行してください。") : action;
-        void Set(string name,ActionAvailability rule){if(actions.Controls.Find(name,false).SingleOrDefault() is Button button)ActionHints.Apply(button,rule,hints);}
+        void Set(string name,ActionAvailability rule)
+        {
+            string help = name switch { "applyHostStartup" => "上の2つのチェックを保存します。各アプリの方式は保存しません。",
+                "applyToolStartup" => "選択行の方式だけを保存して予約へ反映します。ほかの行や実行中のアプリは変更しません。",
+                "recoverStartup" => "中断した予約変更を記録に従って元へ戻します。アプリの再起動ボタンではありません。",
+                _ => "保存済み設定とWindowsの予約を再確認します。未保存の編集は保持します。" };
+            if(actions.Controls.Find(name,false).SingleOrDefault() is Button button)ActionHints.Apply(button,rule with { Reason = help + "\n" + rule.Reason },hints);
+        }
         var host=coordinator.HostAvailability(hostStartup.Checked);
         if(host.Enabled && hostStartup.Checked==saved.HostStartup && showDashboard.Checked==saved.ShowDashboardAtLogon)host=ActionAvailability.Deny("上のチェック設定は保存済みです。変更すると保存できます。");
         Set("applyHostStartup",Decide(host));
