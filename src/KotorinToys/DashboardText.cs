@@ -3,14 +3,22 @@ namespace KotorinToys;
 // 一覧は短い要約、詳しい根拠と対処はセルのツールチップに分ける。
 internal static class DashboardText
 {
+    public static string Categories(string value) => value switch
+    {
+        "画面キャプチャ" => "撮影、配信", "録画" => "撮影、配信", "動画・画像編集" => "撮影、編集",
+        "検索・データ整理" => "DB、検索", "操作記録" => "AI用記録、撮影", "入力・作業分析" => "AI用記録",
+        "OCR・業務支援" => "検索、OCR", "音声" => "音声、配信", "ブラウザー・リンク" => "検索、ブラウザー",
+        _ => string.Join("、", value.Split(['、', ','], StringSplitOptions.RemoveEmptyEntries|StringSplitOptions.TrimEntries).Distinct())
+    };
     public static string Published(PublicRelease release) => release.Confirmed ? release.Package?.Package.Version ?? release.Portable?.Version ?? "—" : "—";
     public static string Update(ToolDefinition tool, InstallationState installed, PublicRelease release)
     {
+        if (installed.State == "未導入") return "-";
         if (release.Portable != null || ToolInstallationRunner.UnsupportedReason(tool) != null || tool.Msix == null && tool.DistributionStatus != "published") return "未対応";
         if (installed.State == "未導入") return "未導入";
         if (!release.Confirmed || release.Package == null || !MsixPolicy.Installed(installed)) return "未対応";
         var view = ToolVersionView.Create(installed, release);
-        return view.CanUpdate ? "あり" : Version.TryParse(installed.Version, out _) ? "なし" : "未対応";
+        return view.CanUpdate ? "要(" + release.Package.Package.Version + ")" : Version.TryParse(installed.Version, out _) ? "なし" : "未対応";
     }
     public static string Detail(ToolDefinition tool, InstallationState installed, ToolState execution, PublicRelease release,
         StartupOverview startup, string? operationError, string? catalogError, string? stateError)

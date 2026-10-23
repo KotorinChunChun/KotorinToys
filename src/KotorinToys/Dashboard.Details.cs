@@ -15,7 +15,7 @@ internal sealed partial class Dashboard
             return rule.Enabled ? null : label + "不可：" + rule.Reason;
         });
         var explanation = string.Join("\r\n\r\n", new[] { tool.Name + "：" + states[index].State,
-            "導入Ver：" + row.Cells["installed"].Value + " / 公開Ver：" + row.Cells["published"].ToolTipText,
+            "導入Ver：" + row.Cells["installed"].Value + " / 公開情報：" + row.Cells["update"].ToolTipText,
             row.Cells["detail"].ToolTipText, "自動起動：" + startupSnapshots[index].Text + "\r\n" + startupSnapshots[index].Detail,
             string.Join("\r\n", reasons.Where(text => text != null)) }.Where(text => !string.IsNullOrWhiteSpace(text)));
         showDetails(tool.Name, explanation);

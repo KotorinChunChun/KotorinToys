@@ -24,6 +24,13 @@ internal static class DashboardViewTests
                 check(grid.Rows.Cast<DataGridViewRow>().Count(r=>r.Visible)==1 && (string?)grid.CurrentRow?.Tag==tools[0].Id,"導入済みで絞っても選択IDを維持");
                 filter.SelectedIndex=2;
                 check(grid.Rows.Cast<DataGridViewRow>().Count(r=>r.Visible)==1,"更新ありは照合済みの新しい版だけを表示");
+                filter.SelectedIndex=3;
+                check(grid.Rows.Cast<DataGridViewRow>().Count(r=>r.Visible)==tools.Length-1,"未導入だけを独立して表示");
+                filter.SelectedIndex=1;states[0]=new("確認できない",Detail:"別配置");form.ApplySnapshot(actual,states,releases);
+                check(grid.Rows.Cast<DataGridViewRow>().All(r=>!r.Visible),"通常は状態不明を隠し実行中・停止中だけにする");
+                filter.SelectedIndex=0;
+                check(grid.Rows.Cast<DataGridViewRow>().All(r=>r.Visible),"すべてで状態不明と未導入も確認できる");
+                states[0]=new("停止中");filter.SelectedIndex=2;
                 releases[0]=releases[0] with{Confirmed=false};form.ApplySnapshot(actual,states,releases);
                 check(grid.Rows.Cast<DataGridViewRow>().All(r=>!r.Visible) && form.SelectedIndex==-1 && !form.Controls.Find("start",true).Single().Enabled,
                     "該当0件では選択を外し非表示行を操作させない");
@@ -45,6 +52,9 @@ internal static class DashboardViewTests
                 check(restored.Size==new Size(1400,800) && ((DataGridView)restored.Controls.Find("toolTable",true).Single()).Columns["detail"]!.DisplayIndex==0,"次回の一覧でサイズと列順を復元");
             }
             File.WriteAllText(Path.Combine(directory,"dashboard-view.json"),"{broken");check(store.Load()==new DashboardView(),"破損した表示設定は起動を妨げず既定値へ戻す");
+            store.Save(new(Filter:"missing",SortColumn:"published",Columns:[new("published",2,140),new("startup",6,300)]));
+            check(store.Load().Filter=="missing" && store.Load().SortColumn=="update" && store.Load().Columns!.Length==0,"旧公開Ver列を安全に移行し自動起動の過大幅を引き継がない");
+            check(DashboardText.Categories("検索・データ整理")=="DB、検索" && DashboardText.Categories("撮影, AI用記録、撮影")=="撮影、AI用記録","旧カテゴリ互換と複数タグの重複整理");
             check(new DashboardViewStore(directory).Save(new(Columns:[new("future-column",0,200)]))==null && store.Load().Columns!.Length==0,"未知の列設定を無害に無視する");
             File.WriteAllText(Path.Combine(directory,"dashboard-view.json"),"{\"schemaVersion\":1,\"width\":999999}");check(store.Load()==new DashboardView(),"極端なサイズで画面を壊さない");
         }

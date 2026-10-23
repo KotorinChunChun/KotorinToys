@@ -26,7 +26,7 @@ internal static class MsixDashboardTests
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single(); grid.CurrentCell = grid.Rows[i].Cells[0];
         bool Enabled(string name) => form.Controls.Find(name, true).Single().Enabled;
         check(Enabled("installSelected") && !Enabled("updateSelected") && !Enabled("uninstallSelected"), "未導入MSIXではインストールだけ有効");
-        check(grid.Rows[i].Cells["published"].Value?.ToString() == "0.0.3.3" && grid.Rows[i].Cells["published"].ToolTipText.Contains("2026/10/17 公開"), "MSIXの4成分版を簡潔に表示し公開日はツールチップへ分離");
+        check(!grid.Columns.Contains("published") && grid.Rows[i].Cells["update"].Value?.ToString() == "-" && grid.Rows[i].Cells["update"].ToolTipText.Contains("2026/10/17 公開"), "未導入MSIXはハイフン、4成分公開版の日付はツールチップへ分離");
         Pump(form.OpenToolInstallation("install"));
         check(calls.SequenceEqual(["http-selector:install:msix"]), "MSIX導入ボタンは選択対象1件の専用配布種別を渡す");
         actual[i] = new("更新が必要", "0.0.3.1", "fixture", "fixture.exe"); form.ApplySnapshot(actual, states, releases);
