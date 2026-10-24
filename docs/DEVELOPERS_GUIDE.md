@@ -32,7 +32,7 @@ git diff --check
 
 ## 新しいツールを登録するとき
 
-ScriptSyncは `tools/ScriptSync` の独立Gitとして収録しています。[収録ガイド](../tools/ScriptSync/docs/kotorintoys-integration.md)と [今回の記録](../dev/history/v0.1.11/scriptsync-registration.md)を参照してください。管理IPC未実装のため能力は空配列です。`start.ps1 -LocalCatalog` の専用設定で「すべて」「未導入」から確認できます。親の一括製品ビルドには追加せず、子の開発起動・署名付きMSIX手順を使用します。
+ScriptSyncは `tools/ScriptSync` の独立Gitとして収録しています。[管理連携ガイド](../tools/ScriptSync/docs/kotorintoys-integration.md)と [今回の記録](../dev/history/v0.1.11/scriptsync-management-imp.md)を参照してください。`dev/scripts/build.ps1` は子の専用スクリプトで画面内包の管理用EXEを `target/kotorintoys/scriptsync.exe` へ配置します。`start.ps1 -LocalCatalog` の専用設定で「すべて」「未導入」から起動・表示・状態・正常停止を確認できます。単体配布は署名付きMSIXを維持します。
 
 1. 既存ツールのリポジトリ、README、マニュアル、設定、導入経路を実物確認する。
 2. `catalog/` に登録情報を追加し、確認済み・未対応・未調査を区別する。

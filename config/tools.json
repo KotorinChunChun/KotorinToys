@@ -548,9 +548,9 @@
       "name": "ScriptSync",
       "version": "0.0.6.3",
       "repositoryUrl": "https://github.com/KotorinChunChun/ScriptSync",
-      "summary": "読みあわせ：台本を発話ごとに録音し、テイクを選んで音声を結合出力する（本体の起動・停止連携は未対応）",
+      "summary": "読みあわせ：台本を発話ごとに録音し、テイクを選んで音声を結合出力する",
       "category": "音声、台本、録音",
-      "executable": "src-tauri/target/release/scriptsync.exe",
+      "executable": "target/kotorintoys/scriptsync.exe",
       "installedExecutable": "scriptsync.exe",
       "appId": "KotorinToys.ScriptSync",
       "manual": "docs/kotorintoys-integration.md",
@@ -560,7 +560,12 @@
       "distributionStatus": "unpublished",
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
-      "capabilities": [],
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
       "runtimes": [
         {
           "id": "webview2",

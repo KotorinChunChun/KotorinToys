@@ -15,6 +15,8 @@ try {
     if ($LASTEXITCODE) { throw 'HttpSelectorの管理連携ビルドに失敗しました。' }
     & (Join-Path $projectRoot 'tools/EveryDB/dev/scripts/build-debug-EveryDB-kotorintoys.ps1')
     if ($LASTEXITCODE) { throw 'EveryDBの管理連携ビルドに失敗しました。' }
+    & (Join-Path $projectRoot 'tools/ScriptSync/dev/scripts/build-debug-ScriptSync-kotorintoys.ps1')
+    if ($LASTEXITCODE) { throw 'ScriptSyncの管理連携ビルドに失敗しました。' }
     & cargo build --locked --manifest-path tools/VoiceMixerMicRouter/src/src-tauri/Cargo.toml --bin voicemixer-mic
     if ($LASTEXITCODE) { throw 'VoiceMixerMicRouterの管理連携ビルドに失敗しました。' }
     & cargo build --locked --manifest-path tools/VoiceMixerSpkRouter/Cargo.toml --bin voicemixer-spk

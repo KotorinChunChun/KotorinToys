@@ -19,7 +19,7 @@ internal sealed class HostApplicationContext : ApplicationContext
         var settings=new HostSettingsStore(settingsDirectory??HostSettingsStore.DefaultDirectory);
         var manager = CreateManager(root, settings.DirectoryPath, localCatalog);
         var coordinator=new StartupCoordinator(settings,new TaskSchedulerGateway(),manager,Environment.ProcessPath!);
-        dashboard = new Dashboard(root,settings,coordinator, toolManager: manager);
+        dashboard = new Dashboard(root,settings,coordinator, toolManager: manager, showDevelopmentState: localCatalog);
         dashboard.FormClosing += (_, args) =>
         {
             if (!exiting && args.CloseReason == CloseReason.UserClosing) { args.Cancel = true; dashboard.Hide(); }

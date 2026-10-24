@@ -23,6 +23,8 @@ internal static class Program
     {
         try
         {
+            if (args.SequenceEqual(["--script-sync-ipc"])) return ScriptSyncIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--script-sync-panel"])) return ScriptSyncIntegrationTests.Panel();
             if (args.Length == 3 && args[0] == "--operation-recorder-installer-acceptance") return OperationRecorderReleaseAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2]).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--operation-recorder-public-acceptance") return OperationRecorderReleaseAcceptance.Online(KotorinToys.Program.FindRoot(),args[1]).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--operation-recorder-ipc"])) return OperationRecorderIntegrationTests.Run().GetAwaiter().GetResult();
@@ -332,7 +334,7 @@ internal static class Program
         Check(tools.Count(t => t.DistributionStatus == "published") == 10 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応10ツールと今回公開しないShortcutKeyCounterを区別");
         Check(tools.Count(t => t.DistributionStatus == "unpublished") == 4, "ShortcutKeyCounter・HttpSelector・TimecardOCR・ScriptSyncは本体用Inno配布の対象外");
         Check(tools.All(t => t.Id == "voice-mixer-spk-router" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0), "SpkRouterは追加ランタイム不要、他ツールの依存情報を保持");
-        Check(tools.All(t => (t.Id == "script-sync" ? t.Capabilities is { Length: 0 } : t.Capabilities?.Contains("silent-start")==true) && t.SupportedEnvironment=="windows11-x64"),"管理対応13ツールとソース収録のみのScriptSyncの能力を区別");
+        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"14ツールの管理起動能力と環境を確認");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

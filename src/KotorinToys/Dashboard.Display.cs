@@ -36,6 +36,11 @@ internal sealed partial class Dashboard
             if (installations[i].State == "未導入")
             {
                 row.Cells["update"].Value = row.Cells["state"].Value = row.Cells["startup"].Value = row.Cells["detail"].Value = "-";
+                if (showDevelopmentState && tools[i].Msix == null && fileExists(PathSafety.Resolve(manager.DevelopmentRoot(tools[i]), tools[i].Executable)))
+                {
+                    row.Cells["state"].Value = states[i].State + "（開発）";
+                    row.Cells["state"].ToolTipText = "正式導入とは別に、登録された開発EXEの実行状態を確認しています。";
+                }
                 row.Cells["detail"].ToolTipText = "未導入です。インストール可否はボタンにカーソルを合わせて確認できます。";
                 row.Cells["startup"].ToolTipText = "導入後に設定できます。";
                 row.Cells["detail"].ToolTipText += "\n" + detail;

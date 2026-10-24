@@ -3,6 +3,7 @@ namespace KotorinToys;
 internal sealed partial class Dashboard : BrandedForm
 {
     readonly ToolManager manager;
+    readonly bool showDevelopmentState;
     ToolDefinition[] tools;
     readonly DataGridView grid = new() { Name = "toolTable", Dock = DockStyle.Fill, ReadOnly = true,
         AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false,
@@ -54,9 +55,10 @@ internal sealed partial class Dashboard : BrandedForm
         Func<string, bool>? fileExists = null,
         Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null,
         Action<string, string>? showDetails = null, DashboardViewStore? viewStore = null,
-        Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null)
+        Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null, bool showDevelopmentState = false)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
+        this.showDevelopmentState = showDevelopmentState;
         this.viewStore = viewStore ?? (settings == null ? null : new DashboardViewStore(settings.DirectoryPath));
         this.showDetails = showDetails ?? ((name, explanation) => { using var form = new OperationDetailsForm(name, explanation); form.ShowDialog(this); });
         this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);

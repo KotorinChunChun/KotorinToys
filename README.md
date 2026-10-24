@@ -8,7 +8,7 @@ LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、C
 
 ## ソースの取得
 
-ScriptSync（読みあわせ）も `tools/ScriptSync` の独立Gitとして収録しています。本体一覧では使い方とGitHubを案内します。本体からの起動・停止・自動起動は未対応です。[収録ガイド](tools/ScriptSync/docs/kotorintoys-integration.md)を参照してください。ソースは `git submodule update --init -- tools/ScriptSync` で取得します。ローカルで採用した子コミットが未pushの場合は、公開先で取得可能になるまで既存チェックアウトを使用してください。
+ScriptSync（読みあわせ）も `tools/ScriptSync` の独立Gitとして収録しています。開発ソースでは本体から管理用EXEの起動・画面表示・状態確認・正常停止を行えます。[管理連携ガイド](tools/ScriptSync/docs/kotorintoys-integration.md)を参照してください。ソースは `git submodule update --init -- tools/ScriptSync` で取得します。ローカルで採用した子コミットが未pushの場合は、公開先で取得可能になるまで既存チェックアウトを使用してください。
 
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git
@@ -40,7 +40,7 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | MIC・RVC・スピーカー入力を3出力へ送るツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
 | [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | 再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
 | [OperationRecorder](tools/OperationRecorder/README.md) | PC操作を静止画で記録し、画像付きの手順書を作るツール | 導入・更新・削除、起動・画面表示・正常停止・状態確認に対応 |
-| [ScriptSync（読みあわせ）](tools/ScriptSync/README.md) | 台本を発話ごとに録音し、採用テイクを結合出力するツール | ソース収録・使い方・GitHub案内。管理操作は未対応 |
+| [ScriptSync（読みあわせ）](tools/ScriptSync/README.md) | 台本を発話ごとに録音し、採用テイクを結合出力するツール | 開発版の起動・画面表示・状態確認・正常停止に対応。単体配布は署名付きMSIX |
 
 OperationRecorder 1.3.2は[公開リポジトリ](https://github.com/KotorinChunChun/OperationRecorder)で管理し、本体対応のランタイム同梱インストーラーを提供します。本体0.1.9以降の「状態を更新」でオンライン一覧と公開版を取得し、一覧から導入できます。[管理連携ガイド](tools/OperationRecorder/docs/kotorintoys-integration.md)を参照してください。開発時は専用Debugビルド後に`pwsh -File dev/scripts/start.ps1 -LocalCatalog`でローカル一覧を確認できます。実際の公開・導入検証の結果は[実装・公開記録](dev/history/v0.1.9/v0.1.9-imp.md)へまとめています。
 
