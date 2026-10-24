@@ -4,7 +4,8 @@ namespace KotorinToys;
 
 internal sealed record DashboardColumnView(string Name, int Order, int Width);
 internal sealed record DashboardView(int SchemaVersion = 1, int Width = 1180, int Height = 680,
-    string Filter = "all", string? SortColumn = null, bool Descending = false, DashboardColumnView[]? Columns = null);
+    string Filter = "all", string? SortColumn = null, bool Descending = false, DashboardColumnView[]? Columns = null,
+    string Query = "", string? Category = null);
 
 // 起動予約や所有記録とは別の、表示だけの設定。
 internal sealed class DashboardViewStore(string directory)
@@ -18,6 +19,7 @@ internal sealed class DashboardViewStore(string directory)
             if (!File.Exists(FilePath) || new FileInfo(FilePath).Length > 65536) return new();
             var view = JsonSerializer.Deserialize<DashboardView>(File.ReadAllBytes(FilePath), ToolCatalog.Json);
             if (view == null || view.SchemaVersion != 1 || view.Width is < 980 or > 6000 || view.Height is < 540 or > 4000 ||
+                view.Query == null || view.Query.Length > 1024 || view.Category?.Length > 128 || view.Category?.Any(char.IsControl) == true ||
                 view.Filter is not ("all" or "installed" or "updates" or "missing") || view.SortColumn != null && view.SortColumn != "published" && !ColumnNames.Contains(view.SortColumn) ||
                 view.Columns?.Length > 32 || view.Columns?.Any(c => c == null || c.Width is < 40 or > 3000 || c.Order is < 0 or > 31) == true)
                 return new();
