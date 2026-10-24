@@ -2,6 +2,8 @@
 
 KotoriChunが開発・管理するWindows向けデスクトップ便利ツールを、導入・起動・状態確認・自動起動・使い方への導線とともに管理する本体プロジェクトです。
 
+アプリ担当者は[管理アプリの追加・更新手順](docs/development/managed-app-integration.md)を参照してください。共通パラメータ・命名・製品例外・更新する文書と確認項目をまとめています。一般利用者の操作は[使い方](docs/USERS_GUIDE.md)へ分けています。
+
 ## プロジェクトの状態
 
 LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool、HttpSelector、EveryDB、VoiceMixerMicRouter、VoiceMixerSpkRouter、OperationRecorderの12件を登録し、本体の一覧から起動、既存画面の表示、正常停止、状態確認、使い方の表示を行えます。現在は開発中です。ソース公開は製品の正式リリースや全機能の受入完了を意味しません。

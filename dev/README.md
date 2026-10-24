@@ -1,5 +1,11 @@
 # 開発資料
 
+## 継続して使う規約
+
+- [管理アプリの追加・更新手順と文書更新表](../docs/development/managed-app-integration.md)
+- [起動パラメータと管理IPCの共通契約](../contracts/README.md)
+- [開発者ガイド](../docs/DEVELOPERS_GUIDE.md)
+
 ## 現行版
 
 - [v0.1.12 配置先表示・検索・カテゴリ絞り込みの要求](history/v0.1.12/v0.1.12-req.md)

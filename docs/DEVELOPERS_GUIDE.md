@@ -2,7 +2,7 @@
 
 画面の使い方は[利用者向けガイド](USERS_GUIDE.md)・[自動起動の操作](startup-settings.md)へ分離しています。開発時の詳細は[操作可否の実装](development/operation-availability.md)・[自動起動の判定と保守](development/startup-settings.md)を参照してください。
 
-新規アプリは[定義で追加する標準管理製品](development/definition-managed-products.md)を参照してください。更新列は4値に保ち、理由と対処は詳細セルのクリック／Enterでも読めます。修復・表示保存・用途別タブ・公開前検査は[操作改善の設計と検証](development/operation-improvements.md)へまとめています。
+アプリ追加・更新の入口は[管理アプリの共通手順](development/managed-app-integration.md)です。パラメータ・命名・例外・文書更新表・完了チェックを順に確認してください。[共通管理契約](../contracts/README.md)はCLIとIPC、[標準Innoの契約](development/definition-managed-products.md)は導入・配布の詳細を扱います。修復・表示保存・一括操作・公開前検査は[操作改善の設計と検証](development/operation-improvements.md)へまとめています。
 
 ## 前提
 
@@ -36,11 +36,7 @@ git diff --check
 
 ## 新しいツールを登録するとき
 
-1. 既存ツールのリポジトリ、README、マニュアル、設定、導入経路を実物確認する。
-2. `catalog/` に登録情報を追加し、確認済み・未対応・未調査を区別する。
-3. 新規ツールは `tool.json`、`README.md`、`docs/manual.ja.md`、`config/shortcuts.json` を入口として整える。
-4. インストール、アンインストール、ランタイム、起動確認、終了、サインイン時起動の具体値は、確認できたものだけ記録する。
-5. 変更後にリンクと差分を確認し、問題がなければ日本語のコミットメッセージでコミットする。
+[新規追加の順序と文書更新表](development/managed-app-integration.md#4-新規追加の順序)を正本とします。開発用catalog／子tool.jsonと、配信用configを混同しません。子の既存マニュアル名を維持し、ショートカットがない製品へキー一覧を必須化しません。未調査のEXE・引数・公開URLは推測で埋めません。
 
 ## 現在の確認範囲
 
@@ -60,7 +56,7 @@ pwsh -File dev/scripts/start.ps1
 
 ## 統合検証
 
-本体の `--self-test` は登録された8ツールで起動、既存PIDの維持、正常終了、再起動を検証します。HttpSelectorは署名付きMSIXの導入が必要です。既存インスタンスは変更せず、今回起動したツールは最後に正常停止します。実行前に編集中の操作や撮影・録画を完了してください。
+本体の `--self-test` は採用一覧を使って起動、既存PIDの維持、正常終了、再起動を検証します。HttpSelectorは署名付きMSIXの導入が必要です。既存インスタンスは変更せず、今回起動したツールは最後に正常停止します。実行前に編集中の操作や撮影・録画を完了してください。対象・SKIP・実施範囲は[検証手順](testing.md)と結果で確認し、固定件数から合格を推測しません。
 
 追加3件は`dev/scripts/build.ps1`で各子の`artifacts/management`へDebugビルドします。旧版が通常のbin/Debugで実行中でも上書きしません。本体のカタログはこの管理連携用出力を参照します。
 
@@ -82,15 +78,16 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 ## 独立Git管理
 
-親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。以下は公開先のある7件の取得です。CapchunScreenはCapchunWindow、ChulipVideoはChulipVideo-CSharpを取得します。EveryDBは別途明示したupdateで取得できます。HttpSelectorはURL未設定のローカル管理を維持します。
+親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。取得元は[.gitmodules](../.gitmodules)で確認し、取得可能な対象だけを明示します。CapchunScreenはCapchunWindow、ChulipVideoはChulipVideo-CSharpを取得します。URL未設定の子を含めて一括取得しません。
 
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git
 cd KotorinToys
-git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/CapchunScreen tools/ChulipVideo tools/ChunapTool
+# 例：必要な2製品を、親が採用したコミットで取得する
+git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 ```
 
-本体だけを取得済みの場合も、上記の7件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソース公開と製品Releaseは別です。0.1.2から追加3ツールも本体対応Inno配布を行います。0.1.5からEveryDBも共通Inno配布に対応します。ShortcutKeyCounter・HttpSelectorのInno配布は対象外です。
+本体だけを取得済みの場合も対象を明示します。子の最新版を無条件に採用せず、親に記録されたコミットを取得します。ソース公開と製品Releaseは別工程です。標準Inno・製品専用setup・MSIX・ZIPの扱いは[配布形式別の注意](development/managed-app-integration.md#7-配布形式別の注意)で確認してください。
 
 ## Releases配布
 
@@ -114,7 +111,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 `PublicReleaseClient`は製品識別・期限・失敗時の結果を制御し、`.Http.cs`は許可URL・リダイレクト・容量制限付きの読込だけを担当します。`PublicReleaseMetadata`は通信・画面・設定保存を持たず、最新候補の選択、assetの所有者・製品・tag、台帳と固定版・ハッシュの一致を検証します。選択候補はJSONを所有し、元のJsonDocumentの寿命に依存しません。HTTPを模擬する回帰と検証型の直接テストを両方維持してください。
 
-本体と対応6ツールは`KotorinChunChun`配下の各Releasesへ、未署名の開発版インストーラー・SHA256SUMS・製品別台帳を公開します。`catalog/releases.json`は同梱版の製品・版・サイズ・固定SHA-256を記録します。PublicReleaseClientはProductIdentityの固定配布先（C#版ChulipVideoはChulipVideo-CSharp）を使い、公開版（開発版を含む）・台帳・製品識別・数値tag・asset・容量・GitHub digestを照合します。取得失敗時の同梱版は未確認です。同版の配布情報差替を拒否し、新しい配布物は新しい版へ進めます。旧assetを上書きしないでください。
+対応製品の配布物は`KotorinChunChun`配下の各Releasesへ公開します。未署名の開発版setupにはSHA256SUMS・製品別台帳を添付します。`catalog/releases.json`は同梱版の製品・版・サイズ・固定SHA-256を記録します。PublicReleaseClientは固定識別または明示した検証済み定義の配布先（C#版ChulipVideoはChulipVideo-CSharp）を使い、公開版・台帳・製品識別・数値tag・asset・容量・GitHub digestを照合します。取得失敗時の同梱版は未確認です。同版の配布情報差替を拒否し、新しい配布物は新しい版へ進めます。旧assetを上書きしないでください。
 
 公開入力は`stage-release-source.ps1`で親コミットと各gitlinkの採用ソースだけをUTF-8 ZIPから展開して作成します。元の作業ツリーや未採用の子HEADを混ぜません。日本語パス・Windowsパス長に備え短い隔離ルートを使います。配布スクリプトは`distribution-products.ps1`の固定表を共有し、`test-distribution-scripts.ps1`で検査できます。追加3ツールは`-Products CapchunWindow,ChulipVideo,ChunapTool`、EveryDBは`-Products EveryDB`で指定します。EveryDBは子のno-bundle Release入口でビルドし、サンプル・利用条件・第三者表示と共通maintenanceを同梱します。製品名とソースのフォルダー名を混同しないでください。
 
@@ -149,7 +146,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path a
 
 隔離設定での管理実接続は、テストビルド後の `KotorinToys.Tests.exe --mic-router-ipc` で確認する。既存のMicRouterを正常終了してから実行する。通常利用の設定・モデル・予約は変更せず、送信停止・全出力OFF・RVC無効で起動する。起動、既存PID保持、別PID拒否、未対応操作、正常停止、GitHubの台帳照合を検証する。
 
-登録変更の公開はmainのconfig反映と対応本体の更新が必要である。ローカルの追加だけでは稼働中の旧本体やGitHub上の一覧は更新されない。
+登録変更の配信はmainのconfigへ反映します。共通契約に対応済みの本体の再更新は不要ですが、未対応の旧本体には初回更新が必要です。ローカルの追加だけではGitHub上の一覧は更新されません。
 
 ## VoiceMixerSpkRouterと音声2件の登録確認
 

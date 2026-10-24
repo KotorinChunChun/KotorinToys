@@ -1,12 +1,14 @@
 # 定義だけで追加する標準管理製品（開発者向け）
 
+追加・更新の順序、命名・既存例外、更新すべき文書は[管理アプリの共通手順](managed-app-integration.md)を先に参照する。本書は標準Innoの導入・配布契約を扱い、CLIとIPCは[共通管理契約](../../contracts/README.md)を正本とする。
+
 この拡張を含む本体へ初回更新した後、共通契約に対応するアプリの追加・説明変更・版更新に本体の再ビルドは不要。候補は[config/tools.json](../../config/tools.json)、公開版は各GitHub Releasesから取得する。公開mainへの反映と利用中本体の更新は別の工程であり、ローカル修正だけで公開済み旧本体が対応するわけではない。
 
 ## 新規製品の契約
 
 - 所有者はKotorinChunChunに限定。`repositoryUrl`に実在するHTTPSリポジトリのトップを宣言する。製品名からURLを推測しない。
 - `id`は永続キー、`name`はEXEの製品名、`appId`は`KotorinToys.<name>`、`installedExecutable`は`<name>.exe`。既存製品の名前・AppIdを別IDへ流用しない。
-- 共通管理契約2のstatus／show／stop／silent-startを実装する。固定CLI引数、同一利用者・セッション・PID照合、正常終了の拒否を維持する。
+- 共通管理契約2のstatus／show／stopと、CLIでの無表示開始能力silent-startを実装する。silent-startはIPC操作名ではない。固定CLI引数、同一利用者・セッション・PID照合、正常終了の拒否を維持する。
 - Innoの現在ユーザー登録`<appId>_is1`とInstallLocation、導入先のtool.json、EXE製品名／版、unins000.exeを整える。
 - 公開は`vX.Y.Z`、`<name>-X.Y.Z-setup.exe`、`<name>-packages.json`。JSONはschemaVersion 1／publishedの製品別台帳にし、製品・AppId・版・ファイル名・SHA-256を一致させる。SHA256SUMSも添付する。
 - 単体setupの更新・削除補助は、同梱tool.jsonから新規製品を照合できる共通Maintenanceまたは同等の契約が必要。同梱tool.jsonにもrepositoryUrlと共通管理能力を宣言する。既存データ・履歴は配布物に含めず保持する。

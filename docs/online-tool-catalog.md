@@ -2,6 +2,8 @@
 
 画面の操作だけを確認したい場合は[利用者向けガイド](USERS_GUIDE.md)を参照してください。本書は配信用定義の形式と運用を扱います。
 
+アプリ担当者は[追加・更新の共通手順と文書更新表](development/managed-app-integration.md)から始めてください。CLI・IPC、命名、配布対応の確認を終えてから公開configへ反映します。
+
 ## 利用者向け
 
 この機能を含む本体へ一度更新した後は、本体をバージョンアップせずに一覧を差し替えられます。設定の正本は `KotorinChunChun/KotorinToys` リポジトリの **mainブランチの [config/tools.json](../config/tools.json)** です。ファイルの公開はソースのpush・mainへの反映で行います。Releasesの作り直しは不要です。
