@@ -44,6 +44,7 @@ internal sealed partial class Dashboard : BrandedForm
     PublicRelease[] releases;
     StartupOverview[] startupSnapshots;
     bool busy, checkingReleases, refreshingCatalog, resourcesDisposed;
+    bool UiClosed => resourcesDisposed || IsDisposed || Disposing;
 
     public Dashboard(string root, HostSettingsStore? settings = null, StartupCoordinator? startup = null,
         Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>>? releaseCheck = null,

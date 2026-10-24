@@ -51,7 +51,7 @@ internal sealed partial class Dashboard
     }
     void ApplyView()
     {
-        if(applyingView || grid.Rows.Count!=tools.Length)return;
+        if(UiClosed || applyingView || grid.Rows.Count!=tools.Length)return;
         applyingView=true;
         try
         {

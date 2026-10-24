@@ -34,7 +34,7 @@ internal sealed partial class Dashboard
 
     void RebuildCategories()
     {
-        if(rebuildingCategories)return;
+        if(UiClosed || rebuildingCategories)return;
         rebuildingCategories=true;
         categories.SuspendLayout();
         try

@@ -63,7 +63,7 @@ internal static class DashboardTests
         check(grid.Columns.Cast<DataGridViewColumn>().All(column => column.SortMode == DataGridViewColumnSortMode.Programmatic) &&
             grid.Rows.Cast<DataGridViewRow>().Select(row=>row.Tag?.ToString()).SequenceEqual(tools.Select(t=>t.Id)), "並べ替えをアプリIDに紐付けて別製品を操作しない");
         form.Size = form.MinimumSize; form.PerformLayout();
-        check(grid.Width >= 800 && grid.Height >= 320, "最小サイズでも下部の空白を作らず一覧を広げる");
+        check(grid.Width >= 800 && grid.Height >= 200, $"最小サイズで検索・タグを含め一覧200px以上を確保する（{grid.Width}×{grid.Height}）");
         form.Dispose(); // 二度目のDisposeでもタイマー・取消資源が例外にならない。
         check(form.IsDisposed, "フォーム終了のタイマー・取消資源を安全に解放");
     }

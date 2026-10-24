@@ -6,6 +6,10 @@
 
 ## 前提
 
+0.1.12の配置表示はToolState.RunningExecutable／ExpectedExecutableを使い、理由文を解析しません。同セッションの実プロセスパスをクリック時に再取得し、既存のローカルEXEだけをWindowsのexplorer.exeへ/selectで渡します。対象アプリは実行せず、通常の起動停止判定は変更しません。構造化情報なし・消失・処理中は開きません。
+
+検索・カテゴリはToolSearchとDashboard.Searchが扱います。4表示との積、空白区切りAND検索、複数タグの単一選択です。カテゴリはconfigから再生成し、選択カテゴリの消失は(0)として保持します。表示専用dashboard-view.jsonの省略可能Query／Categoryへ保存し、旧ファイルは空検索・全カテゴリとして読み込みます。起動予約・所有情報には保存しません。検索値はローカル保存だけで送信しません。
+
 EXE導入・削除の診断はInstallerDiagnosticsが実行ごとに保存します。Inno終了コードはInstallerAdapterで分類し、MSIXの既存診断とは区別します。/LOGは引数リストで渡し、空白や日本語のパスも単一引数に保持します。SSCapture補助は導入先ハッシュ・root・operation・今回のutcを照合してからmessageだけを取り込みます。ログなし・壊れたログでは原因を推測せず、読取不能を表示します。診断作成失敗ではsetupを開始せず、実行後の結果保存失敗でsetupを再実行しません。詳細ログの自動アップロード・設定や履歴の収集はしません。
 
 - Windows 11 x64

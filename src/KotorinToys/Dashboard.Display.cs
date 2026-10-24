@@ -4,6 +4,7 @@ internal sealed partial class Dashboard
 {
     internal void ApplySnapshot(InstallationState[] actual, ToolState[] execution, PublicRelease[] published)
     {
+        if (UiClosed) return;
         if (actual.Length != tools.Length || execution.Length != tools.Length || published.Length != tools.Length) throw new ArgumentException("状態件数が一致しません。");
         installations = actual; states = execution; releases = published;
         for (int i = 0; i < tools.Length; i++)
@@ -18,6 +19,7 @@ internal sealed partial class Dashboard
     }
     void UpdateDetails()
     {
+        if (UiClosed) return;
         var issue = string.Join("\n", new[] { catalogError, stateError }.Where(text => !string.IsNullOrWhiteSpace(text)));
         grid.AccessibleDescription = string.IsNullOrEmpty(issue) && tools.Length == 0 ? "登録ツールなし（configで一覧が空に設定されています）" : issue;
         if (hostActions.Controls.Find("refresh", false).SingleOrDefault() is Button refresh)
@@ -61,6 +63,7 @@ internal sealed partial class Dashboard
     }
     void UpdateActions()
     {
+        if (UiClosed) return;
         grid.Enabled = !busy && !refreshingCatalog;
         actions.AccessibleDescription = hostActions.AccessibleDescription = busy || refreshingCatalog ? "処理中です。完了するまでお待ちください。" : null;
         int i = SelectedIndex;

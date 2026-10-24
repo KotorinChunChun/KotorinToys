@@ -53,7 +53,7 @@ internal sealed partial class Dashboard
         finally
         {
             refreshingCatalog = false;
-            if (!IsDisposed) { actions.Enabled = hostActions.Enabled = true; UpdateActions(); }
+            if (!UiClosed) { actions.Enabled = hostActions.Enabled = true; UpdateActions(); }
         }
     }
 
