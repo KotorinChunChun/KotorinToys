@@ -16,6 +16,20 @@
 
 これらのスイッチは **KotorinToys.Tests.exe向け** です。製品EXEのCLIではありません。テストEXEの作成と全回帰の入口は[コード検証](architecture.md#配布物を作らないコード検証)にあります。引数が存在すること、対象採用版、必要な子ソース・依存を確認してから使用してください。未実施・SKIPは合格に数えません。
 
+## 全管理アプリの規約点検
+
+```powershell
+cd C:/develop/KotorinToys
+pwsh -NoProfile -File dev/scripts/test-managed-app-contracts-checker.ps1
+pwsh -NoProfile -File dev/scripts/test-managed-app-contracts.ps1 -PassName first
+# 子の修正・対象テスト・コミット後に同じ全製品を再点検
+pwsh -NoProfile -File dev/scripts/test-managed-app-contracts.ps1 -PassName second
+```
+
+検査器回帰は架空の独立Gitだけを作ります。本検査はcatalogの全製品について、親子の識別・版・能力、[ソース版目録](../dev/managed-app-source-index.json)、README／連携ガイド／マニュアルの存在とローカルリンクを照合します。新製品の版正本もこの目録へ登録します。実行結果は対象版logsの新しいフォルダーへ保存し、既存結果は上書きしません。`-ResultPath`で対象版logs内の未使用ファイルも指定できます。
+
+文書の語句が揃うことと、実装動作の合格は別です。通常・無表示の初回／二重起動、既存PID、show、停止受理／拒否の実測または対象回帰を[全製品点検手順](development/managed-app-integration.md#9-全製品点検と二巡目)に沿って別記します。実利用者の設定・履歴・プロセス・OS予約を検査器から変更しません。
+
 ## 既存の統合試験
 
 通常の設定・予約を変更しない共通検査は、リポジトリルートで次を実行します。

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "description": "管理アプリ点検用の版正本目録。実行時の製品許可表ではない。pathは各子リポジトリからの相対パス。",
+  "tools": [
+    { "id": "live-text-marker", "kind": "msbuild", "path": "source/LiveTextMarker.csproj" },
+    { "id": "smart-paste", "kind": "msbuild", "path": "SmartPaste/SmartPaste.csproj" },
+    { "id": "ss-capture", "kind": "msbuild", "path": "src/SSCapture/SSCapture.csproj" },
+    { "id": "shortcut-key-counter", "kind": "cargo", "path": "Cargo.toml", "section": "workspace.package" },
+    { "id": "capchun-screen", "kind": "msbuild", "path": "src/CapchunScreen/CapchunScreen.csproj" },
+    { "id": "chulip-video", "kind": "msbuild", "path": "src/ChulipVideo/ChulipVideo.csproj" },
+    { "id": "chunap-tool", "kind": "msbuild", "path": "src/ChunapTool/ChunapTool.csproj" },
+    { "id": "http-selector", "kind": "cargo", "path": "Cargo.toml", "section": "package" },
+    { "id": "every-db", "kind": "cargo", "path": "src-tauri/Cargo.toml", "section": "package" },
+    { "id": "voice-mixer-mic-router", "kind": "cargo", "path": "src/src-tauri/Cargo.toml", "section": "package" },
+    { "id": "voice-mixer-spk-router", "kind": "cargo", "path": "Cargo.toml", "section": "package" },
+    { "id": "operation-recorder", "kind": "msbuild", "path": "OperationRecorderApp.csproj" },
+    { "id": "timecard-ocr", "kind": "msbuild", "path": "src/TimecardOCR/TimecardOCR.csproj" },
+    { "id": "script-sync", "kind": "msix-revision", "path": "dev/msix-version.json", "cargo": "src-tauri/Cargo.toml" }
+  ]
+}

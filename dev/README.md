@@ -5,11 +5,13 @@
 - [管理アプリの追加・更新手順と文書更新表](../docs/development/managed-app-integration.md)
 - [起動パラメータと管理IPCの共通契約](../contracts/README.md)
 - [開発者ガイド](../docs/DEVELOPERS_GUIDE.md)
+- [管理アプリのソース版正本目録](managed-app-source-index.json)
 
 ## 現行版
 
 - [v0.1.12 配置先表示・検索・カテゴリ絞り込みの要求](history/v0.1.12/v0.1.12-req.md)
 - [v0.1.12 実装・検証の報告](history/v0.1.12/v0.1.12-imp.md)
+- [v0.1.12 全14製品の規約点検と二巡目](history/v0.1.12/managed-app-audit.md)
 
 - [v0.1.9 子アプリ変更への本体追従要求](history/v0.1.9/v0.1.9-req.md)
 - [v0.1.9 実装計画・互換性検証の報告](history/v0.1.9/v0.1.9-imp.md)
