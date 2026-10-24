@@ -55,3 +55,9 @@ pwsh -File dev/scripts/start.ps1 -LocalCatalog
 ```
 
 既存本体が起動中なら先に本体を終了してから実行する。ScriptSyncを「すべて」「未導入」から選び操作する。新たにソースから用意する場合は子の管理用ビルドと本体ビルドが必要。[管理連携ガイド](../../../tools/ScriptSync/docs/kotorintoys-integration.md)を参照する。
+
+## 2026-10-24の公開前修正・0.0.6.5採用
+
+子の採用コミットは 6ff3420aed3dd149b503b6021e14ed9ecd14c0c7 。本体の自己完結した定義と登録試験の期待版を0.0.6.5へ合わせた。子はMIT・第三者本文/対応ソース・依存更新・CSP・秘密情報検査・Computer Use不使用のverify/CDP試験を整備し、単体の署名済みMSIXを専用配布ページへ公開した。本体は従来の開発EXE管理のままで、MSIXの導入/更新を本体へ追加していない。
+
+通常作業領域の管理用Debugビルド後、登録70件と実IPC17件が成功。ログは本版logs/scriptsync-0.0.6.5/、IPCの記録はlogs/scriptsync-ipc-6d150fabe8994d0f88a47b4aab193ba8/。NuGet監査データ取得のNU1900警告はあるがビルド0エラー。WebView2終了時のクラス解除1412診断と、試験で確認した実PIDの正常終了は区別する。実マイク音質・本体インストーラー公開・既存MSIXのPC更新は行っていない。

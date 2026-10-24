@@ -546,7 +546,7 @@
     {
       "id": "script-sync",
       "name": "ScriptSync",
-      "version": "0.0.6.3",
+      "version": "0.0.6.5",
       "repositoryUrl": "https://github.com/KotorinChunChun/ScriptSync",
       "summary": "読みあわせ：台本を発話ごとに録音し、テイクを選んで音声を結合出力する",
       "category": "音声、台本、録音",

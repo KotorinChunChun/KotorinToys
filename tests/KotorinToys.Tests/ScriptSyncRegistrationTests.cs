@@ -8,7 +8,7 @@ internal static class ScriptSyncRegistrationTests
         var local = ToolCatalog.Load(root).Single(t => t.Id == "script-sync");
         var online = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root)
             .Single(t => t.Id == local.Id);
-        check(local is { Name: "ScriptSync", AppId: "KotorinToys.ScriptSync", Version: "0.0.6.3", DistributionStatus: "unpublished" },
+        check(local is { Name: "ScriptSync", AppId: "KotorinToys.ScriptSync", Version: "0.0.6.5", DistributionStatus: "unpublished" },
             "ScriptSyncを単体MSIXと区別した収録定義として読む");
         check(JsonSerializer.Serialize(local with { ToolRoot = local.ToolRoot.Replace('\\', '/') }, ToolCatalog.Json) == JsonSerializer.Serialize(online, ToolCatalog.Json),
             "ローカル一覧と自己完結した配信用一覧のScriptSync定義が一致");
