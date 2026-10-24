@@ -69,3 +69,12 @@
 実製品の画面前面化・管理IPCの通し接続・停止拒否の実操作・実サインイン・OCR／録画／実音声の受入は今回実施していない。各子の既存検証記録を、今回再実施した結果として数えない。ScriptSyncは利用者回答により管理未対応の候補のままである。
 
 元作業ツリーfeature/full-refactoringは別作業が継続し、点検中にHEADが4a131efへ進んだ。そこでのScriptSync管理対応と未コミット差分を、今回の凍結対象へ後から取り込んでいない。元作業ツリーをリセット・上書きせず、点検結果はfeature/v0.1.12へ残す。後で統合する場合は、その時点の差分・対応能力と採用元を改めて照合する。
+
+## 音声ルーターの開発起動コマンド
+
+Rust・MSVCの前提環境を整えたpwshから、任意のフォルダーで使用できる。この点検用worktreeのソースをDebugでビルドして設定画面を開く。実行時は通常の音声設定を使用し、既存常駐があれば既存の画面が開く。今回これらの起動は実行していない。
+
+```powershell
+cargo run --locked --manifest-path "C:\develop\KotorinToys\artifacts\worktrees\v0.1.12\tools\VoiceMixerMicRouter\src\src-tauri\Cargo.toml" --bin voicemixer-mic -- --settings
+cargo run --locked --manifest-path "C:\develop\KotorinToys\artifacts\worktrees\v0.1.12\tools\VoiceMixerSpkRouter\Cargo.toml" --bin voicemixer-spk -- --settings
+```
