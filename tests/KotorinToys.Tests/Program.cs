@@ -42,6 +42,7 @@ internal static class Program
             if (args.Length == 2 && args[0] == "--everydb-distribution-panel") return EveryDbDistributionAcceptance.Panel(KotorinToys.Program.FindRoot(),args[1]);
             if (args.Length == 2 && args[0] == "--everydb-public-acceptance") return EveryDbDistributionAcceptance.Online(KotorinToys.Program.FindRoot(),args[1]).GetAwaiter().GetResult();
             IconTests.Asset(Check);
+            if (args.SequenceEqual(["--location-tests"])) { ToolLocationTests.Run(KotorinToys.Program.FindRoot(),Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--upgrade-stop-host"])) return UpgradeRebootValidation.StopHost().GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--upgrade-arm-boot") return UpgradeRebootValidation.Arm(args[1]).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--post-upgrade-boot-check") return UpgradeRebootValidation.Check(args[1]).GetAwaiter().GetResult();
@@ -277,6 +278,7 @@ internal static class Program
             RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             RepairTests.Form(root, Check);
             OperationDetailsTests.Run(root, Check);
+            ToolLocationTests.Run(root, Check);
             OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult();
             CompactDashboardTests.Run(root, fixtures, Check);
             CatalogTests(); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();

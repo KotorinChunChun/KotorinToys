@@ -63,8 +63,12 @@ internal sealed partial class ToolManager
         {
             var reply = await Send(tool, "status", cancellation: cancellation);
             using var process = Process.GetProcessById(reply.Pid);
-            if (process.SessionId != Process.GetCurrentProcess().SessionId || !string.Equals(process.MainModule?.FileName, path, StringComparison.OrdinalIgnoreCase))
-                return new("確認できない", reply.Pid, "別の配置またはセッションのインスタンスを検出しました。\n確認対象：" + path + "\n実行中：" + process.MainModule?.FileName);
+            if (process.SessionId != Process.GetCurrentProcess().SessionId)
+                return new("確認できない", reply.Pid, "別セッションのインスタンスを検出しました。");
+            var running = process.MainModule?.FileName;
+            if (!string.Equals(running, path, StringComparison.OrdinalIgnoreCase))
+                return new("確認できない", reply.Pid, "別の配置のインスタンスを検出しました。\n確認対象：" + path + "\n実行中：" + running,
+                    RunningExecutable: running, ExpectedExecutable: path);
             if (tool.Msix is { } msix && !MsixInstallation.MatchesProcess(process, msix))
                 return new("確認できない", Detail: "実プロセスのMSIX Package Familyが一致しません。");
             if (reply.ProtocolVersion < 2)
