@@ -11,7 +11,7 @@ internal static class RepositoryButtonTests
             ["ss-capture"] = "SSCapture", ["shortcut-key-counter"] = "ShortcutKeyCounter",
             ["voice-mixer-spk-router"] = "VoiceMixerSpkRouter", ["voice-mixer-mic-router"] = "VoiceMixerMicRouter", ["every-db"] = "EveryDB", ["capchun-screen"] = "CapchunWindow",
             ["chulip-video"] = "ChulipVideo-CSharp", ["chunap-tool"] = "ChunapTool",
-            ["operation-recorder"] = "OperationRecorder"
+            ["operation-recorder"] = "OperationRecorder", ["script-sync"] = "ScriptSync"
         };
         int opened = 0; Uri? requested = null;
         using var form = new Dashboard(root, openRepository: uri => { opened++; requested = uri; }, notify: _ => { });

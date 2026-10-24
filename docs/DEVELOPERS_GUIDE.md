@@ -38,6 +38,8 @@ git diff --check
 
 [新規追加の順序と文書更新表](development/managed-app-integration.md#4-新規追加の順序)を正本とします。開発用catalog／子tool.jsonと、配信用configを混同しません。子の既存マニュアル名を維持し、ショートカットがない製品へキー一覧を必須化しません。未調査のEXE・引数・公開URLは推測で埋めません。
 
+ScriptSyncは `tools/ScriptSync` の独立Gitとして収録しています。[収録ガイド](../tools/ScriptSync/docs/kotorintoys-integration.md)と [今回の記録](../dev/history/v0.1.11/scriptsync-registration.md)を参照してください。管理IPC未実装のため能力は空配列です。`start.ps1 -LocalCatalog` の専用設定で「すべて」「未導入」から確認できます。親の一括製品ビルドには追加せず、子の開発起動・署名付きMSIX手順を使用します。
+
 ## 現在の確認範囲
 
 責務別の入口、互換性境界、専用出力での全製品回帰は[開発時の責務と検証](architecture.md)を参照してください。

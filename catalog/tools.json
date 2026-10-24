@@ -65,6 +65,11 @@
       "id": "timecard-ocr",
       "name": "TimecardOCR",
       "definition": "tools/TimecardOCR/tool.json"
+    },
+    {
+      "id": "script-sync",
+      "name": "ScriptSync",
+      "definition": "tools/ScriptSync/tool.json"
     }
   ]
 }
