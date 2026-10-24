@@ -61,3 +61,9 @@ pwsh -File dev/scripts/start.ps1 -LocalCatalog
 子の採用コミットは 6ff3420aed3dd149b503b6021e14ed9ecd14c0c7 。本体の自己完結した定義と登録試験の期待版を0.0.6.5へ合わせた。子はMIT・第三者本文/対応ソース・依存更新・CSP・秘密情報検査・Computer Use不使用のverify/CDP試験を整備し、単体の署名済みMSIXを専用配布ページへ公開した。本体は従来の開発EXE管理のままで、MSIXの導入/更新を本体へ追加していない。
 
 通常作業領域の管理用Debugビルド後、登録70件と実IPC17件が成功。ログは本版logs/scriptsync-0.0.6.5/、IPCの記録はlogs/scriptsync-ipc-6d150fabe8994d0f88a47b4aab193ba8/。NuGet監査データ取得のNU1900警告はあるがビルド0エラー。WebView2終了時のクラス解除1412診断と、試験で確認した実PIDの正常終了は区別する。実マイク音質・本体インストーラー公開・既存MSIXのPC更新は行っていない。
+
+## ScriptSync Web公開とサービス接続変更の採用（2026-10-25）
+
+子のd219bfbを採用。簡易版を保持して https://excel-chunchun.sakura.ne.jp/test/scriptsyncweb/ へ移設し、本体Webを https://excel-chunchun.sakura.ne.jp/test/scriptsync/ で公開。GitHubはPublic。デスクトップのAIと音声合成はlocalhost既定の設定可能な接続ゲートウェイへ変更し、管理用Debug EXEも更新した。公開MSIXは0.0.6.5を保持し、配信一覧の版・導入管理・自動起動予約は変更していない。
+
+子のUI/保存240件・Rust159件・模擬サービス4件・秘密検出5件・Web最終10項目・実WebView2/CDP8項目が成功。公開HTTPS上で両版の合成録音/再読込/390px表示、簡易版APIの暗号化ZIP契約と試験データ削除も確認した。詳細と未検証境界は tools/ScriptSync/dev/history/v0.0.8/v0.0.8-imp.md を参照。親の今回の差分は採用gitlinkと本記録だけ。
