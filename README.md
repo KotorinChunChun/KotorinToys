@@ -32,7 +32,7 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [SmartPaste](tools/SmartPaste/README.md) | 貼り付け作業を支援するツール | 起動・停止・状態確認に対応 |
 | [SSCapture](tools/SSCapture/README.md) | 画面撮影・録画と保存先や命名を管理するツール | 起動・停止・状態確認に対応 |
 | [ShortcutKeyCounter](tools/ShortcutKeyCounter/README.md) | ショートカットキーの利用回数を端末内で記録・集計し、入力を画面に表示するツール | 開発版の起動・画面表示・正常停止・状態確認に対応 |
-| [CapchunWindow](tools/CapchunScreen/README.md) | 画面録画・操作履歴TSV・独立プレビュー・複数動画の同時再生・Unity Capture出力を行うツール | 導入・更新・削除と起動・停止・状態確認に対応 |
+| [CapchunWindow](tools/CapchunScreen/README.md) | 操作風景と入力イベントを同じ時間軸で記録し、動画マニュアル・手順の振り返り・AI向けコンテキストに活用するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [ChulipVideo C#版](tools/ChulipVideo/README.md) | 動画から手順書用の画像を切り出すツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [ChunapTool](tools/ChunapTool/README.md) | ウィンドウの位置・サイズ・最大化を調整するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [HttpSelector](tools/HttpSelector/README.md) | 危険なリンクを警告し、ブラウザーのプロファイルを選ぶツール | 0.1.6ソースで署名付きMSIXの導入・更新・削除、起動・停止・状態確認に対応 |
@@ -53,6 +53,8 @@ ShortcutKeyCounterの本体連携は[管理連携の手順](tools/ShortcutKeyCou
 追加3ツールは独立Gitを維持し、親は採用コミットだけを記録します。[CapchunWindow 0.1.2](https://github.com/KotorinChunChun/CapchunWindow/releases/tag/v0.1.2)、[ChulipVideo C# 0.2.1](https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/tag/v0.2.1)、[ChunapTool 0.1.2](https://github.com/KotorinChunChun/ChunapTool/releases/tag/v0.1.2)をランタイム同梱の本体対応インストーラーで公開しています。旧ZIPや別実装は置き換えません。FFmpegと仮想カメラドライバーは同梱しません。各アプリの導入ガイドを確認してください。
 
 EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。[独立リポジトリ](https://github.com/KotorinChunChun/EveryDB)は公開前点検と履歴整理を実施しました。履歴整理前に取得したコピーは新規取得し直してください。本体0.1.5以降はEveryDB 0.1.1の共通Inno形式を照合し、導入・更新・削除できます。旧MSI／NSIS版からは手動移行です。旧版を終了・削除したうえで共通版を導入し、既存DBを引き続き利用します。WebView2 Runtimeが必要です。
+
+SSCapture、OperationRecorder、CapchunWindowの目的と用途の違いは、[画面・操作記録ツールの使い分け](docs/recording-tools.md)を参照してください。
 
 ## インストーラー（開発版）
 
