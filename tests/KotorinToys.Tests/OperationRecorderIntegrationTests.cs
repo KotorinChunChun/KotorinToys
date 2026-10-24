@@ -202,10 +202,10 @@ internal static class OperationRecorderIntegrationTests
         }
         try
         {
-            Check(tool.Version == "1.3.2", "製品版1.3.2の登録を使用");
+            Check(tool.Version == "1.4.0", "開発中の製品版1.4.0の登録を使用");
             Check((await manager.Status(tool)).State == "停止中", "開始前は停止中");
             var state = await session.Start(false);
-            Check(state is { State: "実行中", Pid: not null, ProtocolVersion: 2, Version: "1.3.2", LaunchOrigin: "host_manual" },
+            Check(state is { State: "実行中", Pid: not null, ProtocolVersion: 2, LaunchOrigin: "host_manual" } && state.Version == tool.Version,
                 "実EXEの準備完了・管理プロトコル2・製品版・手動起動経路: " + state.Detail);
             var pid = state.Pid!.Value;
             using var running = Process.GetProcessById(pid);
@@ -246,7 +246,7 @@ internal static class OperationRecorderIntegrationTests
             using (var standalone = session.StartDirect())
             {
                 var manual = await WaitRunning(session, standalone.Id);
-                Check(manual.State == "実行中" && manual.Pid == standalone.Id && manual.Version == "1.3.2" && manual.ProtocolVersion == 2,
+                Check(manual.State == "実行中" && manual.Pid == standalone.Id && manual.Version == tool.Version && manual.ProtocolVersion == 2,
                     "通常起動も同じ管理プロトコルで準備完了");
                 Check(await WaitUntil(() => Windows(standalone.Id).Any(window => window.Title == title && window.Visible)),
                     "起動モードの引数なしでは利用者向け画面を表示");
