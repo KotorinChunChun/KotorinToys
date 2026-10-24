@@ -202,7 +202,7 @@ internal static class OperationRecorderIntegrationTests
         }
         try
         {
-            Check(tool.Version == "1.4.0", "開発中の製品版1.4.0の登録を使用");
+            Check(tool.Version == "1.4.1", "開発中の製品版1.4.1の登録を使用");
             Check((await manager.Status(tool)).State == "停止中", "開始前は停止中");
             var state = await session.Start(false);
             Check(state is { State: "実行中", Pid: not null, ProtocolVersion: 2, LaunchOrigin: "host_manual" } && state.Version == tool.Version,
