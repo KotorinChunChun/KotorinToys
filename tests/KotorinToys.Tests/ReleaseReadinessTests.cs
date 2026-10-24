@@ -10,11 +10,25 @@ internal static class ReleaseReadinessTests
         check(report.Passed && !report.Online && !report.ReadyToPublish,"静的検査を実公開の照合成功と混同しない");
         check(report.Items.Any(i=>i.Level=="案内のみ") && !report.Items.Any(i=>i.Id=="shortcut-key-counter" && i.Level=="公開照合済み"),"未公開・ZIP候補を導入可能として数えない");
         var managedCount=tools.Count(t=>t.Msix!=null || t.DistributionStatus=="published");
-        Task<PublicRelease> Good(ToolDefinition t,ReleasePackage? fallback)=>Task.FromResult(new PublicRelease(fallback ??
-            new(new(t.Id,t.Name,t.Version,t.AppId,t.Name+"-"+t.Version+"-setup.exe",new string('a',64),"unsigned-public-build"),1),true,true,"fixture"));
+        Task<PublicRelease> Good(ToolDefinition t,ReleasePackage? fallback)
+        {
+            var package=fallback ?? new(new(t.Id,t.Name,t.Version,t.AppId,t.Name+"-"+t.Version+"-setup.exe",new string('a',64),"unsigned-public-build"),1);
+            // 同梱台帳の古さを、照合済みの最新Releaseを返すfixtureへ持ち込まない。
+            if(t.Msix!=null && Version.Parse(package.Package.Version)<Version.Parse(t.Version))
+                package=package with{Package=package.Package with{Version=t.Version,File=package.Package.File.Replace(package.Package.Version,t.Version,StringComparison.Ordinal)}};
+            return Task.FromResult(new PublicRelease(package,true,true,"fixture"));
+        }
         report=await ReleaseReadiness.Check(root,tools,catalog,tools,Good);
         check(!(await ReleaseReadiness.Check(root,tools,catalog,online:Good)).ReadyToPublish,"公開configを省略したオンライン検査を公開準備完了にしない");
         check(report.ReadyToPublish && report.Items.Count(i=>i.Level=="公開照合済み")==managedCount,"公開configと全対応製品の配布物が一致した場合だけ公開準備完了");
+        var msix=tools.FirstOrDefault(t=>t.Msix!=null);
+        if(msix!=null)
+        {
+            var original=catalog.Packages.Single(p=>p.Package.Id==msix.Id);
+            var old=original with{Package=original.Package with{Version="0.0.0.1",File=original.Package.File.Replace(original.Package.Version,"0.0.0.1",StringComparison.Ordinal)}};
+            report=await ReleaseReadiness.Check(root,tools,catalog,tools,(t,f)=>t.Id==msix.Id?Task.FromResult(new PublicRelease(old,true,true,"旧版fixture")):Good(t,f));
+            check(!report.ReadyToPublish && report.Items.Any(i=>i.Id==msix.Id && i.Level=="エラー" && i.Detail.Contains("古い")),"JSONが整合していても必要版より古い公開MSIXを拒否する");
+        }
         report=await ReleaseReadiness.Check(root,tools,catalog,tools.Skip(1).ToArray(),Good);
         check(!report.ReadyToPublish && report.Items.Any(i=>i.Level=="エラー" && i.Detail.Contains("公開configに登録")),"公開configへ未反映の候補を公開前に検出");
         var altered=tools.ToArray();altered[0]=altered[0] with{DistributionStatus="unpublished"};

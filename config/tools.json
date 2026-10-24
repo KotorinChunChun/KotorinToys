@@ -107,7 +107,7 @@
     {
       "id": "ss-capture",
       "name": "SSCapture",
-      "version": "0.1.1",
+      "version": "0.1.5",
       "summary": "画面撮影・録画と保存先や命名を管理する",
       "category": "撮影、配信",
       "executable": "src/SSCapture/bin/Release/net10.0-windows/SSCapture.exe",
@@ -163,7 +163,7 @@
     {
       "id": "shortcut-key-counter",
       "name": "ShortcutKeyCounter",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "summary": "ショートカットキーの使用回数を集計し、入力を画面に表示する",
       "category": "AI用記録",
       "executable": "target/debug/ShortcutKeyCounter.exe",
@@ -327,7 +327,7 @@
     {
       "id": "http-selector",
       "name": "HttpSelector",
-      "version": "0.0.3.3",
+      "version": "0.0.3.7",
       "repositoryUrl": "https://github.com/KotorinChunChun/HttpSelector",
       "summary": "リンクの危険性を確認し、ブラウザーのプロファイルを選んで開く",
       "category": "検索、ブラウザー",
@@ -366,7 +366,7 @@
     {
       "id": "every-db",
       "name": "EveryDB",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "repositoryUrl": "https://github.com/KotorinChunChun/EveryDB",
       "summary": "複数のデータソースをSQLiteへ取り込み、横断検索する",
       "category": "DB、検索",
@@ -400,7 +400,7 @@
     {
       "id": "voice-mixer-mic-router",
       "name": "VoiceMixerMicRouter",
-      "version": "1.0.18",
+      "version": "1.0.20",
       "summary": "MIC・RVC・スピーカー入力を切り替え、3つの音声出力へ送る",
       "category": "音声、配信",
       "executable": "src/src-tauri/target/debug/voicemixer-mic.exe",
@@ -441,7 +441,7 @@
     {
       "id": "voice-mixer-spk-router",
       "name": "VoiceMixerSpkRouter",
-      "version": "1.0.10",
+      "version": "1.0.12",
       "summary": "再生デバイス・アプリ・ブラウザの音声を2系統へ転送",
       "category": "音声、配信",
       "executable": "release/SpkRouter/voicemixer-spk.exe",
