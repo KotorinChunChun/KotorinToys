@@ -542,6 +542,35 @@
         }
       ],
       "toolRoot": "tools/TimecardOCR"
+    },
+    {
+      "id": "script-sync",
+      "name": "ScriptSync",
+      "version": "0.0.6.3",
+      "repositoryUrl": "https://github.com/KotorinChunChun/ScriptSync",
+      "summary": "読みあわせ：台本を発話ごとに録音し、テイクを選んで音声を結合出力する（本体の起動・停止連携は未対応）",
+      "category": "音声、台本、録音",
+      "executable": "src-tauri/target/release/scriptsync.exe",
+      "installedExecutable": "scriptsync.exe",
+      "appId": "KotorinToys.ScriptSync",
+      "manual": "docs/kotorintoys-integration.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "icon": "src-tauri/icons/icon.ico",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [],
+      "runtimes": [
+        {
+          "id": "webview2",
+          "name": "Microsoft Edge WebView2 Runtime",
+          "kind": "external",
+          "feature": "メイン画面",
+          "guide": "WindowsのWebView2 Runtimeが必要です。通常録音・結合にASRや音声合成CLIは不要です。"
+        }
+      ],
+      "toolRoot": "tools/ScriptSync"
     }
   ]
 }

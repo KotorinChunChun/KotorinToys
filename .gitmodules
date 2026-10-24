@@ -40,3 +40,7 @@
 [submodule "tools/TimecardOCR"]
 	path = tools/TimecardOCR
 	update = none
+
+[submodule "tools/ScriptSync"]
+	path = tools/ScriptSync
+	url = https://github.com/KotorinChunChun/ScriptSync.git
