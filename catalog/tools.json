@@ -70,6 +70,11 @@
       "id": "script-sync",
       "name": "ScriptSync",
       "definition": "tools/ScriptSync/tool.json"
+    },
+    {
+      "id": "agent-tasktray-viewer",
+      "name": "AgentTasktrayViewer",
+      "definition": "tools/AgentTasktrayViewer/tool.json"
     }
   ]
 }

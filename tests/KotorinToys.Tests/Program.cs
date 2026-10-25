@@ -23,6 +23,8 @@ internal static class Program
     {
         try
         {
+            if (args.SequenceEqual(["--agent-tasktray-viewer-ipc"])) return AgentTasktrayViewerTests.Integration().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--agent-tasktray-viewer-registration-tests"])) { AgentTasktrayViewerTests.Registration(KotorinToys.Program.FindRoot(), Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--script-sync-ipc"])) return ScriptSyncIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--script-sync-panel"])) return ScriptSyncIntegrationTests.Panel();
             if (args.Length == 3 && args[0] == "--operation-recorder-installer-acceptance") return OperationRecorderReleaseAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2]).GetAwaiter().GetResult();
@@ -282,6 +284,7 @@ internal static class Program
             OperationDetailsTests.Run(root, Check);
             OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult();
             CompactDashboardTests.Run(root, fixtures, Check);
+            AgentTasktrayViewerTests.Registration(root, Check);
             CatalogTests(); ScriptSyncRegistrationTests.Run(root, Check); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
@@ -330,9 +333,9 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 14, "schema 2でScriptSyncを含む14ツールを解決する");
+        Check(tools.Length == 15 + (tools.Any(t => t.Id == "md-visualizer") ? 1 : 0), "schema 2で既存製品とAgentTasktrayViewerを解決する");
         Check(tools.Count(t => t.DistributionStatus == "published") == 10 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応10ツールと今回公開しないShortcutKeyCounterを区別");
-        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 4, "ShortcutKeyCounter・HttpSelector・TimecardOCR・ScriptSyncは本体用Inno配布の対象外");
+        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 5 + (tools.Any(t => t.Id == "md-visualizer") ? 1 : 0), "既存の未公開製品とAgentTasktrayViewerは本体用Inno配布の対象外");
         Check(tools.All(t => t.Id == "voice-mixer-spk-router" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0), "SpkRouterは追加ランタイム不要、他ツールの依存情報を保持");
         Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"14ツールの管理起動能力と環境を確認");
         var httpSelector = tools.Single(t => t.Id == "http-selector");

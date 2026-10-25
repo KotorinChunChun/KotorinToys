@@ -24,6 +24,7 @@
 ## 検証・配布
 
 - [管理機構の検証](testing.md)：通常回帰と製品別の受入。
+- [AgentTasktrayViewerの開発連携](development/agent-tasktray-viewer.md)：ローカル収録・起動引数・コマンドライン検証。
 - [配布の手順と境界](development/distribution.md)：採用ソース・生成物・公開の区分。
 - [インストーラー作成環境](installer-build.md)：Inno Setupと生成コマンド。
 - [本体自己更新の配布・実装](development/self-update.md)・[MSIXの照合とデータ保持](development/msix-management.md)。

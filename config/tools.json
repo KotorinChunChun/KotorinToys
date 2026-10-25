@@ -576,6 +576,30 @@
         }
       ],
       "toolRoot": "tools/ScriptSync"
+    },
+    {
+      "id": "agent-tasktray-viewer",
+      "name": "AgentTasktrayViewer",
+      "version": "0.0.1",
+      "summary": "CodexとClaude Codeの利用枠の残量をタスクトレイに表示する",
+      "category": "AI、利用状況",
+      "executable": "src/AgentTasktrayViewer.App/bin/Debug/net10.0-windows10.0.19041.0/AgentTasktrayViewer.exe",
+      "installedExecutable": "AgentTasktrayViewer.exe",
+      "appId": "KotorinToys.AgentTasktrayViewer",
+      "manual": "docs/USERS_GUIDE.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "repositoryUrl": "",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": ["status", "show", "stop", "silent-start"],
+      "runtimes": [
+        { "id": "dotnet10", "name": ".NET 10 Desktop x64", "kind": "dotnet-desktop", "major": 10 },
+        { "id": "usage-cli", "name": "Codex／Claude Code CLI", "kind": "external", "optional": true,
+          "feature": "利用量の取得", "guide": "利用するサービスのCLIを用意してください。未検出のサービスは初回に非表示になります。" }
+      ],
+      "toolRoot": "tools/AgentTasktrayViewer"
     }
   ]
 }

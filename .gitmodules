@@ -44,3 +44,6 @@
 [submodule "tools/ScriptSync"]
 	path = tools/ScriptSync
 	url = https://github.com/KotorinChunChun/ScriptSync.git
+[submodule "tools/AgentTasktrayViewer"]
+	path = tools/AgentTasktrayViewer
+	url = C:/develop/AgentTasktrayViewer
