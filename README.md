@@ -13,12 +13,15 @@ ScriptSync（読みあわせ）も `tools/ScriptSync` の独立Gitとして収�
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git
 cd KotorinToys
-git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/CapchunScreen tools/ChulipVideo tools/ChunapTool
+git submodule update --init --recursive -- `
+  tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter `
+  tools/CapchunScreen tools/ChulipVideo tools/ChunapTool tools/HttpSelector `
+  tools/EveryDB tools/VoiceMixerMicRouter tools/VoiceMixerSpkRouter tools/OperationRecorder
 ```
 
-公開リポジトリのある7ツールは、それぞれ本体が採用した版を取得します。CapchunScreenフォルダーの製品名はCapchunWindow、ChulipVideoは専用のChulipVideo-CSharpを取得します。EveryDBは [独立リポジトリ](https://github.com/KotorinChunChun/EveryDB) から `git submodule update --init -- tools/EveryDB` で取得できます。HttpSelectorはローカル管理のため、9件構成の開発ビルドには別途ソースが必要です。全体への`--recurse-submodules`は現段階では使用しないでください。配布本体の利用に子ソースの取得は不要です。
+上記12ツールは、それぞれの公開リポジトリから本体が採用した版を取得します。CapchunScreenフォルダーの製品名はCapchunWindow、ChulipVideoは専用のChulipVideo-CSharpを取得します。HttpSelectorも公開URLを登録済みです。配布本体の利用に子ソースの取得は不要です。
 
-0.1.8の本体ソースは公開済みですが、一部の採用子コミットのpushは別途確認中です。ソースビルドで採用SHAを取得できない場合は公開待ちとなります。setupの利用には影響しません。
+採用する子コミットの公開状態とREADMEのリンク先を確認しました。[リンク・公開参照の確認記録](dev/history/v0.1.11/readme-tool-links.md)を参照してください。
 
 ## サポートアプリ
 
@@ -28,31 +31,31 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 
 | アプリ | 概要 | 本体との連携 |
 |---|---|---|
-| [LiveTextMarker](tools/LiveTextMarker/README.md) | テキスト表示を補助するツール | 起動・停止・状態確認に対応 |
-| [SmartPaste](tools/SmartPaste/README.md) | 貼り付け作業を支援するツール | 起動・停止・状態確認に対応 |
-| [SSCapture](tools/SSCapture/README.md) | 画面撮影・録画と保存先や命名を管理するツール | 起動・停止・状態確認に対応 |
-| [ShortcutKeyCounter](tools/ShortcutKeyCounter/README.md) | ショートカットキーの利用回数を端末内で記録・集計し、入力を画面に表示するツール | 開発版の起動・画面表示・正常停止・状態確認に対応 |
-| [CapchunWindow](tools/CapchunScreen/README.md) | 操作風景と入力イベントを同じ時間軸で記録し、動画マニュアル・手順の振り返り・AI向けコンテキストに活用するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
-| [ChulipVideo C#版](tools/ChulipVideo/README.md) | 動画から手順書用の画像を切り出すツール | 導入・更新・削除と起動・停止・状態確認に対応 |
+| [LiveTextMarker](https://github.com/KotorinChunChun/LiveTextMarker) | テキスト表示を補助するツール | 起動・停止・状態確認に対応 |
+| [SmartPaste](https://github.com/KotorinChunChun/SmartPaste) | 貼り付け作業を支援するツール | 起動・停止・状態確認に対応 |
+| [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 画面撮影・録画と保存先や命名を管理するツール | 起動・停止・状態確認に対応 |
+| [ShortcutKeyCounter](https://github.com/KotorinChunChun/ShortcutKeyCounter) | ショートカットキーの利用回数を端末内で記録・集計し、入力を画面に表示するツール | 開発版の起動・画面表示・正常停止・状態確認に対応 |
+| [CapchunWindow](https://github.com/KotorinChunChun/CapchunWindow) | 操作風景と入力イベントを同じ時間軸で記録し、動画マニュアル・手順の振り返り・AI向けコンテキストに活用するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
+| [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 動画から手順書用の画像を切り出すツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [ChunapTool](https://github.com/KotorinChunChun/ChunapTool) | ウィンドウの位置・サイズ・最大化を調整するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
-| [HttpSelector](tools/HttpSelector/README.md) | 危険なリンクを警告し、ブラウザーのプロファイルを選ぶツール | 0.1.6ソースで署名付きMSIXの導入・更新・削除、起動・停止・状態確認に対応 |
-| [EveryDB](tools/EveryDB/README.md) | 複数のデータソースをSQLiteへ取り込み、横断検索するツール | 共通インストーラーで導入・更新・削除と起動・停止・状態確認に対応 |
+| [HttpSelector](https://github.com/KotorinChunChun/HttpSelector) | 危険なリンクを警告し、ブラウザーのプロファイルを選ぶツール | 0.1.6ソースで署名付きMSIXの導入・更新・削除、起動・停止・状態確認に対応 |
+| [EveryDB](https://github.com/KotorinChunChun/EveryDB) | 複数のデータソースをSQLiteへ取り込み、横断検索するツール | 共通インストーラーで導入・更新・削除と起動・停止・状態確認に対応 |
 | [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | MIC・RVC・スピーカー入力を3出力へ送るツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
 | [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | 再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
-| [OperationRecorder](tools/OperationRecorder/README.md) | PC操作を静止画で記録し、画像付きの手順書を作るツール | 導入・更新・削除、起動・画面表示・正常停止・状態確認に対応 |
-| [ScriptSync（読みあわせ）](tools/ScriptSync/README.md) | 台本を発話ごとに録音し、採用テイクを結合出力するツール | 開発版の起動・画面表示・状態確認・正常停止に対応。単体配布は署名付きMSIX |
+| [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PC操作を静止画で記録し、画像付きの手順書を作るツール | 導入・更新・削除、起動・画面表示・正常停止・状態確認に対応 |
+| [ScriptSync（読みあわせ）](https://github.com/KotorinChunChun/ScriptSync) | 台本を発話ごとに録音し、採用テイクを結合出力するツール | 開発版の起動・画面表示・状態確認・正常停止に対応。単体配布は署名付きMSIX |
 
-OperationRecorder 1.3.2は[公開リポジトリ](https://github.com/KotorinChunChun/OperationRecorder)で管理し、本体対応のランタイム同梱インストーラーを提供します。本体0.1.9以降の「状態を更新」でオンライン一覧と公開版を取得し、一覧から導入できます。[管理連携ガイド](tools/OperationRecorder/docs/kotorintoys-integration.md)を参照してください。開発時は専用Debugビルド後に`pwsh -File dev/scripts/start.ps1 -LocalCatalog`でローカル一覧を確認できます。実際の公開・導入検証の結果は[実装・公開記録](dev/history/v0.1.9/v0.1.9-imp.md)へまとめています。
+OperationRecorder 1.3.2は[公開リポジトリ](https://github.com/KotorinChunChun/OperationRecorder)で管理し、本体対応のランタイム同梱インストーラーを提供します。本体0.1.9以降の「状態を更新」でオンライン一覧と公開版を取得し、一覧から導入できます。[管理連携ガイド](https://github.com/KotorinChunChun/OperationRecorder/blob/main/docs/kotorintoys-integration.md)を参照してください。開発時は専用Debugビルド後に`pwsh -File dev/scripts/start.ps1 -LocalCatalog`でローカル一覧を確認できます。実際の公開・導入検証の結果は[実装・公開記録](dev/history/v0.1.9/v0.1.9-imp.md)へまとめています。
 
 音声2件は0.1.8とGitHub mainの配信用configへ公開済みです。旧本体の固定識別では対応できない場合があるため、本体も0.1.8へ更新してください。[登録補完と検証](dev/history/v0.1.7/voice-router-registration.md)を参照してください。
 
 HttpSelectorは署名付きMSIXが必須です。0.1.6ソースでは[本体からのMSIX管理](docs/msix-management.md)に対応しました。WindowsへHTTP/HTTPSの関連付け候補を登録した後、既定のアプリ設定で利用者が選択してください。本体は署名・Publisher・Package Identity・製品版を照合し、未導入や旧版を開発EXEに切り替えません。Inno EXEとは別の専用導入経路を使用します。
 
-ShortcutKeyCounterの本体連携は[管理連携の手順](tools/ShortcutKeyCounter/docs/kotorintoys-integration.md)を参照してください。開発版の本体では[ポータブル版の公開検出・表示](docs/portable-release-publication.md)に対応し、版と公開日を一覧へ掲載します。本体からの正式導入・更新は未対応です。公開済みv0.1.5ポータブルZIPの単独利用は[ユーザーガイド](tools/ShortcutKeyCounter/docs/users-guide.md)を参照してください。
+ShortcutKeyCounterの本体連携は[管理連携の手順](https://github.com/KotorinChunChun/ShortcutKeyCounter/blob/main/docs/kotorintoys-integration.md)を参照してください。開発版の本体では[ポータブル版の公開検出・表示](docs/portable-release-publication.md)に対応し、版と公開日を一覧へ掲載します。本体からの正式導入・更新は未対応です。公開済みv0.1.5ポータブルZIPの単独利用は[ユーザーガイド](https://github.com/KotorinChunChun/ShortcutKeyCounter/blob/main/docs/users-guide.md)を参照してください。
 
 追加3ツールは独立Gitを維持し、親は採用コミットだけを記録します。[CapchunWindow 0.1.2](https://github.com/KotorinChunChun/CapchunWindow/releases/tag/v0.1.2)、[ChulipVideo C# 0.2.1](https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/tag/v0.2.1)、[ChunapTool 0.1.2](https://github.com/KotorinChunChun/ChunapTool/releases/tag/v0.1.2)をランタイム同梱の本体対応インストーラーで公開しています。旧ZIPや別実装は置き換えません。FFmpegと仮想カメラドライバーは同梱しません。各アプリの導入ガイドを確認してください。
 
-EveryDBは[管理連携ガイド](tools/EveryDB/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。[独立リポジトリ](https://github.com/KotorinChunChun/EveryDB)は公開前点検と履歴整理を実施しました。履歴整理前に取得したコピーは新規取得し直してください。本体0.1.5以降はEveryDB 0.1.1の共通Inno形式を照合し、導入・更新・削除できます。旧MSI／NSIS版からは手動移行です。旧版を終了・削除したうえで共通版を導入し、既存DBを引き続き利用します。WebView2 Runtimeが必要です。
+EveryDBは[管理連携ガイド](https://github.com/KotorinChunChun/EveryDB/blob/main/docs/kotorintoys-integration.md)に従って専用デバッグ版をビルドします。[独立リポジトリ](https://github.com/KotorinChunChun/EveryDB)は公開前点検と履歴整理を実施しました。履歴整理前に取得したコピーは新規取得し直してください。本体0.1.5以降はEveryDB 0.1.1の共通Inno形式を照合し、導入・更新・削除できます。旧MSI／NSIS版からは手動移行です。旧版を終了・削除したうえで共通版を導入し、既存DBを引き続き利用します。WebView2 Runtimeが必要です。
 
 SSCapture、OperationRecorder、CapchunWindowの目的と用途の違いは、[画面・操作記録ツールの使い分け](docs/recording-tools.md)を参照してください。
 
@@ -102,8 +105,8 @@ KotoriChun
 
 ## VoiceMixerSpkRouter
 
-[VoiceMixerSpkRouter](tools/VoiceMixerSpkRouter/README.md)を独立Gitとして収録しています。再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツールです。v1.0.10の共通インストーラーと管理契約2を登録し、本体から導入・更新・削除、起動・画面表示・正常停止・状態確認に対応します。公開版は未署名の開発版です。[今回の検証結果](dev/history/v0.1.6/voicemixer-spk-router-imp.md)を参照してください。取得は `git submodule update --init -- tools/VoiceMixerSpkRouter`。[旧1.0.9の検証記録](dev/history/v0.1.5/voicemixer-spk-router-pc-test.md)を参照してください。
+[VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter)を独立Gitとして収録しています。再生デバイス・アプリ・ブラウザーの音声を2出力へ転送するツールです。v1.0.10の共通インストーラーと管理契約2を登録し、本体から導入・更新・削除、起動・画面表示・正常停止・状態確認に対応します。公開版は未署名の開発版です。[今回の検証結果](dev/history/v0.1.6/voicemixer-spk-router-imp.md)を参照してください。取得は `git submodule update --init -- tools/VoiceMixerSpkRouter`。[旧1.0.9の検証記録](dev/history/v0.1.5/voicemixer-spk-router-pc-test.md)を参照してください。
 
 ## VoiceMixerMicRouter
 
-[VoiceMixerMicRouter](tools/VoiceMixerMicRouter/README.md) v1.0.18を登録しました。MIC・RVC・スピーカー入力を3出力へ送る常駐ツールです。本体0.1.6の開発ソースでは起動・設定表示・正常停止と共通インストーラー管理に対応します。RVC環境・モデル・仮想音声ドライバーは別途必要です。[追加と検証の記録](dev/history/v0.1.6/voicemixer-mic-router-imp.md)を参照してください。
+[VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) v1.0.18を登録しました。MIC・RVC・スピーカー入力を3出力へ送る常駐ツールです。本体0.1.6の開発ソースでは起動・設定表示・正常停止と共通インストーラー管理に対応します。RVC環境・モデル・仮想音声ドライバーは別途必要です。[追加と検証の記録](dev/history/v0.1.6/voicemixer-mic-router-imp.md)を参照してください。

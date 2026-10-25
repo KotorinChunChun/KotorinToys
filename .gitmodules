@@ -21,7 +21,7 @@
 	url = https://github.com/KotorinChunChun/ChunapTool.git
 [submodule "tools/HttpSelector"]
 	path = tools/HttpSelector
-	update = none
+	url = https://github.com/KotorinChunChun/HttpSelector.git
 [submodule "tools/EveryDB"]
 	path = tools/EveryDB
 	url = https://github.com/KotorinChunChun/EveryDB.git

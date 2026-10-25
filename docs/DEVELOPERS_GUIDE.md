@@ -80,15 +80,18 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 ## 独立Git管理
 
-親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。以下は公開先のある7件の取得です。CapchunScreenはCapchunWindow、ChulipVideoはChulipVideo-CSharpを取得します。EveryDBは別途明示したupdateで取得できます。HttpSelectorはURL未設定のローカル管理を維持します。
+親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。公開登録済みの12件は以下で取得できます。CapchunScreenはCapchunWindow、ChulipVideoはChulipVideo-CSharpを取得します。HttpSelectorの公開URLも.gitmodulesに登録しています。
 
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git
 cd KotorinToys
-git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter tools/CapchunScreen tools/ChulipVideo tools/ChunapTool
+git submodule update --init --recursive -- `
+  tools/LiveTextMarker tools/SmartPaste tools/SSCapture tools/ShortcutKeyCounter `
+  tools/CapchunScreen tools/ChulipVideo tools/ChunapTool tools/HttpSelector `
+  tools/EveryDB tools/VoiceMixerMicRouter tools/VoiceMixerSpkRouter tools/OperationRecorder
 ```
 
-本体だけを取得済みの場合も、上記の7件を明示したupdateを使用します。全体への`--recurse-submodules`はURL未設定の子で失敗するため使用しません。子の最新版を無条件に取得するのではなく、親に記録された採用コミットを取得します。ソース公開と製品Releaseは別です。0.1.2から追加3ツールも本体対応Inno配布を行います。0.1.5からEveryDBも共通Inno配布に対応します。ShortcutKeyCounter・HttpSelectorのInno配布は対象外です。
+本体だけを取得済みの場合も、上記の12件を明示したupdateを使用します。子の最新版を無条件に取得するのではなく、親に記録された公開済み採用コミットを取得します。READMEから別リポジトリの文書へリンクするときはGitHubの完全URLを指定し、親のtools配下への相対リンクにしません。[リンク・公開参照の確認記録](../dev/history/v0.1.11/readme-tool-links.md)も参照してください。ソース公開と製品Releaseは別です。0.1.2から追加3ツールも本体対応Inno配布を行います。0.1.5からEveryDBも共通Inno配布に対応します。ShortcutKeyCounter・HttpSelectorのInno配布は対象外です。
 
 ## Releases配布
 
@@ -118,7 +121,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 汎用製品の公開入力は`dev/scripts/publish-packages.ps1`で発行し、`build-installers.ps1`でインストーラーと固定ハッシュ台帳を生成します。既定対象は本体・LiveTextMarker・SmartPasteです。`publish-releases.ps1 -CatalogPath <版別logsのpackages.json> -Products <製品名>`は固定アカウント・採用コミット・配布物のハッシュを確認して公開します。既存Releasesやassetの自動上書きはしません。
 
-SSCaptureは[子のRelease規則](../tools/SSCapture/dev/RELEASE_RULE.md)と`tools/SSCapture/scripts/package.ps1`が正本です。専用maintenanceとtransaction付きsetupが必要なため、親の上記3経路はSSCaptureを明示指定しても副作用前に拒否します。旧`-ExcludeFFmpeg`指定では専用経路へ切り替わりません。親は子の生成や公開を自動実行しません。FFmpeg／FFprobe・OneOCR外部ファイル・利用者dataは同梱しません。本体の通常のRelease取得・導入・更新・削除は継続します。
+SSCaptureは[子のRelease規則](https://github.com/KotorinChunChun/SSCapture/blob/main/dev/RELEASE_RULE.md)と`tools/SSCapture/scripts/package.ps1`が正本です。専用maintenanceとtransaction付きsetupが必要なため、親の上記3経路はSSCaptureを明示指定しても副作用前に拒否します。旧`-ExcludeFFmpeg`指定では専用経路へ切り替わりません。親は子の生成や公開を自動実行しません。FFmpeg／FFprobe・OneOCR外部ファイル・利用者dataは同梱しません。本体の通常のRelease取得・導入・更新・削除は継続します。
 
 配布・Inno準備・ローカル導入のログは、既定でcatalog/host.jsonの版の`dev/history/vX.Y.Z/logs/`へ保存します。他製品や初回導入用旧版を検証する場合は`-RecordVersion vX.Y.Z`で記録の対象版を明示してください。製品版そのものを変更する引数ではありません。公開台帳の許可範囲も指定版のlogs内に限定します。
 
@@ -159,7 +162,7 @@ SpkRouterも独立Git・管理契約2に対応します。`dev/scripts/build.ps1
 
 0.1.9のソースでOperationRecorderを`tools/OperationRecorder`の独立Gitとして追加しています。ローカルの`catalog/tools.json`と自己完結した`config/tools.json`へ`operation-recorder`として登録し、管理契約2で起動・既存画面の表示・状態確認・正常停止を扱います。公開先はKotorinChunChun/OperationRecorder、本体対応インストーラーは`published`とし、検証済み定義を渡す汎用経路で導入します。製品配布の固定C#表は拡張しません。本体配布に含めるのは定義・README・docs・原本マニュアル・キー一覧・アイコンです。
 
-通常の引数なし起動は利用画面を表示し、本体の管理起動は`--startup`で無表示にします。自動起動は初期OFFです。単体と本体でOS予約を重複登録しない扱いと、記録中の停止拒否は[子の管理連携ガイド](../tools/OperationRecorder/docs/kotorintoys-integration.md)を参照してください。
+通常の引数なし起動は利用画面を表示し、本体の管理起動は`--startup`で無表示にします。自動起動は初期OFFです。単体と本体でOS予約を重複登録しない扱いと、記録中の停止拒否は[子の管理連携ガイド](https://github.com/KotorinChunChun/OperationRecorder/blob/main/docs/kotorintoys-integration.md)を参照してください。
 
 全体の`dev/scripts/build.ps1`に専用Debugビルドを含めています。OperationRecorderだけをビルドする場合は次の入口を使います。
 
@@ -175,4 +178,4 @@ pwsh -File dev/scripts/start.ps1 -LocalCatalog
 
 本体回帰の`--local-catalog-tests`は通常起動のキャッシュ利用、ローカル一覧によるOperationRecorderの保持、状態更新後の行とオンラインキャッシュの保持を検査します。
 
-共通配布のOperationRecorder単独指定で自己完結発行・Inno生成・prerelease公開に対応します。現在ユーザー用setupには定義と共通Maintenanceを同梱し、更新・削除前の正常停止と製品識別を確認します。具体的な引数は[子のリリース手順](../tools/OperationRecorder/docs/release.md)を参照してください。
+共通配布のOperationRecorder単独指定で自己完結発行・Inno生成・prerelease公開に対応します。現在ユーザー用setupには定義と共通Maintenanceを同梱し、更新・削除前の正常停止と製品識別を確認します。具体的な引数は[子のリリース手順](https://github.com/KotorinChunChun/OperationRecorder/blob/main/docs/release.md)を参照してください。
