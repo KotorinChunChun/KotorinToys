@@ -1,6 +1,18 @@
 # 開発資料
 
-## 現行版
+## 開発の入口
+
+- [開発者ガイド](../docs/DEVELOPERS_GUIDE.md)
+- [文書の編集方針](../docs/development/documentation-policy.md)
+- [説明書の目次](../docs/README.md)
+
+この目録は要求・計画・結果への入口です。利用者の操作はREADMEとdocs、現行の開発手順はdocsの開発者向け資料へ分けます。
+
+## 版別の記録
+
+- [v0.1.11 要求](history/v0.1.11/v0.1.11-req.md)・[実装・検証](history/v0.1.11/v0.1.11-imp.md)
+- [v0.1.11 READMEと文書の再整理](history/v0.1.11/documentation-reorganization-imp.md)
+- [v0.1.11 収録ソースと文書参照の確認](history/v0.1.11/readme-tool-links.md)
 
 - [v0.1.10 インストーラー診断・ログ保存の要求](history/v0.1.10/v0.1.10-req.md)
 - [v0.1.10 実装・検証報告](history/v0.1.10/v0.1.10-imp.md)
