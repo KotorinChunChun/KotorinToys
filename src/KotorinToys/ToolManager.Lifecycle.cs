@@ -27,6 +27,9 @@ internal sealed partial class ToolManager
 
             if (state.State != "停止中")
                 return state;
+            if (tool.Capabilities?.Contains("silent-start") != true &&
+                (tool.Capabilities?.Contains("start") != true || launchReason != "host_manual"))
+                return new("確認できない", Detail: "このアプリは手動の画面起動だけに対応しています。");
             var path = Executable(tool);
             if (!File.Exists(path))
                 return new("確認できない", Detail: "実行ファイルがありません。先に導入してください。");
@@ -36,7 +39,8 @@ internal sealed partial class ToolManager
                 UseShellExecute = false
             };
             // 起動直後の画面表示は管理窓口の準備完了後に手動要求で行う。
-            start.ArgumentList.Add("--startup");
+            if (tool.Capabilities?.Contains("silent-start") == true)
+                start.ArgumentList.Add("--startup");
             start.ArgumentList.Add("--launch-origin");
             start.ArgumentList.Add(launchReason);
             // 隔離連携試験用の起動設定。通常運用では指定せず、カタログから任意引数を受け入れない。

@@ -112,6 +112,7 @@
           "status",
           "show",
           "stop",
+          "start",
           "silent-start",
           "shortcuts"
         ]

@@ -25,6 +25,7 @@ internal static class Program
         {
             if (args.SequenceEqual(["--agent-tasktray-viewer-ipc"])) return AgentTasktrayViewerTests.Integration().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--agent-tasktray-viewer-registration-tests"])) { AgentTasktrayViewerTests.Registration(KotorinToys.Program.FindRoot(), Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--md-visualizer-ipc"])) return MdVisualizerIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--script-sync-ipc"])) return ScriptSyncIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--script-sync-panel"])) return ScriptSyncIntegrationTests.Panel();
             if (args.Length == 3 && args[0] == "--operation-recorder-installer-acceptance") return OperationRecorderReleaseAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2]).GetAwaiter().GetResult();
@@ -135,6 +136,7 @@ internal static class Program
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--md-visualizer-registration-tests"])) { MdVisualizerRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--script-sync-registration-tests"])) { CatalogTests(); ScriptSyncRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-tests"])) { Task.Run(() => PublicReleaseCacheTests.Run(root, fixtures, Check)).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-ui-tests"])) { PublicReleaseCacheUiTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -285,7 +287,7 @@ internal static class Program
             OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult();
             CompactDashboardTests.Run(root, fixtures, Check);
             AgentTasktrayViewerTests.Registration(root, Check);
-            CatalogTests(); ScriptSyncRegistrationTests.Run(root, Check); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
+            CatalogTests(); MdVisualizerRegistrationTests.Run(root, Check); ScriptSyncRegistrationTests.Run(root, Check); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
             MsixPackageTests.Run(fixtures, Check).GetAwaiter().GetResult();
@@ -337,7 +339,7 @@ internal static class Program
         Check(tools.Count(t => t.DistributionStatus == "published") == 10 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応10ツールと今回公開しないShortcutKeyCounterを区別");
         Check(tools.Count(t => t.DistributionStatus == "unpublished") == 5 + (tools.Any(t => t.Id == "md-visualizer") ? 1 : 0), "既存の未公開製品とAgentTasktrayViewerは本体用Inno配布の対象外");
         Check(tools.All(t => t.Id == "voice-mixer-spk-router" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0), "SpkRouterは追加ランタイム不要、他ツールの依存情報を保持");
-        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"14ツールの管理起動能力と環境を確認");
+        Check(tools.All(t => t.Capabilities?.Contains(t.Id == "md-visualizer" ? "start" : "silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"全ツールの通常・無表示の起動能力と環境を確認");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

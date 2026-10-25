@@ -578,6 +578,40 @@
       "toolRoot": "tools/ScriptSync"
     },
     {
+      "id": "md-visualizer",
+      "name": "MdVisualizer",
+      "version": "0.0.19",
+      "repositoryUrl": "https://github.com/KotorinChunChun/MdVisualizer",
+      "summary": "Markdown・図表の表示と編集。必要なときだけ画面を開く",
+      "category": "文書、Markdown、図表編集",
+      "executable": "src-tauri/target/kotorintoys/debug/mdvisualizer.exe",
+      "installedExecutable": "mdvisualizer.exe",
+      "appId": "KotorinToys.MdVisualizer",
+      "manual": "docs/user/KOTORINTOYS.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "icon": "src-tauri/icons/icon.ico",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "start"
+      ],
+      "runtimes": [
+        {
+          "id": "webview2",
+          "name": "Microsoft Edge WebView2 Runtime",
+          "kind": "external",
+          "feature": "メイン画面",
+          "guide": "WindowsのWebView2 Runtimeが必要です。"
+        }
+      ],
+      "toolRoot": "tools/MdVisualizer"
+    },
+    {
       "id": "agent-tasktray-viewer",
       "name": "AgentTasktrayViewer",
       "version": "0.0.1",

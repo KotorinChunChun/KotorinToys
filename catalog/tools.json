@@ -72,6 +72,11 @@
       "definition": "tools/ScriptSync/tool.json"
     },
     {
+      "id": "md-visualizer",
+      "name": "MdVisualizer",
+      "definition": "tools/MdVisualizer/tool.json"
+    },
+    {
       "id": "agent-tasktray-viewer",
       "name": "AgentTasktrayViewer",
       "definition": "tools/AgentTasktrayViewer/tool.json"
