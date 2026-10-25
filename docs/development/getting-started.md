@@ -23,7 +23,7 @@ git submodule update --init --recursive -- `
   tools/OperationRecorder tools/ScriptSync
 ```
 
-取得先の正本は[.gitmodules](../../.gitmodules)です。TimecardOCRには取得元URLが未設定のため上のコマンドへ含めていません。全体ビルドやローカル開発一覧を使う場合は、提供されたTimecardOCRの独立ソースも`tools/TimecardOCR`へ準備してください。公開URLを推測して登録しません。未登録アプリは自動取得しません。
+取得先の正本は[.gitmodules](../../.gitmodules)です。TimecardOCRとAgentTasktrayViewerには取得元URLが未設定のため上のコマンドへ含めていません。全体ビルドやローカル開発一覧を使う場合は、提供された独立ソースもそれぞれ`tools/TimecardOCR`と`tools/AgentTasktrayViewer`へ準備してください。公開URLを推測して登録しません。未登録アプリは自動取得しません。
 
 公開先で採用コミットを取得できない場合は、そのコミットの公開状況を確認します。別実装や別リポジトリへの置換で回避しません。CapchunScreenフォルダーの製品名はCapchunWindow、C#版ChulipVideoの公開先はChulipVideo-CSharpです。
 

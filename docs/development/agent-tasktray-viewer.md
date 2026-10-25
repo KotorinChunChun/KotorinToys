@@ -1,6 +1,6 @@
 # AgentTasktrayViewerの開発連携
 
-`tools/AgentTasktrayViewer`は独立Gitのサブモジュール。現在は公開remoteのない`C:/develop/AgentTasktrayViewer`を参照しているため、別PCではそのローカルパスから初期化できない。公開リポジトリを確定するまではローカル開発用として扱う。
+`tools/AgentTasktrayViewer`を独立Gitの正本とする。Git管理領域は本体の`.git/modules/tools/AgentTasktrayViewer`にある。旧配置への参照は持たず、公開remote未設定のためTimecardOCRと同様に`.gitmodules`で`update = none`を指定する。別PCでは提供された独立ソースをこの管理フォルダーへ配置し、公開URLを推測して登録しない。
 
 ローカル登録は`catalog/tools.json`と子の`tool.json`、配信用候補は`config/tools.json`。配布は未公開、GitHubリンクは未設定。既存のMSIXを本体のInno配布物として扱わない。
 
