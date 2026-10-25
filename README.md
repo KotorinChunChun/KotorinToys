@@ -31,23 +31,23 @@ Windows用の便利なアプリを、ひとつの画面からインストール�
 
 ## アプリの例
 
-一覧は配信情報に応じて更新されます。導入・更新などの対応状況は、本体の表示で確認してください。
+主な用途のカテゴリごとに並べています。カテゴリは複数のタグを併記しています。一覧は配信情報に応じて更新されるため、導入・更新などの対応状況は本体の表示で確認してください。
 
-| アプリ | 用途 |
-| --- | --- |
-| [LiveTextMarker](https://github.com/KotorinChunChun/LiveTextMarker) | 画面上の文字に下線や強調表示を付ける |
-| [SmartPaste](https://github.com/KotorinChunChun/SmartPaste) | ファイルを貼り付けるときに名前を確認・整理する |
-| [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 画面を撮影・録画し、保存先やファイル名を管理する |
-| [ShortcutKeyCounter](https://github.com/KotorinChunChun/ShortcutKeyCounter) | ショートカットキーの使用回数を集計し、入力を表示する |
-| [CapchunWindow](https://github.com/KotorinChunChun/CapchunWindow) | 操作風景と入力イベントを動画・ログに残す |
-| [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 動画から手順書用の画像を切り出す |
-| [ChunapTool](https://github.com/KotorinChunChun/ChunapTool) | ウィンドウの位置・サイズを調整する |
-| [HttpSelector](https://github.com/KotorinChunChun/HttpSelector) | リンクを確認し、ブラウザーのプロファイルを選んで開く |
-| [EveryDB](https://github.com/KotorinChunChun/EveryDB) | 複数のデータソースをまとめて検索する |
-| [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | マイクなどの入力を切り替え、複数の音声出力へ送る |
-| [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | アプリやブラウザーの音声を複数の再生先へ送る |
-| [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PC操作を記録し、画像付きの手順書を作る |
-| [ScriptSync（読みあわせ）](https://github.com/KotorinChunChun/ScriptSync) | 台本を発話ごとに録音し、採用した音声を結合する |
+| カテゴリ | アプリ | 用途 |
+| --- | --- | --- |
+| 撮影、配信 | [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 画面を撮影・録画し、保存先やファイル名を管理する |
+| 撮影、配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunWindow) | 操作風景と入力イベントを動画・ログに残す |
+| 撮影、編集 | [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 動画から手順書用の画像を切り出す |
+| AI用記録 | [ShortcutKeyCounter](https://github.com/KotorinChunChun/ShortcutKeyCounter) | ショートカットキーの使用回数を集計し、入力を表示する |
+| AI用記録、撮影 | [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PC操作を記録し、画像付きの手順書を作る |
+| 音声、配信 | [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | マイクなどの入力を切り替え、複数の音声出力へ送る |
+| 音声、配信 | [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | アプリやブラウザーの音声を複数の再生先へ送る |
+| 音声、台本、録音 | [ScriptSync（読みあわせ）](https://github.com/KotorinChunChun/ScriptSync) | 台本を発話ごとに録音し、採用した音声を結合する |
+| DB、検索 | [EveryDB](https://github.com/KotorinChunChun/EveryDB) | 複数のデータソースをまとめて検索する |
+| 検索、ブラウザー | [HttpSelector](https://github.com/KotorinChunChun/HttpSelector) | リンクを確認し、ブラウザーのプロファイルを選んで開く |
+| ファイル操作、整理 | [SmartPaste](https://github.com/KotorinChunChun/SmartPaste) | ファイルを貼り付けるときに名前を確認・整理する |
+| ウィンドウ操作、配信 | [ChunapTool](https://github.com/KotorinChunChun/ChunapTool) | ウィンドウの位置・サイズを調整する |
+| 表示支援、配信 | [LiveTextMarker](https://github.com/KotorinChunChun/LiveTextMarker) | 画面上の文字に下線や強調表示を付ける |
 
 画面を記録するアプリの選び方は[記録ツールの使い分け](docs/recording-tools.md)を参照してください。
 
