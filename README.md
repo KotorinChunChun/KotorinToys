@@ -34,7 +34,7 @@ git submodule update --init --recursive -- tools/LiveTextMarker tools/SmartPaste
 | [ShortcutKeyCounter](tools/ShortcutKeyCounter/README.md) | ショートカットキーの利用回数を端末内で記録・集計し、入力を画面に表示するツール | 開発版の起動・画面表示・正常停止・状態確認に対応 |
 | [CapchunWindow](tools/CapchunScreen/README.md) | 操作風景と入力イベントを同じ時間軸で記録し、動画マニュアル・手順の振り返り・AI向けコンテキストに活用するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [ChulipVideo C#版](tools/ChulipVideo/README.md) | 動画から手順書用の画像を切り出すツール | 導入・更新・削除と起動・停止・状態確認に対応 |
-| [ChunapTool](tools/ChunapTool/README.md) | ウィンドウの位置・サイズ・最大化を調整するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
+| [ChunapTool](https://github.com/KotorinChunChun/ChunapTool) | ウィンドウの位置・サイズ・最大化を調整するツール | 導入・更新・削除と起動・停止・状態確認に対応 |
 | [HttpSelector](tools/HttpSelector/README.md) | 危険なリンクを警告し、ブラウザーのプロファイルを選ぶツール | 0.1.6ソースで署名付きMSIXの導入・更新・削除、起動・停止・状態確認に対応 |
 | [EveryDB](tools/EveryDB/README.md) | 複数のデータソースをSQLiteへ取り込み、横断検索するツール | 共通インストーラーで導入・更新・削除と起動・停止・状態確認に対応 |
 | [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | MIC・RVC・スピーカー入力を3出力へ送るツール | 開発ソースで導入・更新・削除、起動・設定表示・正常停止・状態確認に対応 |
