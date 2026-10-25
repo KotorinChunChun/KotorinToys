@@ -1,6 +1,6 @@
 # セキュリティ点検と公開前検査
 
-本体と収録ツールは独立したGit・版・公開先を持つ。点検済みは安全性の保証や未知の脆弱性がないことを意味しない。今回の範囲・実測・未解決事項は[v0.1.7報告](../dev/history/v0.1.7/v0.1.7-imp.md)を参照する。
+本体と収録ツールは独立したGit・版・公開先を持つ。点検済みは安全性の保証や未知の脆弱性がないことを意味しない。過去の範囲・実測・未解決事項は[v0.1.7報告](../dev/history/v0.1.7/v0.1.7-imp.md)を参照し、新たな点検は対象版へ別に記録する。
 
 新規の標準Inno製品は、検証した定義を処理ごとに明示して扱う。[定義で追加する契約と信頼境界](development/definition-managed-products.md)を参照する。固定所有者・製品名・AppId・版・容量・ハッシュの照合は維持し、未知IDのグローバル許可、任意URL、未知MSIX署名の許可へ広げない。
 
@@ -22,12 +22,12 @@ pwsh -NoProfile -File .\dev\scripts\test-security-gates.ps1
 pwsh -NoProfile -File .\dev\scripts\test-public-source-security.ps1
 ```
 
-後者は公開12リポジトリのmirrorとローカルの到達可能履歴を読み、版別logsへ完全マスクの結果だけを作る。GitHub CLIの読取り権限が必要。Git所有者の許可はプロセス内の対象パスだけに限定する。既存のHttpSelectorの差分を採用・変更しない。
+後者は本体と配信用configから得た対象の公開mirror・ローカル到達可能履歴を読み、完全マスクの結果だけを作る。公開URLなし・公開先未確認では停止し、対象を黙って検査済みにしない。GitHub CLIの読取り権限が必要。Git所有者の許可はプロセス内の対象パスだけに限定する。この旧入口の出力はv0.1.7/logsに制限されているため、新しい版の監査へ再利用する前に生成先と対象を確認する。子の作業差分は採用・変更しない。
 
 公開資産の再点検には`test-public-release-security.ps1`を使う。事前に公式InnoUnp 2.71.2（`jrathlev/InnoUnpacker-Windows-GUI`の`ui_2_2_13/innounp-2.zip`、ZIP SHA-256 `10fce27b6344b7674d5625cc34afca1c88c12183d957c6d93e401097fa2556cd`）を同スクリプトの出力先`tools/innounp-2.71/`へ展開する。EXEの固定ハッシュも実行前に照合する。旧NSIS／MSIは`-SevenZip`で指定した現行7-Zipを使い、製品をインストールせずに展開する。旧公開物に禁止ファイルが残る場合は非0で終了し、配布物自体は削除しない。
 
 ## 依存の再検査
 
-NuGetは`dotnet list <製品csproj> package --include-transitive --vulnerable --format json`、npmは各lockの`npm audit --json`（製品用と開発用を区別）、Cargoは固定lockと最新RustSec DBを使って照合する。検査器の版、DBコミット、対象OS、除外・保守終了・unsound警告を記録する。`cargo audit`の終了0だけで警告0と判断しない。今回yanked照合は未実施。
+NuGetは`dotnet list <製品csproj> package --include-transitive --vulnerable --format json`、npmは各lockの`npm audit --json`（製品用と開発用を区別）、Cargoは固定lockと使用したRustSec DBを照合する。検査器の版、DBコミット、対象OS、除外・保守終了・unsound警告、yanked照合の実施有無を記録する。`cargo audit`の終了0だけで警告0と判断しない。
 
 自己完結型.NET、ネイティブDLL、FFmpeg/OCR/モデル、OSとWebView2は別途の更新確認が必要。新しい監査結果に合わせて修正・再ビルドし、旧版と同じtag／assetを無断で置き換えない。公開・署名・導入は個別の承認範囲で実施する。

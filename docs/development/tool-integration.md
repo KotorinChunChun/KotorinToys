@@ -31,6 +31,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path a
 | VoiceMixerMicRouter | --mic-router-ipc | 専用設定で送信停止・全出力OFF・RVC無効。実音声の受入ではない |
 | VoiceMixerSpkRouter | --spk-router-ipc | 専用設定と停止状態で管理連携を確認。実デバイス・拡張は別 |
 | OperationRecorder | --operation-recorder-ipc、--operation-recorder-panel | 専用設定。操作の記録そのものは別の受入 |
+| TimecardOCR | 子のREADMEと管理連携ガイド | C#ランチャーとPython／OCRモデルの準備を区別。画像・校正・出力は専用データで検証 |
 | ScriptSync | 子の管理連携ガイド | 画面内包の管理用EXEと単体MSIX／Web版を区別。原稿・録音は試験素材へ流用しない |
 
 例：

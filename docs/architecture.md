@@ -33,7 +33,8 @@ partialは状態を共有するための整理であり、別インスタンス�
 
 ```powershell
 cd C:\develop\KotorinToys
-pwsh -NoProfile -File dev/scripts/test-refactoring.ps1 -Target All -Version v0.1.0
+$recordVersion = 'v' + (Get-Content catalog/host.json -Raw | ConvertFrom-Json).version
+pwsh -NoProfile -File dev/scripts/test-refactoring.ps1 -Target All -Version $recordVersion
 ```
 
 TargetはHost／LiveTextMarker／SmartPaste／SSCaptureへ限定できます。失敗した工程は終了コードとlogsで確認します。実OCR・AI・録画・デバイス・実サインイン・導入更新の受入は別の検証であり、この非対話テストの合格から推定しません。

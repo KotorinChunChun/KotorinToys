@@ -6,7 +6,7 @@
 
 `OperationDetailsForm`は共通タイトルと04アイコンを持つ読取専用画面。`Dashboard.Details.cs`が選択IDから状態・公開版・操作不可の理由をまとめる。詳細セルのクリック／Enterで開き、詳細セルのダブルクリックではアプリを起動しない。
 
-`ReleaseProblem`は接続、取得回数制限、配布情報欠落、未公開、未対応形式、照合失敗を分ける。HTTP 429と回数制限の403はRateLimit、404はUnavailable、通信障害はConnectionとして案内する。更新列は「あり／なし／未導入／未対応」のまま。取得できなかった版を「なし」や最新として扱わない。
+`ReleaseProblem`は接続、取得回数制限、配布情報欠落、未公開、未対応形式、照合失敗を分ける。HTTP 429と回数制限の403はRateLimit、404はUnavailable、通信障害はConnectionとして案内する。更新列は新版ありを「要(対象版)」、同じ版以上を「なし」、未導入を「-」、照合できない場合などを「未対応」とする。取得できなかった版を「なし」や最新として扱わない。
 
 ## EXE欠落の修復
 
@@ -29,9 +29,10 @@
 ```powershell
 cd C:\develop\KotorinToys
 # 静的整合だけ。これだけで公開可とはしない
-pwsh -File dev/scripts/test-release-readiness.ps1 -RecordVersion v0.1.8
+$recordVersion = 'v' + (Get-Content catalog/host.json -Raw | ConvertFrom-Json).version
+pwsh -File dev/scripts/test-release-readiness.ps1 -RecordVersion $recordVersion
 # GitHubの公開configと配布メタデータも照合
-pwsh -File dev/scripts/test-release-readiness.ps1 -Online -RecordVersion v0.1.8
+pwsh -File dev/scripts/test-release-readiness.ps1 -Online -RecordVersion $recordVersion
 ```
 
 `ReleaseReadiness`は本体のconfig・製品識別・配布台帳の検証器を再利用する。公開configとソースの全製品ID・識別・配布先・形式を照合し、導入対応製品はGitHubの台帳・asset・容量・固定SHA-256等も確認する。未公開／ZIPは案内のみとして区別する。新規の定義管理製品に同梱fallback台帳を必須化しない。Innoの定義Versionは開発版の参考値であって公開版の固定値ではなく、MSIXの必要4部版は公開物が満たす必要がある。
