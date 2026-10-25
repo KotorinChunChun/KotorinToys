@@ -2,6 +2,7 @@
 
 - 質問には回答のみを行い、明確な変更指示なしに変更を始めない。
 - PowerShellはpwshを使う。文書とコミットは日本語で記録する。
+- READMEは利用者向けの説明書とし、開発手順・進捗・検証報告を本文へ混在させない。[文書の編集方針](docs/development/documentation-policy.md)に従う。
 - 版別要求・計画・進捗・報告はdev/history/vX.Y.Z/へ配置する。現行仕様と再現可能な手順はdocsへ置く。
 - フェーズごとに適切な検証を行い、問題がなければコミットする。
 - 本体と収録ツールのタイトルは[共通タイトル規約](docs/window-title-rule.md)に従う。新規画面もWindowTitle.Createを使用する。
