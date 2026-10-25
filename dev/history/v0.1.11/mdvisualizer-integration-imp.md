@@ -30,3 +30,7 @@
 ## 再実行
 
 親で`pwsh -NoProfile -File dev/scripts/Test-MdVisualizer.ps1`。ビルド済みの登録・プロセス連携だけなら`-NoBuild`。ローカル一覧のデバッグ表示は`artifacts/mdvisualizer/bin/KotorinToys/debug/KotorinToys.exe --local-catalog`。
+
+## 後続の全体回帰（2026-10-25）
+
+ユーザーの追加指示により管理契約の正本と照合を修正し、製品の安全対策を保持した。さらに全体試験のURL未設定通知を非対話で検証するよう整備し、1,202件すべて成功・終了コード0で完了した。上記の回帰停止は当初の結果として保持する。[管理契約修正と最終回帰の報告](management-contract-regression-imp.md)を参照。
