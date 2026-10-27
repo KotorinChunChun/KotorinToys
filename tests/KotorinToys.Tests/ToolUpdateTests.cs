@@ -38,5 +38,29 @@ internal static class ToolUpdateTests
         result = await coordinator.Run(missing, catalog);
         check(result.State == "失敗" && result.Detail.Contains("配布台帳に対象製品がありません") && installs == previousInstalls && stops == previousStops,
             "ローカル台帳の対象欠落も日本語の理由で停止前に拒否する");
+
+        var old = new ToolState("実行中", 123, LaunchOrigin: "standalone", RunningExecutable: "C:/debug/SmartPaste.exe", ProcessStartedAtUtc: DateTime.UtcNow);
+        var fresh = new InstallationState("未導入", null, null, null);
+        var after = new InstallationState("導入済み", "0.1.4", "C:/installed", "C:/installed/SmartPaste.exe");
+        var events = new List<string>(); bool conflict = false, denyStop = false, failInstall = false;
+        var replace = new ToolUpdateCoordinator(_ => fresh, _ => Task.FromResult(old), _ => throw new Exception("通常停止は使用しない"),
+            (_, origin) => { events.Add("restart:" + origin); return Task.FromResult(new ToolState("実行中")); },
+            (_, _, directory) => { events.Add("install:" + (directory ?? "default")); fresh = after; return Task.FromResult(new InstallResult(tool.Id, "install", failInstall ? "失敗" : "成功", "結果")); },
+            stopExpected: (_, expected) => { events.Add("stop:" + expected.Pid); return Task.FromResult(new ToolState(denyStop ? "確認できない" : "停止中", Detail: "終了不可")); },
+            preserveSidecars: (_, source, target) => { events.Add("data:" + source + "->" + target); if (conflict) throw new IOException("設定が異なります"); });
+        result = await replace.Run(tool, catalog);
+        check(result.State == "成功" && events.SequenceEqual(["stop:123", "install:default", "data:C:/debug/SmartPaste.exe->C:/installed/SmartPaste.exe", "restart:standalone"]),
+            "別配置を照合して停止後、正式導入・設定保全・元経路で起動する");
+        fresh = new("未導入", null, null, null); events.Clear(); conflict = true;
+        result = await replace.Run(tool, catalog);
+        check(result.State == "要確認" && result.Detail.Contains("設定が異なります") && !events.Any(e => e.StartsWith("restart:")),
+            "設定競合時は両方を保持して新アプリを自動起動しない");
+        fresh = new("未導入", null, null, null); events.Clear(); conflict = false; denyStop = true;
+        result = await replace.Run(tool, catalog);
+        check(result.State == "失敗" && events.SequenceEqual(["stop:123"]) && result.Detail.Contains("終了不可"), "正常終了できない場合は導入しない");
+        fresh = new("未導入", null, null, null); events.Clear(); denyStop = false; failInstall = true;
+        result = await replace.Run(tool, catalog);
+        check(result.State == "失敗" && !events.Any(e => e.StartsWith("restart:")) && result.Detail.Contains("元アプリは停止したまま"),
+            "別配置の導入失敗時は別製品を自動起動しない");
     }
 }

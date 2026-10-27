@@ -68,14 +68,16 @@ internal sealed partial class ToolManager
             var running = process.MainModule?.FileName;
             if (!string.Equals(running, path, StringComparison.OrdinalIgnoreCase))
                 return new("確認できない", reply.Pid, "別の配置のインスタンスを検出しました。\n確認対象：" + path + "\n実行中：" + running,
-                    RunningExecutable: running, ExpectedExecutable: path);
+                    reply.LaunchOrigin, reply.Version, reply.ProtocolVersion, RunningExecutable: running, ExpectedExecutable: path,
+                    ProcessStartedAtUtc: process.StartTime.ToUniversalTime());
             if (tool.Msix is { } msix && !MsixInstallation.MatchesProcess(process, msix))
                 return new("確認できない", Detail: "実プロセスのMSIX Package Familyが一致しません。");
             if (reply.ProtocolVersion < 2)
                 return new("確認できない", reply.Pid, "旧管理窓口です。準備状態・操作結果を確認するにはツールを更新してください。");
             if (pendingStops.TryGetValue(tool.Id, out var stoppingPid) && stoppingPid == reply.Pid)
                 return new("停止処理中", reply.Pid, "正常終了を確認しています。", reply.LaunchOrigin, reply.Version, reply.ProtocolVersion);
-            return new(reply.Ready ? "実行中" : "起動処理中", reply.Pid, reply.Detail, reply.LaunchOrigin, reply.Version, reply.ProtocolVersion);
+            return new(reply.Ready ? "実行中" : "起動処理中", reply.Pid, reply.Detail, reply.LaunchOrigin, reply.Version, reply.ProtocolVersion,
+                RunningExecutable: running, ExpectedExecutable: path, ProcessStartedAtUtc: process.StartTime.ToUniversalTime());
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or OperationCanceledException or System.ComponentModel.Win32Exception or ArgumentException or InvalidOperationException or JsonException)
         {

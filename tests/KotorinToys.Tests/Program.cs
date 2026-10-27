@@ -23,6 +23,7 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 3 && args[0] == "--replacement-fixture") return ReplacementTests.Serve(args[1], args[2]).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--office-assist-registration-tests"])) { OfficeAssistRegistrationTests.Run(KotorinToys.Program.FindRoot(), Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--local-installed-catalog-tests"])) { LocalInstalledCatalogTests.Run(KotorinToys.Program.FindRoot(), Path.Combine(KotorinToys.Program.FindRoot(), "dev/history/v0.1.11/logs/local-installed-" + Guid.NewGuid().ToString("N")), Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.Length == 2 && args[0] == "--office-assist-live-check") { LocalInstalledCatalogTests.ProbeInstalled(Path.GetFullPath(args[1])).GetAwaiter().GetResult(); return 0; }
@@ -145,6 +146,7 @@ internal static class Program
             if (args.SequenceEqual(["--discovery-panel"])) return DashboardDiscoveryPanel.Run(root,fixtures);
             if (args.SequenceEqual(["--search-tests"])) { DashboardSearchTests.Run(root,fixtures,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--location-tests"])) { ToolLocationTests.Run(root,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--replacement-tests"])) { InstallerTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); ReplacementTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--release-index-tests"]))
             {
                 DistributionMappingTests.Run(root, Check).GetAwaiter().GetResult();
