@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T22:50:27.4667805+00:00",
+  "generatedAt": "2026-10-27T22:51:02.3519720+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -505,6 +505,35 @@
       "name": "KotorinToys",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.15",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-27T22:50:38Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.15-setup.exe",
+              "state": "uploaded",
+              "size": 86085958,
+              "digest": "sha256:3dc0b805debf5c7885c880775f5b8726add1003c9895f4cd8f382336e66f19fe",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.15/KotorinToys-0.1.15-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 389,
+              "digest": "sha256:1c0d9c9cb400ff8b478359b5889e9fd28c5c94abba06a28960203e97b7e700c7",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.15/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:8a5814e886312153c235d23fc7946fd6b129bb7bc7c764589a59402e00f0c193",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.15/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.14",
           "draft": false,
