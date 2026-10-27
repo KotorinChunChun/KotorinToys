@@ -25,6 +25,7 @@ internal static class Program
         {
             if (args.SequenceEqual(["--office-assist-registration-tests"])) { OfficeAssistRegistrationTests.Run(KotorinToys.Program.FindRoot(), Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--local-installed-catalog-tests"])) { LocalInstalledCatalogTests.Run(KotorinToys.Program.FindRoot(), Path.Combine(KotorinToys.Program.FindRoot(), "dev/history/v0.1.11/logs/local-installed-" + Guid.NewGuid().ToString("N")), Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.Length == 2 && args[0] == "--office-assist-live-check") { LocalInstalledCatalogTests.ProbeInstalled(Path.GetFullPath(args[1])).GetAwaiter().GetResult(); return 0; }
             if (args.SequenceEqual(["--agent-tasktray-viewer-ipc"])) return AgentTasktrayViewerTests.Integration().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--agent-tasktray-viewer-registration-tests"])) { AgentTasktrayViewerTests.Registration(KotorinToys.Program.FindRoot(), Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--md-visualizer-ipc"])) return MdVisualizerIntegrationTests.Run().GetAwaiter().GetResult();

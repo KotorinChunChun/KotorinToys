@@ -2,6 +2,20 @@ using KotorinToys;
 
 internal static class LocalInstalledCatalogTests
 {
+    internal static async Task ProbeInstalled(string root)
+    {
+        var source = new ToolCatalogSource(root, HostSettingsStore.DefaultDirectory);
+        var manager = new ToolManager(root, catalogSource: source);
+        var tool = manager.Load().Single(t => t.Id == "office-assist");
+        var installed = manager.Installation(tool);
+        var state = await manager.Status(tool).WaitAsync(TimeSpan.FromSeconds(8));
+        if (installed.State != "導入済み" || state.State != "実行中" || state.LaunchOrigin != "host_manual")
+            throw new IOException($"導入・実行状態が一致しません: {installed.State} / {state.State} / {state.Detail}");
+        Console.WriteLine($"PASS: OfficeAssist {installed.Version} / PID {state.Pid} / {state.LaunchOrigin} / 管理契約{state.ProtocolVersion}");
+        var allStates = await Task.WhenAll(manager.Load().Select(t => manager.Status(t))).WaitAsync(TimeSpan.FromSeconds(12));
+        Console.WriteLine($"PASS: 本体一覧の状態取得 {allStates.Length}件");
+    }
+
     internal static async Task Run(string root, string fixtures, Action<bool, string> check)
     {
         var remote = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, "config", "tools.json")), root)[0];
