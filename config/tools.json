@@ -107,7 +107,7 @@
     {
       "id": "ss-capture",
       "name": "SSCapture",
-      "version": "0.1.1",
+      "version": "0.1.6",
       "summary": "画面撮影・録画と保存先や命名を管理する",
       "category": "撮影、配信",
       "executable": "src/SSCapture/bin/Release/net10.0-windows/SSCapture.exe",
