@@ -441,7 +441,7 @@
     {
       "id": "voice-mixer-spk-router",
       "name": "VoiceMixerSpkRouter",
-      "version": "1.0.10",
+      "version": "1.0.11",
       "summary": "再生デバイス・アプリ・ブラウザの音声を2系統へ転送",
       "category": "音声、配信",
       "executable": "release/SpkRouter/voicemixer-spk.exe",
