@@ -8,17 +8,21 @@ internal sealed record CatalogCache(int SchemaVersion, string Root, ToolDefiniti
 // 利用者の設定・履歴とは独立した、最後に検証できた一覧。取得は呼出側で集約する。
 internal sealed class ToolCatalogSource
 {
-    readonly string root, cachePath;
+    readonly string root, cachePath, localPath;
     readonly Func<CancellationToken, Task<byte[]>> fetch;
+    readonly Func<ToolDefinition, bool> locallyInstalled;
     readonly object sync = new();
     ToolDefinition[] tools, retired = [];
     Task<CatalogRefresh>? pending;
     public string Detail { get; private set; } = "ツール一覧：同梱config";
 
-    public ToolCatalogSource(string root, string cacheDirectory, Func<CancellationToken, Task<byte[]>>? fetch = null)
+    public ToolCatalogSource(string root, string cacheDirectory, Func<CancellationToken, Task<byte[]>>? fetch = null,
+        Func<ToolDefinition, bool>? locallyInstalled = null)
     {
         this.root = Path.GetFullPath(root);
         cachePath = PathSafety.Resolve(cacheDirectory, "tool-catalog-cache.json");
+        localPath = PathSafety.Resolve(cacheDirectory, "local-tools.json");
+        this.locallyInstalled = locallyInstalled ?? (tool => new InstallationDetector().Detect(tool).State == "導入済み");
         this.fetch = fetch ?? Fetch;
         var bundled = PathSafety.Resolve(root, OnlineToolCatalog.RelativePath);
         tools = File.Exists(bundled) ? OnlineToolCatalog.Parse(File.ReadAllBytes(bundled), root) :
@@ -44,8 +48,28 @@ internal sealed class ToolCatalogSource
         catch (Exception ex) when (IsRecoverable(ex)) { Detail = "ツール一覧：キャッシュを使えないため同梱一覧。" + ex.Message; }
     }
 
-    public ToolDefinition[] Load() { lock (sync) return tools.ToArray(); }
-    public ToolDefinition[] KnownTools() { lock (sync) return tools.Concat(retired).ToArray(); }
+    public ToolDefinition[] Load() { lock (sync) return MergeLocal(tools, retired); }
+    public ToolDefinition[] KnownTools() { lock (sync) return MergeLocal(tools.Concat(retired).ToArray(), []); }
+
+    // このPCの手動導入製品だけを配信一覧に追加する。公開一覧・キャッシュには書き込まない。
+    // 同じIDまたはAppIdが配信側にあれば、ローカル定義から置換しない。
+    ToolDefinition[] MergeLocal(ToolDefinition[] visible, ToolDefinition[] hidden)
+    {
+        try
+        {
+            if (!File.Exists(localPath)) return visible.ToArray();
+            if (new FileInfo(localPath).Length > OnlineToolCatalog.MaximumBytes) return visible.ToArray();
+            var local = OnlineToolCatalog.Parse(File.ReadAllBytes(localPath), root);
+            if (local.Any(t => t.DistributionStatus != "unpublished" || t.Msix != null ||
+                !string.IsNullOrEmpty(t.RepositoryUrl) || t.AppId != "KotorinToys." + t.Name ||
+                t.InstalledExecutable != t.Name + ".exe")) return visible.ToArray();
+            var reserved = visible.Concat(hidden).ToArray();
+            var additions = local.Where(t => !reserved.Any(x => x.Id == t.Id ||
+                string.Equals(x.AppId, t.AppId, StringComparison.OrdinalIgnoreCase)) && locallyInstalled(t));
+            return visible.Concat(additions).ToArray();
+        }
+        catch (Exception ex) when (IsRecoverable(ex)) { return visible.ToArray(); }
+    }
 
     public Task<CatalogRefresh> Refresh(CancellationToken cancellation = default)
     {
@@ -77,7 +101,7 @@ internal sealed class ToolCatalogSource
                 Save(cache);
                 tools = next; retired = history;
                 Detail = $"ツール一覧：GitHub config取得済み {tools.Length}件（{DateTime.Now:MM/dd HH:mm}）";
-                return new(tools.ToArray(), Detail, true);
+                return new(MergeLocal(tools, retired), Detail, true);
             }
         }
         catch (Exception ex) when (IsRecoverable(ex))
@@ -86,7 +110,7 @@ internal sealed class ToolCatalogSource
             lock (sync)
             {
                 Detail = "ツール一覧：取得失敗・現在の一覧を維持。" + ex.Message;
-                return new(tools.ToArray(), Detail, false);
+                return new(MergeLocal(tools, retired), Detail, false);
             }
         }
     }
