@@ -487,8 +487,8 @@ internal static class Program
             var status=await manager.Status(tool);
             Check(status.State=="実行中" && status.ProtocolVersion==2, "UI応答後の準備状態");
             Check(status.Pid==Environment.ProcessId, "セッションとEXEを確認したPID");
-            var mismatch=await manager.Send(tool,"show",Environment.ProcessId+1);
-            Check(mismatch.Result=="refused" && shows==0, "別PIDへの表示を拒否");
+            try { await manager.Send(tool,"show",Environment.ProcessId+1); Check(false, "別PIDへの表示を拒否"); }
+            catch (IOException) { Check(shows==0, "別PIDへの表示を送信前に拒否"); }
             var show=await manager.Send(tool,"show",Environment.ProcessId);
             Check(show.Result=="completed" && shows==1, "画面操作実行後に完了応答");
             var stopped=await manager.Stop(tool);
