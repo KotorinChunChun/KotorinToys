@@ -7,8 +7,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot)
 . (Join-Path $PSScriptRoot 'distribution-products.ps1')
-. (Join-Path $PSScriptRoot 'runtime-pack-validation.ps1')
 Assert-CommonDistributionProducts $Products
+. (Join-Path $PSScriptRoot 'runtime-pack-validation.ps1')
 function Get-SnapshotRevision([string]$Folder = '') {
     $manifest = Join-Path $projectRoot 'release-source.json'
     if (-not (Test-Path -LiteralPath $manifest)) { return $null }
