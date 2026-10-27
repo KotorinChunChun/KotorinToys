@@ -8,16 +8,19 @@ internal sealed class ToolUpdateCoordinator(
     Func<ToolDefinition, string, Task<ToolState>> restart,
     Func<ToolDefinition, string, string?, Task<InstallResult>> install,
     Func<string, MsixSigner>? msixSignature = null,
-    Func<IReadOnlyCollection<ToolDefinition>>? definitions = null)
+    Func<IReadOnlyCollection<ToolDefinition>>? definitions = null,
+    Func<ToolDefinition, ToolState, Task<ToolState>>? stopExpected = null,
+    Action<ToolDefinition, string, string>? preserveSidecars = null)
 {
     public ToolUpdateCoordinator(ToolManager manager, InstallerAdapter adapter) : this(manager.Installation,
-        tool => manager.Status(tool), tool => manager.Stop(tool),
+        tool => manager.StatusForReplacement(tool), tool => manager.Stop(tool),
         (tool, origin) => manager.Start(tool, false, origin), (tool, catalog, directory) => adapter.Install(tool, catalog, directory),
-        definitions: manager.KnownTools) { }
+        definitions: manager.KnownTools, stopExpected: (tool, state) => manager.StopForReplacement(tool, state),
+        preserveSidecars: ReplacementData.Preserve) { }
 
     public async Task<InstallResult> Run(ToolDefinition tool, string catalog, bool repair = false)
     {
-        ToolState? before = null; bool stopped = false;
+        ToolState? before = null; bool stopped = false, alternate = false;
         InstallResult result;
         try
         {
@@ -37,15 +40,33 @@ internal sealed class ToolUpdateCoordinator(
             if (before.State is not ("実行中" or "停止中")) throw new IOException("更新前の起動状態を確認できません：" + before.Detail);
             if (before.State == "実行中")
             {
-                var state = await stop(tool);
+                alternate = before.RunningExecutable != null &&
+                    !string.Equals(before.RunningExecutable, actual.Executable, StringComparison.OrdinalIgnoreCase);
+                var state = stopExpected == null ? await stop(tool) : await stopExpected(tool, before);
                 if (state.State != "停止中") throw new IOException("正常停止が未確認のため更新しません：" + state.Detail);
                 stopped = true;
             }
             result = await install(tool, catalog, MsixPolicy.Installed(actual) || repair ? actual.Directory : null);
+            if (alternate && result.State == "成功" && before?.RunningExecutable != null && preserveSidecars != null)
+            {
+                try
+                {
+                    var updated = installation(tool);
+                    if (!MsixPolicy.Installed(updated) || updated.Executable == null)
+                        throw new IOException("導入後の実行ファイルを確認できません。");
+                    preserveSidecars(tool, before.RunningExecutable, updated.Executable);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+                {
+                    result = result with { State = "要確認", Detail = result.Detail + " / 設定の引き継ぎを確認してください：" + ex.Message };
+                }
+            }
         }
         catch (Exception ex) { result = new(tool.Id, "install", "失敗", ex.Message); }
         // データ復元・展開後登録が要確認のMSIXは、自動起動でデータを変更させない。
-        if (stopped && before != null && !(tool.Msix != null && result.State == "要確認"))
+        if (stopped && before != null && alternate && result.State != "成功")
+            result = result with { Detail = result.Detail + " / 別配置の元アプリは停止したままです。元の設定・履歴を確認してから起動してください。" };
+        if (stopped && before != null && (!alternate || result.State == "成功") && !(tool.Msix != null && result.State == "要確認"))
         {
             try
             {

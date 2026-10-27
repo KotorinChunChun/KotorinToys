@@ -23,6 +23,7 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 3 && args[0] == "--replacement-fixture") return ReplacementTests.Serve(args[1], args[2]).GetAwaiter().GetResult();
             if (args.Length == 3 && args[0] == "--operation-recorder-installer-acceptance") return OperationRecorderReleaseAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2]).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--operation-recorder-public-acceptance") return OperationRecorderReleaseAcceptance.Online(KotorinToys.Program.FindRoot(),args[1]).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--operation-recorder-ipc"])) return OperationRecorderIntegrationTests.Run().GetAwaiter().GetResult();
@@ -137,6 +138,7 @@ internal static class Program
             if (args.SequenceEqual(["--discovery-panel"])) return DashboardDiscoveryPanel.Run(root,fixtures);
             if (args.SequenceEqual(["--search-tests"])) { DashboardSearchTests.Run(root,fixtures,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--location-tests"])) { ToolLocationTests.Run(root,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--replacement-tests"])) { InstallerTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); ReplacementTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--release-index-tests"]))
             {
                 DistributionMappingTests.Run(root, Check).GetAwaiter().GetResult();
