@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T22:14:23.9843702+00:00",
+  "generatedAt": "2026-10-27T22:48:42.8050609+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1007,6 +1007,35 @@
       "name": "SSCapture",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.7",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-27T22:38:05Z",
+          "assets": [
+            {
+              "name": "SSCapture-0.1.7-setup.exe",
+              "state": "uploaded",
+              "size": 66814404,
+              "digest": "sha256:7f26b1ad8cabf41bb3944365b3a0d32699afce63a98600f058e77eaff74b98c9",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.7/SSCapture-0.1.7-setup.exe"
+            },
+            {
+              "name": "SSCapture-packages.json",
+              "state": "uploaded",
+              "size": 399,
+              "digest": "sha256:af60408ace1f43444d5dec758322c2e8ab8c3f71a7a6d3207802bb0f6418be82",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.7/SSCapture-packages.json"
+            },
+            {
+              "name": "SSCapture-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 93,
+              "digest": "sha256:d680531e5195ed4a32b40b2fbb169ce587407d27354970108925fb5f2b2b43cc",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.7/SSCapture-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.6",
           "draft": false,
