@@ -22,7 +22,7 @@ internal sealed partial class ToolManager
                 foreach (var process in processes)
                 {
                     if (process.SessionId != Process.GetCurrentProcess().SessionId) continue;
-                    var path = ToolLocations.LocalExecutable(process.MainModule?.FileName);
+                    var path = PathSafety.LocalExecutable(process.MainModule?.FileName);
                     found[process.Id] = new(process.Id, path, process.StartTime.ToUniversalTime());
                 }
             }

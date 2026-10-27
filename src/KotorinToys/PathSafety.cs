@@ -5,6 +5,14 @@ namespace KotorinToys;
 
 internal static class PathSafety
 {
+    public static string LocalExecutable(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path) || path.Length > 32760 || path.Contains('"') || path.Contains('\r') || path.Contains('\n') ||
+            !Regex.IsMatch(path, @"^[A-Za-z]:[\\/]") || !path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
+            path.AsSpan(2).Contains(':')) throw new IOException("確認済みのローカルEXEパスがありません。");
+        return Path.GetFullPath(path);
+    }
+
     public static string Resolve(string root, string relative)
     {
         if (string.IsNullOrWhiteSpace(relative) || Path.IsPathRooted(relative))
