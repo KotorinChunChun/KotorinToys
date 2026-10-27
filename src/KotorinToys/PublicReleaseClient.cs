@@ -43,7 +43,22 @@ internal sealed partial class PublicReleaseClient : IDisposable
     public Task<PublicRelease> CheckHost(bool includePrerelease = false, CancellationToken cancellation = default) =>
         CheckCore(HostProduct.Definition, null, includePrerelease, true, cancellation);
 
-    async Task<PublicRelease> CheckCore(ToolDefinition tool, ReleasePackage? fallback, bool includePrerelease, bool hostUpdate, CancellationToken cancellation)
+    public Task<PublicRelease> CheckHostChannel(HostUpdateChannel channel, CancellationToken cancellation = default)
+    {
+        if (channel is not (HostUpdateChannel.Stable or HostUpdateChannel.Preview)) throw new IOException("確認する更新チャネルが不明です。");
+        return CheckCore(HostProduct.Definition, null, true, true, cancellation, channel == HostUpdateChannel.Preview);
+    }
+
+    public async Task<HostUpdateChannel> DetectHostChannel(string currentVersion, CancellationToken cancellation = default)
+    {
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        deadline.CancelAfter(TimeSpan.FromSeconds(45));
+        var text = await Read(PublicReleaseIndex.Source, PublicReleaseIndex.MaximumBytes, deadline.Token);
+        var list = PublicReleaseIndex.Releases(text.Value, "KotorinToys", cache.UtcNow);
+        return PublicReleaseMetadata.HostChannel(list, currentVersion);
+    }
+
+    async Task<PublicRelease> CheckCore(ToolDefinition tool, ReleasePackage? fallback, bool includePrerelease, bool hostUpdate, CancellationToken cancellation, bool? exactPrerelease = null)
     {
         try
         {
@@ -53,7 +68,7 @@ internal sealed partial class PublicReleaseClient : IDisposable
             var repository = ProductIdentity.FromTool(tool)?.Repository ?? throw new IOException("公開製品の検証済み配布先がありません。");
             var listText = await Read(PublicReleaseIndex.Source, PublicReleaseIndex.MaximumBytes, token);
             var list = PublicReleaseIndex.Releases(listText.Value, repository, cache.UtcNow);
-            var latest = PublicReleaseMetadata.Select(list, includePrerelease);
+            var latest = PublicReleaseMetadata.Select(list, includePrerelease, exactPrerelease: exactPrerelease);
             var manifest = latest.Asset(tool, tool.Name + "-packages.json");
             var installer = latest.Asset(tool, $"{tool.Name}-{latest.Version}-setup.exe");
             if (manifest.GetProperty("size").GetInt64() is <= 0 or > 32768) throw new IOException("公開台帳の容量が不正です。");

@@ -22,16 +22,28 @@ internal sealed class PublicReleaseMetadata
         value.ValueKind == JsonValueKind.String && DateTimeOffset.TryParse(value.GetString(),
             System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var date) ? date : null;
 
-    public static PublicReleaseMetadata Select(JsonElement list, bool includePrerelease = true, bool msix = false)
+    public static PublicReleaseMetadata Select(JsonElement list, bool includePrerelease = true, bool msix = false, bool? exactPrerelease = null)
     {
         var releases = list.EnumerateArray().ToArray();
         if (releases.Length >= 100) throw new IOException("公開版の全件照合が必要です。100件以上のリリースは自動判定しません。");
-        var candidates = releases.Where(r => !r.GetProperty("draft").GetBoolean() && (includePrerelease || !r.GetProperty("prerelease").GetBoolean()))
+        var candidates = releases.Where(r => !r.GetProperty("draft").GetBoolean() &&
+                (exactPrerelease.HasValue ? r.GetProperty("prerelease").GetBoolean() == exactPrerelease.Value : includePrerelease || !r.GetProperty("prerelease").GetBoolean()))
             .Select(r => (Release: r, Tag: r.GetProperty("tag_name").GetString()))
             .Where(r => r.Tag != null && Regex.IsMatch(r.Tag, msix ? @"^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$" : @"^v[0-9]+\.[0-9]+\.[0-9]+$") && System.Version.TryParse(r.Tag[1..], out _))
             .OrderByDescending(r => System.Version.Parse(r.Tag![1..])).ToArray();
         if (candidates.Length == 0) throw new IOException("対応する公開リリースがありません。");
         return new(candidates[0].Release, candidates[0].Tag!);
+    }
+
+    public static HostUpdateChannel HostChannel(JsonElement list, string version)
+    {
+        if (!Regex.IsMatch(version, @"^[0-9]+\.[0-9]+\.[0-9]+$") || !System.Version.TryParse(version, out _))
+            throw new IOException("現在の本体版を確認できません。");
+        var matches = list.EnumerateArray().Where(r => !r.GetProperty("draft").GetBoolean() &&
+            r.GetProperty("tag_name").GetString() == "v" + version).ToArray();
+        if (matches.Length > 1) throw new IOException("現在の本体版の公開情報が重複しています。");
+        if (matches.Length == 0) return HostUpdateChannel.Unknown;
+        return matches[0].GetProperty("prerelease").GetBoolean() ? HostUpdateChannel.Preview : HostUpdateChannel.Stable;
     }
 
     public JsonElement Asset(ToolDefinition tool, string name)

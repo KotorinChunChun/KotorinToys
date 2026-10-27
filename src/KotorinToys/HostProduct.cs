@@ -1,5 +1,7 @@
 namespace KotorinToys;
 
+internal enum HostUpdateChannel { Unknown, Stable, Preview }
+
 internal static class HostProduct
 {
     public static ToolDefinition Definition { get; } = new("host", "KotorinToys", "KotorinToys.exe", "README.md",
@@ -19,5 +21,17 @@ internal static class HostProduct
         Validate(item);
         if (!Version.TryParse(currentVersion, out var current)) throw new IOException("現在の本体版を確認できません。");
         return Version.Parse(item.Package.Version) > current;
+    }
+
+    public static bool CanInstall(ReleasePackage item, string currentVersion, HostChannelTransition? transition = null)
+    {
+        Validate(item);
+        if (!Version.TryParse(currentVersion, out _)) throw new IOException("現在の本体版を確認できません。");
+        if (transition == null) return IsNewer(item, currentVersion);
+        if (transition.From is not (HostUpdateChannel.Unknown or HostUpdateChannel.Stable or HostUpdateChannel.Preview) ||
+            transition.To is not (HostUpdateChannel.Stable or HostUpdateChannel.Preview) || transition.From == transition.To ||
+            transition.BackupManifest != "backup/manifest.json")
+            throw new IOException("更新チャネルの切替指定が不正です。");
+        return true;
     }
 }

@@ -4,8 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace KotorinToys;
 
+internal sealed record HostChannelTransition(HostUpdateChannel From, HostUpdateChannel To, string BackupManifest);
 internal sealed record SelfUpdatePlan(int SchemaVersion, string Id, string Root, string SettingsDirectory,
-    int ParentPid, long ParentStartUtcTicks, string FromVersion, ReleasePackage Release, string Catalog);
+    int ParentPid, long ParentStartUtcTicks, string FromVersion, ReleasePackage Release, string Catalog,
+    HostChannelTransition? Transition = null);
 internal sealed record SelfUpdateReady(string Id, int WorkerPid);
 internal sealed record SelfUpdateResult(int SchemaVersion, string Id, string Root, string FromVersion,
     string ToVersion, string State, string Detail, bool Restarted, int? ExitCode, DateTimeOffset CompletedAt);
@@ -52,7 +54,7 @@ internal static class SelfUpdateFiles
         var canonicalJob = Path.TrimEndingDirectorySeparator(Path.GetFullPath(job)) + Path.DirectorySeparatorChar;
         if (canonicalJob.StartsWith(root, StringComparison.OrdinalIgnoreCase) || root.StartsWith(canonicalJob, StringComparison.OrdinalIgnoreCase))
             throw new IOException("更新プロセスは導入先と分離した専用領域で実行してください。");
-        if (!HostProduct.IsNewer(plan.Release, plan.FromVersion)) throw new IOException("自己更新の対象が新しい版ではありません。");
+        if (!HostProduct.CanInstall(plan.Release, plan.FromVersion, plan.Transition)) throw new IOException("自己更新の対象が新しい版ではありません。");
         PathSafety.Resolve(job, plan.Catalog);
     }
 

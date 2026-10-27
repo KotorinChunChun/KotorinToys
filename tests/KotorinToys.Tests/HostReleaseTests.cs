@@ -46,6 +46,14 @@ internal static class HostReleaseTests
             check(actual.Confirmed && actual.Package == item && !actual.Prerelease, "本体は標準で正式版だけを選択");
             actual = await client.CheckHost(true);
             check(actual.Confirmed && actual.Package?.Package.Version == "0.2.0" && actual.Prerelease, "明示選択時だけ開発版も対象にする");
+            check(await client.DetectHostChannel("0.2.0") == HostUpdateChannel.Preview &&
+                await client.DetectHostChannel("0.1.1") == HostUpdateChannel.Stable &&
+                await client.DetectHostChannel("0.0.9") == HostUpdateChannel.Unknown,
+                "現在版に一致する公開情報から開発版・通常版を判定し、未公開版は推測しない");
+            actual = await client.CheckHostChannel(HostUpdateChannel.Stable);
+            check(actual.Confirmed && actual.Package?.Package.Version == "0.1.1" && !actual.Prerelease, "通常版の照合は開発版を含めない");
+            actual = await client.CheckHostChannel(HostUpdateChannel.Preview);
+            check(actual.Confirmed && actual.Package?.Package.Version == "0.2.0" && actual.Prerelease, "開発版の照合は通常版を混ぜない");
             var before = calls;
             check(!(await client.Check(HostProduct.Definition, null)).Confirmed && calls == before, "子ツールの公開照合経路は本体を拒否し続ける");
         }
@@ -57,6 +65,15 @@ internal static class HostReleaseTests
             check(denied, "本体の製品識別・hash・サイズ・ファイル名を検証");
         }
         check(HostProduct.IsNewer(item, "0.1.0") && !HostProduct.IsNewer(item, "0.1.1") && !HostProduct.IsNewer(item, "1.0.0"), "自己更新は新しい版だけ・同版と旧版を拒否");
+        var switchToStable = new HostChannelTransition(HostUpdateChannel.Preview, HostUpdateChannel.Stable, "backup/manifest.json");
+        check(HostProduct.CanInstall(item, "0.2.0", switchToStable) && !HostProduct.CanInstall(item, "0.2.0"),
+            "確認済みの別チャネル切替だけ古い版を許可する");
+        foreach (var transition in new[] { switchToStable with { To = HostUpdateChannel.Preview },
+            switchToStable with { To = HostUpdateChannel.Unknown }, switchToStable with { BackupManifest = "../other.json" } })
+        {
+            bool denied = false; try { HostProduct.CanInstall(item, "0.2.0", transition); } catch (IOException) { denied = true; }
+            check(denied, "切替先・異なるチャネル・固定バックアップ先を検証する");
+        }
         var cache = Path.Combine(fixtures, "host-download");
         using (var downloader = new ReleaseDownloader(new Handler(request =>
         {
