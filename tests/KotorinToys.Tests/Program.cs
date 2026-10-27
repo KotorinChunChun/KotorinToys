@@ -138,6 +138,7 @@ internal static class Program
             if (args.SequenceEqual(["--discovery-panel"])) return DashboardDiscoveryPanel.Run(root,fixtures);
             if (args.SequenceEqual(["--search-tests"])) { DashboardSearchTests.Run(root,fixtures,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--location-tests"])) { ToolLocationTests.Run(root,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--release-assets-tests"])) { ReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--replacement-tests"])) { InstallerTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); ReplacementTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--release-index-tests"]))
             {

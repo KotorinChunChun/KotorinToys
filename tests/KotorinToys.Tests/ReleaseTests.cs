@@ -15,7 +15,11 @@ internal static class ReleaseTests
         var item=new ReleasePackage(package,bytes.Length);var catalog=new ReleaseCatalog(1,[item]);
         var cache=Path.Combine(fixtures,"release-cache");Directory.CreateDirectory(cache);
         var pinned=ReleaseDownloader.Load(root);
-        check(ToolCatalog.Load(root).Where(t=>t.DistributionStatus=="published" && ProductIdentity.FromId(t.Id)!=null).All(t=>pinned.Packages.Any(p=>p.Package.Id==t.Id && Version.Parse(p.Package.Version)<=Version.Parse(t.Version) && p.Package.AppId==t.AppId)),"既存の固定製品台帳を照合し、定義追加製品のRelease取得に同梱fallbackを強制しない");
+        check(ToolCatalog.Load(root).Where(t=>t.DistributionStatus=="published" && ProductIdentity.FromId(t.Id)!=null).All(t=>pinned.Packages.Any(p=>p.Package.Id==t.Id && p.Package.Name==t.Name && p.Package.AppId==t.AppId && Version.TryParse(p.Package.Version,out _))),"既存の固定製品台帳の製品識別・版を照合し、定義追加製品に同梱fallbackを強制しない");
+        var spk = ToolCatalog.Load(root).Single(t => t.Id == "voice-mixer-spk-router");
+        var newerSpk = pinned.Packages.Single(p => p.Package.Id == spk.Id);
+        ReleaseDownloader.Validate(new(1, [newerSpk]), [spk with { Version = "0.0.1" }]);
+        check(Version.Parse(newerSpk.Package.Version) > new Version(0,0,1), "公開台帳の版が同梱定義より新しくても製品識別を検証できる");
         check(!pinned.Packages.Any(p=>p.Package.Id=="shortcut-key-counter"),"ポータブルZIPへ架空のInno公開情報を追加しない");
         HttpResponseMessage Ok(byte[] data)=>new(HttpStatusCode.OK){Content=new ByteArrayContent(data)};
         using(var downloader=new ReleaseDownloader(new Handler((request,_)=>
