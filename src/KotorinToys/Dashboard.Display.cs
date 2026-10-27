@@ -4,6 +4,7 @@ internal sealed partial class Dashboard
 {
     internal void ApplySnapshot(InstallationState[] actual, ToolState[] execution, PublicRelease[] published)
     {
+        if (UiClosed) return;
         if (actual.Length != tools.Length || execution.Length != tools.Length || published.Length != tools.Length) throw new ArgumentException("状態件数が一致しません。");
         installations = actual; states = execution; releases = published;
         for (int i = 0; i < tools.Length; i++)
@@ -18,6 +19,7 @@ internal sealed partial class Dashboard
     }
     void UpdateDetails()
     {
+        if (UiClosed) return;
         var issue = string.Join("\n", new[] { catalogError, stateError }.Where(text => !string.IsNullOrWhiteSpace(text)));
         grid.AccessibleDescription = string.IsNullOrEmpty(issue) && tools.Length == 0 ? "登録ツールなし（configで一覧が空に設定されています）" : issue;
         if (hostActions.Controls.Find("refresh", false).SingleOrDefault() is Button refresh)
@@ -35,6 +37,7 @@ internal sealed partial class Dashboard
             row.Cells["detail"].Value = DashboardText.Detail(tools[i], installations[i], states[i], releases[i], startupSnapshots[i], operationErrors.GetValueOrDefault(tools[i].Id), catalogError, stateError);
             if (installations[i].State == "未導入")
             {
+                if (row.Cells["detail"] is DataGridViewButtonCell) row.Cells["detail"] = new DataGridViewTextBoxCell();
                 row.Cells["update"].Value = row.Cells["state"].Value = row.Cells["startup"].Value = row.Cells["detail"].Value = "-";
                 if (showDevelopmentState && tools[i].Msix == null && fileExists(PathSafety.Resolve(manager.DevelopmentRoot(tools[i]), tools[i].Executable)))
                 {
@@ -47,6 +50,14 @@ internal sealed partial class Dashboard
                 continue;
             }
             row.Cells["detail"].ToolTipText = detail;
+            var locationRule = locations.Running(states[i]);
+            bool location = locationRule.Enabled && row.Cells["detail"].Value?.ToString() == "別配置で実行中";
+            if (location && row.Cells["detail"] is not DataGridViewButtonCell)
+                row.Cells["detail"] = new DataGridViewButtonCell { FlatStyle = FlatStyle.Standard, Value = row.Cells["detail"].Value, ToolTipText = detail };
+            else if (!location && row.Cells["detail"] is DataGridViewButtonCell)
+                row.Cells["detail"] = new DataGridViewTextBoxCell { Value = row.Cells["detail"].Value, ToolTipText = detail };
+            if (location) row.Cells["detail"].ToolTipText = locationRule.Reason + "\n詳細を読むには右クリックしてください。\n" + detail;
+            else if (states[i].RunningExecutable != null) row.Cells["detail"].ToolTipText += "\n" + locationRule.Reason;
         }
     }
     void ShowOperationFailure(string message, string? toolId = null)
@@ -57,6 +68,8 @@ internal sealed partial class Dashboard
     }
     void UpdateActions()
     {
+        if (UiClosed) return;
+        grid.Enabled = !busy && !refreshingCatalog;
         actions.AccessibleDescription = hostActions.AccessibleDescription = busy || refreshingCatalog ? "処理中です。完了するまでお待ちください。" : null;
         int i = SelectedIndex;
         var repository = i >= 0 && i < tools.Length ? ToolRepository.Find(tools[i]) : null;

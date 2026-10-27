@@ -11,6 +11,8 @@ internal sealed partial class Dashboard : BrandedForm
         AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells };
     readonly Action<string> notify;
     readonly Action<string, string> showDetails;
+    readonly ToolLocations locations;
+    readonly ContextMenuStrip detailMenu = new();
     readonly Dictionary<string, string> operationErrors = new();
     string? catalogError, stateError;
     readonly Button install = new() { Name = "installSelected", Text = "インストール", AutoSize = true, Enabled = false };
@@ -43,6 +45,7 @@ internal sealed partial class Dashboard : BrandedForm
     PublicRelease[] releases;
     StartupOverview[] startupSnapshots;
     bool busy, checkingReleases, refreshingCatalog, resourcesDisposed;
+    bool UiClosed => resourcesDisposed || IsDisposed || Disposing;
 
     public Dashboard(string root, HostSettingsStore? settings = null, StartupCoordinator? startup = null,
         Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>>? releaseCheck = null,
@@ -55,12 +58,14 @@ internal sealed partial class Dashboard : BrandedForm
         Func<string, bool>? fileExists = null,
         Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null,
         Action<string, string>? showDetails = null, DashboardViewStore? viewStore = null,
-        Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null, bool showDevelopmentState = false)
+        Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null, bool showDevelopmentState = false, ToolLocations? locations = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.showDevelopmentState = showDevelopmentState;
         this.viewStore = viewStore ?? (settings == null ? null : new DashboardViewStore(settings.DirectoryPath));
-        this.showDetails = showDetails ?? ((name, explanation) => { using var form = new OperationDetailsForm(name, explanation); form.ShowDialog(this); });
+        this.locations = locations ?? new();
+        this.showDetails = showDetails ?? ((name, explanation) => { using var form = new OperationDetailsForm(name, explanation,
+            OpenInstalledLocation, InstalledLocationAvailability()); form.ShowDialog(this); });
         this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
         this.showSelfUpdater = showSelfUpdater ?? (() => { using var form = new HostUpdateForm(this.selfUpdates); form.ShowDialog(this); });
         this.notify = notify ?? (message => MessageBox.Show(this, message, WindowTitle.Create("操作できません"), MessageBoxButtons.OK, MessageBoxIcon.Warning));
@@ -89,7 +94,7 @@ internal sealed partial class Dashboard : BrandedForm
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && !resourcesDisposed) { resourcesDisposed = true; lifetime.Cancel(); timer.Dispose(); tooltips.Dispose(); lifetime.Dispose(); }
+        if (disposing && !resourcesDisposed) { resourcesDisposed = true; lifetime.Cancel(); timer.Dispose(); tooltips.Dispose(); detailMenu.Dispose(); lifetime.Dispose(); }
         base.Dispose(disposing);
     }
 }

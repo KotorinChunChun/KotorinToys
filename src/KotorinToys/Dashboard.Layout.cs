@@ -21,11 +21,15 @@ internal sealed partial class Dashboard
         InitializeView();
         grid.SelectionChanged += (_, _) => UpdateActions();
         grid.CurrentCellChanged += (_, _) => UpdateActions();
-        grid.CellClick += (_, e) => { if (e.RowIndex >= 0 && e.ColumnIndex == grid.Columns["detail"]!.Index) OpenSelectedDetails(); };
+        grid.CellMouseClick += (_, e) => { if (e.Button == MouseButtons.Left && e.RowIndex >= 0 && e.ColumnIndex == grid.Columns["detail"]!.Index) OpenSelectedDetailAction(); };
+        detailMenu.Items.Add("詳細を表示", null, (_, _) => OpenSelectedDetails());
+        detailMenu.Opening += (_, e) => e.Cancel = busy || refreshingCatalog || SelectedIndex < 0;
+        grid.ContextMenuStrip = detailMenu;
+        grid.CellMouseDown += (_, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) grid.CurrentCell = grid.Rows[e.RowIndex].Cells["detail"]; };
         grid.KeyDown += (_, e) =>
         {
             if (e.KeyCode == Keys.Enter && grid.CurrentCell?.OwningColumn?.Name == "detail")
-            { e.Handled = e.SuppressKeyPress = true; OpenSelectedDetails(); }
+            { e.Handled = e.SuppressKeyPress = true; OpenSelectedDetailAction(); }
         };
         grid.CellDoubleClick += async (_, e) =>
         {

@@ -2,6 +2,28 @@ namespace KotorinToys;
 
 internal sealed partial class Dashboard
 {
+    internal void OpenSelectedDetailAction()
+    {
+        if (busy || refreshingCatalog || IsDisposed) return;
+        var index = SelectedIndex;
+        if (index < 0) return;
+        if (RowFor(index).Cells["detail"] is not DataGridViewButtonCell) { OpenSelectedDetails(); return; }
+        try { locations.OpenRunning(states[index]); }
+        catch (Exception error) when (ToolLocations.LocationError(error)) { notify("配置場所を開けません：" + error.Message); }
+    }
+
+    ActionAvailability InstalledLocationAvailability() => SelectedIndex is var index && index >= 0 && !busy && !refreshingCatalog
+        ? locations.Installed(installations[index]) : ActionAvailability.Deny("対象を確認できません。");
+
+    internal void OpenInstalledLocation()
+    {
+        if (busy || refreshingCatalog || IsDisposed) return;
+        var index = SelectedIndex;
+        if (index < 0) return;
+        try { locations.OpenInstalled(detectInstallation(tools[index])); }
+        catch (Exception error) when (ToolLocations.LocationError(error)) { notify("正式導入先を開けません：" + error.Message); }
+    }
+
     internal void OpenSelectedDetails()
     {
         if (busy || refreshingCatalog || IsDisposed) return;

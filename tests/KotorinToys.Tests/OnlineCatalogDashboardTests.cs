@@ -120,7 +120,10 @@ internal static class OnlineCatalogDashboardTests
         { calls++; if (calls <= bundled.Length) await gate.Task.WaitAsync(token); return new(fallback, false, false, "試験"); }
         var source = new ToolCatalogSource(root, Path.Combine(fixtures, "inflight-catalog"), _ =>
         { requests++; return Task.FromResult(OnlineCatalogTests.Encode(bundled[0])); });
-        using var form = new Dashboard(root, toolManager: new(root, catalogSource: source), releaseCheck: Release);
+        // 公開照合とconfig差し替えの順序だけを検証し、実PCの登録・管理IPCの待ち時間に依存させない。
+        using var form = new Dashboard(root, toolManager: new(root, catalogSource: source), releaseCheck: Release,
+            detectInstallation: _ => new("未導入", null, null, null),
+            executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")));
         var oldRelease = form.RefreshReleases(); var all = form.RefreshAll();
         check(!all.IsCompleted && requests == 0, "旧一覧の公開照合中はconfig採用を待つ");
         gate.SetResult(); Pump(all); Pump(oldRelease);
