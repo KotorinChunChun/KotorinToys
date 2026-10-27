@@ -7,6 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot)
 . (Join-Path $PSScriptRoot 'distribution-products.ps1')
+. (Join-Path $PSScriptRoot 'runtime-pack-validation.ps1')
 Assert-CommonDistributionProducts $Products
 function Get-SnapshotRevision([string]$Folder = '') {
     $manifest = Join-Path $projectRoot 'release-source.json'
@@ -83,6 +84,7 @@ function Copy-RuntimeLicenses([string]$Output, [string]$Label) {
     $assets = Get-Content -LiteralPath $assetsFile.FullName -Raw | ConvertFrom-Json
     foreach ($framework in $runtimeOptions.includedFrameworks) {
         $packageId = $framework.name.ToLowerInvariant() + '.runtime.win-x64'
+        Assert-RuntimePackVersion $assets $packageId $framework.version
         $runtimePackage = $assets.packageFolders.PSObject.Properties.Name | ForEach-Object { Join-Path $_ "$packageId/$($framework.version)" } | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
         if (-not $runtimePackage) { throw "ランタイムの配布通知がありません：$packageId" }
         $notices = Join-Path $runtimeLicenses $framework.name
