@@ -50,4 +50,4 @@
 
 [submodule "tools/OfficeAssist"]
 	path = tools/OfficeAssist
-	update = none
+	url = https://github.com/KotorinChunChun/OfficeAssist.git
