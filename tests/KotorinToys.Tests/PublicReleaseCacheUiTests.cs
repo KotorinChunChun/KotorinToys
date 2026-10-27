@@ -20,8 +20,9 @@ internal static class PublicReleaseCacheUiTests
         public string CurrentVersion => HostProduct.CurrentVersion;
         public string? BlockReason() => null;
         public SelfUpdateResult? LastResult() => null;
-        public Task<PublicRelease> Check(bool includePrerelease, CancellationToken cancellation) => Task.FromResult(release);
-        public Task Handoff(ReleasePackage package, bool preview, IProgress<string> progress, CancellationToken cancellation) =>
+        public Task<HostUpdateChannel> DetectChannel(CancellationToken cancellation) => Task.FromResult(HostUpdateChannel.Stable);
+        public Task<PublicRelease> Check(HostUpdateChannel channel, CancellationToken cancellation) => Task.FromResult(release);
+        public Task Handoff(ReleasePackage package, HostUpdateChannel from, HostUpdateChannel to, bool confirmed, IProgress<string> progress, CancellationToken cancellation) =>
             throw new Exception("検証から自己更新を実行しない");
     }
 

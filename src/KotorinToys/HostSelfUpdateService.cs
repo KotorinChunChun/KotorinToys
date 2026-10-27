@@ -7,8 +7,9 @@ internal interface IHostSelfUpdateService
 {
     string CurrentVersion { get; }
     string? BlockReason();
-    Task<PublicRelease> Check(bool includePrerelease, CancellationToken cancellation);
-    Task Handoff(ReleasePackage release, bool includePrerelease, IProgress<string> progress, CancellationToken cancellation);
+    Task<HostUpdateChannel> DetectChannel(CancellationToken cancellation);
+    Task<PublicRelease> Check(HostUpdateChannel channel, CancellationToken cancellation);
+    Task Handoff(ReleasePackage release, HostUpdateChannel from, HostUpdateChannel to, bool switchConfirmed, IProgress<string> progress, CancellationToken cancellation);
     SelfUpdateResult? LastResult();
 }
 
@@ -26,32 +27,50 @@ internal sealed class HostSelfUpdateService(string root, string settingsDirector
         catch (Exception ex) { return "正式導入を照合できません：" + ex.Message; }
     }
 
-    public async Task<PublicRelease> Check(bool includePrerelease, CancellationToken cancellation)
+    public async Task<HostUpdateChannel> DetectChannel(CancellationToken cancellation)
     {
         using var client = new PublicReleaseClient();
-        return await client.CheckHost(includePrerelease, cancellation);
+        return await client.DetectHostChannel(CurrentVersion, cancellation);
     }
 
-    public async Task Handoff(ReleasePackage release, bool includePrerelease, IProgress<string> progress, CancellationToken cancellation)
+    public async Task<PublicRelease> Check(HostUpdateChannel channel, CancellationToken cancellation)
+    {
+        using var client = new PublicReleaseClient();
+        return await client.CheckHostChannel(channel, cancellation);
+    }
+
+    public async Task Handoff(ReleasePackage release, HostUpdateChannel from, HostUpdateChannel to, bool switchConfirmed, IProgress<string> progress, CancellationToken cancellation)
     {
         if (!await gate.WaitAsync(0, cancellation)) throw new IOException("本体の更新処理が既に実行中です。");
         try
         {
             if (BlockReason() is { } blocked) throw new IOException(blocked);
-            if (!HostProduct.IsNewer(release, CurrentVersion)) throw new IOException("新しい公開版ではありません。");
+            if (to is not (HostUpdateChannel.Stable or HostUpdateChannel.Preview) ||
+                from is not (HostUpdateChannel.Stable or HostUpdateChannel.Preview or HostUpdateChannel.Unknown) ||
+                (from != to) != switchConfirmed) throw new IOException("更新対象の種類または切替確認が不正です。");
+            var transition = switchConfirmed ? new HostChannelTransition(from, to, "backup/manifest.json") : null;
+            if (!HostProduct.CanInstall(release, CurrentVersion, transition)) throw new IOException("新しい公開版ではありません。");
             progress.Report("公開配布情報を再照合しています…");
-            var latest = await Check(includePrerelease, cancellation);
-            if (!latest.Confirmed || latest.Package != release) throw new IOException("公開配布情報が変わったか確認できません。もう一度公開版を確認してください。");
+            var actualChannel = await DetectChannel(cancellation);
+            if (actualChannel != from) throw new IOException("現在の版の種類が変わりました。公開版を再確認してください。");
+            var latest = await Check(to, cancellation);
+            if (!latest.Confirmed || latest.Package != release || latest.Prerelease != (to == HostUpdateChannel.Preview))
+                throw new IOException("公開配布情報が変わったか確認できません。もう一度公開版を確認してください。");
             var id = Guid.NewGuid().ToString("N");
             var job = PathSafety.Resolve(settingsDirectory, "updates/" + id);
             using var current = Process.GetCurrentProcess();
             var provisional = new SelfUpdatePlan(1, id, Path.GetFullPath(root), Path.GetFullPath(settingsDirectory),
-                current.Id, current.StartTime.ToUniversalTime().Ticks, CurrentVersion, release, "download-" + new string('0', 32) + "/packages.json");
+                current.Id, current.StartTime.ToUniversalTime().Ticks, CurrentVersion, release, "download-" + new string('0', 32) + "/packages.json", transition);
             SelfUpdateFiles.Validate(provisional, job);
             Directory.CreateDirectory(job);
             using var downloader = new ReleaseDownloader();
-            var catalog = await downloader.PrepareHost(release, CurrentVersion, job, progress, cancellation);
+            var catalog = await downloader.PrepareHost(release, CurrentVersion, job, progress, cancellation, transition);
             cancellation.ThrowIfCancellationRequested();
+            if (transition != null)
+            {
+                progress.Report("設定・履歴を退避しています…");
+                await SelfUpdateBackup.Create(settingsDirectory, job, cancellation);
+            }
             progress.Report("本体の外に更新プロセスを準備しています…");
             await CopyWorker(root, job, cancellation);
             var plan = provisional with { Catalog = Path.GetRelativePath(job, catalog).Replace('\\', '/') };

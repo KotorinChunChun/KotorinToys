@@ -28,6 +28,7 @@ internal static class SelfUpdateWorkflow
             using var locked = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
             if (locked.Length != plan.Release.Length || Convert.ToHexString(await SHA256.HashDataAsync(locked, cancellation)).ToLowerInvariant() != plan.Release.Package.Sha256)
                 throw new IOException("更新インストーラーの容量・SHA-256が一致しません。");
+            using var backup = plan.Transition == null ? null : await SelfUpdateBackup.LockAndVerify(job, cancellation);
             SelfUpdateFiles.ValidateInstallation(operations.Installation(), plan);
             operations.ValidateParent(plan);
             cancellation.ThrowIfCancellationRequested();

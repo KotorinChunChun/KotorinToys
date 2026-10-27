@@ -8,6 +8,7 @@
     <FrameworkReference Update="Microsoft.NETCore.App" RuntimeFrameworkVersion="10.0.14" Condition="'$(SelfContained)' == 'true'" />
     <Compile Include="../KotorinToys/HostProduct.cs" Link="HostProduct.cs" />
     <Compile Include="../KotorinToys/SelfUpdateModels.cs" Link="SelfUpdateModels.cs" />
+    <Compile Include="../KotorinToys/SelfUpdateBackup.cs" Link="SelfUpdateBackup.cs" />
     <Compile Include="../KotorinToys/SelfUpdateWorkflow.cs" Link="SelfUpdateWorkflow.cs" />
     <Compile Include="../KotorinToys/SelfUpdateWorker.cs" Link="SelfUpdateWorker.cs" />
     <Compile Include="../KotorinToys/PackageModels.cs" Link="PackageModels.cs" />

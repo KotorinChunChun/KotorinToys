@@ -5,9 +5,9 @@ namespace KotorinToys;
 internal sealed partial class ReleaseDownloader
 {
     public async Task<string> PrepareHost(ReleasePackage item, string currentVersion, string cache,
-        IProgress<string>? progress = null, CancellationToken cancellation = default)
+        IProgress<string>? progress = null, CancellationToken cancellation = default, HostChannelTransition? transition = null)
     {
-        if (!HostProduct.IsNewer(item, currentVersion)) throw new IOException("同じ版または古い版へは自己更新しません。");
+        if (!HostProduct.CanInstall(item, currentVersion, transition)) throw new IOException("同じ版または古い版へは自己更新しません。");
         cancellation.ThrowIfCancellationRequested();
         var directory = PathSafety.Resolve(cache, "download-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
