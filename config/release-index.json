@@ -1,0 +1,1270 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-27T17:34:46.4607434+00:00",
+  "repositories": [
+    {
+      "name": "CapchunWindow",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.2",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-17T09:42:49Z",
+          "assets": [
+            {
+              "name": "CapchunWindow-0.1.2-setup.exe",
+              "state": "uploaded",
+              "size": 80734735,
+              "digest": "sha256:4ba8b4c2a4c453d56d706b7f48b7caacc9c868675ad927e6d4339b39ae429177",
+              "browser_download_url": "https://github.com/KotorinChunChun/CapchunWindow/releases/download/v0.1.2/CapchunWindow-0.1.2-setup.exe"
+            },
+            {
+              "name": "CapchunWindow-packages.json",
+              "state": "uploaded",
+              "size": 415,
+              "digest": "sha256:2c46f91ff2e5b0b9701827b80515eb297dbc46fb5ea5e72eef58375bb80a8db2",
+              "browser_download_url": "https://github.com/KotorinChunChun/CapchunWindow/releases/download/v0.1.2/CapchunWindow-packages.json"
+            },
+            {
+              "name": "CapchunWindow-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 97,
+              "digest": "sha256:180cdb22c4f60c668a0b1e54bb1a1d48ea8a446c68bb2e7197acb0792f1c3c48",
+              "browser_download_url": "https://github.com/KotorinChunChun/CapchunWindow/releases/download/v0.1.2/CapchunWindow-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ChulipVideo-CSharp",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.2.1",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-17T09:42:57Z",
+          "assets": [
+            {
+              "name": "ChulipVideo-0.2.1-setup.exe",
+              "state": "uploaded",
+              "size": 76428634,
+              "digest": "sha256:6e0d09298484f9d6cebc972d6d5c6f368f591c7dc0db6d6c0a300aa14c665604",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/download/v0.2.1/ChulipVideo-0.2.1-setup.exe"
+            },
+            {
+              "name": "ChulipVideo-packages.json",
+              "state": "uploaded",
+              "size": 407,
+              "digest": "sha256:caf0fa751d98396799ab51bba0ef101a3995e5365b037a1caabb1a4322d6f1b3",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/download/v0.2.1/ChulipVideo-packages.json"
+            },
+            {
+              "name": "ChulipVideo-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 95,
+              "digest": "sha256:2d06e7bc7194996bf8c01932e0c6aa06ab65a32c360f4ca924181bbc13d8931b",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/download/v0.2.1/ChulipVideo-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.2.0",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-16T17:10:39Z",
+          "assets": [
+            {
+              "name": "ChulipVideo-CSharp-v0.2.0-win-x64.zip",
+              "state": "uploaded",
+              "size": 51805243,
+              "digest": "sha256:61d69ed4e6c53664640d205c6ab94757a4169a1d3367547dde8f94b55132a985",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/download/v0.2.0/ChulipVideo-CSharp-v0.2.0-win-x64.zip"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:1a8e5fc4b58645918e59ef56fc783f432c6b52a04c204bab1b83f79b53b8819b",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChulipVideo-CSharp/releases/download/v0.2.0/SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ChunapTool",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.2",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-17T09:43:04Z",
+          "assets": [
+            {
+              "name": "ChunapTool-0.1.2-setup.exe",
+              "state": "uploaded",
+              "size": 80806507,
+              "digest": "sha256:87ff5b0979723a76ce80ee3b8a5b0849ec7abfc67f41aa328616682d7c4a45a4",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.2/ChunapTool-0.1.2-setup.exe"
+            },
+            {
+              "name": "ChunapTool-packages.json",
+              "state": "uploaded",
+              "size": 403,
+              "digest": "sha256:ac0d575c692e6d9bd09f8925fe118646b14f2ecb866f090153a2854c8f9eb02c",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.2/ChunapTool-packages.json"
+            },
+            {
+              "name": "ChunapTool-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 94,
+              "digest": "sha256:75867f19fbffaf0348c5cfd4e5c9a9ac03b9dbe2f1a91ac7544b6a84cc4a4564",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.2/ChunapTool-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.1",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-15T22:12:50Z",
+          "assets": [
+            {
+              "name": "ChunapTool-0.1.1-win-x64.zip",
+              "state": "uploaded",
+              "size": 58532774,
+              "digest": "sha256:0c0315a6dac1fa91fa384c833b829cce60ed63c7236b7af3d8a8901082b842ef",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.1/ChunapTool-0.1.1-win-x64.zip"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:baaa254f15be771baa4e2b59251aa9d45805af27e6fc9dfb7aca88d24bf40383",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.1/SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EveryDB",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.1",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-18T15:55:44Z",
+          "assets": [
+            {
+              "name": "EveryDB-0.1.1-setup.exe",
+              "state": "uploaded",
+              "size": 38191228,
+              "digest": "sha256:af1fe95b21e33aacb95dc0d6e5f461d94ae26c60ad347c840b69df032f6ad350",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.1/EveryDB-0.1.1-setup.exe"
+            },
+            {
+              "name": "EveryDB-packages.json",
+              "state": "uploaded",
+              "size": 391,
+              "digest": "sha256:06d5e84a1eac7394f7bae49a81ed408ab3494c67f49e776bac7325133b318760",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.1/EveryDB-packages.json"
+            },
+            {
+              "name": "EveryDB-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 260,
+              "digest": "sha256:3a04171b24aedc61096fac3ced4f1a8d6e82f47c4b512ea8feffa4542e8726bb",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.1/EveryDB-SHA256SUMS.txt"
+            },
+            {
+              "name": "LICENSE.md",
+              "state": "uploaded",
+              "size": 780,
+              "digest": "sha256:b25a3605da89a724a24df8b1d7fa5157963bc34d6599f7c82259fe93afae4da9",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.1/LICENSE.md"
+            },
+            {
+              "name": "THIRD_PARTY_NOTICES.txt",
+              "state": "uploaded",
+              "size": 3615939,
+              "digest": "sha256:c0c59d729b13afc02a31b65ac68351bf60f57597335e5ff9c379c26729664cf6",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.1/THIRD_PARTY_NOTICES.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.0",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-17T04:15:21Z",
+          "assets": [
+            {
+              "name": "EveryDB_0.1.0_x64-setup.exe",
+              "state": "uploaded",
+              "size": 4552758,
+              "digest": "sha256:bf0d8fe2ff7ed2065dc559b56a0058eb9e7c7124822509e2231474bb6e53ae6d",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.0/EveryDB_0.1.0_x64-setup.exe"
+            },
+            {
+              "name": "EveryDB_0.1.0_x64_en-US.msi",
+              "state": "uploaded",
+              "size": 6217728,
+              "digest": "sha256:a5e4f7a8c507b4f1e7ef802f6cba55c15a3d1ec071376e673e0b6e330383ce06",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.0/EveryDB_0.1.0_x64_en-US.msi"
+            },
+            {
+              "name": "LICENSE.md",
+              "state": "uploaded",
+              "size": 791,
+              "digest": "sha256:328506bc4c086df4122d72f52625a1bfaaa3d1e04240abedbec2840a8c3ad6c8",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.0/LICENSE.md"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 355,
+              "digest": "sha256:66072decea77eee74204555470ca239c3efcbb746c61e846df9993f3acdccbcb",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.0/SHA256SUMS.txt"
+            },
+            {
+              "name": "THIRD_PARTY_NOTICES.txt",
+              "state": "uploaded",
+              "size": 3615946,
+              "digest": "sha256:263bb36358169a4a8f1bf0e5142d291ffb69d3e938d199dc53b9b9eb49c9a226",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.0/THIRD_PARTY_NOTICES.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HttpSelector",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.0.3.9",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-24T15:17:30Z",
+          "assets": [
+            {
+              "name": "HttpSelector.appinstaller",
+              "state": "uploaded",
+              "size": 626,
+              "digest": "sha256:e8ff30fec44ba92ed5cf225b5d3b4910709e537ba09fae243a602b57b9c08a1b",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.9/HttpSelector.appinstaller"
+            },
+            {
+              "name": "HttpSelector.Development.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.9/HttpSelector.Development.cer"
+            },
+            {
+              "name": "HttpSelector_0.0.3.9_x64_dev.msix",
+              "state": "uploaded",
+              "size": 2568206,
+              "digest": "sha256:1dc230911092b627cb837542085d721965b0170605fe9aa8042683ccee1b2f90",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.9/HttpSelector_0.0.3.9_x64_dev.msix"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 287,
+              "digest": "sha256:e2b2dca8aa5b7f0151fad837c83cf09033f87366c9701a9feac56e763f5ecfa4",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.9/SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.0.3.8",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-24T09:30:40Z",
+          "assets": [
+            {
+              "name": "HttpSelector.appinstaller",
+              "state": "uploaded",
+              "size": 626,
+              "digest": "sha256:49d8cc006f8c119440f9d9bb2646d796bd60ac1bc19ce46d30ef46591b534702",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.8/HttpSelector.appinstaller"
+            },
+            {
+              "name": "HttpSelector.Development.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.8/HttpSelector.Development.cer"
+            },
+            {
+              "name": "HttpSelector_0.0.3.8_x64_dev.msix",
+              "state": "uploaded",
+              "size": 2569754,
+              "digest": "sha256:b7945ea77d0e157cf3540ad14675cecc59a29051533a3e86a536b56245b71ea6",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.8/HttpSelector_0.0.3.8_x64_dev.msix"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 290,
+              "digest": "sha256:903bf17f37091443e4cb163100a99ef53a472c7837fcaadd1ad412c9313b8a13",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.8/SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.0.3.7",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-24T03:27:29Z",
+          "assets": [
+            {
+              "name": "HttpSelector.appinstaller",
+              "state": "uploaded",
+              "size": 626,
+              "digest": "sha256:645882d7e8d904588a4618a4e67fb3d9cb4d4b5b1657dee408565ec5bff8ec43",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.7/HttpSelector.appinstaller"
+            },
+            {
+              "name": "HttpSelector.Development.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.7/HttpSelector.Development.cer"
+            },
+            {
+              "name": "HttpSelector_0.0.3.7_x64_dev.msix",
+              "state": "uploaded",
+              "size": 2561127,
+              "digest": "sha256:aa1f9fea7d6dfeb9d469ff84cca7963e2e26763cdfce949b5424e7c13a291243",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.7/HttpSelector_0.0.3.7_x64_dev.msix"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 290,
+              "digest": "sha256:a38abd4eb2bb30a9cf8fd55a28d95249d601f769e34a32eb334620ce439f81bf",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.7/SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.0.3.6",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-23T11:57:27Z",
+          "assets": [
+            {
+              "name": "HttpSelector.appinstaller",
+              "state": "uploaded",
+              "size": 626,
+              "digest": "sha256:9202c2c697c170ba5c1a91308a2e5ecff814cf9ea45b82a14e5c726a08126f99",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.6/HttpSelector.appinstaller"
+            },
+            {
+              "name": "HttpSelector.Development.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.6/HttpSelector.Development.cer"
+            },
+            {
+              "name": "HttpSelector_0.0.3.6_x64_dev.msix",
+              "state": "uploaded",
+              "size": 2560223,
+              "digest": "sha256:5ce5dbfd122b331129460364ce33bde6248d3fc8b9fd0cdbba0978eb960e87da",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.6/HttpSelector_0.0.3.6_x64_dev.msix"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 290,
+              "digest": "sha256:a150fd1e2c41ace2d4b84778b62543a1ac55b919de022818845a7aae41faf55f",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.6/SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.0.3.5",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-22T22:40:07Z",
+          "assets": [
+            {
+              "name": "HttpSelector.appinstaller",
+              "state": "uploaded",
+              "size": 626,
+              "digest": "sha256:cd044ac1d03349762b76ac290f0ba08651d64a1424bdc981651c455f3b507206",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.5/HttpSelector.appinstaller"
+            },
+            {
+              "name": "HttpSelector.Development.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.5/HttpSelector.Development.cer"
+            },
+            {
+              "name": "HttpSelector_0.0.3.5_x64_dev.msix",
+              "state": "uploaded",
+              "size": 2551843,
+              "digest": "sha256:5b7dcf830b306577e559cb6ef450ec29dbd36bced09dea2c3d5b1461bd2328ba",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.5/HttpSelector_0.0.3.5_x64_dev.msix"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 290,
+              "digest": "sha256:fe72a585fe42878f02e4f6ed1c26cf95cf3071cca578093d769d26a7d6543cf8",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.5/SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.0.3.4",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-20T22:20:43Z",
+          "assets": [
+            {
+              "name": "HttpSelector.appinstaller",
+              "state": "uploaded",
+              "size": 626,
+              "digest": "sha256:0599e237ea1d392f696bb67118d24e45f85e4262afd08902ad3c37d2a6d27ab1",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.4/HttpSelector.appinstaller"
+            },
+            {
+              "name": "HttpSelector.Development.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.4/HttpSelector.Development.cer"
+            },
+            {
+              "name": "HttpSelector_0.0.3.4_x64_dev.msix",
+              "state": "uploaded",
+              "size": 2552234,
+              "digest": "sha256:c9dd9f33453ac1f5b2dbce20d5ceaa2127f8196accc2738de30416aee8c8a2e4",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.4/HttpSelector_0.0.3.4_x64_dev.msix"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 290,
+              "digest": "sha256:4d1321ac259216c1dc1e7c33ee6c4644284c504048bcd0a5a0bb649772e76b25",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.4/SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.0.3.3",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-16T18:10:50Z",
+          "assets": [
+            {
+              "name": "HttpSelector.appinstaller",
+              "state": "uploaded",
+              "size": 674,
+              "digest": "sha256:f13b7f43516e878a9637c0d0f68e78ce0b1d324bc9db8c45bcddba23fde2cb22",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.3/HttpSelector.appinstaller"
+            },
+            {
+              "name": "HttpSelector.Development.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.3/HttpSelector.Development.cer"
+            },
+            {
+              "name": "HttpSelector_0.0.3.3_x64_dev.msix",
+              "state": "uploaded",
+              "size": 2517124,
+              "digest": "sha256:b5e8d8fa7b60cb81dc9d82bf0da1cfe021ba48363711b3a6f71ade41fe9dc0f4",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.3/HttpSelector_0.0.3.3_x64_dev.msix"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 290,
+              "digest": "sha256:ff69d3a813c0eec25b684366cf54c7a1bc8952f8125796f12e609324e7084976",
+              "browser_download_url": "https://github.com/KotorinChunChun/HttpSelector/releases/download/v0.0.3.3/SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KotorinToys",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.11",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-24T01:52:30Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.11-setup.exe",
+              "state": "uploaded",
+              "size": 86083911,
+              "digest": "sha256:348109b83292c5c54f88da5264bb4ab8140439821e54be8a2a72ed770646f2f4",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.11/KotorinToys-0.1.11-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 389,
+              "digest": "sha256:83b5131a040774bb07e717122d954a8c9a6beb0eef7af23e9f3ef12bdc1d59e6",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.11/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:4473d5d64a63ad867c7a8427733186612388d4aa31c9b0e020806b8251f125d9",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.11/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.10",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-23T17:03:05Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.10-setup.exe",
+              "state": "uploaded",
+              "size": 86076929,
+              "digest": "sha256:04daaffcf0c7134f58761d824ec9bb91023bcd79af98fdbb10de17b44a4ba17f",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.10/KotorinToys-0.1.10-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 389,
+              "digest": "sha256:dd139e9a527957209d69d5c962d04cb9a5595a10c2a2f4f33cda7cc89046b64e",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.10/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:f803422c5618edb4c8254a77a572cb7c0c81ecf840bd19b7e61fec5de9a5a145",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.10/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.9",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-23T14:09:47Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.9-setup.exe",
+              "state": "uploaded",
+              "size": 86042431,
+              "digest": "sha256:c7a7ddf25540faa752a0a9a461f3fc734dd00536bc6967e387524e3add5e8481",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.9/KotorinToys-0.1.9-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 387,
+              "digest": "sha256:6def98766865f67268237ffffc338256e3376ec102f82d56ec18c9d25f717db8",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.9/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 95,
+              "digest": "sha256:73f478deb9a2137a4ea3a3b42a4c15dbef7bf28a9395167a8c1c21cf80c31f03",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.9/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.8",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-19T23:25:24Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.8-setup.exe",
+              "state": "uploaded",
+              "size": 86039072,
+              "digest": "sha256:212d52fb38f2eddee9eeb9e406741bff1f06a47d3c4e2d766a1b40e5a442ca36",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.8/KotorinToys-0.1.8-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 387,
+              "digest": "sha256:7b26b78ab3c16056f4b7489e712dbef75f0657d8562536f7adfc4c43d41f0f2b",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.8/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 95,
+              "digest": "sha256:0984ddf7046366a54a25863d8c3c6c3394e278496a4ae233ca08c29c458f20c7",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.8/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.5",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-18T15:57:07Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.5-setup.exe",
+              "state": "uploaded",
+              "size": 77123507,
+              "digest": "sha256:4906ccaed5276b55edd4516fde13b81472d04557e5d219735310e00754014006",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.5/KotorinToys-0.1.5-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 387,
+              "digest": "sha256:bb44a5622424ff2eb46d878efa769f139eef3b58205a70e8498e20f111feb21d",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.5/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 95,
+              "digest": "sha256:d133f6b96fe22a5e8abe69550a877c330f90060fd965527bad4d8a1f5abad2d8",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.5/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.3",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-18T13:26:49Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.3-setup.exe",
+              "state": "uploaded",
+              "size": 77092840,
+              "digest": "sha256:5a1317faf6ea3dd405bb884886620d3309d41c83d8f1980410bf9733bff0a47e",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.3/KotorinToys-0.1.3-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 387,
+              "digest": "sha256:caab2ef7a64b33a8c84dcb526278c6913b46e63e41754d45273128fad0063063",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.3/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 95,
+              "digest": "sha256:65807cbe186c4a20f5b179a75aedf311e99a6f5068dba998c99383701c458ee3",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.3/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.2",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-17T09:52:21Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.2-setup.exe",
+              "state": "uploaded",
+              "size": 77081326,
+              "digest": "sha256:44d2a064fb87e2266191e19229917d6b9ab599ccb2eaaa6de1d0cff48202669d",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.2/KotorinToys-0.1.2-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 387,
+              "digest": "sha256:281a42c9e555c6b116347493676f44a9b7928d74bd4a540f40e7aa9c8101a0a1",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.2/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 95,
+              "digest": "sha256:9e756fdf996f42f21cb8674ddff2fffb1e4e1219f4a98d52dee3ebd56d090493",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.2/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.1",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-16T18:38:59Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.1-setup.exe",
+              "state": "uploaded",
+              "size": 76970035,
+              "digest": "sha256:c1f62e4ec9561fc381e21864082a53a83ba475f8730582763c5cca30465b189b",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.1/KotorinToys-0.1.1-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 387,
+              "digest": "sha256:790876d885dcf163bc72da486c8a365282f4007d4e84fbf37bbf11cf38d3191c",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.1/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 95,
+              "digest": "sha256:1d259c98cde16a7779df181fafa126377d51928cfc853ff1d4738caaaebc5265",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.1/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.0",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-12T13:02:02Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.0-setup.exe",
+              "state": "uploaded",
+              "size": 75929877,
+              "digest": "sha256:d2e61a86234d051db9bde848ca70052678da9da93d65cd61ce9ac5a6d292c247",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.0/KotorinToys-0.1.0-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 387,
+              "digest": "sha256:e89e7b6a9c2224a6201a3d1c6b91fb0e656742505df7cf40b12e64bd8d37621c",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.0/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 95,
+              "digest": "sha256:d1310855aaf3c8efd9082492a287897b57967a61fb70418c43b52814f71f170a",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.0/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LiveTextMarker",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v1.1.0",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-12T12:50:38Z",
+          "assets": [
+            {
+              "name": "LiveTextMarker-1.1.0-setup.exe",
+              "state": "uploaded",
+              "size": 102243306,
+              "digest": "sha256:80c6233975d9e4b56e5e14933e864f3c47e2d1ecf9d45a8ca96b975c7d3d98b6",
+              "browser_download_url": "https://github.com/KotorinChunChun/LiveTextMarker/releases/download/v1.1.0/LiveTextMarker-1.1.0-setup.exe"
+            },
+            {
+              "name": "LiveTextMarker-packages.json",
+              "state": "uploaded",
+              "size": 420,
+              "digest": "sha256:808cdc5fe3b263f355d89d6e2952ddf6b94cbdaf09b2ae3931f0381cd00d19bb",
+              "browser_download_url": "https://github.com/KotorinChunChun/LiveTextMarker/releases/download/v1.1.0/LiveTextMarker-packages.json"
+            },
+            {
+              "name": "LiveTextMarker-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 98,
+              "digest": "sha256:a3ff186a430ba58f8bc906742766118c7e72233e36acef25c1718c79219cd817",
+              "browser_download_url": "https://github.com/KotorinChunChun/LiveTextMarker/releases/download/v1.1.0/LiveTextMarker-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OperationRecorder",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v1.3.2",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-23T16:12:38Z",
+          "assets": [
+            {
+              "name": "OperationRecorder-1.3.2-setup.exe",
+              "state": "uploaded",
+              "size": 96700168,
+              "digest": "sha256:711b607c1f2cd4ebb0fef36e57b397f50c429bc76749766cbc29cee092e2fd34",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v1.3.2/OperationRecorder-1.3.2-setup.exe"
+            },
+            {
+              "name": "OperationRecorder-packages.json",
+              "state": "uploaded",
+              "size": 431,
+              "digest": "sha256:5bb722ccbb77332b1be7844136cd92ea63966323ce7a374c27773f207f48b164",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v1.3.2/OperationRecorder-packages.json"
+            },
+            {
+              "name": "OperationRecorder-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 101,
+              "digest": "sha256:41bdf645ed54c562480a838ed36a306092593d83ecaab2955230a1494ffa48b0",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v1.3.2/OperationRecorder-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ShortcutKeyCounter",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.5",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-17T11:10:21Z",
+          "assets": [
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:452a0c40c9e6a7fd2fe6d01d45da2a8a6b493e2fcde1e6a741b9f1e26b5c8867",
+              "browser_download_url": "https://github.com/KotorinChunChun/ShortcutKeyCounter/releases/download/v0.1.5/SHA256SUMS.txt"
+            },
+            {
+              "name": "ShortcutKeyCounter-v0.1.5-win-x64.zip",
+              "state": "uploaded",
+              "size": 7071176,
+              "digest": "sha256:d582af0665a5d6cb14ffe27cb6e0c4a196ef219d116a0148572ab65e1dff0c30",
+              "browser_download_url": "https://github.com/KotorinChunChun/ShortcutKeyCounter/releases/download/v0.1.5/ShortcutKeyCounter-v0.1.5-win-x64.zip"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.4",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-29T10:28:12Z",
+          "assets": [
+            {
+              "name": "ShortcutKeyCounter-v0.1.4-win-x64.zip",
+              "state": "uploaded",
+              "size": 6436548,
+              "digest": "sha256:615012808da2ddb60d7eda50c037246980205100c723fd446ec7d9fada824226",
+              "browser_download_url": "https://github.com/KotorinChunChun/ShortcutKeyCounter/releases/download/v0.1.4/ShortcutKeyCounter-v0.1.4-win-x64.zip"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SmartPaste",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.5",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-14T13:55:53Z",
+          "assets": [
+            {
+              "name": "SmartPaste-0.1.5-setup.exe",
+              "state": "uploaded",
+              "size": 162007173,
+              "digest": "sha256:a2f2594974f1ef7786f9d3a219c9e4f1a51df8b9fafdc9da1c7edc118d211f23",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.5/SmartPaste-0.1.5-setup.exe"
+            },
+            {
+              "name": "SmartPaste-packages.json",
+              "state": "uploaded",
+              "size": 403,
+              "digest": "sha256:ac5a35c410186c1d880442ba9d4ea2472de9620b3d62b62ac7315e3e8ca27dc6",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.5/SmartPaste-packages.json"
+            },
+            {
+              "name": "SmartPaste-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 94,
+              "digest": "sha256:4ee99fde47b103a42d3b2c2877130d50a5feb76a48145c4a2e6ea8a2f77f2729",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.5/SmartPaste-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.4",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-12T12:50:53Z",
+          "assets": [
+            {
+              "name": "SmartPaste-0.1.4-setup.exe",
+              "state": "uploaded",
+              "size": 162004997,
+              "digest": "sha256:f93ea90123628c7586ba9aa0ccda57a9052f873b9f72a3dd965149d71d9dfd0b",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.4/SmartPaste-0.1.4-setup.exe"
+            },
+            {
+              "name": "SmartPaste-packages.json",
+              "state": "uploaded",
+              "size": 403,
+              "digest": "sha256:196017431e1a240dd3c65c00ecf97789026837f8fa2a7d2383f39564f7fd262d",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.4/SmartPaste-packages.json"
+            },
+            {
+              "name": "SmartPaste-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 94,
+              "digest": "sha256:4cf00ad28a57236c310d8a93c254cc1f0987a02d79e80a8108da624e66d78d03",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.4/SmartPaste-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SSCapture",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.5",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-23T15:18:26Z",
+          "assets": [
+            {
+              "name": "SSCapture-0.1.5-setup.exe",
+              "state": "uploaded",
+              "size": 66859309,
+              "digest": "sha256:779eba99f9d0890de42ef95128173f18edda135b1d588d49357e45c80b6f4ade",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.5/SSCapture-0.1.5-setup.exe"
+            },
+            {
+              "name": "SSCapture-packages.json",
+              "state": "uploaded",
+              "size": 399,
+              "digest": "sha256:251defd14e530535c9714d255425fd623b96ebf0c582f5cfc770a6d692903560",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.5/SSCapture-packages.json"
+            },
+            {
+              "name": "SSCapture-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 93,
+              "digest": "sha256:d91ebc9abc9802a51035e7d355e6194d014782724391fb442302909ee207b37a",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.5/SSCapture-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.4",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-22T22:52:04Z",
+          "assets": [
+            {
+              "name": "SSCapture-0.1.4-setup.exe",
+              "state": "uploaded",
+              "size": 66845151,
+              "digest": "sha256:8d70b2f26f071d6f44c6a6b541afc912eb7a9e96b72f9cc93cb06f55f0f55d0f",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.4/SSCapture-0.1.4-setup.exe"
+            },
+            {
+              "name": "SSCapture-packages.json",
+              "state": "uploaded",
+              "size": 399,
+              "digest": "sha256:738b9aace9c03c1fc33eb630df10cc9e4048b98b50c29f428556f6080aa733b2",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.4/SSCapture-packages.json"
+            },
+            {
+              "name": "SSCapture-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 93,
+              "digest": "sha256:1b2b68f9c15a943eeccf3ff0710bc761186198029732e6482d85b0901e339704",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.4/SSCapture-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.2",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-19T23:23:59Z",
+          "assets": [
+            {
+              "name": "SSCapture-0.1.2-setup.exe",
+              "state": "uploaded",
+              "size": 37296002,
+              "digest": "sha256:d2a79e9abac8b202048bfafd866d45c5a64d48b3859be6d50920e49a54b5af15",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.2/SSCapture-0.1.2-setup.exe"
+            },
+            {
+              "name": "SSCapture-packages.json",
+              "state": "uploaded",
+              "size": 399,
+              "digest": "sha256:c12c44e10de0275e3c6831392286abbb765d2def178ffb68c3b9e0fce1b6d84d",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.2/SSCapture-packages.json"
+            },
+            {
+              "name": "SSCapture-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 93,
+              "digest": "sha256:0b095a1b23b990cf1da5a42ef320bef260a1ce3173e5361b27ce6e4ab2d91673",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.2/SSCapture-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.1",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-14T21:58:58Z",
+          "assets": [
+            {
+              "name": "SSCapture-0.1.1-setup.exe",
+              "state": "uploaded",
+              "size": 37334620,
+              "digest": "sha256:6562bff5e8ee22420ced644d27e7c5a4427694883ee21cc411416add31601d47",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.1/SSCapture-0.1.1-setup.exe"
+            },
+            {
+              "name": "SSCapture-packages.json",
+              "state": "uploaded",
+              "size": 399,
+              "digest": "sha256:0e02b266f93924217e44fbeb69714560b2ba3e41907562ebb971b092da39adb8",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.1/SSCapture-packages.json"
+            },
+            {
+              "name": "SSCapture-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 93,
+              "digest": "sha256:9e89da065c068d65ec6ed2b409e070e8d6d2e648c6bfde36833c255b9eb87816",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.1/SSCapture-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.0",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-12T12:51:01Z",
+          "assets": [
+            {
+              "name": "SSCapture-0.1.0-setup.exe",
+              "state": "uploaded",
+              "size": 76355650,
+              "digest": "sha256:14c5e23bad58691b329d26644d940f90046d1ba853a2acf3656f815753a658c7",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.0/SSCapture-0.1.0-setup.exe"
+            },
+            {
+              "name": "SSCapture-packages.json",
+              "state": "uploaded",
+              "size": 399,
+              "digest": "sha256:85767fcf48c2d3ede895390dd4ff7a2a07657bfb321113fdd5d3dbfe9f403629",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.0/SSCapture-packages.json"
+            },
+            {
+              "name": "SSCapture-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 93,
+              "digest": "sha256:c19b51a7ed90510764951ecd71b6b1cf9115cb507230872f1e70af201c71e7af",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.0/SSCapture-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "VoiceMixerMicRouter",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v1.0.19",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-27T13:57:16Z",
+          "assets": [
+            {
+              "name": "installation.md",
+              "state": "uploaded",
+              "size": 3078,
+              "digest": "sha256:d8a80b12ad40092c534d2b8a9333b10e56596599ce443e1b8af443a760829a53",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.19/installation.md"
+            },
+            {
+              "name": "kotorintoys-integration.md",
+              "state": "uploaded",
+              "size": 3814,
+              "digest": "sha256:a93146b70d2b5ba44cc63bdf88ff3b53c3b8521f04cc770dcede9e60ab1d55ec",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.19/kotorintoys-integration.md"
+            },
+            {
+              "name": "kotorintoys-tool-entry.json",
+              "state": "uploaded",
+              "size": 1420,
+              "digest": "sha256:19608cb4762989065b77508326dfcf6d3519b863ed22e8ef670407e376e5a466",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.19/kotorintoys-tool-entry.json"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:15a65982c16b3f347335b0b2aa96c121f271ad2eec99047953c6399172f50522",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.19/SHA256SUMS.txt"
+            },
+            {
+              "name": "VoiceMixerMicRouter-1.0.19-setup.exe",
+              "state": "uploaded",
+              "size": 38534418,
+              "digest": "sha256:c8c1763520a11d44280233e1750b17d3ee9e067609b66d8ca39e5a19dc4e3e49",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.19/VoiceMixerMicRouter-1.0.19-setup.exe"
+            },
+            {
+              "name": "VoiceMixerMicRouter-packages.json",
+              "state": "uploaded",
+              "size": 443,
+              "digest": "sha256:87dd40c9c9b4fb0bb4a30e601b42db5d02a04d98b77e4cb0b53c14b65aefb11e",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.19/VoiceMixerMicRouter-packages.json"
+            }
+          ]
+        },
+        {
+          "tag_name": "v1.0.18",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-18T17:18:24Z",
+          "assets": [
+            {
+              "name": "installation.md",
+              "state": "uploaded",
+              "size": 3078,
+              "digest": "sha256:6d74e4bd89acb357f3a7ffbcb342a98f87a3f0f2c044ce80f4c61839a691aff9",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.18/installation.md"
+            },
+            {
+              "name": "kotorintoys-integration.md",
+              "state": "uploaded",
+              "size": 3814,
+              "digest": "sha256:f7d554039dc5a3aa504ec4cdbec34c66a1a8fe0e3fb0272cfacdf044a640d365",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.18/kotorintoys-integration.md"
+            },
+            {
+              "name": "kotorintoys-tool-entry.json",
+              "state": "uploaded",
+              "size": 1420,
+              "digest": "sha256:ee88912c6e1718007bda30f4b6ea37eacce84e201374df48cc73b1bfbe8f8fd3",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.18/kotorintoys-tool-entry.json"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:ed789eeeddd2ba636320f96971bc9526d5965274def083d922b22ca2fde08ea7",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.18/SHA256SUMS.txt"
+            },
+            {
+              "name": "VoiceMixerMicRouter-1.0.18-setup.exe",
+              "state": "uploaded",
+              "size": 38521655,
+              "digest": "sha256:86a0f3a05a9975ec60f786c86548da6cdccaf243fd87783d1a426c1a8ff3ffe8",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.18/VoiceMixerMicRouter-1.0.18-setup.exe"
+            },
+            {
+              "name": "VoiceMixerMicRouter-packages.json",
+              "state": "uploaded",
+              "size": 443,
+              "digest": "sha256:56d5e5a6ef24248ce646006b15fa466da7f73ff716f5a8f44b58149fe42bb97d",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.18/VoiceMixerMicRouter-packages.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "VoiceMixerSpkRouter",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v1.0.11",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-27T13:59:13Z",
+          "assets": [
+            {
+              "name": "VoiceMixerSpkRouter-1.0.11-setup.exe",
+              "state": "uploaded",
+              "size": 38640417,
+              "digest": "sha256:465822f6283af05db20352bfc874df904dd10debbb2e06cdfebf1015350f1667",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.11/VoiceMixerSpkRouter-1.0.11-setup.exe"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-packages.json",
+              "state": "uploaded",
+              "size": 443,
+              "digest": "sha256:98ee1e955c0164feabf2b94a093d8e44347bc7c434409dccbdc0ae963acc92f3",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.11/VoiceMixerSpkRouter-packages.json"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:a6968901f367939bdcd8fc5462599127ba2b7c25f651aca3ee931deb6f744a9a",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.11/VoiceMixerSpkRouter-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v1.0.10",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-18T17:19:37Z",
+          "assets": [
+            {
+              "name": "VoiceMixerSpkRouter-1.0.10-setup.exe",
+              "state": "uploaded",
+              "size": 38649681,
+              "digest": "sha256:76f8c2ac87dc470e07ad439eba1468e68f209f7062d1b589507a6eb3caab9dd4",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.10/VoiceMixerSpkRouter-1.0.10-setup.exe"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-packages.json",
+              "state": "uploaded",
+              "size": 443,
+              "digest": "sha256:7ef10c509a86e5826c09e9adf22ffd0d29555bb5853205d7df9bd77421803bf4",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.10/VoiceMixerSpkRouter-packages.json"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:8e5959c93e84a5760659ae4979553a03d37bf45bf94dd7d949232c20f6a3fe70",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.10/VoiceMixerSpkRouter-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
