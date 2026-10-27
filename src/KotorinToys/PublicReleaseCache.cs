@@ -24,7 +24,6 @@ internal sealed class PublicReleaseCache
     readonly Dictionary<string, Backoff> backoffs = new(StringComparer.OrdinalIgnoreCase);
     // 版別URLが増えても待機用オブジェクトを増やし続けない。
     readonly SemaphoreSlim[] requests = Enumerable.Range(0, 64).Select(_ => new SemaphoreSlim(1, 1)).ToArray();
-    readonly SemaphoreSlim apiGate = new(1, 1);
 
     internal PublicReleaseCache(string? directory = null, Func<DateTimeOffset>? utcNow = null)
     {
@@ -41,18 +40,11 @@ internal sealed class PublicReleaseCache
         cancellation.ThrowIfCancellationRequested();
         var request = requests[(uint)StringComparer.Ordinal.GetHashCode(uri.AbsoluteUri) % (uint)requests.Length];
         await request.WaitAsync(cancellation).ConfigureAwait(false);
-        bool apiHeld = false;
         try
         {
             var previous = Load(uri, limit);
             if (previous != null && UtcNow - previous.FetchedAt < Lifetime)
                 return new(previous.Value, previous.FetchedAt, true);
-            // APIは製品間でも直列化し、最初の取得制限後に他製品が追撃しない。
-            if (uri.Host == "api.github.com")
-            {
-                await apiGate.WaitAsync(cancellation).ConfigureAwait(false);
-                apiHeld = true;
-            }
             ThrowIfBlocked(uri.Host);
             var value = await fetch(previous, cancellation).ConfigureAwait(false);
             if (!Valid(value, uri, limit)) throw new IOException("公開情報キャッシュの内容・容量・取得時刻が不正です。");
@@ -64,7 +56,7 @@ internal sealed class PublicReleaseCache
             Save(FileName(uri), value);
             return new(value.Value, value.FetchedAt, false);
         }
-        finally { if (apiHeld) apiGate.Release(); request.Release(); }
+        finally { request.Release(); }
     }
 
     internal void ThrowIfBlocked(string host)
@@ -105,7 +97,7 @@ internal sealed class PublicReleaseCache
         var saved = LoadFile<Backoffs>("retry-state.json");
         if (saved is not { SchemaVersion: 1, Items: not null } || saved.Items.Length > 4) return;
         foreach (var item in saved.Items)
-            if (item != null && item.Host is "api.github.com" or "github.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com" &&
+            if (item != null && item.Host is "github.com" or "raw.githubusercontent.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com" &&
                 item.Until > UtcNow) backoffs[item.Host] = item;
     }
 

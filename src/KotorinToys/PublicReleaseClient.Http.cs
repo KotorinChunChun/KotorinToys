@@ -14,7 +14,7 @@ internal sealed partial class PublicReleaseClient
 
     static void RequireAllowed(Uri uri)
     {
-        if (!(ReleaseDownloader.Allowed(uri) || uri.Scheme == "https" && uri.IsDefaultPort && uri.UserInfo == "" && uri.Host == "api.github.com"))
+        if (!(ReleaseDownloader.Allowed(uri) || uri == PublicReleaseIndex.Source))
             throw new IOException("公開情報の許可外URLへ移動しません。");
     }
 
@@ -38,12 +38,6 @@ internal sealed partial class PublicReleaseClient
                 if (uri.Host != original.Host) cache.Block(original.Host, retry.Until, retry.Known);
                 throw new ReleaseReadException(ReleaseProblem.RateLimit,
                     ReleaseProblems.RateLimitMessage(retry.Known ? retry.Until : null), retry.Known ? retry.Until : null);
-            }
-            // 最後のAPI枠で成功した本文は利用し、別製品の追加APIだけを抑止する。
-            if (uri.Host == "api.github.com" && emptyQuota && (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NotModified))
-            {
-                var retry = RetryAt(response, true);
-                cache.Block(uri.Host, retry.Until, retry.Known);
             }
             if (response.StatusCode == HttpStatusCode.NotModified)
             {

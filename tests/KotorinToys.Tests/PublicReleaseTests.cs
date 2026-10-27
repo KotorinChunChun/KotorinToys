@@ -32,10 +32,10 @@ internal static class PublicReleaseTests
         object Release(bool draft = false, string tag = "v0.1.10", object[]? assets = null) => new { tag_name = tag, draft, prerelease = true, published_at = "2026-10-16T18:00:00Z", assets = assets ?? Assets() };
         PublicReleaseClient Make(object[] list, LocalPackage? manifest = null) => new(new Handler((request, _) =>
         {
-            if (request.RequestUri!.Host == "api.github.com")
+            if (ReleaseIndexFixture.IsIndex(request))
             {
-                check(request.RequestUri.AbsolutePath == "/repos/KotorinChunChun/SmartPaste/releases", "公開版照合は既知所有者の製品別API");
-                return Json(list);
+                check(request.RequestUri == PublicReleaseIndex.Source, "公開版照合は固定の公開情報一覧を使用");
+                return Json(ReleaseIndexFixture.Index("SmartPaste", list));
             }
             check(request.RequestUri == new Uri(Url("SmartPaste-packages.json")), "公開台帳は固定所有者・製品・tag・ファイルから取得");
             return Json(new PackageCatalog(1, "published", [manifest ?? package]));
@@ -72,8 +72,8 @@ internal static class PublicReleaseTests
         await Reject([Release(assets: [new { name = "SmartPaste-packages.json", state = "uploaded", size = 32769, browser_download_url = Url("SmartPaste-packages.json") }, Assets()[1]])], "台帳assetの容量上限を取得前に検査");
         using (var client = Make([Release(draft: true, tag: "v9.0.0"), Release()]))
             check((await client.Check(tool, fallback)).Package?.Package.Version == "0.1.10", "新しい下書きを除外して公開中の最新候補を選択");
-        using (var client = new PublicReleaseClient(new Handler((request, _) => request.RequestUri!.Host == "api.github.com"
-            ? Json(new[] { Release() })
+        using (var client = new PublicReleaseClient(new Handler((request, _) => ReleaseIndexFixture.IsIndex(request)
+            ? Json(ReleaseIndexFixture.Index("SmartPaste", new[] { Release() }))
             : new(HttpStatusCode.OK) { Content = new StringContent("\uFEFF" + JsonSerializer.Serialize(new PackageCatalog(1, "published", [package]), ToolCatalog.Json)) })))
             check((await client.Check(tool, fallback)).Confirmed, "UTF-8 BOM付きの公開台帳を受け付ける");
         int redirects = 0;
@@ -85,7 +85,7 @@ internal static class PublicReleaseTests
         using (var client = Make([Release()]))
             check(!(await client.Check(tool, new(package with { Sha256 = new string('0', 64) }, bytes.Length))).Confirmed, "同梱固定版の同版asset差替をオンライン台帳で許容しない");
         using (var client = new PublicReleaseClient(new Handler((_, _) => new(HttpStatusCode.Forbidden))))
-            check(!(await client.Check(tool, fallback)).Confirmed, "API制限では最新確認済みにしない");
+            check(!(await client.Check(tool, fallback)).Confirmed, "公開情報を取得できない場合は最新確認済みにしない");
         foreach (var (code, expected) in new[] { (429, "取得回数制限"), (403, "アクセスが拒否"), (404, "公開ファイルが見つかりません") })
         {
             using var deniedClient = new PublicReleaseClient(new Handler((_, _) => new((HttpStatusCode)code)));
@@ -93,13 +93,14 @@ internal static class PublicReleaseTests
             check(!denied.Confirmed && denied.Detail.Contains(expected), "HTTP" + code + "の意味と対処を日本語で案内");
         }
         using (var client = new PublicReleaseClient(new Handler((_, _) => new(HttpStatusCode.Redirect) { Headers = { Location = new("https://example.com/evil") } })))
-            check(!(await client.Check(tool, fallback)).Confirmed, "公開APIの許可外リダイレクトを拒否");
+            check(!(await client.Check(tool, fallback)).Confirmed, "公開情報の許可外リダイレクトを拒否");
         using (var client = new PublicReleaseClient(new Handler((_, _) => new(HttpStatusCode.OK) { Content = new StringContent(new string('x', 2 * 1024 * 1024 + 1)) })))
             check(!(await client.Check(tool, fallback)).Confirmed, "公開応答の容量を制限");
         using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
         using var cancelledClient = Make([Release()]); bool rejected = false;
         try { await cancelledClient.Check(tool, fallback, cancelled.Token); } catch (OperationCanceledException) { rejected = true; }
         check(rejected, "利用者の公開照合取消を成功へ変換しない");
+        await ReleaseIndexTests.Run(root, fixtures, check);
     }
 
     public static async Task<int> Live(string root, IReadOnlyCollection<string>? toolIds = null)
@@ -116,5 +117,45 @@ internal static class PublicReleaseTests
             success &= result.Confirmed;
         }
         return success ? 0 : 1;
+    }
+
+    sealed class RecordedIndexHandler(string json) : DelegatingHandler(new HttpClientHandler { AllowAutoRedirect = false })
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token) =>
+            ReleaseIndexFixture.IsIndex(request)
+                ? Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) })
+                : base.SendAsync(request, token);
+    }
+
+    public static async Task<int> LiveSpkIndex(string root, string indexPath, string outputDirectory)
+    {
+        var tools = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root);
+        var tool = tools.Single(t => t.Id == "voice-mixer-spk-router");
+        var fallback = ReleaseDownloader.Load(root, tools).Packages.Single(p => p.Package.Id == tool.Id);
+        using var client = new PublicReleaseClient(new RecordedIndexHandler(File.ReadAllText(indexPath)));
+        var result = await client.Check(tool, fallback);
+        if (!result.Confirmed || result.Package == null) throw new IOException("SpkRouterの公開情報を照合できません：" + result.Detail);
+        using var downloader = new ReleaseDownloader();
+        var path = await downloader.Prepare(new(1, [result.Package]), [tool with { Version = result.Package.Package.Version }], outputDirectory);
+        var item = PackageCatalogReader.Load(path, tools).Packages.Single();
+        Console.WriteLine($"GitHubから取得し、製品・版・容量・SHA-256を照合：{item.Name} {item.Version}");
+        return 0;
+    }
+
+    public static async Task<int> LiveIndex(string root, string indexPath)
+    {
+        var tools = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root);
+        var bundled = ReleaseDownloader.Load(root, tools);
+        using var client = new PublicReleaseClient(new RecordedIndexHandler(File.ReadAllText(indexPath)));
+        bool success = true;
+        foreach (var tool in tools.Where(t => t.DistributionStatus == "published" || t.Msix != null || t.Id == "shortcut-key-counter"))
+        {
+            var result = await client.Check(tool, bundled.Packages.SingleOrDefault(p => p.Package.Id == tool.Id));
+            Console.WriteLine($"{tool.Name}: {(result.Confirmed ? "確認済み" : result.Detail)} / {result.Package?.Package.Version ?? result.Portable?.Version ?? "不明"}");
+            success &= result.Confirmed;
+        }
+        var host = await client.CheckHost(true);
+        Console.WriteLine($"KotorinToys: {(host.Confirmed ? "確認済み" : host.Detail)} / {host.Package?.Package.Version ?? "不明"}");
+        return success && host.Confirmed ? 0 : 1;
     }
 }

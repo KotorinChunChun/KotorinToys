@@ -64,6 +64,8 @@ internal static class Program
             if(args.Length==2 && args[0]=="--run-native-release-host")return InstalledStartupTests.NativeTask("--release-host "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
             if(args.Length==1 && args[0]=="--public-release-check") return PublicReleaseTests.Live(KotorinToys.Program.FindRoot()).GetAwaiter().GetResult();
             if(args.SequenceEqual(["--voice-router-public-check"])) return PublicReleaseTests.Live(KotorinToys.Program.FindRoot(), ["voice-mixer-mic-router", "voice-mixer-spk-router"]).GetAwaiter().GetResult();
+            if(args.Length==3 && args[0]=="--spk-index-download-check") return PublicReleaseTests.LiveSpkIndex(KotorinToys.Program.FindRoot(), args[1], args[2]).GetAwaiter().GetResult();
+            if(args.Length==2 && args[0]=="--release-index-live-check") return PublicReleaseTests.LiveIndex(KotorinToys.Program.FindRoot(), args[1]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--run-native-tool-update")return InstalledStartupTests.NativeTask("--tool-update "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--tool-update")return ReleaseAcceptance.UpdateTool(args[1]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--release-host")return ReleaseAcceptance.Host(args[1]).GetAwaiter().GetResult();
@@ -108,7 +110,8 @@ internal static class Program
             }
             if(args.Length==3 && args[0]=="--cleanup-task") {StartupTests.Cleanup(args[1],args[2]);return 0;}
             if(args.Contains("--scheduler-probe")){InstalledStartupTests.Probe().GetAwaiter().GetResult();return 0;}
-            root = KotorinToys.Program.FindRoot();
+            var testRoot = Environment.GetEnvironmentVariable("KOTORINTOYS_TEST_ROOT");
+            root = string.IsNullOrWhiteSpace(testRoot) ? KotorinToys.Program.FindRoot() : Path.GetFullPath(testRoot);
             if(args.Length is 2 or 3 && args[0]=="--check-release-readiness")
             {
                 bool online=args.Length==3 && args[2]=="--online";
@@ -131,6 +134,17 @@ internal static class Program
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--release-index-tests"]))
+            {
+                DistributionMappingTests.Run(root, Check).GetAwaiter().GetResult();
+                PublicReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+                MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
+                PortableReleaseTests.Run(root, Check).GetAwaiter().GetResult();
+                HostReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
+                DefinitionManagedProductTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+                Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
+            if (args.SequenceEqual(["--management-contract-tests"])) { CatalogTests(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-tests"])) { Task.Run(() => PublicReleaseCacheTests.Run(root, fixtures, Check)).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-ui-tests"])) { PublicReleaseCacheUiTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-panel"])) return PublicReleaseCacheUiTests.Panel(root);

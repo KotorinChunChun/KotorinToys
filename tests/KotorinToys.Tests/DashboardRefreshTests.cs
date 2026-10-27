@@ -26,7 +26,8 @@ internal static class DashboardRefreshTests
         }
         using var form = new Dashboard(root, releaseCheck: Fetch,
             showToolInstaller: (id, operation, catalog) => { dialogs++; selected = id; offered = catalog; check(operation == "update", "アップデートは単体操作画面へ接続"); },
-            detectInstallation: tool => new("導入済み", tool.Version, null, "fixture.exe"), notify: _ => { }, fileExists: _ => true);
+            detectInstallation: tool => new("導入済み", tool.Version, null, "fixture.exe"), notify: _ => { }, fileExists: _ => true,
+            executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")));
         form.CreateControl(); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
         var selectedRow = form.Controls.Find("selectedActions", true).Single();

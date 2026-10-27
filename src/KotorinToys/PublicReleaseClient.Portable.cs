@@ -12,9 +12,9 @@ internal sealed partial class PublicReleaseClient
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var token = deadline.Token;
             var repository = ProductIdentity.FromId(tool.Id)?.Repository ?? throw new IOException("公開製品の固定配布先がありません。");
-            var listText = await Read(new($"https://api.github.com/repos/KotorinChunChun/{repository}/releases?per_page=100"), 2 * 1024 * 1024, token);
-            using var list = JsonDocument.Parse(listText.Value);
-            var latest = PublicReleaseMetadata.Select(list.RootElement);
+            var listText = await Read(PublicReleaseIndex.Source, PublicReleaseIndex.MaximumBytes, token);
+            var list = PublicReleaseIndex.Releases(listText.Value, repository, cache.UtcNow);
+            var latest = PublicReleaseMetadata.Select(list);
             var sums = latest.Asset(tool, "SHA256SUMS.txt");
             if (sums.GetProperty("size").GetInt64() is <= 0 or > 32768)
                 throw new IOException("公開ハッシュ台帳の容量が不正です。");
