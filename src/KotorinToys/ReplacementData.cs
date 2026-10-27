@@ -15,8 +15,8 @@ internal static class ReplacementData
     public static void Preserve(ToolDefinition tool, string previousExecutable, string installedExecutable)
     {
         if (!Sidecars.TryGetValue(tool.Id, out var files)) return;
-        var sourceRoot = Path.GetDirectoryName(ToolLocations.LocalExecutable(previousExecutable))!;
-        var targetRoot = Path.GetDirectoryName(ToolLocations.LocalExecutable(installedExecutable))!;
+        var sourceRoot = Path.GetDirectoryName(PathSafety.LocalExecutable(previousExecutable))!;
+        var targetRoot = Path.GetDirectoryName(PathSafety.LocalExecutable(installedExecutable))!;
         if (string.Equals(sourceRoot, targetRoot, StringComparison.OrdinalIgnoreCase)) return;
         RejectLinks(sourceRoot, sourceRoot);
         RejectLinks(targetRoot, targetRoot);

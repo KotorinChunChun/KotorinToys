@@ -16,13 +16,7 @@ internal sealed class ToolLocations(Func<int, string?>? runningPath = null, Func
         return process.SessionId == Process.GetCurrentProcess().SessionId ? process.MainModule?.FileName : null;
     }
 
-    internal static string LocalExecutable(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path) || path.Length > 32760 || path.Contains('"') || path.Contains('\r') || path.Contains('\n') ||
-            !System.Text.RegularExpressions.Regex.IsMatch(path, @"^[A-Za-z]:[\\/]") || !path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
-            path.AsSpan(2).Contains(':')) throw new IOException("確認済みのローカルEXEパスがありません。");
-        return Path.GetFullPath(path);
-    }
+    internal static string LocalExecutable(string? path) => PathSafety.LocalExecutable(path);
 
     public ActionAvailability Running(ToolState state)
     {
