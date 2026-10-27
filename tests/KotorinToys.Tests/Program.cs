@@ -134,6 +134,9 @@ internal static class Program
             if (!System.Text.RegularExpressions.Regex.IsMatch(recordVersion, @"^v\d+\.\d+\.\d+$")) throw new IOException("テスト記録先の版が不正です。");
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
+            if (args.SequenceEqual(["--discovery-panel"])) return DashboardDiscoveryPanel.Run(root,fixtures);
+            if (args.SequenceEqual(["--search-tests"])) { DashboardSearchTests.Run(root,fixtures,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--location-tests"])) { ToolLocationTests.Run(root,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--release-index-tests"]))
             {
                 DistributionMappingTests.Run(root, Check).GetAwaiter().GetResult();
@@ -291,6 +294,8 @@ internal static class Program
             RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             RepairTests.Form(root, Check);
             OperationDetailsTests.Run(root, Check);
+            ToolLocationTests.Run(root, Check);
+            DashboardSearchTests.Run(root, fixtures, Check);
             OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult();
             CompactDashboardTests.Run(root, fixtures, Check);
             CatalogTests(); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();

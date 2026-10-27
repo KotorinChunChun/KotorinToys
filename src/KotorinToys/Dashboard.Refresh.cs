@@ -53,7 +53,7 @@ internal sealed partial class Dashboard
         finally
         {
             refreshingCatalog = false;
-            if (!IsDisposed) { actions.Enabled = hostActions.Enabled = true; UpdateActions(); }
+            if (!UiClosed) { actions.Enabled = hostActions.Enabled = true; UpdateActions(); }
         }
     }
 
@@ -69,6 +69,7 @@ internal sealed partial class Dashboard
         releases = bundledPackages.Select(p => new PublicRelease(p, false, false, "公開未確認・同梱台帳")).ToArray();
         grid.Rows.Clear();
         foreach (var tool in tools) AddToolRow(tool);
+        RebuildCategories();
         if (tools.Length > 0)
         {
             var row = Array.FindIndex(tools, t => t.Id == selected);

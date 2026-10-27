@@ -17,8 +17,7 @@ internal sealed partial class Dashboard
     void InitializeView()
     {
         viewFilter.Items.AddRange(["すべて", "通常", "要更新", "未導入"]); viewFilter.SelectedIndex=0;
-        viewBar.Controls.Add(new Label { Text="表示：", AutoSize=true, Margin=new(3,7,3,0) });
-        viewBar.Controls.Add(viewFilter); viewBar.Controls.Add(viewCount);
+        InitializeSearch();
         viewFilter.SelectedIndexChanged += (_,_)=>ApplyView();
         grid.AllowUserToOrderColumns=true;
         grid.ColumnHeaderMouseClick += (_,e)=>
@@ -36,7 +35,9 @@ internal sealed partial class Dashboard
             int order=0;
             foreach(var column in (saved.Columns??[]).OrderBy(c=>c.Order)) grid.Columns[column.Name]!.DisplayIndex=order++;
             viewFilter.SelectedIndex=saved.Filter=="installed"?1:saved.Filter=="updates"?2:saved.Filter=="missing"?3:0;
+            search.Text=saved.Query;selectedCategory=saved.Category;
         }
+        RebuildCategories();
         FormClosing += (_,_)=>SaveView();
     }
     internal void SaveView()
@@ -45,24 +46,24 @@ internal sealed partial class Dashboard
         var size=WindowState==FormWindowState.Normal?Size:RestoreBounds.Size;
         var error=viewStore.Save(new(1,Math.Clamp(size.Width,980,6000),Math.Clamp(size.Height,540,4000),
             viewFilter.SelectedIndex==1?"installed":viewFilter.SelectedIndex==2?"updates":viewFilter.SelectedIndex==3?"missing":"all",sortColumn,sortDescending,
-            grid.Columns.Cast<DataGridViewColumn>().Select(c=>new DashboardColumnView(c.Name,c.DisplayIndex,Math.Clamp(c.Width,40,3000))).ToArray()));
+            grid.Columns.Cast<DataGridViewColumn>().Select(c=>new DashboardColumnView(c.Name,c.DisplayIndex,Math.Clamp(c.Width,40,3000))).ToArray(),search.Text,selectedCategory));
         if(error!=null){viewBar.AccessibleDescription=error;tooltips.SetToolTip(viewFilter,error);}
     }
     void ApplyView()
     {
-        if(applyingView || grid.Rows.Count!=tools.Length)return;
+        if(UiClosed || applyingView || grid.Rows.Count!=tools.Length)return;
         applyingView=true;
         try
         {
             string? selected=grid.CurrentRow?.Tag as string;
             string? selectedColumn=grid.CurrentCell?.OwningColumn?.Name;
-            bool Matches(int i)=>viewFilter.SelectedIndex switch
+            bool Matches(int i)=>ToolSearch.Matches(tools[i],search.Text,selectedCategory) && (viewFilter.SelectedIndex switch
             {
                 1=>installations[i].State is not "未導入" && states[i].State is "実行中" or "停止中",
                 2=>ToolVersionView.Create(installations[i],releases[i]).CanUpdate,
                 3=>installations[i].State == "未導入",
                 _=>true
-            };
+            });
             if(grid.CurrentRow is {Tag:string id} && Array.FindIndex(tools,t=>t.Id==id) is var current && current>=0 && !Matches(current)) grid.CurrentCell=null;
             for(int i=0;i<tools.Length;i++) RowFor(i).Visible=Matches(i);
             if(sortColumn!=null)grid.Sort(new ViewComparer(sortColumn,sortDescending));
@@ -71,6 +72,7 @@ internal sealed partial class Dashboard
             var row=grid.Rows.Cast<DataGridViewRow>().FirstOrDefault(r=>r.Visible && Equals(r.Tag,selected)) ?? grid.Rows.Cast<DataGridViewRow>().FirstOrDefault(r=>r.Visible);
             if(row!=null)grid.CurrentCell=row.Cells[selectedColumn??"tool"];else{grid.CurrentCell=null;grid.ClearSelection();}
             viewCount.Text=grid.Rows.Cast<DataGridViewRow>().Count(r=>r.Visible)+"件";
+            clearFilters.Enabled=search.Text.Length>0 || selectedCategory!=null || viewFilter.SelectedIndex!=0;
             UpdateActions();
         }
         finally{applyingView=false;}
