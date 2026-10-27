@@ -34,7 +34,7 @@ internal static class DashboardTests
             "メインは上部の絞り込み・一覧・2つの操作行でフッター領域を残さない");
         check(!((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版はアップデートを無効にする");
         check(((Button)form.Controls.Find("uninstallSelected", true).Single()).Enabled &&
-            !((Button)form.Controls.Find("installSelected", true).Single()).Enabled, "導入済みはインストールを無効・アンインストールを有効にする");
+            ((Button)form.Controls.Find("installSelected", true).Single()).Enabled, "導入済みでも公開版の再確認とアンインストールへ進める");
         states[2] = new("停止中"); form.ApplySnapshot(installed, states, releases);
         check(!form.Controls.Find("stop", true).Single().Enabled, "停止中のツールは停止ボタンを無効にする");
         states[2] = new("実行中"); form.ApplySnapshot(installed, states, releases);
@@ -49,7 +49,7 @@ internal static class DashboardTests
         check(form.Controls.Find("installSelected", true).Single().Enabled && !form.Controls.Find("uninstallSelected", true).Single().Enabled &&
             !form.Controls.Find("updateSelected", true).Single().Enabled, "未導入で公開配布照合済みの場合だけインストールを有効にする");
         form.ApplySnapshot(installed, states, releases.Select(r => r with { Confirmed = false }).ToArray());
-        check(!form.Controls.Find("installSelected", true).Single().Enabled, "未確認の同梱版でインストールを許可しない");
+        check(form.Controls.Find("installSelected", true).Single().Enabled, "公開版未確認でも自動確認の入口は使える");
         form.ApplySnapshot(installed, states, releases);
         grid.CurrentCell = grid.Rows[3].Cells[0];
         check(grid.CurrentRow?.Cells["tool"].Value?.ToString() == "ShortcutKeyCounter" &&

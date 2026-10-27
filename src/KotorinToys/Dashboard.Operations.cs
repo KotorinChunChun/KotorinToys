@@ -80,6 +80,8 @@ internal sealed partial class Dashboard
         if (index < 0 || index >= tools.Length) return;
         var tool = tools[index];
         if (requested == "update" && !ToolVersionView.Create(installations[index], releases[index]).CanUpdate) return;
+        if (requested == "install" && ToolActionPolicy.InstallEntry(tool) is { Enabled: false } entry)
+        { ShowOperationFailure(tool.Name + "：" + entry.Reason, tool.Id); return; }
         if (!TryBeginOperation()) return;
         try
         {
@@ -87,6 +89,7 @@ internal sealed partial class Dashboard
             await RefreshStates(true);
             if (IsDisposed) return;
             var actual = installations[index];
+            if (requested == "install" && MsixPolicy.Installed(actual)) requested = "update";
             var availability = Availability(index, requested, true);
             if (!availability.Enabled) { ShowOperationFailure(tool.Name + "：" + availability.Reason, tool.Id); return; }
             var catalog = ConfirmedCatalog();

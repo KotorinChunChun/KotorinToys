@@ -47,11 +47,11 @@ internal static class PublicReleaseCacheUiTests
             var grid = Find<DataGridView>(form, "toolTable");
             grid.CurrentCell = grid.Rows.Cast<DataGridViewRow>().Single(r => r.Cells["tool"].Value?.ToString() == tool.Name).Cells["detail"];
             var install = Find<Button>(form, "installSelected");
-            check(!install.Enabled && install.AccessibleDescription!.Contains("15:40:00"), "実一覧の無効導入ボタンにも解除時刻を保持");
+            check(install.Enabled && install.AccessibleDescription!.Contains("確認"), "取得制限中も自動再確認の入口を使える");
             check(grid.CurrentRow!.Cells["detail"].Value?.ToString() == "-" && grid.CurrentRow.Cells["detail"].ToolTipText.Contains("15:40:00"),
                 "未導入の一覧はハイフン、詳細は取得制限の解除時刻を表示");
             form.OpenSelectedDetails();
-            check(details.Contains("解除予定") && details.Contains("15:40:00") && details.Contains("導入不可"), "クリックして読む説明にも原因と解除予定と無効理由を表示");
+            check(details.Contains("解除予定") && details.Contains("15:40:00") && details.Contains("導入不可"), "クリックして読む説明にも原因と解除予定と実行不可の理由を表示");
             Pump(form.OpenToolInstallation("install"));
             check(invoked == 0 && notices.Last().Contains("15:40:00") && !notices.Last().Contains("照合済みの公開インストーラーがありません"),
                 "直接導入要求でもinstallerは起動せず取得制限の具体的な警告を表示");

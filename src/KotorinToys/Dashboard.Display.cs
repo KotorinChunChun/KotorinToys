@@ -75,7 +75,9 @@ internal sealed partial class Dashboard
                 ActionHints.Apply(button, Availability(i, name), tooltips);
         bool repair = i >= 0 && i < installations.Length && installations[i].State == "修復が必要";
         install.Text = repair ? "修復" : "インストール";
-        ActionHints.Apply(install, Availability(i, repair ? "repair" : "install"), tooltips);
+        var installRule = i < 0 || i >= tools.Length ? ActionAvailability.Deny("先に対象アプリを選択してください。") :
+            repair ? Availability(i, "repair") : ToolActionPolicy.InstallEntry(tools[i], busy || refreshingCatalog || checkingReleases);
+        ActionHints.Apply(install, installRule, tooltips);
         ActionHints.Apply(update, Availability(i, "update"), tooltips);
         ActionHints.Apply(uninstall, Availability(i, "uninstall"), tooltips);
     }
