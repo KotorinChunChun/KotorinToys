@@ -17,7 +17,7 @@ internal static class MsixReleaseTests
         object Asset(string name, string? url = null, string? digest = null) => new { name, state = "uploaded", size = name == file ? data.Length : 200, browser_download_url = url ?? Url(name), digest };
         object Release(string tag, bool draft = false, object[]? assets = null) => new { tag_name = tag, draft, prerelease = false, published_at = "2026-10-16T18:10:50Z", assets = assets ?? [Asset(file, digest: "sha256:" + hash), Asset("SHA256SUMS.txt")] };
         PublicReleaseClient Client(object[] releases, string? sums = null) => new(new Handler(r => new(HttpStatusCode.OK) {
-            Content = new StringContent(r.RequestUri!.Host == "api.github.com" ? JsonSerializer.Serialize(releases) : sums ?? hash + " *" + file + "\n") }));
+            Content = new StringContent(ReleaseIndexFixture.IsIndex(r) ? ReleaseIndexFixture.Json("HttpSelector", releases) : sums ?? hash + " *" + file + "\n") }));
         using (var client = Client([Release("v0.0.3.2"), Release("v0.0.3.3"), Release("v9.0.0.0", true)]))
         {
             var actual = await client.Check(Tool, null);

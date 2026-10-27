@@ -60,12 +60,12 @@ internal static class DefinitionManagedProductTests
         using var client=new PublicReleaseClient(new Handler(request=>
         {
             requests++;
-            if(request.RequestUri!.Host=="api.github.com")
+            if(ReleaseIndexFixture.IsIndex(request))
             {
-                check(request.RequestUri.AbsolutePath=="/repos/KotorinChunChun/CatalogOnlyToolRepo/releases","新規製品も定義の固定所有者・リポジトリだけを照会");
-                return Json(new[]{new{tag_name="v1.0.1",draft=false,prerelease=true,published_at="2026-10-19T00:00:00Z",assets=new[]{Asset(added.Name+"-packages.json",512),Asset(package.File,bytes.Length)}}});
+                check(request.RequestUri==PublicReleaseIndex.Source,"新規製品も固定の公開情報一覧を使用");
+                return Json(ReleaseIndexFixture.Index("CatalogOnlyToolRepo",new[]{new{tag_name="v1.0.1",draft=false,prerelease=true,published_at="2026-10-19T00:00:00Z",assets=new[]{Asset(added.Name+"-packages.json",512),Asset(package.File,bytes.Length)}}}));
             }
-            check(request.RequestUri.AbsoluteUri==Url(added.Name+"-packages.json"),"公開台帳は同じ固定リリースからだけ取得");
+            check(request.RequestUri!.AbsoluteUri==Url(added.Name+"-packages.json"),"公開台帳は同じ固定リリースからだけ取得");
             return Json(new PackageCatalog(1,"published",[package]));
         }));
         var release=await client.Check(added,null);

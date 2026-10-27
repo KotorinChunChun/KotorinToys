@@ -23,12 +23,12 @@ internal static class PublicReleaseCacheTests
         string hash = new('a', 64);
         var package = new LocalPackage(tool.Id, tool.Name, "0.1.99", tool.AppId,
             tool.Name + "-0.1.99-setup.exe", hash, "unsigned-public-build");
-        if (request.RequestUri!.Host != "api.github.com") return Json(new PackageCatalog(1, "published", [package]));
-        return Json(new[] { new { tag_name = "v0.1.99", draft = false, prerelease = true, published_at = "2026-10-23T15:00:00Z", assets = new object[]
+        if (!ReleaseIndexFixture.IsIndex(request)) return Json(new PackageCatalog(1, "published", [package]));
+        return Json(ReleaseIndexFixture.Index(repository, new[] { new { tag_name = "v0.1.99", draft = false, prerelease = true, published_at = "2026-10-23T15:00:00Z", assets = new object[]
         {
             new { name = tool.Name + "-packages.json", state = "uploaded", size = 512, browser_download_url = url + tool.Name + "-packages.json" },
             new { name = package.File, state = "uploaded", size = 4, browser_download_url = url + package.File, digest = "sha256:" + (badHash ? new string('b', 64) : hash) }
-        } } });
+        } } }, DateTimeOffset.Parse("2026-10-23T15:20:00Z")));
     }
 
     static PublicReleaseClient Client(PublicReleaseCache cache, Func<HttpRequestMessage, HttpResponseMessage> send) =>
@@ -104,7 +104,7 @@ internal static class PublicReleaseCacheTests
             var clients = Enumerable.Range(0, 12).Select(_ => new PublicReleaseClient(new Handler(async (request, token) =>
             {
                 Interlocked.Increment(ref calls);
-                if (request.RequestUri!.Host == "api.github.com") { entered.TrySetResult(); await proceed.Task.WaitAsync(token); }
+                if (ReleaseIndexFixture.IsIndex(request)) { entered.TrySetResult(); await proceed.Task.WaitAsync(token); }
                 return Publication(tool, request);
             }), cache)).ToArray();
             try
@@ -129,12 +129,12 @@ internal static class PublicReleaseCacheTests
                 "403残回数0の原因とepoch解除時刻を型・日本時間で保持");
             var another = await client.Check(other, null);
             check(!another.Confirmed && another.Problem == ReleaseProblem.RateLimit && calls == 1,
-                "取得制限は他製品のAPI再取得も解除まで抑止");
+                "取得制限は他製品の一覧再取得も解除まで抑止");
             using var restarted = Client(new PublicReleaseCache(directory, () => now), _ => throw new Exception("解除待ちの再起動で通信しない"));
             check((await restarted.Check(tool, fallback)).RetryAt == reset, "再起動後も解除待ちを引き継ぐ");
             now = reset;
             using var recovered = Client(cache, request => { calls++; return Publication(tool, request); });
-            check((await recovered.Check(tool, fallback)).Confirmed && calls == 3, "解除時刻後の次回照合でAPIと台帳を再取得できる");
+            check((await recovered.Check(tool, fallback)).Confirmed && calls == 3, "解除時刻後の次回照合で一覧と台帳を再取得できる");
         }
 
         {
@@ -142,15 +142,15 @@ internal static class PublicReleaseCacheTests
             using var client = Client(cache, request =>
             {
                 calls++; var response = Publication(tool, request);
-                if (request.RequestUri!.Host == "api.github.com")
+                if (ReleaseIndexFixture.IsIndex(request))
                 { response.Headers.Add("X-RateLimit-Remaining", "0"); response.Headers.Add("X-RateLimit-Reset", start.AddHours(1).ToUnixTimeSeconds().ToString()); }
                 return response;
             });
             check((await client.Check(tool, fallback)).Confirmed && calls == 2,
-                "最後のAPI枠で一覧取得成功ならAPI以外の台帳取得を妨げない");
-            check((await client.Check(tool, fallback)).Cached && calls == 2, "解除待ち中でも有効な照合用キャッシュは利用できる");
-            check((await client.Check(other, null)).Problem == ReleaseProblem.RateLimit && calls == 2,
-                "最後のAPI枠を使った後は別製品への追加通信を抑止");
+                "公開一覧が成功した場合は台帳も取得できる");
+            check((await client.Check(tool, fallback)).Cached && calls == 2, "同じ公開一覧と台帳はキャッシュを利用する");
+            check((await client.Check(other, null)).Problem == ReleaseProblem.Connection && calls == 2,
+                "一覧にない製品は誤って公開済みにせず追加APIも呼ばない");
         }
 
         {
@@ -221,10 +221,10 @@ internal static class PublicReleaseCacheTests
 
         {
             var directory = DirectoryFor("parallel-limit"); var cache = new PublicReleaseCache(directory, () => start);
-            await Task.WhenAll(Task.Run(() => cache.Block("api.github.com", start.AddHours(1), true)),
+            await Task.WhenAll(Task.Run(() => cache.Block("raw.githubusercontent.com", start.AddHours(1), true)),
                 Task.Run(() => cache.Block("github.com", start.AddHours(2), true)));
             var restarted = new PublicReleaseCache(directory, () => start); int blocked = 0;
-            foreach (var host in new[] { "api.github.com", "github.com" })
+            foreach (var host in new[] { "raw.githubusercontent.com", "github.com" })
                 try { restarted.ThrowIfBlocked(host); } catch (ReleaseReadException) { blocked++; }
             check(blocked == 2, "複数ホストの並行制限を保存順で消さず再起動後も保持");
         }
@@ -249,7 +249,7 @@ internal static class PublicReleaseCacheTests
             var now = start; int calls = 0; var directory = DirectoryFor("corruption");
             using (var client = Client(new(directory, () => now), request => { calls++; return Publication(tool, request); })) await client.Check(tool, fallback);
             string apiFile = Path.Combine(directory, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
-                $"https://api.github.com/repos/KotorinChunChun/{ProductIdentity.FromTool(tool)!.Repository}/releases?per_page=100"))).ToLowerInvariant() + ".json");
+                PublicReleaseIndex.Source.AbsoluteUri))).ToLowerInvariant() + ".json");
             var saved = JsonNode.Parse(File.ReadAllText(apiFile))!.AsObject(); saved["url"] = "https://example.com/evil";
             File.WriteAllText(apiFile, saved.ToJsonString());
             using (var client = Client(new(directory, () => now), request => { calls++; return Publication(tool, request); }))
@@ -290,7 +290,7 @@ internal static class PublicReleaseCacheTests
             var second = client.Check(other, null); proceed.TrySetResult();
             var values = await Task.WhenAll(first, second);
             check(values.All(v => v.Problem == ReleaseProblem.RateLimit) && calls == 1,
-                "別製品がAPI待機中に制限を検出しても追撃せず同じ解除待ちを返す");
+                "別製品が一覧待機中に制限を検出しても追撃せず同じ解除待ちを返す");
         }
 
         {
@@ -303,7 +303,7 @@ internal static class PublicReleaseCacheTests
             try { await pending; } catch (OperationCanceledException) { }
             using var recovered = Client(cache, request => Publication(tool, request));
             var result = await recovered.Check(tool, fallback).WaitAsync(TimeSpan.FromSeconds(3));
-            check(result.Confirmed, "先行HTTP取消後もURL待機とAPI待機を解放して再取得できる");
+            check(result.Confirmed, "先行HTTP取消後もURL待機を解放して再取得できる");
         }
 
         {
@@ -313,7 +313,7 @@ internal static class PublicReleaseCacheTests
             using var first = new PublicReleaseClient(new Handler(async (request, token) =>
             {
                 Interlocked.Increment(ref calls);
-                if (request.RequestUri!.Host == "api.github.com") { entered.TrySetResult(); await proceed.Task.WaitAsync(token); }
+                if (ReleaseIndexFixture.IsIndex(request)) { entered.TrySetResult(); await proceed.Task.WaitAsync(token); }
                 return Publication(tool, request);
             }), cache);
             var firstTask = first.Check(tool, fallback);

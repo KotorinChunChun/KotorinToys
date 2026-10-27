@@ -51,9 +51,9 @@ internal sealed partial class PublicReleaseClient : IDisposable
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var token = deadline.Token;
             var repository = ProductIdentity.FromTool(tool)?.Repository ?? throw new IOException("公開製品の検証済み配布先がありません。");
-            var listText = await Read(new($"https://api.github.com/repos/KotorinChunChun/{repository}/releases?per_page=100"), 2 * 1024 * 1024, token);
-            using var list = JsonDocument.Parse(listText.Value);
-            var latest = PublicReleaseMetadata.Select(list.RootElement, includePrerelease);
+            var listText = await Read(PublicReleaseIndex.Source, PublicReleaseIndex.MaximumBytes, token);
+            var list = PublicReleaseIndex.Releases(listText.Value, repository, cache.UtcNow);
+            var latest = PublicReleaseMetadata.Select(list, includePrerelease);
             var manifest = latest.Asset(tool, tool.Name + "-packages.json");
             var installer = latest.Asset(tool, $"{tool.Name}-{latest.Version}-setup.exe");
             if (manifest.GetProperty("size").GetInt64() is <= 0 or > 32768) throw new IOException("公開台帳の容量が不正です。");

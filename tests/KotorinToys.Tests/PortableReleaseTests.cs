@@ -26,12 +26,12 @@ internal static class PortableReleaseTests
         PublicReleaseClient Make(object[] list, string? text = null) => new(new Handler(request =>
         {
             requests++;
-            if (request.RequestUri!.Host == "api.github.com")
+            if (ReleaseIndexFixture.IsIndex(request))
             {
-                check(request.RequestUri.AbsolutePath == "/repos/KotorinChunChun/ShortcutKeyCounter/releases", "ポータブル公開確認も固定製品のAPIだけを使用");
-                return new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(list)) };
+                check(request.RequestUri == PublicReleaseIndex.Source, "ポータブル公開確認も固定の公開情報一覧を使用");
+                return new(HttpStatusCode.OK) { Content = new StringContent(ReleaseIndexFixture.Json("ShortcutKeyCounter", list)) };
             }
-            check(request.RequestUri.AbsoluteUri == Url("SHA256SUMS.txt"), "公開表示ではZIPを取得せず固定ハッシュ台帳だけを読む");
+            check(request.RequestUri!.AbsoluteUri == Url("SHA256SUMS.txt"), "公開表示ではZIPを取得せず固定ハッシュ台帳だけを読む");
             return new(HttpStatusCode.OK) { Content = new StringContent(text ?? sums) };
         }));
 
@@ -72,7 +72,7 @@ internal static class PortableReleaseTests
         await Reject([Release()], "SHA256SUMSの不正ハッシュを拒否", "not-a-hash  " + file);
         await Reject([Release([Asset(file, digest: "sha256:" + new string('b', 64)), Asset("SHA256SUMS.txt")])], "GitHub digestとZIP台帳の不一致を拒否");
         using (var client = new PublicReleaseClient(new Handler(_ => new(HttpStatusCode.Forbidden))))
-            check(!(await client.Check(tool, null)).Confirmed, "ZIP照合のAPI失敗を公開済みにしない");
+            check(!(await client.Check(tool, null)).Confirmed, "ZIP照合の取得失敗を公開済みにしない");
         using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
         using (var client = Make([Release()]))
         {
@@ -109,12 +109,12 @@ internal static class PortableReleaseTests
             "ZIP公開の根拠を保持し利用中の検出とは区別");
     }
 
-    // API回数制限中も、CLIで取得した公開API応答を実際の匿名asset取得と照合できる。
+    // 保存した公開一覧を実際の匿名asset取得と照合できる。
     sealed class RecordedListHandler(string json) : DelegatingHandler(new HttpClientHandler { AllowAutoRedirect = false })
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
-            if (request.RequestUri?.AbsoluteUri == "https://api.github.com/repos/KotorinChunChun/ShortcutKeyCounter/releases?per_page=100")
+            if (ReleaseIndexFixture.IsIndex(request))
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) });
             return base.SendAsync(request, token);
         }

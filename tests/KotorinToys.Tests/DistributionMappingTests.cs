@@ -20,13 +20,13 @@ internal static class DistributionMappingTests
             object Asset(string file, int size) => new { name = file, size, state = "uploaded", browser_download_url = Url(file) };
             using var client = new PublicReleaseClient(new Handler(request =>
             {
-                if (request.RequestUri!.Host == "api.github.com")
+                if (ReleaseIndexFixture.IsIndex(request))
                 {
-                    check(request.RequestUri.AbsolutePath == "/repos/KotorinChunChun/" + identity.Repository + "/releases", tool.Name + "の固定配布先だけを照合");
-                    return Json(new[] { new { tag_name = "v" + tool.Version, draft = false, prerelease = true, published_at = "2026-10-17T00:00:00Z",
-                        assets = new[] { Asset(tool.Name + "-packages.json", 512), Asset(package.File, 4) } } });
+                    check(request.RequestUri == PublicReleaseIndex.Source, tool.Name + "の固定公開情報一覧を使用");
+                    return Json(ReleaseIndexFixture.Index(identity.Repository, new[] { new { tag_name = "v" + tool.Version, draft = false, prerelease = true, published_at = "2026-10-17T00:00:00Z",
+                        assets = new[] { Asset(tool.Name + "-packages.json", 512), Asset(package.File, 4) } } }));
                 }
-                check(request.RequestUri.AbsoluteUri == Url(tool.Name + "-packages.json"), tool.Name + "の製品別台帳も同じ固定配布先");
+                check(request.RequestUri!.AbsoluteUri == Url(tool.Name + "-packages.json"), tool.Name + "の製品別台帳も同じ固定配布先");
                 return Json(new PackageCatalog(1, "published", [package]));
             }));
             var result = await client.Check(tool, null);
@@ -41,9 +41,9 @@ internal static class DistributionMappingTests
         catch (IOException) { rejected = true; }
         check(rejected, "配布先を分離しても製品名の差し替えを許可しない");
         var chulip = tools.Single(t => t.Id == "chulip-video") with { DistributionStatus = "published" };
-        using var wrong = new PublicReleaseClient(new Handler(_ => Json(new[] { new { tag_name = "v" + chulip.Version, draft = false, prerelease = true,
+        using var wrong = new PublicReleaseClient(new Handler(_ => Json(ReleaseIndexFixture.Index("ChulipVideo-CSharp", new[] { new { tag_name = "v" + chulip.Version, draft = false, prerelease = true,
             assets = new[] { new { name = "ChulipVideo-packages.json", size = 512, state = "uploaded",
-                browser_download_url = "https://github.com/KotorinChunChun/ChulipVideo/releases/download/v" + chulip.Version + "/ChulipVideo-packages.json" } } } })));
+                browser_download_url = "https://github.com/KotorinChunChun/ChulipVideo/releases/download/v" + chulip.Version + "/ChulipVideo-packages.json" } } } }))));
         check(!(await wrong.Check(chulip, null)).Confirmed, "同名Python版リポジトリへ誘導するasset URLを拒否");
     }
 }

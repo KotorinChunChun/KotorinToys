@@ -33,12 +33,12 @@ internal static class HostReleaseTests
         using (var client = new PublicReleaseClient(new Handler(request =>
         {
             calls++;
-            if (request.RequestUri!.Host == "api.github.com")
+            if (ReleaseIndexFixture.IsIndex(request))
             {
-                check(request.RequestUri.AbsolutePath == "/repos/KotorinChunChun/KotorinToys/releases", "本体の公開照合先は固定リポジトリ");
-                return Json(releases);
+                check(request.RequestUri == PublicReleaseIndex.Source, "本体も固定の公開情報一覧を使用");
+                return Json(ReleaseIndexFixture.Index("KotorinToys", releases));
             }
-            var version = request.RequestUri.AbsolutePath.Contains("v0.2.0/") ? "0.2.0" : "0.1.1";
+            var version = request.RequestUri!.AbsolutePath.Contains("v0.2.0/") ? "0.2.0" : "0.1.1";
             return Json(new PackageCatalog(1, "published", [package with { Version = version, File = $"KotorinToys-{version}-setup.exe" }]));
         })))
         {
@@ -85,7 +85,7 @@ internal static class HostReleaseTests
         }
         foreach (var payload in new[] { new[] { Release("0.1.1", false, "https://example.com/evil.exe") }, Array.Empty<object>() })
         {
-            using var client = new PublicReleaseClient(new Handler(_ => Json(payload)));
+            using var client = new PublicReleaseClient(new Handler(_ => Json(ReleaseIndexFixture.Index("KotorinToys", payload))));
             check(!(await client.CheckHost()).Confirmed, "外部assetと未公開の本体を確認済みにしない");
         }
         using (var client = new PublicReleaseClient(new Handler(_ => throw new HttpRequestException("オフライン"))))
