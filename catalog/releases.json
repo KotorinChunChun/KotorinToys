@@ -116,14 +116,14 @@
       "package": {
         "id": "voice-mixer-spk-router",
         "name": "VoiceMixerSpkRouter",
-        "version": "1.0.10",
+        "version": "1.0.11",
         "appId": "KotorinToys.VoiceMixerSpkRouter",
-        "file": "VoiceMixerSpkRouter-1.0.10-setup.exe",
-        "sha256": "76f8c2ac87dc470e07ad439eba1468e68f209f7062d1b589507a6eb3caab9dd4",
+        "file": "VoiceMixerSpkRouter-1.0.11-setup.exe",
+        "sha256": "465822f6283af05db20352bfc874df904dd10debbb2e06cdfebf1015350f1667",
         "signature": "unsigned-public-build"
       },
-      "length": 38649681,
-      "publishedAt": "2026-10-18T17:19:37Z"
+      "length": 38640417,
+      "publishedAt": "2026-10-27T13:59:13Z"
     }
   ]
 }
