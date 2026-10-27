@@ -30,14 +30,14 @@ internal static class MsixDashboardTests
         Pump(form.OpenToolInstallation("install"));
         check(calls.SequenceEqual(["http-selector:install:msix"]), "MSIX導入ボタンは選択対象1件の専用配布種別を渡す");
         actual[i] = new("更新が必要", "0.0.3.1", "fixture", "fixture.exe"); form.ApplySnapshot(actual, states, releases);
-        check(!Enabled("installSelected") && Enabled("updateSelected") && Enabled("uninstallSelected"), "旧MSIXはEXE削除プログラムなしでも更新・削除が有効");
+        check(Enabled("installSelected") && Enabled("updateSelected") && Enabled("uninstallSelected"), "旧MSIXは自動確認の入口と更新・削除が有効");
         check(grid.Rows[i].Cells["installed"].Value?.ToString() == "0.0.3.1", "更新が必要でもMSIXの導入済み4成分版を隠さない");
         Pump(form.OpenToolInstallation("update")); Pump(form.OpenToolInstallation("uninstall"));
         check(calls.Skip(1).SequenceEqual(["http-selector:update:msix", "http-selector:uninstall:msix"]), "MSIXの更新・削除をメイン一覧から呼び出せる");
         actual[i] = actual[i] with { State = "導入済み", Version = "0.0.3.3" }; form.ApplySnapshot(actual, states, releases);
         check(!Enabled("updateSelected") && Enabled("uninstallSelected"), "最新版MSIXでは更新を無効、削除を有効にする");
         actual[i] = actual[i] with { State = "確認できない" }; form.ApplySnapshot(actual, states, releases);
-        check(!Enabled("installSelected") && !Enabled("updateSelected") && !Enabled("uninstallSelected"), "登録確認不能のMSIXでは全導入操作を無効にする");
+        check(Enabled("installSelected") && !Enabled("updateSelected") && !Enabled("uninstallSelected"), "登録確認不能のMSIXも事前確認へ進め、直接更新・削除は無効にする");
         actual[i] = actual[i] with { State = "導入済み", Version = "0.0.3.1" }; releases[i] = releases[i] with { Confirmed = false, Detail = "MSIX公開確認失敗：証拠fixture" };
         form.ApplySnapshot(actual, states, releases);
         check(!Enabled("updateSelected") && Enabled("uninstallSelected") && grid.Rows[i].Cells["detail"].ToolTipText.Contains("MSIX公開確認失敗") == true,

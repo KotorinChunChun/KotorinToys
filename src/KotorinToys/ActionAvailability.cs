@@ -10,6 +10,14 @@ internal sealed record ActionAvailability(bool Enabled, string Reason)
 internal static class ToolActionPolicy
 {
     internal static bool Transition(ToolState state) => state.State is "確認中" or "起動処理中" or "停止処理中" or "処理中";
+    public static ActionAvailability InstallEntry(ToolDefinition tool, bool busy = false)
+    {
+        if (busy) return ActionAvailability.Deny("処理中です。完了するまでお待ちください。");
+        if (ToolInstallationRunner.UnsupportedReason(tool) is { } unsupported) return ActionAvailability.Deny(unsupported);
+        if (tool.Msix == null && tool.DistributionStatus != "published")
+            return ActionAvailability.Deny("本体対応インストーラーは未公開です。「GitHubを開く」または「使い方」を確認してください。");
+        return ActionAvailability.Allow("公開版と実行状態を確認してインストールまたは更新します。");
+    }
     public static ActionAvailability Evaluate(string operation, ToolDefinition tool, InstallationState installed,
         ToolState execution, PublicRelease? release = null, bool executableExists = false, bool documentExists = false,
         bool uninstallerExists = false, bool busy = false, bool checkingReleases = false)
@@ -33,7 +41,7 @@ internal static class ToolActionPolicy
             if (!executableExists || !Capability("stop")) return ActionAvailability.Deny("実行ファイルまたは正常停止への対応を確認できません。");
             return ActionAvailability.Allow("アプリに正常終了を依頼します。作業中は終了を拒否することがあります。");
         }
-        if (Transition(execution) || execution.State != "実行中" && execution.State != "停止中")
+        if (Transition(execution) || operation is not ("install" or "update") && execution.State != "実行中" && execution.State != "停止中")
             return ActionAvailability.Deny("アプリの起動・停止または状態確認が完了してから操作してください。");
         if (operation == "ffmpeg") return installed.State != "導入済み" ? ActionAvailability.Deny("先にSSCaptureを正式インストールしてください。") :
             !executableExists ? ActionAvailability.Deny("SSCaptureの実行ファイルが見つかりません。修復してください。") :
@@ -55,9 +63,9 @@ internal static class ToolActionPolicy
                 return ActionAvailability.Deny("同じ版以上の照合済み公開版が必要です。古い版へ戻す修復は行いません。");
             return ActionAvailability.Allow("登録済みの導入先へ再導入し、設定・履歴を保持して実行ファイルを修復します。");
         }
-        if (operation == "install") return installed.State == "未導入" && execution.State == "停止中"
+        if (operation == "install") return installed.State == "未導入"
             ? ActionAvailability.Allow("GitHub Releasesからインストールします。")
-            : ActionAvailability.Deny(installed.State == "未導入" ? "実行中の開発版を先に停止してください。" : "導入済み、または導入状態を確認できません。更新・修復を確認してください。");
+            : ActionAvailability.Deny(string.IsNullOrWhiteSpace(installed.Detail) ? "導入済み、または導入状態を確認できません。更新・修復を確認してください。" : installed.Detail);
         if (!executableExists) return ActionAvailability.Deny("導入先の実行ファイルが見つかりません。状態を更新し、修復を確認してください。");
         var view = ToolVersionView.Create(installed, release!);
         if (!view.CanUpdate) return ActionAvailability.Deny(installed.State is "導入済み" or "更新が必要" ? "新しい公開版が確認できません。同じ版や古い版へは更新しません。" : "正式導入済みのアプリだけアップデートできます。");

@@ -16,9 +16,15 @@ internal static class ActionAvailabilityTests
         var release = new PublicRelease(ReleaseDownloader.Load(root).Packages.Single(p => p.Package.Id == tool.Id), true, true, "fixture");
         ActionAvailability Rule(string operation, string state = "停止中", bool exists = true, bool busy = false) =>
             ToolActionPolicy.Evaluate(operation, tool, installed, new(state), release, exists, exists, exists, busy);
-        foreach (var state in new[] { "確認中", "起動処理中", "停止処理中", "確認できない", "処理中" })
+        foreach (var state in new[] { "確認中", "起動処理中", "停止処理中", "処理中" })
             foreach (var operation in new[] { "start", "stop", "install", "update", "uninstall", "ffmpeg" })
                 check(!Rule(operation, state).Enabled && Rule(operation, state).Reason.Length > 0, state + "の" + operation + "を理由付きで無効化");
+        foreach (var operation in new[] { "start", "stop", "uninstall", "ffmpeg" })
+            check(!Rule(operation, "確認できない").Enabled, "状態不明の" + operation + "を無効化");
+        check(Rule("update", "確認できない").Enabled && ToolActionPolicy.Evaluate("install", tool, new("未導入", null, null, null),
+            new("確認できない"), release).Enabled, "状態不明でも導入・更新の事前確認へ進める");
+        check(ToolActionPolicy.InstallEntry(tool).Enabled && !ToolActionPolicy.InstallEntry(tool with { DistributionStatus = "unpublished" }).Enabled &&
+            !ToolActionPolicy.InstallEntry(tool, true).Enabled, "公開未確認でも入口を使え、未公開・処理中は無効");
         foreach (var operation in new[] { "start", "stop", "manual", "install", "update", "uninstall", "ffmpeg" })
             check(!Rule(operation, "実行中", busy: true).Enabled, "画面処理中の" + operation + "を無効化");
         check(!Rule("start", exists: false).Enabled && Rule("start", exists: false).Reason.Contains("実行ファイル"), "実行ファイル欠落を起動前に説明");

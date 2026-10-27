@@ -64,5 +64,25 @@ internal static class DashboardInstallationTests
         var host = form.Controls.Find("hostActions", true).Single();
         check(new[] { "installSelected", "updateSelected", "uninstallSelected", "manual" }.All(name => form.Controls.Find(name, true).Single().Parent == selected) &&
             form.Controls.Find("advancedSettings", true).Single().Parent == host, "単体操作と本体の詳細設定は別行に配置");
+
+        var candidate = tools[0]; var fallback = catalog.Packages.Single(p => p.Package.Id == candidate.Id);
+        var previous = new InstallationState("未導入", null, null, null); var operations = new List<string>(); int autoChecks = 0;
+        var runningElsewhere = new ToolState("確認できない", 123, "別の配置", RunningExecutable: @"C:\開発\LiveTextMarker.exe");
+        using var replace = new Dashboard(root, detectInstallation: _ => previous, executionCheck: (_, _) => Task.FromResult(runningElsewhere),
+            releaseCheck: (_, package, _) => { autoChecks++; return Task.FromResult(new PublicRelease(package, package != null, false, "fixture")); },
+            showToolInstaller: (_, operation, _) => operations.Add(operation), notify: notices.Add, fileExists: _ => true);
+        replace.CreateControl(); var replaceGrid = (DataGridView)replace.Controls.Find("toolTable", true).Single();
+        replaceGrid.CurrentCell = replaceGrid.Rows[0].Cells[0];
+        check(replace.Controls.Find("installSelected", true).Single().Enabled, "未確認の実行状態と公開版でも導入の自動確認を開始できる");
+        Pump(replace.OpenToolInstallation("install"));
+        check(autoChecks == tools.Length && operations.SequenceEqual(["install"]), "状態更新ボタンなしで別配置・未導入の公開版を自動確認する");
+        previous = new("導入済み", "0.0.1", root, "fixture.exe");
+        replace.ApplySnapshot(tools.Select(_ => previous).ToArray(), tools.Select(_ => runningElsewhere).ToArray(),
+            tools.Select(_ => new PublicRelease(fallback, false, false, "未確認")).ToArray());
+        Pump(replace.OpenToolInstallation("install"));
+        check(operations.SequenceEqual(["install", "update"]), "外部から正式導入済みの場合は自動確認後に更新へ切り替える");
+        previous = previous with { Version = fallback.Package.Version };
+        Pump(replace.OpenToolInstallation("install"));
+        check(operations.Count == 2 && notices.Last().Contains("新しい公開版"), "同じ版なら自動確認後も上書き更新しない");
     }
 }
