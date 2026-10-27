@@ -371,7 +371,13 @@ internal static class Program
         {
             string Normalize(string value) => value.Replace("\r\n", "\n").TrimEnd();
             var directory = Path.Combine(root, "tools", name, "src", name, "Integration");
-            Check(Normalize(File.ReadAllText(Path.Combine(directory, "ManagementEndpoint.cs"))) == Normalize(contract), name + " 管理契約の共通コピーが一致");
+            var approvedContract = name switch
+            {
+                "CapchunScreen" => File.ReadAllText(Path.Combine(root, "contracts", "ManagementEndpoint.Bounded.cs")),
+                "ChunapTool" => File.ReadAllText(Path.Combine(root, "contracts", "ManagementEndpoint.Resilient.cs")),
+                _ => contract
+            };
+            Check(Normalize(File.ReadAllText(Path.Combine(directory, "ManagementEndpoint.cs"))) == Normalize(approvedContract), name + " 管理契約の承認済みコピーが一致");
             Check(Normalize(File.ReadAllText(Path.Combine(directory, "ManagedToolContext.cs"))) == Normalize(File.ReadAllText(Path.Combine(root, "contracts", "ManagedToolContext.cs"))), name + " 無表示起動・正常終了の共通コピーが一致");
         }
         Check(tools.All(t => File.Exists(PathSafety.Resolve(PathSafety.Resolve(root,t.ToolRoot), t.Manual))), "論理ルート基準の文書参照");
