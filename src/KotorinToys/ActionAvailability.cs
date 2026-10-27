@@ -51,6 +51,8 @@ internal static class ToolActionPolicy
                 ? ActionAvailability.Allow("設定・履歴を保持してアンインストールします。")
                 : ActionAvailability.Deny("正式導入または削除プログラムを確認できません。");
         if (operation is not ("install" or "update" or "repair")) return ActionAvailability.Deny("未対応の操作です。");
+        if (operation == "update" && installed.State == "未導入")
+            return ActionAvailability.Deny("未導入です。「インストール」を押してください。");
         if (checkingReleases) return ActionAvailability.Deny("公開版を確認しています。完了するまでお待ちください。");
         var candidate = release is { Confirmed: true, Package: not null } ? new ReleaseCatalog(1, [release.Package]) : null;
         if (ToolInstallationRunner.PublicReason(tool, candidate, release) is { } reason) return ActionAvailability.Deny(reason);

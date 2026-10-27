@@ -28,6 +28,9 @@ internal static class ActionAvailabilityTests
         foreach (var operation in new[] { "start", "stop", "manual", "install", "update", "uninstall", "ffmpeg" })
             check(!Rule(operation, "実行中", busy: true).Enabled, "画面処理中の" + operation + "を無効化");
         check(!Rule("start", exists: false).Enabled && Rule("start", exists: false).Reason.Contains("実行ファイル"), "実行ファイル欠落を起動前に説明");
+        var uninstalledUpdate = ToolActionPolicy.Evaluate("update", tool, new("未導入", null, null, null), new("停止中"), release);
+        check(!uninstalledUpdate.Enabled && uninstalledUpdate.Reason.Contains("インストール") && !uninstalledUpdate.Reason.Contains("修復"),
+            "未導入の更新ボタンは修復ではなくインストールを案内");
         check(!Rule("update", exists: false).Enabled, "実行ファイルが消えた導入済みスナップショットでも更新を進めない");
         check(Rule("start").Enabled && !Rule("stop").Enabled && Rule("stop", "実行中").Enabled, "停止・実行状態に応じて起動と停止を切替");
         check(!Rule("manual", exists: false).Enabled && Rule("manual").Enabled, "使い方もファイルの存在に連動");
@@ -48,6 +51,12 @@ internal static class ActionAvailabilityTests
             grid.CurrentCell = grid.Rows[0].Cells[0]; dashboard.ApplySnapshot(actual, states, releases);
             var start = (Button)dashboard.Controls.Find("start", true).Single();
             check(!start.Enabled && start.AccessibleDescription!.Contains("実行ファイル"), "実フォームも起動欠落を理由付きでグレーアウト");
+            actual[0] = new("未導入", null, null, null); dashboard.ApplySnapshot(actual, states, releases);
+            var update = (Button)dashboard.Controls.Find("updateSelected", true).Single();
+            var install = (Button)dashboard.Controls.Find("installSelected", true).Single();
+            check(install.Enabled && !update.Enabled && update.AccessibleDescription!.Contains("インストール") && !update.AccessibleDescription.Contains("修復"),
+                "実フォームも未導入はインストール可能で更新の無効理由を正しく表示");
+            actual[0] = installed;
             exists = true; dashboard.ApplySnapshot(actual, states, releases);
             check(start.Enabled && !dashboard.Controls.Find("stop", true).Single().Enabled, "実フォームは復旧したEXEと停止状態を反映");
             states[0] = new("停止処理中"); dashboard.ApplySnapshot(actual, states, releases);
