@@ -2,6 +2,10 @@
 
 各ツールを独立したGitリポジトリとして配置する場所です。
 
+## OfficeAssist
+
+[OfficeAssist](OfficeAssist/README.md)はOfficeの操作を補助する常駐アプリです。最初の機能として、エクスプローラーからExcelシートへの画像ドロップによる挿入を提供します。独立Gitで管理し、公開先未設定のため親にはパス・`update=none`・採用コミットを記録します。ローカル開発カタログへの登録であり、公開配布物や導入済みアプリの更新ではありません。
+
 LiveTextMarker、SmartPaste、SSCapture、ShortcutKeyCounter、CapchunScreen、ChulipVideo、ChunapTool、HttpSelectorの8件を配置しています。それぞれ独立したGitリポジトリを維持し、管理窓口で本体と連携しています。HttpSelectorは署名付きMSIXを必須とし、それ以外の開発管理・正式導入の対応状況は各ツールの資料で確認してください。
 
 ## HttpSelector

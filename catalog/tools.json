@@ -80,6 +80,11 @@
       "id": "agent-tasktray-viewer",
       "name": "AgentTasktrayViewer",
       "definition": "tools/AgentTasktrayViewer/tool.json"
+    },
+    {
+      "id": "office-assist",
+      "name": "OfficeAssist",
+      "definition": "tools/OfficeAssist/tool.json"
     }
   ]
 }

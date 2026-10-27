@@ -47,3 +47,7 @@
 [submodule "tools/AgentTasktrayViewer"]
 	path = tools/AgentTasktrayViewer
 	update = none
+
+[submodule "tools/OfficeAssist"]
+	path = tools/OfficeAssist
+	update = none
