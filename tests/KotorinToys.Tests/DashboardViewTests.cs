@@ -12,7 +12,8 @@ internal static class DashboardViewTests
             var settings=Path.Combine(directory,"settings.json");File.WriteAllText(settings,"起動予約の架空原本");
             var store=new DashboardViewStore(directory);var tools=ToolCatalog.Load(root);var catalog=ReleaseDownloader.Load(root);
             string? repository=null,details=null;
-            using(var form=new Dashboard(root,viewStore:store,fileExists:_=>true,openRepository:uri=>repository=uri.AbsoluteUri,showDetails:(name,_)=>details=name))
+            var notices = new List<string>();
+            using(var form=new Dashboard(root,viewStore:store,fileExists:_=>true,openRepository:uri=>repository=uri.AbsoluteUri,showDetails:(name,_)=>details=name,notify:notices.Add))
             {
                 var actual=tools.Select((_,i)=>i==0?new InstallationState("導入済み","0.0.1",root,"test.exe","unins000.exe"):new("未導入",null,null,null)).ToArray();
                 var states=tools.Select(_=>new ToolState("停止中")).ToArray();
@@ -40,7 +41,12 @@ internal static class DashboardViewTests
                 check((string?)grid.Rows[0].Tag==expected.Id,"列見出しで一覧を並べ替える");
                 grid.CurrentCell=grid.Rows[0].Cells["detail"];form.OpenSelectedDetails();
                 check(details==expected.Name && tools[form.SelectedIndex].Id==expected.Id,"並べ替え後も表示行ではなく安定したIDで詳細を開く");
-                form.OpenRepository();check(repository==ToolRepository.Find(expected)?.AbsoluteUri,"並べ替え後も選択したアプリの公開先を開く");
+                form.OpenRepository();
+                var expectedRepository = ToolRepository.Find(expected);
+                check(expectedRepository != null
+                    ? repository == expectedRepository.AbsoluteUri && notices.Count == 0
+                    : repository == null && notices.Count == 1 && notices[0].Contains(expected.Name + "：GitHub公開先が未設定です。"),
+                    "並べ替え後も選択したアプリの公開先、または未設定の理由を通知する");
                 actual[Array.FindIndex(tools,t=>t.Id==expected.Id)]=new("導入済み","7.6.5",root,"test.exe");form.ApplySnapshot(actual,states,releases);
                 check(grid.Rows.Cast<DataGridViewRow>().Single(r=>Equals(r.Tag,expected.Id)).Cells["installed"].Value?.ToString()=="7.6.5","状態更新を並べ替え前の行番号へ誤配しない");
                 grid.Columns["detail"]!.DisplayIndex=0;form.SaveView();

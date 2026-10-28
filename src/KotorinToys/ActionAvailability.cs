@@ -31,7 +31,7 @@ internal static class ToolActionPolicy
             if (execution.State is not ("実行中" or "停止中")) return ActionAvailability.Deny("実行状態を確認できません。「状態を更新」で再確認してください。");
             if (tool.Msix != null && installed.State != "導入済み") return ActionAvailability.Deny("署名付きMSIXの正式導入・対応版を確認してください。");
             if (!executableExists) return ActionAvailability.Deny("実行ファイルが見つかりません。先にインストール、または修復してください。");
-            if (!Capability(execution.State == "実行中" ? "show" : "silent-start")) return ActionAvailability.Deny("このアプリは本体からの起動・画面表示に対応していません。");
+            if (execution.State == "実行中" ? !Capability("show") : !Capability("silent-start") && !Capability("start")) return ActionAvailability.Deny("このアプリは本体からの起動・画面表示に対応していません。");
             return ActionAvailability.Allow(execution.State == "実行中" ? "起動済みのアプリの設定画面を開きます。" : "アプリを起動します。");
         }
         if (operation == "stop")

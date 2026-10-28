@@ -95,7 +95,7 @@ internal static class ToolCatalog
             PathSafety.Resolve(logicalRoot, tool.InstalledExecutable);
         if (!string.IsNullOrEmpty(tool.Icon))
             PathSafety.Resolve(logicalRoot, tool.Icon);
-        if (strict && (tool.SupportedEnvironment != "windows11-x64" || tool.InvestigationStatus != "confirmed" || tool.Capabilities == null || tool.Capabilities.Distinct().Count() != tool.Capabilities.Length || tool.Capabilities.Any(c => c is not ("status" or "show" or "stop" or "silent-start" or "shortcuts")) || tool.DistributionStatus is not ("unpublished" or "published") || !Regex.IsMatch(tool.Version, "^[0-9]+(?:\\.[0-9]+){2,3}$")))
+        if (strict && (tool.SupportedEnvironment != "windows11-x64" || tool.InvestigationStatus != "confirmed" || tool.Capabilities == null || tool.Capabilities.Distinct().Count() != tool.Capabilities.Length || tool.Capabilities.Any(c => c is not ("status" or "show" or "stop" or "start" or "silent-start" or "shortcuts")) || tool.DistributionStatus is not ("unpublished" or "published") || !Regex.IsMatch(tool.Version, "^[0-9]+(?:\\.[0-9]+){2,3}$")))
             throw new IOException("環境・調査状態・能力・版の定義が不正です。");
         if (!string.IsNullOrEmpty(tool.AppId) && !Regex.IsMatch(tool.AppId, "^KotorinToys\\.[A-Za-z0-9]+$"))
             throw new IOException("製品識別が不正です。");

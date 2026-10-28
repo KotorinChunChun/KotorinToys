@@ -107,7 +107,7 @@ internal sealed class PublicReleaseMetadata
     public ReleasePackage Msix(ToolDefinition tool, string checksums, ReleasePackage? fallback)
     {
         if (!MsixPolicy.Supports(tool)) throw new IOException("未対応のMSIX製品識別です。");
-        string name = MsixPolicy.FileName(Version);
+        string name = MsixPolicy.FileName(Version, tool.Id);
         var asset = Asset(tool, name);
         var matches = checksums.TrimStart('\uFEFF').Split('\n').Select(line => Regex.Match(line.TrimEnd('\r'), @"^([a-fA-F0-9]{64}) [ *](.+)$"))
             .Where(m => m.Success && m.Groups[2].Value == name).ToArray();

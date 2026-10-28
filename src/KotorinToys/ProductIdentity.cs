@@ -8,6 +8,7 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
     [
         new("voice-mixer-spk-router", "VoiceMixerSpkRouter", "KotorinToys.VoiceMixerSpkRouter"),
         new("host", "KotorinToys", "KotorinToys"),
+        new("md-visualizer", "MdVisualizer", "KotorinToys.MdVisualizer"),
         new("live-text-marker", "LiveTextMarker", "KotorinToys.LiveTextMarker"),
         new("smart-paste", "SmartPaste", "KotorinToys.SmartPaste"),
         new("ss-capture", "SSCapture", "KotorinToys.SSCapture"),

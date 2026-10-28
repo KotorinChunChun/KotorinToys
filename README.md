@@ -35,6 +35,7 @@ Windows用の便利なアプリを、ひとつの画面からインストール�
 
 | カテゴリ | アプリ | 用途 |
 | --- | --- | --- |
+| 文書、Markdown、図表編集 | [MdVisualizer](https://github.com/KotorinChunChun/MdVisualizer) | Markdown・図表を閲覧・編集する |
 | 撮影、配信 | [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 画面を撮影・録画し、保存先やファイル名を管理する |
 | 撮影、配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunWindow) | 操作風景と入力イベントを動画・ログに残す |
 | 撮影、編集 | [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 動画から手順書用の画像を切り出す |

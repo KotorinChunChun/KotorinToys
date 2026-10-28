@@ -8,7 +8,8 @@
 | 一覧・ボタン・一括操作を使う | [使い方](USERS_GUIDE.md) |
 | サインイン時にアプリを起動する | [自動起動の設定](startup-settings.md) |
 | KotorinToys本体を更新する | [本体の更新](self-update.md) |
-| HttpSelectorを導入・更新する | [MSIX形式のアプリ](msix-management.md) |
+| HttpSelector／MdVisualizerを導入・更新する | [MSIX形式のアプリ](msix-management.md) |
+| MdVisualizerを使う | [MdVisualizer](mdvisualizer.md) |
 | 画面記録のアプリを選ぶ | [記録ツールの使い分け](recording-tools.md) |
 | エラーや押せないボタンを調べる | [よくある質問](FAQ.md) |
 

@@ -124,6 +124,20 @@
       },
       "length": 38640417,
       "publishedAt": "2026-10-27T13:59:13Z"
+    },
+    {
+      "package": {
+        "id": "md-visualizer",
+        "name": "MdVisualizer",
+        "version": "0.0.19.3",
+        "appId": "KotorinToys.MdVisualizer",
+        "file": "MdVisualizer_0.0.19.3_x64.msix",
+        "sha256": "b642b57f9e3566d17ce1a4c60330f040b66fea2129b8a0adbdd7e6651f5859f0",
+        "signature": "signed-msix",
+        "kind": "msix"
+      },
+      "length": 13658734,
+      "publishedAt": "2026-10-28T15:28:07Z"
     }
   ]
 }

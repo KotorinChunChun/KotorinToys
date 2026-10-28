@@ -22,7 +22,7 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
         InstallResult Done(InstallResult result) => diagnostics?.Complete(result) ?? result with { Detail = result.Detail + " 終了コード：未取得。" };
         try
         {
-            if (tool.Msix != null) return await MsixInstaller.Create(manager).Install(tool, catalogPath);
+            if (tool.Msix != null) return await MsixInstaller.Create(manager, tool).Install(tool, catalogPath);
             diagnostics = Diagnostics(tool, "install", directory ?? manager.Installation(tool).Directory);
             var package = Load(catalogPath, manager.KnownTools()).Packages.SingleOrDefault(p => p.Id == tool.Id) ?? throw new IOException("対象のローカル配布物がありません。");
             if (package.Kind != "inno") throw new IOException("EXEとMSIXの配布方式が一致しません。");
@@ -85,7 +85,7 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
         InstallResult Done(InstallResult result) => diagnostics?.Complete(result) ?? result with { Detail = result.Detail + " 終了コード：未取得。" };
         try
         {
-            if (tool.Msix != null) return await MsixInstaller.Create(manager).Uninstall(tool);
+            if (tool.Msix != null) return await MsixInstaller.Create(manager, tool).Uninstall(tool);
             var installed = manager.Installation(tool);
             diagnostics = Diagnostics(tool, "uninstall", installed.Directory);
             if (installed.State != "導入済み" || installed.Uninstaller == null || !File.Exists(installed.Uninstaller))

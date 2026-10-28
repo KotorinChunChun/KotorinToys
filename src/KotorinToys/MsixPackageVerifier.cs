@@ -11,7 +11,7 @@ internal static class MsixPackageVerifier
     public static async Task<FileStream> Open(ToolDefinition tool, LocalPackage package, string path,
         Func<string, MsixSigner>? signature = null)
     {
-        if (!MsixPolicy.Supports(tool) || !MsixPolicy.Valid(package)) throw new IOException("MSIX製品識別・配布定義が一致しません。");
+        if (!MsixPolicy.Supports(tool) || !MsixPolicy.Valid(package) || package.Id != tool.Id || package.Name != tool.Name || package.AppId != tool.AppId) throw new IOException("MSIX製品識別・配布定義が一致しません。");
         PackageCatalogReader.Validate(new(1, "published", [package]));
         if (!File.Exists(path)) throw new IOException("MSIXファイルが見つかりません。");
         var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -29,7 +29,8 @@ internal static class MsixPackageVerifier
             long total = 0;
             foreach (var entry in zip.Entries)
             {
-                string name = entry.FullName.Replace('\\', '/');
+                // MSIXのZIP名はOPCのURI形式（@は%40）で、BlockMapは元のファイル名を使う。
+                string name = Uri.UnescapeDataString(entry.FullName).Replace('\\', '/');
                 if (name.StartsWith('/') || name.Contains(':') || name.Split('/').Any(p => p is "" or "." or "..") ||
                     !entries.TryAdd(name, entry) || (total += entry.Length) > 512L * 1024 * 1024 || entries.Count > 4096)
                     throw new IOException("MSIXの内部パス・重複・展開容量が不正です。");
@@ -46,15 +47,15 @@ internal static class MsixPackageVerifier
             var manifest = Xml("AppxManifest.xml"); XNamespace ns = "http://schemas.microsoft.com/appx/manifest/foundation/windows10";
             var root = manifest.Root;
             var identity = root?.Element(ns + "Identity");
-            if (root?.Name != ns + "Package" || (string?)identity?.Attribute("Name") != MsixPolicy.Name ||
+            if (root?.Name != ns + "Package" || (string?)identity?.Attribute("Name") != MsixPolicy.NameFor(tool) ||
                 (string?)identity?.Attribute("Publisher") != MsixPolicy.Publisher || (string?)identity?.Attribute("ProcessorArchitecture") != "x64" ||
                 (string?)identity?.Attribute("Version") != package.Version)
                 throw new IOException("MSIXのName・Publisher・アーキテクチャ・版が一致しません。");
             var apps = root.Element(ns + "Applications")?.Elements(ns + "Application").ToArray();
-            if (apps is not { Length: 1 } || (string?)apps[0].Attribute("Id") != "App" ||
-                (string?)apps[0].Attribute("Executable") != "HttpSelector.exe" || (string?)apps[0].Attribute("EntryPoint") != "Windows.FullTrustApplication")
+            if (apps is not { Length: 1 } || (string?)apps[0].Attribute("Id") != tool.Msix!.ApplicationId ||
+                (string?)apps[0].Attribute("Executable") != tool.InstalledExecutable || (string?)apps[0].Attribute("EntryPoint") != "Windows.FullTrustApplication")
                 throw new IOException("MSIXのApplication・起動設定が一致しません。");
-            Entry("HttpSelector.exe");
+            Entry(tool.InstalledExecutable);
             // SIPが検証する署名済みBlockMapと、実際の非圧縮payloadを全ブロック照合する。
             var map = Xml("AppxBlockMap.xml"); XNamespace bm = "http://schemas.microsoft.com/appx/2010/blockmap";
             if (map.Root?.Name != bm + "BlockMap" || (string?)map.Root.Attribute("HashMethod") != "http://www.w3.org/2001/04/xmlenc#sha256")

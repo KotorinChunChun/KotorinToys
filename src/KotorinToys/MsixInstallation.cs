@@ -19,7 +19,7 @@ internal static class MsixInstallation
         {
             var packages = (read ?? ReadPackages)(identity.FamilyName);
             if (packages.Length == 0)
-                return new("未導入", null, null, null, Detail: "署名付きMSIXをインストールし、WindowsでHTTP/HTTPSを関連付けてください。");
+                return new("未導入", null, null, null, Detail: "署名付きMSIXをインストールしてください。");
             var candidates = packages.Select(package => Inspect(tool, package)).OrderByDescending(item => Version.Parse(item.Version!)).ToArray();
             var latest = candidates[0];
             if (Version.Parse(latest.Version!) < Version.Parse(tool.Version))
@@ -55,18 +55,25 @@ internal static class MsixInstallation
         return new("導入済み", version, registered.Directory, executable, Detail: "署名付きMSIXの現在ユーザー登録とManifestを照合しました。");
     }
 
-    internal static Process Activate(MsixDefinition identity, string origin)
+    internal static Process Activate(MsixDefinition identity, string origin, bool silent = true)
     {
         if (origin is not ("host_manual" or "direct_task" or "via_kotorintoys")) throw new IOException("未対応の起動経路です。");
         var type = Type.GetTypeFromCLSID(new Guid("45BA127D-10A8-46EA-8AB7-56EA9078943C"), true)!;
         var activator = Activator.CreateInstance(type)!;
         try
         {
-            var result = ((IApplicationActivationManager)activator).ActivateApplication(identity.FamilyName + "!" + identity.ApplicationId, "--startup --launch-origin " + origin, 2, out var pid);
+            var result = ((IApplicationActivationManager)activator).ActivateApplication(identity.FamilyName + "!" + identity.ApplicationId, ActivationArguments(origin, silent), 2, out var pid);
             Marshal.ThrowExceptionForHR(result);
             return Process.GetProcessById(checked((int)pid));
         }
         finally { Marshal.FinalReleaseComObject(activator); }
+    }
+
+    internal static string ActivationArguments(string origin, bool silent)
+    {
+        if (origin is not ("host_manual" or "direct_task" or "via_kotorintoys") || !silent && origin != "host_manual")
+            throw new IOException("非常駐アプリは手動起動だけに対応しています。");
+        return (silent ? "--startup " : "") + "--launch-origin " + origin;
     }
 
     internal static bool MatchesProcess(Process process, MsixDefinition identity)

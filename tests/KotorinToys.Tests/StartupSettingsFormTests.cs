@@ -44,8 +44,8 @@ internal static class StartupSettingsFormTests
             check(grid.Rows[2].Cells["mode"].Value?.ToString()=="direct_task" && !apply.Enabled,"再取得でも未保存の選択を保持し保存済み行の適用を無効にする");
             grid.CurrentCell=grid.Rows[2].Cells["mode"];Pump(form.ApplySelectedSettings());
             check(store.Load().StartupModes.GetValueOrDefault(tools[2].Id)=="direct_task","次の行も個別に保存できる");
-            var msix=manager.Load().Single(t=>t.Msix!=null);
-            check(!coordinator.ModeAvailability(msix,"direct_task").Enabled,"MSIXの直接タスクを設定前に拒否");
+            foreach (var msix in manager.Load().Where(t=>t.Msix!=null))
+                check(!coordinator.ModeAvailability(msix,"direct_task").Enabled,msix.Name+"のMSIX直接タスクを設定前に拒否");
             exists=false;
             check(!coordinator.ModeAvailability(tools[1],"via_kotorintoys").Enabled && coordinator.ModeAvailability(tools[1],"none").Enabled,"EXE消失時は新規自動起動を拒否し解除の選択は残す");
             check(coordinator.SetMode(tools[1],"none").GetAwaiter().GetResult().Success && store.Load().StartupModes[tools[2].Id]=="direct_task","複数のEXEが消失しても選択対象だけを解除でき他の予約は保持");

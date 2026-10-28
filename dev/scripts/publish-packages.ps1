@@ -115,12 +115,12 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'README.md') $output
             Copy-Required (Join-Path $projectRoot 'docs') $output
             Copy-Required (Join-Path $projectRoot 'catalog/host.json') (Join-Path $output 'tool.json')
-            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder')) {
+            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','MdVisualizer')) {
                 $definitionOutput = Join-Path $output "tools/$name"
                 New-Item -ItemType Directory -Path $definitionOutput -Force | Out-Null
                 Copy-Required (Join-Path $projectRoot "tools/$name/tool.json") $definitionOutput
                 Copy-Required (Join-Path $projectRoot "tools/$name/README.md") $definitionOutput
-                if ($name -in @('ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder')) {
+                if ($name -in @('ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','MdVisualizer')) {
                     # 同梱READMEから辿れる説明だけを含める。子EXE・利用者DBは含めない。
                     Copy-Required (Join-Path $projectRoot "tools/$name/docs") $definitionOutput
                 }

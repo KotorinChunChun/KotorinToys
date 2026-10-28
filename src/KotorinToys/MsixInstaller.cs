@@ -10,10 +10,10 @@ internal sealed class MsixInstaller(
     Func<string, StartupResult> recoverReservations,
     Func<string, MsixSigner>? signature = null)
 {
-    public static MsixInstaller Create(ToolManager manager)
+    public static MsixInstaller Create(ToolManager manager, ToolDefinition? tool = null)
     {
         var reservations = new RemovalReservations(new(HostSettingsStore.DefaultDirectory), new TaskSchedulerGateway());
-        return new(manager.Installation, tool => manager.Stop(tool), new MsixDeployment(), MsixDataStore.Default(),
+        return new(manager.Installation, tool => manager.Stop(tool), new MsixDeployment(), MsixDataStore.Default(tool),
             reservations.Remove, id => reservations.Recover(true, id));
     }
     public async Task<InstallResult> Install(ToolDefinition tool, string catalog)
@@ -21,6 +21,7 @@ internal sealed class MsixInstaller(
         bool deployed = false;
         try
         {
+            if (!data.Matches(tool)) throw new IOException("MSIXデータの対象製品が一致しません。");
             var package = PackageCatalogReader.Load(catalog).Packages.SingleOrDefault(p => p.Id == tool.Id) ?? throw new IOException("MSIX配布台帳に対象がありません。");
             string file = PathSafety.Resolve(Path.GetDirectoryName(Path.GetFullPath(catalog))!, package.File);
             using var verified = await MsixPackageVerifier.Open(tool, package, file, signature);
@@ -48,7 +49,7 @@ internal sealed class MsixInstaller(
         bool reservationsRemoved = false, removed = false;
         try
         {
-            if (!MsixPolicy.Supports(tool)) throw new IOException("未対応のMSIX製品です。");
+            if (!MsixPolicy.Supports(tool) || !data.Matches(tool)) throw new IOException("未対応のMSIX製品です。");
             using var lease = data.AcquireLease();
             var installed = detect(tool);
             if (!MsixPolicy.Installed(installed)) throw new IOException("署名付きMSIXの現在ユーザー登録を確認できません。");
@@ -63,7 +64,7 @@ internal sealed class MsixInstaller(
             // 正常停止・退避中に別操作で版が変わった場合は、別の版を削除しない。
             var current = detect(tool);
             if (!MsixPolicy.Installed(current) || current.Version != installed.Version) throw new IOException("削除対象MSIXの登録が変更されました。");
-            string fullName = $"{MsixPolicy.Name}_{installed.Version}_x64__xtxrnffqrdk4w";
+            string fullName = $"{MsixPolicy.NameFor(tool)}_{installed.Version}_x64__xtxrnffqrdk4w";
             await deployment.Remove(fullName); removed = true;
             if (detect(tool).State != "未導入") throw new IOException("MSIX削除後に登録が残っています。");
             return new(tool.Id, "uninstall", "成功", "MSIXを削除しました。設定・履歴は本体のユーザー領域へ保持し、再導入時に復元します。");

@@ -10,16 +10,20 @@ internal sealed record MsixDataSnapshot(string Id, string Family, string Owner, 
 
 // 通常の署名付きMSIXは削除時にLocalStateも失うため、Package領域の外で保持する。
 // DBだけでなくDPAPI整合性キーも含め、現在ユーザーの同じFamilyだけへ復元する。
-internal sealed class MsixDataStore(string packagesRoot, string backupRoot)
+internal sealed class MsixDataStore(string packagesRoot, string backupRoot, string family = MsixPolicy.Family)
 {
     readonly string owner = WindowsIdentity.GetCurrent().User!.Value;
-    static readonly string[] states = ["LocalState", "RoamingState"];
-    string PackageRoot => Safe(packagesRoot, MsixPolicy.Family);
+    readonly string[] states = family == MsixPolicy.MdFamily
+        ? ["LocalState", "RoamingState", "LocalCache/Roaming/com.mdvisualizer.viewer"] : ["LocalState", "RoamingState"];
+    string PackageRoot => Safe(packagesRoot, Family);
     string BackupRoot => Path.GetFullPath(backupRoot);
-    public static MsixDataStore Default()
+    readonly string Family = family is MsixPolicy.Family or MsixPolicy.MdFamily ? family : throw new IOException("未対応のMSIXデータです。");
+    public bool Matches(ToolDefinition tool) => MsixPolicy.Supports(tool) && tool.Msix!.FamilyName == Family;
+    public static MsixDataStore Default(ToolDefinition? tool = null)
     {
+        string family = tool == null ? MsixPolicy.Family : MsixPolicy.Supports(tool) ? tool.Msix!.FamilyName : throw new IOException("未対応のMSIX製品です。");
         string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        return new(Path.Combine(local, "Packages"), Path.Combine(local, "KotorinToys", "msix-data", MsixPolicy.Family));
+        return new(Path.Combine(local, "Packages"), Path.Combine(local, "KotorinToys", "msix-data", family), family);
     }
     public IDisposable AcquireLease()
     {
@@ -44,7 +48,7 @@ internal sealed class MsixDataStore(string packagesRoot, string backupRoot)
             using var output = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None);
             input.CopyTo(output); output.Flush(true);
         }
-        var snapshot = new MsixDataSnapshot(id, MsixPolicy.Family, owner, files);
+        var snapshot = new MsixDataSnapshot(id, Family, owner, files);
         VerifyAt(directory, snapshot);
         File.WriteAllText(Safe(directory, "snapshot.json"), JsonSerializer.Serialize(snapshot, ToolCatalog.Json));
         // 退避中の追加・削除・更新も検出する。失敗した退避を削除許可に使わない。
@@ -94,7 +98,7 @@ internal sealed class MsixDataStore(string packagesRoot, string backupRoot)
     public void VerifyPreserved(MsixDataSnapshot snapshot) { Validate(snapshot); VerifyAt(PackageRoot, snapshot); }
     void Validate(MsixDataSnapshot snapshot)
     {
-        if (!Guid.TryParseExact(snapshot.Id, "N", out _) || snapshot.Family != MsixPolicy.Family || snapshot.Owner != owner ||
+        if (!Guid.TryParseExact(snapshot.Id, "N", out _) || snapshot.Family != Family || snapshot.Owner != owner ||
             snapshot.Files == null || snapshot.Files.Length > 10000 || snapshot.Files.DistinctBy(f => f.Path, StringComparer.OrdinalIgnoreCase).Count() != snapshot.Files.Length ||
             snapshot.Files.Any(f => f.Length < 0 || !System.Text.RegularExpressions.Regex.IsMatch(f.Sha256, "^[a-f0-9]{64}$") ||
                 !states.Any(state => f.Path.StartsWith(state + "/", StringComparison.Ordinal)) || f.Path.Contains('\\') || f.Path.Split('/').Any(p => p is "" or "." or "..")))

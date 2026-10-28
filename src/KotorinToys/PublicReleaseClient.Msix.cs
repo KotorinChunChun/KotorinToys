@@ -12,7 +12,7 @@ internal sealed partial class PublicReleaseClient
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var listText = await Read(PublicReleaseIndex.Source, PublicReleaseIndex.MaximumBytes, deadline.Token);
-            var list = PublicReleaseIndex.Releases(listText.Value, "HttpSelector", cache.UtcNow);
+            var list = PublicReleaseIndex.Releases(listText.Value, ProductIdentity.FromTool(tool)!.Repository, cache.UtcNow);
             var latest = PublicReleaseMetadata.Select(list, msix: true);
             var checksums = latest.Asset(tool, "SHA256SUMS.txt");
             if (checksums.GetProperty("size").GetInt64() is <= 0 or > 32768) throw new IOException("SHA256SUMSの容量が不正です。");

@@ -1,4 +1,4 @@
-# HttpSelectorのMSIX管理
+# 署名付きMSIXの管理
 
 本体0.1.6のソースでは、HttpSelectorの署名付きMSIXをメイン一覧からインストール・アップデート・アンインストールできます。EXEへ変換せず、WindowsのPackage IdentityとHTTP/HTTPSの関連付け候補登録を維持します。公開済み本体0.1.5以前にはこの導入機能はありません。
 
@@ -26,7 +26,7 @@
 
 固定リポジトリ `KotorinChunChun/HttpSelector` の4成分tag、asset名、SHA256SUMS、GitHub digest、サイズを照合します。取得済み0.0.3.3の固定台帳も同梱し、同版の差し替えを拒否します。
 
-導入前にWindowsの署名検証、Publisher `CN=KotorinChunChun`、証明書指紋、Manifest、payload全ブロックを検証します。Familyは `HttpSelector.Development_xtxrnffqrdk4w` だけです。別のFamily・発行元・証明書への移行はconfigの変更だけでは許可しません。
+導入前にWindowsの署名検証、Publisher `CN=KotorinChunChun`、証明書指紋、Manifest、payload全ブロックを検証します。HttpSelectorのFamilyは `HttpSelector.Development_xtxrnffqrdk4w` だけです。別のFamily・発行元・証明書への移行はconfigの変更だけでは許可しません。
 
 結果には原因とHRESULTを表示します。例えば `0x800B0109` は証明書の信頼、`0x80073D02` はアプリ使用中、`0x80073CF3` は依存・競合登録、`0x80070005` はアクセス権・ポリシーを確認します。同版の内容差し替え等を自動アンインストールで解消することはありません。
 
@@ -35,3 +35,7 @@ GitHubのAppInstaller配信MIMEに依存せず、検証済みローカルMSIXを
 ## 検証境界
 
 署名付き実公開物の取得・署名・全内容・OS登録の読み取りと、OS操作を置換した自動テストで検証しています。実OSへのインストール・更新・削除／再導入、別PCの未信頼証明書環境は未受入です。[0.1.6の報告](../dev/history/v0.1.6/v0.1.6-imp.md)を参照してください。
+
+## MdVisualizer
+
+MdVisualizer 0.0.19.3以降は固定Family com.mdvisualizer.viewer_xtxrnffqrdk4wに対応します。証明書とPublisherは既存の共通固定値を維持し、別Family・別EXE・別配布元を拒否します。管理応答・MSIX・タグは4成分で一致させます。手動起動だけを許可し、--startupを付けません。設定は製品Familyごとに分離し、LocalState／RoamingStateに加えMdVisualizerの仮想Roaming設定も退避対象とします。操作手順は[MdVisualizer](mdvisualizer.md)を参照してください。

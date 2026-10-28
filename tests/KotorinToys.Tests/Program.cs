@@ -23,6 +23,8 @@ internal static class Program
     {
         try
         {
+            if (args.SequenceEqual(["--md-visualizer-ipc"])) return MdVisualizerIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.Length == 2 && args[0] == "--verify-mdvisualizer-msix") return MdVisualizerMsixTests.VerifyActual(args[1]).GetAwaiter().GetResult();
             if (args.Length == 3 && args[0] == "--replacement-fixture") return ReplacementTests.Serve(args[1], args[2]).GetAwaiter().GetResult();
             if (args.Length == 3 && args[0] == "--operation-recorder-installer-acceptance") return OperationRecorderReleaseAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2]).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--operation-recorder-public-acceptance") return OperationRecorderReleaseAcceptance.Online(KotorinToys.Program.FindRoot(),args[1]).GetAwaiter().GetResult();
@@ -179,7 +181,8 @@ internal static class Program
             if (args.SequenceEqual(["--msix-public-check"])) return MsixPublicCheck.Run(root, fixtures).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--msix-tests"]))
             {
-                MsixInstallationTests.Run(fixtures, Check);
+                MdVisualizerMsixTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+            MsixInstallationTests.Run(fixtures, Check);
                 MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
                 MsixPackageTests.Run(fixtures, Check).GetAwaiter().GetResult();
                 MsixInstallerTests.Run(fixtures, Check).GetAwaiter().GetResult();
@@ -302,6 +305,7 @@ internal static class Program
             OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult();
             CompactDashboardTests.Run(root, fixtures, Check);
             CatalogTests(); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
+            MdVisualizerMsixTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
             MsixPackageTests.Run(fixtures, Check).GetAwaiter().GetResult();
@@ -349,11 +353,11 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 12, "schema 2でOperationRecorderを含む12ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 10 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応10ツールと今回公開しないShortcutKeyCounterを区別");
+        Check(tools.Length == 13, "schema 2でMdVisualizerを含む13ツールを解決する");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 11 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応11ツールと今回公開しないShortcutKeyCounterを区別");
         Check(tools.Count(t => t.DistributionStatus == "unpublished") == 2, "ShortcutKeyCounter・HttpSelectorは本体用Inno配布の対象外");
         Check(tools.All(t => t.Id == "voice-mixer-spk-router" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0), "SpkRouterは追加ランタイム不要、他ツールの依存情報を保持");
-        Check(tools.All(t => t.Capabilities?.Contains("silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"12ツールの確認済み能力と環境");
+        Check(tools.All(t => t.Capabilities?.Contains(t.Id == "md-visualizer" ? "start" : "silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"13ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");
