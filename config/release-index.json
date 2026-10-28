@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:32:32.0594767+00:00",
+  "generatedAt": "2026-10-28T15:39:09.8105722+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -885,6 +885,48 @@
               "size": 98,
               "digest": "sha256:a3ff186a430ba58f8bc906742766118c7e72233e36acef25c1718c79219cd817",
               "browser_download_url": "https://github.com/KotorinChunChun/LiveTextMarker/releases/download/v1.1.0/LiveTextMarker-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "MdVisualizer",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.0.19.3",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-28T15:37:18Z",
+          "assets": [
+            {
+              "name": "MdVisualizer.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.3/MdVisualizer.cer"
+            },
+            {
+              "name": "MdVisualizer_0.0.19.3_x64.msix",
+              "state": "uploaded",
+              "size": 13658734,
+              "digest": "sha256:b642b57f9e3566d17ce1a4c60330f040b66fea2129b8a0adbdd7e6651f5859f0",
+              "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.3/MdVisualizer_0.0.19.3_x64.msix"
+            },
+            {
+              "name": "MdVisualizer_0.0.19.3_x64_portable.zip",
+              "state": "uploaded",
+              "size": 13280538,
+              "digest": "sha256:2b5ff3a7f0092047e4634af510088b8866963ce86c38bc1409744e559a26259b",
+              "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.3/MdVisualizer_0.0.19.3_x64_portable.zip"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 288,
+              "digest": "sha256:7cc56bde841c33ab1992ba8cf9ec55ce8b4cd0f002d0265865adf6d503fff50b",
+              "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.3/SHA256SUMS.txt"
             }
           ]
         }
