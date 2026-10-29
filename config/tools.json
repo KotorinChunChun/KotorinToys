@@ -459,7 +459,6 @@
         "silent-start"
       ],
       "runtimes": [],
-      "repositoryUrl": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter",
       "toolRoot": "tools/VoiceMixerSpkRouter"
     },
     {
@@ -634,6 +633,27 @@
           "feature": "利用量の取得", "guide": "利用するサービスのCLIを用意してください。未検出のサービスは初回に非表示になります。" }
       ],
       "toolRoot": "tools/AgentTasktrayViewer"
+    },
+    {
+      "id": "pppaint",
+      "name": "PPPaint",
+      "version": "0.2.0",
+      "summary": "レイヤー編集・画像補正・図形や文字の描画を行う画像編集ツール",
+      "category": "画像、編集",
+      "executable": "artifacts/management/PPPaint.exe",
+      "installedExecutable": "PPPaint.exe",
+      "appId": "KotorinToys.PPPaint",
+      "manual": "docs/kotorintoys-integration.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "icon": "src/PPPaint/Assets/PPPaintIcon.ico",
+      "repositoryUrl": "https://github.com/KotorinChunChun/PPPaint",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": ["status", "show", "stop", "start"],
+      "runtimes": [],
+      "toolRoot": "tools/PPPaint"
     }
   ]
 }

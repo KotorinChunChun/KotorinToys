@@ -30,6 +30,7 @@ internal static class Program
             if (args.SequenceEqual(["--agent-tasktray-viewer-ipc"])) return AgentTasktrayViewerTests.Integration().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--agent-tasktray-viewer-registration-tests"])) { AgentTasktrayViewerTests.Registration(KotorinToys.Program.FindRoot(), Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--md-visualizer-ipc"])) return MdVisualizerIntegrationTests.Run().GetAwaiter().GetResult();
+            if (args.SequenceEqual(["--pppaint-ipc"])) return PPPaintIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--script-sync-ipc"])) return ScriptSyncIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--script-sync-panel"])) return ScriptSyncIntegrationTests.Panel();
             if (args.Length == 3 && args[0] == "--operation-recorder-installer-acceptance") return OperationRecorderReleaseAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2]).GetAwaiter().GetResult();
@@ -160,6 +161,7 @@ internal static class Program
             }
             if (args.SequenceEqual(["--management-contract-tests"])) { CatalogTests(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--md-visualizer-registration-tests"])) { MdVisualizerRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--pppaint-registration-tests"])) { PPPaintRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--script-sync-registration-tests"])) { CatalogTests(); ScriptSyncRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-tests"])) { Task.Run(() => PublicReleaseCacheTests.Run(root, fixtures, Check)).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-ui-tests"])) { PublicReleaseCacheUiTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -312,7 +314,7 @@ internal static class Program
             OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult();
             CompactDashboardTests.Run(root, fixtures, Check);
             AgentTasktrayViewerTests.Registration(root, Check);
-            CatalogTests(); MdVisualizerRegistrationTests.Run(root, Check); ScriptSyncRegistrationTests.Run(root, Check); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
+            CatalogTests(); PPPaintRegistrationTests.Run(root, Check); MdVisualizerRegistrationTests.Run(root, Check); ScriptSyncRegistrationTests.Run(root, Check); OperationRecorderRegistrationTests.Run(root, Check); LocalCatalogTests.Run(root, fixtures, Check); DetectionTests(); EndpointTests().GetAwaiter().GetResult();
             MsixInstallationTests.Run(fixtures, Check);
             MsixReleaseTests.Run(fixtures, Check).GetAwaiter().GetResult();
             MsixPackageTests.Run(fixtures, Check).GetAwaiter().GetResult();

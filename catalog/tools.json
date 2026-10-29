@@ -85,6 +85,11 @@
       "id": "office-assist",
       "name": "OfficeAssist",
       "definition": "tools/OfficeAssist/tool.json"
+    },
+    {
+      "id": "pppaint",
+      "name": "PPPaint",
+      "definition": "tools/PPPaint/tool.json"
     }
   ]
 }

@@ -51,3 +51,7 @@
 [submodule "tools/OfficeAssist"]
 	path = tools/OfficeAssist
 	url = https://github.com/KotorinChunChun/OfficeAssist.git
+
+[submodule "tools/PPPaint"]
+	path = tools/PPPaint
+	url = https://github.com/KotorinChunChun/PPPaint.git
