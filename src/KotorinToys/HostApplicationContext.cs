@@ -46,7 +46,7 @@ internal sealed class HostApplicationContext : ApplicationContext
             {
                 using var form = new HostUpdateForm(updateService, initialRelease: release, initialChannel: channel);
                 form.ShowDialog(dashboard);
-            }, Notify);
+            }, Notify, receipt => SelfUpdateFiles.Write(PathSafety.Resolve(settings.DirectoryPath, "updates/gui-check.json"), receipt));
         initialization = InitializeTargets();
         if (!startup) { if (!hidden) ShowDashboard(); }
         else if (!hidden && settings.Load().ShowDashboardAtLogon) ShowDashboard();

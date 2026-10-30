@@ -38,8 +38,11 @@ internal static class HostGuiUpdateCheckTests
         foreach (var version in new[] { "0.1.16", "0.1.15" })
         {
             int shown = 0; var service = new Fake { Version = version };
-            await new HostGuiUpdateCheck(service, () => true, (_,_) => shown++, _ => {}).Check(default);
+            HostGuiUpdateReceipt? receipt = null;
+            await new HostGuiUpdateCheck(service, () => true, (_,_) => shown++, _ => {}, r => receipt = r).Check(default);
             check(shown == 0, "同版・旧版はGUI表示時に自動更新しない：" + version);
+            check(receipt is { Channel: HostUpdateChannel.Preview, Outcome: "新しい公開版なし" } && receipt.AvailableVersion == version,
+                "実機でGUIの更新確認結果とチャネルを照合できる記録を残す");
         }
         foreach (var kind in new[] { "blocked", "unknown", "offline", "unconfirmed", "wrong" })
         {
