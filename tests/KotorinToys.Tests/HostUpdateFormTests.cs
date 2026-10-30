@@ -92,6 +92,13 @@ internal static class HostUpdateFormTests
         var stable = new Fake { CurrentChannel = HostUpdateChannel.Stable };
         using var stableForm = new HostUpdateForm(stable); stableForm.CreateControl(); Pump(stableForm.RefreshRelease());
         check(stable.Queries.Last() == HostUpdateChannel.Stable && Control<Button>(stableForm, "installHostUpdate").Enabled, "通常版は通常版のみ自動確認しワンクリック更新可能");
+        var automatic = new Fake();
+        using (var automaticForm = new HostUpdateForm(automatic, initialRelease: new(automatic.Item, true, true, "fixture"), initialChannel: HostUpdateChannel.Preview))
+        {
+            automaticForm.Show(); Application.DoEvents();
+            check(automatic.Handoffs == 1 && automatic.LastHandoff == (HostUpdateChannel.Preview, HostUpdateChannel.Preview, false) && automatic.Queries.Count == 0,
+                "自動案内のダイアログ表示時に確認済み同種更新を即時開始し再クリックを求めない");
+        }
         var older = new Fake { CurrentVersion = "0.2.0", CurrentChannel = HostUpdateChannel.Preview };
         bool confirm = false; string prompt = "";
         using var switchForm = new HostUpdateForm(older, message => { prompt = message; return confirm; }); switchForm.CreateControl(); Pump(switchForm.RefreshRelease());

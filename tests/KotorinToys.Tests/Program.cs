@@ -161,7 +161,8 @@ internal static class Program
             if (args.SequenceEqual(["--operation-recorder-registration-tests"])) { OperationRecorderRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-diagnosis-tests"])) { InstallationDiagnosisTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installer-diagnostics-tests"])) { InstallerDiagnosticsTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
-            if (args.SequenceEqual(["--standalone-startup-tests"])) { StandaloneStartupTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--standalone-startup-tests"])) { StandaloneStartupTests.Run(root, fixtures, Check);
+                HostLaunchTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ux-preview"])) return UxPreview.Run(root,fixtures);
             if (args.SequenceEqual(["--readiness-tests"])) { ReleaseReadinessTests.Run(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-mode-tests"])) { InstallationModeTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -195,6 +196,7 @@ internal static class Program
             if (args.SequenceEqual(["--startup-root-tests"]))
             {
                 StartupTests.Run(root, fixtures, Check);
+                HostLaunchTests.Run(root, fixtures, Check);
                 Console.WriteLine($"PASS: {count} 件"); return 0;
             }
             if (args.SequenceEqual(["--startup-overview-live"]))
@@ -314,7 +316,7 @@ internal static class Program
             ProductIdentityTests.Run(Check);
             DefinitionManagedProductTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
             DefinitionManagedProductTests.Form(root, fixtures, Check);
-            StartupTests.Run(root,fixtures,Check);
+            StartupTests.Run(root,fixtures,Check); HostLaunchTests.Run(root,fixtures,Check);
             StartupSettingsFormTests.Run(root,fixtures,Check);
             StartupOverviewTests.Run(root,Check).GetAwaiter().GetResult();
             StartupOverviewTests.VerifyMismatch(root,fixtures,Check).GetAwaiter().GetResult();

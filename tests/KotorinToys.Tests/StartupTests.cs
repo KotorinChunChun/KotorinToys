@@ -62,6 +62,12 @@ internal static class StartupTests
         check(result.Success && gateway.Tasks.Count==1 && store.Load().OwnedTasks.ContainsKey("host"),"直接から経由へ切替・直接予約は残さない");
         result=coordinator.SetMode(tools[1],"via_kotorintoys").GetAwaiter().GetResult();
         check(result.Success && gateway.Tasks.Count==1,"経由対象が共有する本体予約");
+        var requested = new List<string>();
+        var ensure = new StartupCoordinator(store,gateway,manager,Environment.ProcessPath!,allowDevelopment:true,
+            startTarget:(tool,token)=>{requested.Add(tool.Id);return Task.FromResult(new ToolState("実行中",Pid:12345));});
+        ensure.StartViaTargets().GetAwaiter().GetResult();
+        check(requested.Order().SequenceEqual(new[]{tools[0].Id,tools[1].Id}.Order()) && store.LastAttempt!.Items.All(i=>i.Pid==12345),
+            "本体起動時の確認はToys経由の設定対象だけを既存の非重複起動処理へ渡す");
         var shared=store.Load().OwnedTasks["host"];
         gateway.Tasks[shared.Name]=gateway.Tasks[shared.Name] with{Xml=shared.Xml.Replace("PT0S","PT72H")};
         coordinator.StartViaTargets().GetAwaiter().GetResult();

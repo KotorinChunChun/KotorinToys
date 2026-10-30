@@ -5,7 +5,8 @@ namespace KotorinToys;
 
 internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway gateway,ToolManager manager,
     string hostExecutable,string taskPrefix="KotorinToys",bool allowDevelopment=false,
-    Func<ToolDefinition, InstallationState>? installationDetector = null, Func<string, bool>? fileExists = null)
+    Func<ToolDefinition, InstallationState>? installationDetector = null, Func<string, bool>? fileExists = null,
+    Func<ToolDefinition, CancellationToken, Task<ToolState>>? startTarget = null)
 {
     InstallationState Detect(ToolDefinition tool) => (installationDetector ?? manager.Installation)(tool);
     bool Exists(string? path) => path != null && (fileExists ?? File.Exists)(path);
@@ -247,7 +248,7 @@ internal sealed class StartupCoordinator(HostSettingsStore store,IStartupGateway
                 var current=store.Load();
                 if(store.Journal!=null || store.RemovalPending || current.StartupModes.GetValueOrDefault(tool.Id)!="via_kotorintoys")
                 {results.Add(new(tool.Id,"見送り","開始直前に予約操作または希望方式が変更されました。"));continue;}
-                var started=await manager.Start(tool,false,"via_kotorintoys",cancellation);
+                var started = startTarget != null ? await startTarget(tool, cancellation) : await manager.Start(tool,false,"via_kotorintoys",cancellation);
                 results.Add(new(tool.Id,started.State=="実行中"?"準備完了":"未完了",started.Detail,started.Pid));
             }
             catch(Exception ex) when(ex is not OperationCanceledException){results.Add(new(tool.Id,"失敗",ex.Message));}

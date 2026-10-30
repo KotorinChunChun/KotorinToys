@@ -22,7 +22,8 @@ internal sealed class HostUpdateForm : BrandedForm
     HostUpdateChannel currentChannel = HostUpdateChannel.Unknown, targetChannel = HostUpdateChannel.Unknown;
     bool running, transferred, closeRequested, changingSelection;
 
-    public HostUpdateForm(IHostSelfUpdateService service, Func<string, bool>? confirmSwitch = null)
+    public HostUpdateForm(IHostSelfUpdateService service, Func<string, bool>? confirmSwitch = null,
+        PublicRelease? initialRelease = null, HostUpdateChannel initialChannel = HostUpdateChannel.Unknown)
     {
         this.service = service;
         this.confirmSwitch = confirmSwitch ?? (message => MessageBox.Show(this, message, WindowTitle.Create("版の切り替え"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes);
@@ -73,7 +74,19 @@ internal sealed class HostUpdateForm : BrandedForm
             args.Cancel = true;
             if (!transferred) { closeRequested = true; active?.Cancel(); }
         };
-        Shown += async (_, _) => await RefreshRelease();
+        if (initialRelease != null)
+        {
+            if (!initialRelease.Confirmed || initialRelease.Package == null ||
+                initialChannel is not (HostUpdateChannel.Stable or HostUpdateChannel.Preview) ||
+                initialRelease.Prerelease != (initialChannel == HostUpdateChannel.Preview) ||
+                !HostProduct.IsNewer(initialRelease.Package, service.CurrentVersion))
+                throw new IOException("自動更新の公開版が不正です。");
+            offered = initialRelease; currentChannel = targetChannel = initialChannel;
+            channel.SelectedIndex = initialChannel == HostUpdateChannel.Preview ? 1 : 0;
+            current.Text = $"現在の本体：{service.CurrentVersion}（{ChannelName(initialChannel)}）";
+            available.Text = "公開版：" + ReleaseDisplay.Version(initialRelease.Package) + "（" + ChannelName(initialChannel) + "）";
+        }
+        Shown += async (_, _) => { if (initialRelease == null) await RefreshRelease(); else await InstallUpdate(); };
         UpdateButtons();
     }
 

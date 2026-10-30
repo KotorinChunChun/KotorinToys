@@ -14,6 +14,7 @@ internal static class HostReleaseTests
 
     public static async Task Run(string fixtures, Action<bool, string> check)
     {
+        await HostGuiUpdateCheckTests.Run(check);
         var bytes = "自己更新の非実行テスト"u8.ToArray();
         var package = new LocalPackage("host", "KotorinToys", "0.1.1", "KotorinToys", "KotorinToys-0.1.1-setup.exe",
             Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant(), "unsigned-public-build");
