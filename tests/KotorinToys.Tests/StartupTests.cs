@@ -62,6 +62,10 @@ internal static class StartupTests
         check(result.Success && gateway.Tasks.Count==1 && store.Load().OwnedTasks.ContainsKey("host"),"直接から経由へ切替・直接予約は残さない");
         result=coordinator.SetMode(tools[1],"via_kotorintoys").GetAwaiter().GetResult();
         check(result.Success && gateway.Tasks.Count==1,"経由対象が共有する本体予約");
+        var trailingManager = new ToolManager(root + Path.DirectorySeparatorChar);
+        var trailingCoordinator = new StartupCoordinator(store,gateway,trailingManager,Environment.ProcessPath!,allowDevelopment:true);
+        check(trailingManager.Root == manager.Root && trailingCoordinator.State(tools[0]).GetAwaiter().GetResult().ActualState == "登録済み",
+            "引数なし起動の末尾区切り付きルートでも同じ共有予約と照合する");
         var requested = new List<string>();
         var ensure = new StartupCoordinator(store,gateway,manager,Environment.ProcessPath!,allowDevelopment:true,
             startTarget:(tool,token)=>{requested.Add(tool.Id);return Task.FromResult(new ToolState("実行中",Pid:12345));});

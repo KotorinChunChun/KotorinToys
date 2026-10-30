@@ -16,7 +16,7 @@ internal sealed partial class ToolManager(string root, Action<ToolDefinition, Pr
     readonly InstallationDetector installations = new();
     readonly ConcurrentDictionary<string, SemaphoreSlim> operations = new();
     readonly ConcurrentDictionary<string, int> pendingStops = new();
-    public string Root => root;
+    public string Root => Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
 
     internal ToolCatalogSource? CatalogSource => catalogSource;
     public ToolDefinition[] Load() => catalogSource?.Load() ?? ToolCatalog.Load(root);
