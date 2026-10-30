@@ -23,7 +23,14 @@ internal sealed class HostApplicationContext : ApplicationContext
         var settings=new HostSettingsStore(settingsDirectory??HostSettingsStore.DefaultDirectory);
         var manager = CreateManager(root, settings.DirectoryPath, localCatalog);
         var coordinator=new StartupCoordinator(settings,new TaskSchedulerGateway(),manager,Environment.ProcessPath!);
-        dashboard = new Dashboard(root,settings,coordinator, toolManager: manager);
+        var updateService = new HostSelfUpdateService(root, settings.DirectoryPath);
+        dashboard = new Dashboard(root,settings,coordinator, toolManager: manager, selfUpdates: updateService,
+            showSelfUpdater: () =>
+            {
+                updates!.ManualInteraction();
+                using var form = new HostUpdateForm(updateService);
+                form.ShowDialog(dashboard);
+            });
         dashboard.FormClosing += (_, args) =>
         {
             if (!exiting && args.CloseReason == CloseReason.UserClosing) { args.Cancel = true; dashboard.Hide(); }
@@ -34,7 +41,6 @@ internal sealed class HostApplicationContext : ApplicationContext
         tray = new NotifyIcon { Text = "KotorinToys", Icon = icon, ContextMenuStrip = menu, Visible = true };
         tray.MouseDoubleClick += (_, _) => ShowDashboard();
         management = new("dashboard", dispatcher, ShowDashboard, ExitThread);
-        var updateService = new HostSelfUpdateService(root, settings.DirectoryPath);
         updates = new(updateService, () => !exiting && !dashboard.IsDisposed && dashboard.Visible && !dashboard.OwnedForms.OfType<HostUpdateForm>().Any(),
             (release, channel) =>
             {

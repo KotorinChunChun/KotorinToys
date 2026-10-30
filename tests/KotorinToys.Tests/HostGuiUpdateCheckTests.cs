@@ -53,6 +53,9 @@ internal static class HostGuiUpdateCheckTests
         var task = checker.Check(default); await checker.Check(default); open = false; pending.Gate.SetResult(); await task;
         check(pending.Queries == 1 && dialogs == 0, "確認中の重複とGUIを閉じた後の遅延表示を防止");
         pending.Gate = new(TaskCreationOptions.RunContinuationsAsynchronously); open = true;
+        task = checker.Check(default); checker.ManualInteraction(); pending.Gate.SetResult(); await task;
+        check(dialogs == 0, "手動更新を開いて取消した後に遅延した自動更新を開始しない");
+        pending.Gate = new(TaskCreationOptions.RunContinuationsAsynchronously); open = true;
         using var cancellation = new CancellationTokenSource(); task = checker.Check(cancellation.Token); cancellation.Cancel(); await task;
         check(dialogs == 0, "本体終了時の公開確認取消で更新を開始しない");
     }

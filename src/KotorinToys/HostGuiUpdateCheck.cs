@@ -5,18 +5,21 @@ internal sealed class HostGuiUpdateCheck(IHostSelfUpdateService service, Func<bo
     Action<PublicRelease, HostUpdateChannel> show, Action<string> failed)
 {
     bool checking;
+    int manualGeneration;
+    public void ManualInteraction() => manualGeneration++;
     readonly HashSet<string> shown = new(StringComparer.Ordinal);
     public async Task Check(CancellationToken cancellation)
     {
         if (checking || !visible() || service.BlockReason() != null) return;
         checking = true;
+        int generation = manualGeneration;
         try
         {
             var channel = await service.DetectChannel(cancellation);
             if (channel is not (HostUpdateChannel.Preview or HostUpdateChannel.Stable)) return;
             var release = await service.Check(channel, cancellation);
             cancellation.ThrowIfCancellationRequested();
-            if (!visible() || service.BlockReason() != null) return;
+            if (!visible() || generation != manualGeneration || service.BlockReason() != null) return;
             if (!release.Confirmed || release.Package == null) { failed(ReleaseProblems.Explanation(release)); return; }
             if (release.Prerelease != (channel == HostUpdateChannel.Preview)) throw new IOException("公開版の種類が一致しません。");
             if (!HostProduct.IsNewer(release.Package, service.CurrentVersion) || !shown.Add(release.Package.Package.Version)) return;
