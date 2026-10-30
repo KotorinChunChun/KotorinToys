@@ -23,6 +23,7 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 4 && args[0] == "--mdvisualizer-install-acceptance") return MdVisualizerMsixTests.InstallActual(args[1], args[2], args[3]).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--md-visualizer-ipc"])) return MdVisualizerIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--verify-mdvisualizer-msix") return MdVisualizerMsixTests.VerifyActual(args[1]).GetAwaiter().GetResult();
             if (args.Length == 3 && args[0] == "--replacement-fixture") return ReplacementTests.Serve(args[1], args[2]).GetAwaiter().GetResult();

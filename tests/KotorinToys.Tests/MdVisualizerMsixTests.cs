@@ -54,8 +54,21 @@ internal static class MdVisualizerMsixTests
     }
     public static async Task<int> VerifyActual(string file)
     {
-        var tool=ToolCatalog.Load(KotorinToys.Program.FindRoot()).Single(t=>t.Id=="md-visualizer");var hash=Hash(await File.ReadAllBytesAsync(file));var package=new LocalPackage(tool.Id,tool.Name,tool.Version,tool.AppId,Path.GetFileName(file),hash,"signed-msix","msix");
+        var root=KotorinToys.Program.FindRoot(); var tool=OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root,"config/tools.json")),root).Single(t=>t.Id=="md-visualizer");var hash=Hash(await File.ReadAllBytesAsync(file));var package=new LocalPackage(tool.Id,tool.Name,tool.Version,tool.AppId,Path.GetFileName(file),hash,"signed-msix","msix");
         using var locked=await MsixPackageVerifier.Open(tool,package,file);
         Console.WriteLine($"PASS: 実MSIX署名・固定Identity・BlockMap・SHA-256 {hash} ({locked.Length} bytes)");return 0;
+    }
+
+    // 明示指定された配布台帳で実OSの受入を行う。通常テストからは呼ばない。
+    public static async Task<int> InstallActual(string catalog, string report, string root)
+    {
+        var tool = ToolCatalog.Load(root).Single(t => t.Id == "md-visualizer");
+        var manager = new ToolManager(root);
+        var before = manager.Installation(tool);
+        var result = await MsixInstaller.Create(manager, tool).Install(tool, Path.GetFullPath(catalog));
+        var after = manager.Installation(tool);
+        SelfUpdateFiles.Write(Path.GetFullPath(report), new { Before = before, Result = result, After = after });
+        Console.WriteLine(result.State + " / " + result.Detail);
+        return result.State == "成功" && MsixPolicy.Installed(after) ? 0 : 1;
     }
 }
