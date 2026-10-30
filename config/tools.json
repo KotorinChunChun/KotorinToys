@@ -499,7 +499,7 @@
     {
       "id": "md-visualizer",
       "name": "MdVisualizer",
-      "version": "0.0.19.3",
+      "version": "0.0.19.4",
       "repositoryUrl": "https://github.com/KotorinChunChun/MdVisualizer",
       "summary": "Markdown・図表の表示と編集。必要なときだけ画面を開く",
       "category": "文書、Markdown、図表編集",

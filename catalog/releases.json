@@ -129,15 +129,15 @@
       "package": {
         "id": "md-visualizer",
         "name": "MdVisualizer",
-        "version": "0.0.19.3",
+        "version": "0.0.19.4",
         "appId": "KotorinToys.MdVisualizer",
-        "file": "MdVisualizer_0.0.19.3_x64.msix",
-        "sha256": "b642b57f9e3566d17ce1a4c60330f040b66fea2129b8a0adbdd7e6651f5859f0",
+        "file": "MdVisualizer_0.0.19.4_x64.msix",
+        "sha256": "98365741e781e9adcbb317efbe7dc6206d4729ec5d766f7362605a23984faffd",
         "signature": "signed-msix",
         "kind": "msix"
       },
-      "length": 13658734,
-      "publishedAt": "2026-10-28T15:37:18Z"
+      "length": 13730092,
+      "publishedAt": "2026-10-30T08:52:23Z"
     }
   ]
 }

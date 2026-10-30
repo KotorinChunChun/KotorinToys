@@ -16,11 +16,12 @@ internal static class MdVisualizerIntegrationTests
     delegate bool EnumWindow(IntPtr window, IntPtr parameter);
     static IntPtr[] FindWindows(int pid)
     {
+        var version = ToolCatalog.Load(KotorinToys.Program.FindRoot()).Single(t => t.Id == "md-visualizer").Version;
         var found = new List<IntPtr>();
         EnumWindow callback = (window, _) => {
             GetWindowThreadProcessId(window, out var owner);
             var title = new StringBuilder(512); GetWindowText(window, title, title.Capacity);
-            if (owner == pid && title.ToString().Contains("MdVisualizer - ver 0.0.19.3")) found.Add(window);
+            if (owner == pid && title.ToString().Contains($"MdVisualizer - ver {version}", StringComparison.Ordinal)) found.Add(window);
             return true;
         };
         EnumWindows(callback, 0); GC.KeepAlive(callback); return found.ToArray();

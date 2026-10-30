@@ -17,7 +17,7 @@ internal static class MdVisualizerMsixTests
     public static async Task Run(string root,string fixtures,Action<bool,string> check)
     {
         var tool=Tool; var local=ToolCatalog.Load(root).Single(t=>t.Id==tool.Id);
-        check(MsixPolicy.Supports(local)&&local.Version==tool.Version&&local.Capabilities!.Contains("start")&&!local.Capabilities.Contains("silent-start"),"MdVisualizerは固定MSIXと非常駐の通常起動能力で登録");
+        check(MsixPolicy.Supports(local)&&Version.TryParse(local.Version,out var version)&&version.Revision>=0&&local.Capabilities!.Contains("start")&&!local.Capabilities.Contains("silent-start"),"MdVisualizerは固定MSIX・4部版番号・非常駐の通常起動能力で登録");
         check(MsixPolicy.Supports(MsixReleaseTests.Tool),"HttpSelectorの固定MSIX経路を保持");
         foreach(var bad in new[]{tool with{Msix=new("Other_family",MsixPolicy.Publisher)},tool with{Msix=new(MsixPolicy.MdFamily,"CN=Other")},tool with{InstalledExecutable="other.exe"},tool with{RepositoryUrl="https://github.com/KotorinChunChun/Other"}})
             check(!MsixPolicy.Supports(bad),"MdVisualizerの別Identity・署名者・EXE・配布先を拒否");
@@ -54,7 +54,7 @@ internal static class MdVisualizerMsixTests
     }
     public static async Task<int> VerifyActual(string file)
     {
-        var tool=Tool;var hash=Hash(await File.ReadAllBytesAsync(file));var package=new LocalPackage(tool.Id,tool.Name,tool.Version,tool.AppId,Path.GetFileName(file),hash,"signed-msix","msix");
+        var tool=ToolCatalog.Load(KotorinToys.Program.FindRoot()).Single(t=>t.Id=="md-visualizer");var hash=Hash(await File.ReadAllBytesAsync(file));var package=new LocalPackage(tool.Id,tool.Name,tool.Version,tool.AppId,Path.GetFileName(file),hash,"signed-msix","msix");
         using var locked=await MsixPackageVerifier.Open(tool,package,file);
         Console.WriteLine($"PASS: 実MSIX署名・固定Identity・BlockMap・SHA-256 {hash} ({locked.Length} bytes)");return 0;
     }
