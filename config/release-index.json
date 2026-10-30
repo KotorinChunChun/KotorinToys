@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:06:53.1929381+00:00",
+  "generatedAt": "2026-10-30T08:56:01.6674463+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -923,6 +923,42 @@
       "name": "MdVisualizer",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.0.19.4",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-10-30T08:52:23Z",
+          "assets": [
+            {
+              "name": "MdVisualizer.cer",
+              "state": "uploaded",
+              "size": 1032,
+              "digest": "sha256:94d25894f47b3f29385829ff300a011f71118fa8b9790501fa0411ba7b05b100",
+              "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.4/MdVisualizer.cer"
+            },
+            {
+              "name": "MdVisualizer_0.0.19.4_x64.msix",
+              "state": "uploaded",
+              "size": 13730092,
+              "digest": "sha256:98365741e781e9adcbb317efbe7dc6206d4729ec5d766f7362605a23984faffd",
+              "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.4/MdVisualizer_0.0.19.4_x64.msix"
+            },
+            {
+              "name": "MdVisualizer_0.0.19.4_x64_portable.zip",
+              "state": "uploaded",
+              "size": 13345162,
+              "digest": "sha256:474d92f046be54ea3bb0a1073305fa05610b44f61410075919fb431cc43a555c",
+              "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.4/MdVisualizer_0.0.19.4_x64_portable.zip"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 288,
+              "digest": "sha256:3a009eaf9c6212f1c8811cf9641e4c664c5c3391bb9c43b1db77a83a35ab144a",
+              "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.4/SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.0.19.3",
           "draft": false,
