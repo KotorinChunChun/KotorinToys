@@ -55,3 +55,6 @@
 [submodule "tools/PPPaint"]
 	path = tools/PPPaint
 	url = https://github.com/KotorinChunChun/PPPaint.git
+[submodule "tools/FocusTranslator"]
+	path = tools/FocusTranslator
+	url = https://github.com/KotorinChunChun/FocusTranslator.git

@@ -90,6 +90,11 @@
       "id": "pppaint",
       "name": "PPPaint",
       "definition": "tools/PPPaint/tool.json"
+    },
+    {
+      "id": "focus-translator",
+      "name": "FocusTranslator",
+      "definition": "tools/FocusTranslator/tool.json"
     }
   ]
 }

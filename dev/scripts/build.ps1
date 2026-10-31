@@ -13,6 +13,8 @@ try {
     if ($LASTEXITCODE) { throw 'ShortcutKeyCounterのビルドに失敗しました。' }
     & cargo build --manifest-path tools/HttpSelector/Cargo.toml --target-dir tools/HttpSelector/target/management
     if ($LASTEXITCODE) { throw 'HttpSelectorの管理連携ビルドに失敗しました。' }
+    & cargo build --locked --manifest-path tools/FocusTranslator/Cargo.toml --target-dir tools/FocusTranslator/target/management
+    if ($LASTEXITCODE) { throw 'FocusTranslatorの管理連携ビルドに失敗しました。' }
     & (Join-Path $projectRoot 'tools/EveryDB/dev/scripts/build-debug-EveryDB-kotorintoys.ps1')
     if ($LASTEXITCODE) { throw 'EveryDBの管理連携ビルドに失敗しました。' }
     & (Join-Path $projectRoot 'tools/ScriptSync/dev/scripts/build-debug-ScriptSync-kotorintoys.ps1')
