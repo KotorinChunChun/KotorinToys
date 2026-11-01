@@ -8,7 +8,7 @@ using KotorinToys;
 internal static class OperationRecorderReleaseAcceptance
 {
     const string ToolId = "operation-recorder";
-    const string ProductVersion = "1.3.2";
+    const string ProductVersion = "1.5.0";
     internal static ToolDefinition Definition => new(ToolId, "OperationRecorder",
         "artifacts/management/bin/OperationRecorderApp/debug/OperationRecorder.exe", "docs/kotorintoys-integration.md",
         Summary: "PC操作と前後の画面を記録し、画像付きの操作手順書を作成する", Category: "操作記録",
@@ -40,9 +40,11 @@ internal static class OperationRecorderReleaseAcceptance
     static string OutputDirectory(string root, string output)
     {
         var directory = Path.GetFullPath(output);
-        var logs = Path.GetFullPath(Path.Combine(root, "dev", "history", "v0.1.9", "logs"));
+        using var host = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "catalog", "host.json")));
+        var recordVersion = "v" + host.RootElement.GetProperty("version").GetString();
+        var logs = Path.GetFullPath(Path.Combine(root, "dev", "history", recordVersion, "logs"));
         Require(directory.StartsWith(logs + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase),
-            "実行結果と試験配置はv0.1.9のlogs内に限定");
+            "実行結果と試験配置は現在の本体記録版のlogs内に限定");
         return directory;
     }
 
@@ -163,7 +165,7 @@ internal static class OperationRecorderReleaseAcceptance
         {
             var packages = InstallerAdapter.Load(catalog, [tool]);
             Require(packages.Packages.Length == 1 && packages.Packages[0].Id == ToolId && packages.Packages[0].Version == ProductVersion,
-                "対象製品だけの1.3.2実配布台帳");
+                "対象製品だけの1.5.0実配布台帳");
             var installed = await adapter.Install(tool, catalog, target);
             receipts.Add(new { Step = "新規導入", Result = installed });
             Require(installed.State == "成功" && manager.Installation(tool) is { State: "導入済み", Version: ProductVersion } &&
@@ -296,9 +298,9 @@ internal static class OperationRecorderReleaseAcceptance
         Require(tool.DistributionStatus == "published" && tool.Version == ProductVersion &&
             tool.Name == Definition.Name && tool.AppId == Definition.AppId &&
             tool.RepositoryUrl == Definition.RepositoryUrl,
-            "公開mainの登録が公開状態・製品名・AppId・配布先・1.3.2に一致");
+            "公開mainの登録が公開状態・製品名・AppId・配布先・1.5.0に一致");
         await File.WriteAllBytesAsync(Path.Combine(output, "published-tools.json"), catalogBytes);
-        using var client = new PublicReleaseClient();
+        using var client = new PublicReleaseClient(cache: new PublicReleaseCache(Path.Combine(output, "release-cache")));
         var release = await client.Check(tool, null);
         Require(release.Confirmed && release.Package?.Package.Version == ProductVersion && release.Package.PublishedAt != null,
             "本体PublicReleaseClientでOperationRecorder公開版・公開日・製品別台帳を確認");
