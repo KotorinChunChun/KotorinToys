@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB','OperationRecorder')]
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB','OperationRecorder','OfficeAssist')]
     [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste'),
     [switch]$ExcludeFFmpeg,
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
@@ -115,12 +115,12 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'README.md') $output
             Copy-Required (Join-Path $projectRoot 'docs') $output
             Copy-Required (Join-Path $projectRoot 'catalog/host.json') (Join-Path $output 'tool.json')
-            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','ScriptSync')) {
+            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','ScriptSync','OfficeAssist')) {
                 $definitionOutput = Join-Path $output "tools/$name"
                 New-Item -ItemType Directory -Path $definitionOutput -Force | Out-Null
                 Copy-Required (Join-Path $projectRoot "tools/$name/tool.json") $definitionOutput
                 Copy-Required (Join-Path $projectRoot "tools/$name/README.md") $definitionOutput
-                if ($name -in @('ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','ScriptSync')) {
+                if ($name -in @('ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','ScriptSync','OfficeAssist')) {
                     # 同梱READMEから辿れる説明だけを含める。子EXE・利用者DBは含めない。
                     Copy-Required (Join-Path $projectRoot "tools/$name/docs") $definitionOutput
                 }
@@ -173,7 +173,7 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/windowsdesktop-LICENSE.txt') (Join-Path $output 'licenses')
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/dotnet-THIRD-PARTY-NOTICES.txt') (Join-Path $output 'licenses')
         }
-        { $_ -in @('CapchunWindow','ChulipVideo','ChunapTool','OperationRecorder') } {
+        { $_ -in @('CapchunWindow','ChulipVideo','ChunapTool','OperationRecorder','OfficeAssist') } {
             Publish-Application $identity.Project $output $product
             $licenses = Join-Path $projectRoot "tools/$($identity.Folder)/licenses"
             if (Test-Path -LiteralPath $licenses -PathType Container) { Copy-Required $licenses $output }

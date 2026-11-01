@@ -10,7 +10,7 @@ internal static class OfficeAssistRegistrationTests
         var tool = JsonSerializer.Deserialize<ToolDefinition>(File.ReadAllText(Path.Combine(child, "tool.json")), ToolCatalog.Json)!
             with { ToolRoot = "tools/OfficeAssist" };
         ToolCatalog.Validate(tool, root);
-        check(tool is { Id: "office-assist", Name: "OfficeAssist", Version: "0.1.0", DistributionStatus: "unpublished" }, "OfficeAssistを独立した未公開製品として検証");
+        check(tool is { Id: "office-assist", Name: "OfficeAssist", Version: "0.2.0", DistributionStatus: "published" }, "OfficeAssistを独立した配布対象として検証");
         using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "catalog", "tools.json")));
         var references = catalog.RootElement.GetProperty("tools").EnumerateArray().Where(x => x.GetProperty("id").GetString() == tool.Id).ToArray();
         check(references.Length == 1 && references[0].GetProperty("definition").GetString() == "tools/OfficeAssist/tool.json", "ローカルカタログの参照とIDが一致");
@@ -19,8 +19,7 @@ internal static class OfficeAssistRegistrationTests
         check(new[] { tool.Readme, tool.Manual }.All(path => File.Exists(PathSafety.Resolve(child, path))), "利用資料の実在");
         check(tool.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]), "管理能力の宣言");
         check(tool.Runtimes!.Any(r => r.Kind == "dotnet-desktop" && r.Major == 10) && tool.Runtimes!.Any(r => r.Id == "excel"), "実行環境とExcel依存の宣言");
-        check(ToolRepository.Find(tool) == null && ProductIdentity.FromTool(tool) == null, "公開URLや導入済み製品を推測しない");
-        check(!ToolActionPolicy.Evaluate("install", tool, new("未導入", null, null, null), new("停止中")).Enabled, "未公開のインストールを拒否");
+        check(ToolRepository.Find(tool)?.ToString() == "https://github.com/KotorinChunChun/OfficeAssist" && ProductIdentity.FromTool(tool)?.Id == "office-assist", "固定の公開URLと製品識別が一致");
         check(File.ReadAllText(Path.Combine(root, "contracts", "ManagementEndpoint.Resilient.cs"))
             == File.ReadAllText(Path.Combine(child, "src", "OfficeAssist", "Integration", "ManagementEndpoint.cs")), "管理契約の承認済みコピーと一致");
     }

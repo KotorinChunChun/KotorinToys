@@ -23,6 +23,9 @@ UninstallDisplayIcon={app}\{#ProductName}.exe,0
 #if ProductName == "KotorinToys"
 SetupIconFile=..\src\KotorinToys\assets\KotorinToys.ico
 #endif
+#if ProductName == "OfficeAssist"
+SetupIconFile=..\tools\OfficeAssist\src\OfficeAssist\assets\OfficeAssist.ico
+#endif
 WizardStyle=modern
 [Languages]
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"

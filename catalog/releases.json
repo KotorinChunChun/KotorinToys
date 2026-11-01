@@ -114,6 +114,19 @@
     },
     {
       "package": {
+        "id": "office-assist",
+        "name": "OfficeAssist",
+        "version": "0.2.0",
+        "appId": "KotorinToys.OfficeAssist",
+        "file": "OfficeAssist-0.2.0-setup.exe",
+        "sha256": "a11d85a5b35f1fd75a78fc5050a41ada70da9fe36dc27432ce8db263ab13b273",
+        "signature": "unsigned-public-build"
+      },
+      "length": 85553271,
+      "publishedAt": "2026-11-01T03:21:05Z"
+    },
+    {
+      "package": {
         "id": "voice-mixer-spk-router",
         "name": "VoiceMixerSpkRouter",
         "version": "1.0.11",

@@ -17,7 +17,8 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
         new("chunap-tool", "ChunapTool", "KotorinToys.ChunapTool"),
         new("http-selector", "HttpSelector", "KotorinToys.HttpSelector"),
         new("every-db", "EveryDB", "KotorinToys.EveryDB"),
-        new("voice-mixer-mic-router", "VoiceMixerMicRouter", "KotorinToys.VoiceMixerMicRouter")
+        new("voice-mixer-mic-router", "VoiceMixerMicRouter", "KotorinToys.VoiceMixerMicRouter"),
+        new("office-assist", "OfficeAssist", "KotorinToys.OfficeAssist")
     ];
     static readonly Dictionary<string, ProductIdentity> byId = products.ToDictionary(p => p.Id, StringComparer.Ordinal);
     static readonly Dictionary<string, ProductIdentity> byName = products.ToDictionary(p => p.Name, StringComparer.Ordinal);
