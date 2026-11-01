@@ -127,14 +127,17 @@ internal static class PublicReleaseTests
                 : base.SendAsync(request, token);
     }
 
-    public static async Task<int> LiveSpkIndex(string root, string indexPath, string outputDirectory)
+    public static Task<int> LiveSpkIndex(string root, string indexPath, string outputDirectory) =>
+        LiveToolIndex(root, "voice-mixer-spk-router", indexPath, outputDirectory);
+
+    public static async Task<int> LiveToolIndex(string root, string toolId, string indexPath, string outputDirectory)
     {
         var tools = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root);
-        var tool = tools.Single(t => t.Id == "voice-mixer-spk-router");
+        var tool = tools.Single(t => t.Id == toolId);
         var fallback = ReleaseDownloader.Load(root, tools).Packages.Single(p => p.Package.Id == tool.Id);
         using var client = new PublicReleaseClient(new RecordedIndexHandler(File.ReadAllText(indexPath)));
         var result = await client.Check(tool, fallback);
-        if (!result.Confirmed || result.Package == null) throw new IOException("SpkRouterの公開情報を照合できません：" + result.Detail);
+        if (!result.Confirmed || result.Package == null) throw new IOException(tool.Name + "の公開情報を照合できません：" + result.Detail);
         using var downloader = new ReleaseDownloader();
         var path = await downloader.Prepare(new(1, [result.Package]), [tool with { Version = result.Package.Package.Version }], outputDirectory);
         var item = PackageCatalogReader.Load(path, tools).Packages.Single();

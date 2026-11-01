@@ -29,13 +29,13 @@
       "package": {
         "id": "ss-capture",
         "name": "SSCapture",
-        "version": "0.1.7",
+        "version": "0.1.9",
         "appId": "KotorinToys.SSCapture",
-        "file": "SSCapture-0.1.7-setup.exe",
-        "sha256": "7f26b1ad8cabf41bb3944365b3a0d32699afce63a98600f058e77eaff74b98c9",
+        "file": "SSCapture-0.1.9-setup.exe",
+        "sha256": "b1cd45e4dd9fceca325d2e6fc6392a41f13fd5fcabc458cb4029a5f8c9d6aea6",
         "signature": "unsigned-public-build"
       },
-      "length": 66814404
+      "length": 66847503
     },
     {
       "package": {

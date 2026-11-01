@@ -71,6 +71,7 @@ internal static class Program
             if(args.Length==1 && args[0]=="--public-release-check") return PublicReleaseTests.Live(KotorinToys.Program.FindRoot()).GetAwaiter().GetResult();
             if(args.SequenceEqual(["--voice-router-public-check"])) return PublicReleaseTests.Live(KotorinToys.Program.FindRoot(), ["voice-mixer-mic-router", "voice-mixer-spk-router"]).GetAwaiter().GetResult();
             if(args.Length==3 && args[0]=="--spk-index-download-check") return PublicReleaseTests.LiveSpkIndex(KotorinToys.Program.FindRoot(), args[1], args[2]).GetAwaiter().GetResult();
+            if(args.Length==4 && args[0]=="--tool-index-download-check") return PublicReleaseTests.LiveToolIndex(KotorinToys.Program.FindRoot(), args[1], args[2], args[3]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--release-index-live-check") return PublicReleaseTests.LiveIndex(KotorinToys.Program.FindRoot(), args[1]).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--run-native-tool-update")return InstalledStartupTests.NativeTask("--tool-update "+StartupCoordinator.Quote(Path.GetFullPath(args[1]))).GetAwaiter().GetResult();
             if(args.Length==2 && args[0]=="--tool-update")return ReleaseAcceptance.UpdateTool(args[1]).GetAwaiter().GetResult();
