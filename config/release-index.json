@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T07:32:30.6526108+00:00",
+  "generatedAt": "2026-11-01T12:56:44.9135426+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1116,6 +1116,35 @@
       "name": "OperationRecorder",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v1.5.0",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-01T12:55:59Z",
+          "assets": [
+            {
+              "name": "OperationRecorder-1.5.0-setup.exe",
+              "state": "uploaded",
+              "size": 96762552,
+              "digest": "sha256:eba0a9df00cadddd3642e0c58a8bba1eb9ed86cc1077a3ce606ceb7bb4de113e",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v1.5.0/OperationRecorder-1.5.0-setup.exe"
+            },
+            {
+              "name": "OperationRecorder-packages.json",
+              "state": "uploaded",
+              "size": 431,
+              "digest": "sha256:b23d26701e34d2179d197c342cc10ebb3557d80b5f5b7be50539586c1c794894",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v1.5.0/OperationRecorder-packages.json"
+            },
+            {
+              "name": "OperationRecorder-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 101,
+              "digest": "sha256:a82e750c948b8bcd272eaaaa37b04b5203d014854c820516e9f8a045e5f4ddde",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v1.5.0/OperationRecorder-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v1.3.2",
           "draft": false,
