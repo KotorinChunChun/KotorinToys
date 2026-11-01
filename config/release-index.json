@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T01:10:19.0541311+00:00",
+  "generatedAt": "2026-11-01T03:23:44.5164620+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1050,6 +1050,63 @@
               "size": 288,
               "digest": "sha256:7cc56bde841c33ab1992ba8cf9ec55ce8b4cd0f002d0265865adf6d503fff50b",
               "browser_download_url": "https://github.com/KotorinChunChun/MdVisualizer/releases/download/v0.0.19.3/SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OfficeAssist",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.2.0",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-01T03:21:05Z",
+          "assets": [
+            {
+              "name": "OfficeAssist-0.2.0-setup.exe",
+              "state": "uploaded",
+              "size": 85553271,
+              "digest": "sha256:a11d85a5b35f1fd75a78fc5050a41ada70da9fe36dc27432ce8db263ab13b273",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.0/OfficeAssist-0.2.0-setup.exe"
+            },
+            {
+              "name": "OfficeAssist-packages.json",
+              "state": "uploaded",
+              "size": 411,
+              "digest": "sha256:7e6c2579b03bd3172841be79166dee74ea2de41051447188f23fef914dea96e3",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.0/OfficeAssist-packages.json"
+            },
+            {
+              "name": "OfficeAssist-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:9104a446b77cb9ad5fe40c1c6617a316f8ca5482497926af799784afd6b6c5b0",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.0/OfficeAssist-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.0",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-27T16:59:20Z",
+          "assets": [
+            {
+              "name": "OfficeAssist-0.1.0-setup.exe",
+              "state": "uploaded",
+              "size": 7176012,
+              "digest": "sha256:7af9bdcc65b1e14ca8df8aaf4dbd82a8794c5c3c95c4f7605c4e3f9df910089f",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.1.0/OfficeAssist-0.1.0-setup.exe"
+            },
+            {
+              "name": "OfficeAssist-0.1.0-win-x64.zip",
+              "state": "uploaded",
+              "size": 6990888,
+              "digest": "sha256:c7c888b47efb5fa3c3101fa76e20951c3813a4b141fbd918accb7252ea0fdd4d",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.1.0/OfficeAssist-0.1.0-win-x64.zip"
             }
           ]
         }
