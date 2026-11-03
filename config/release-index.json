@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T20:58:59.3967701+00:00",
+  "generatedAt": "2026-11-03T22:50:42.0538230+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1200,6 +1200,55 @@
               "size": 101,
               "digest": "sha256:63b60a330e687744385b7d9eaa25b2979a2eec02f69f7b4f3d405f74d30f05f5",
               "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.2/OperationRecorder-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ReadingRepair",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.0.1",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-03T17:13:25Z",
+          "assets": [
+            {
+              "name": "ReadingRepair-0.0.1-setup.exe",
+              "state": "uploaded",
+              "size": 236040348,
+              "digest": "sha256:4665ca9ecfb5703b15ae1f271789d59e39447638fb05e6932f4a9c9e7c79a448",
+              "browser_download_url": "https://github.com/KotorinChunChun/ReadingRepair/releases/download/v0.0.1/ReadingRepair-0.0.1-setup.exe"
+            },
+            {
+              "name": "ReadingRepair-packages.json",
+              "state": "uploaded",
+              "size": 438,
+              "digest": "sha256:16f0984194354f4801d39ff62385276ae5575ef24dfa685503ec4ebe6fd0df5e",
+              "browser_download_url": "https://github.com/KotorinChunChun/ReadingRepair/releases/download/v0.0.1/ReadingRepair-packages.json"
+            },
+            {
+              "name": "ReadingRepair-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 97,
+              "digest": "sha256:133d43d278ad0b928dd0cf33ee10a9c84f097305462350b6bc9acbd9989fde2c",
+              "browser_download_url": "https://github.com/KotorinChunChun/ReadingRepair/releases/download/v0.0.1/ReadingRepair-SHA256SUMS.txt"
+            },
+            {
+              "name": "ReadingRepair-v0.0.1-win-x64.zip",
+              "state": "uploaded",
+              "size": 236518266,
+              "digest": "sha256:92bb2211d04d65def6b23bc2ff50dabf1b4571c238c5d8b0120aad8378bcc531",
+              "browser_download_url": "https://github.com/KotorinChunChun/ReadingRepair/releases/download/v0.0.1/ReadingRepair-v0.0.1-win-x64.zip"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 100,
+              "digest": "sha256:0133739c1fb84e1bc3644849796ba5c6d92180b97c07db451d3a1bd73331f89f",
+              "browser_download_url": "https://github.com/KotorinChunChun/ReadingRepair/releases/download/v0.0.1/SHA256SUMS.txt"
             }
           ]
         }
