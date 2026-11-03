@@ -465,7 +465,7 @@
     {
       "id": "operation-recorder",
       "name": "OperationRecorder",
-      "version": "1.5.0",
+      "version": "0.1.6",
       "summary": "PC操作と前後の画面を記録し、画像付きの操作手順書を作成する",
       "category": "AI用記録、撮影",
       "executable": "artifacts/management/bin/OperationRecorderApp/debug/OperationRecorder.exe",

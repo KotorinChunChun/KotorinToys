@@ -7,13 +7,13 @@ internal static class OperationRecorderRegistrationTests
         var local = ToolCatalog.Load(root).Single(t => t.Id == "operation-recorder");
         var online = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root)
             .Single(t => t.Id == local.Id);
-        check(local is { Name: "OperationRecorder", Version: "1.5.0", AppId: "KotorinToys.OperationRecorder", InstalledExecutable: "OperationRecorder.exe", DistributionStatus: "published" },
+        check(local is { Name: "OperationRecorder", Version: "0.1.6", AppId: "KotorinToys.OperationRecorder", InstalledExecutable: "OperationRecorder.exe", DistributionStatus: "published" },
             "OperationRecorderの製品識別・版・公開状態をローカル定義から取得");
-        check(online.Name == local.Name && online.AppId == local.AppId && online.Version == "1.5.0" &&
+        check(online.Name == local.Name && online.AppId == local.AppId && online.Version == "0.1.6" &&
             online.Executable == local.Executable && online.InstalledExecutable == local.InstalledExecutable &&
             online.Manual == local.Manual && online.DistributionStatus == local.DistributionStatus &&
             online.Capabilities!.SequenceEqual(local.Capabilities!) && online.RepositoryUrl == local.RepositoryUrl,
-            "OperationRecorder 1.5.0の配信用一覧でも同じ管理契約を取得");
+            "OperationRecorderの訂正後0.1.6で同じ管理契約を取得");
         var manager = new ToolManager(root);
         check(manager.DevelopmentRoot(local) == Path.Combine(root, "tools", "OperationRecorder") &&
             PathSafety.Resolve(manager.DevelopmentRoot(local), local.Executable) == Path.Combine(root, "tools", "OperationRecorder", "artifacts", "management", "bin", "OperationRecorderApp", "debug", "OperationRecorder.exe"),
