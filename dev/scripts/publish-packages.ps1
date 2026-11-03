@@ -128,7 +128,7 @@ foreach ($product in $Products | Select-Object -Unique) {
                     Copy-Required (Join-Path $projectRoot 'tools/OperationRecorder/THIRD-PARTY-NOTICES.md') $definitionOutput
                     $manualOutput = Join-Path $definitionOutput 'operation-recorder'
                     New-Item -ItemType Directory -Path $manualOutput -Force | Out-Null
-                    Copy-Required (Join-Path $projectRoot 'tools/OperationRecorder/operation-recorder/MANUAL.md') $manualOutput
+                    Copy-Required (Join-Path $projectRoot 'tools/OperationRecorder/docs/USERS_GUIDE.md') (Join-Path $manualOutput 'MANUAL.md')
                     foreach ($document in @('config/shortcuts.json','Assets/app.ico')) {
                         $documentOutput = Join-Path $definitionOutput (Split-Path $document -Parent)
                         New-Item -ItemType Directory -Path $documentOutput -Force | Out-Null

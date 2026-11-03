@@ -22,12 +22,16 @@ $body = $hostClause[0].Item2.Extent.Text.Trim()
 & ([scriptblock]::Create($body.Substring(1, $body.Length - 2)))
 
 $definitionOutput = Join-Path $output 'tools/OperationRecorder'
-foreach ($relative in @('tool.json','README.md','THIRD-PARTY-NOTICES.md','docs/kotorintoys-integration.md','operation-recorder/MANUAL.md','config/shortcuts.json','Assets/app.ico')) {
+foreach ($relative in @('tool.json','README.md','THIRD-PARTY-NOTICES.md','docs/kotorintoys-integration.md','docs/USERS_GUIDE.md','config/shortcuts.json','Assets/app.ico')) {
     $source = Join-Path $projectRoot "tools/OperationRecorder/$relative"
     $actual = Join-Path $definitionOutput $relative
     if (-not (Test-Path -LiteralPath $actual -PathType Leaf) -or (Get-FileHash -LiteralPath $source).Hash -ne (Get-FileHash -LiteralPath $actual).Hash) {
         throw "同梱漏れ・不一致: OperationRecorder/$relative"
     }
+}
+if ((Get-FileHash -LiteralPath (Join-Path $definitionOutput 'operation-recorder/MANUAL.md')).Hash -ne
+    (Get-FileHash -LiteralPath (Join-Path $definitionOutput 'docs/USERS_GUIDE.md')).Hash) {
+    throw 'OperationRecorderの互換マニュアルが正本と一致しません。'
 }
 if (@(Get-ChildItem -LiteralPath $definitionOutput -File -Recurse | Where-Object Extension -in @('.exe','.dll','.pdb','.db','.sqlite','.key','.pfx')).Count) {
     throw 'OperationRecorderの実行物・利用者データが本体説明書へ混入しています。'
@@ -47,7 +51,7 @@ $buildTokens = $null; $buildErrors = $null
 $build = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'build.ps1'), [ref]$buildTokens, [ref]$buildErrors)
 if ($buildErrors.Count) { throw '開発ビルドスクリプトの構文が不正です。' }
 $commands = @($build.FindAll({param($node) $node -is [Management.Automation.Language.CommandAst] -and $node.GetCommandName() -eq 'dotnet'}, $true) |
-    Where-Object { $_.CommandElements.Extent.Text -contains 'tools/OperationRecorder/OperationRecorderApp.csproj' })
+    Where-Object { $_.CommandElements.Extent.Text -contains 'tools/OperationRecorder/src/OperationRecorder/OperationRecorderApp.csproj' })
 if ($commands.Count -ne 1 -or $commands[0].CommandElements.Extent.Text -notcontains 'tools/OperationRecorder/artifacts/management') {
     throw 'OperationRecorderの専用管理ビルド指定がありません。'
 }
