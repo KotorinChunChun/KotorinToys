@@ -678,7 +678,6 @@
       "toolRoot": "tools/PPPaint"
     },
     {
-      "schemaVersion": 1,
       "id": "reading-repair",
       "name": "ReadingRepair",
       "version": "0.0.1",
@@ -689,7 +688,7 @@
       "appId": "KotorinToys.ReadingRepair",
       "manual": "docs/guide.md",
       "readme": "README.md",
-      "distributionStatus": "unpublished",
+      "distributionStatus": "published",
       "repositoryUrl": "https://github.com/KotorinChunChun/ReadingRepair",
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
