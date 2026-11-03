@@ -8,7 +8,7 @@ using KotorinToys;
 internal static class OperationRecorderReleaseAcceptance
 {
     const string ToolId = "operation-recorder";
-    const string ProductVersion = "1.5.0";
+    const string ProductVersion = "0.1.6";
     internal static ToolDefinition Definition => new(ToolId, "OperationRecorder",
         "artifacts/management/bin/OperationRecorderApp/debug/OperationRecorder.exe", "docs/kotorintoys-integration.md",
         Summary: "PC操作と前後の画面を記録し、画像付きの操作手順書を作成する", Category: "操作記録",
@@ -165,7 +165,7 @@ internal static class OperationRecorderReleaseAcceptance
         {
             var packages = InstallerAdapter.Load(catalog, [tool]);
             Require(packages.Packages.Length == 1 && packages.Packages[0].Id == ToolId && packages.Packages[0].Version == ProductVersion,
-                "対象製品だけの1.5.0実配布台帳");
+                "対象製品だけの0.1.6実配布台帳");
             var installed = await adapter.Install(tool, catalog, target);
             receipts.Add(new { Step = "新規導入", Result = installed });
             Require(installed.State == "成功" && manager.Installation(tool) is { State: "導入済み", Version: ProductVersion } &&
@@ -298,7 +298,7 @@ internal static class OperationRecorderReleaseAcceptance
         Require(tool.DistributionStatus == "published" && tool.Version == ProductVersion &&
             tool.Name == Definition.Name && tool.AppId == Definition.AppId &&
             tool.RepositoryUrl == Definition.RepositoryUrl,
-            "公開mainの登録が公開状態・製品名・AppId・配布先・1.5.0に一致");
+            "公開mainの登録が公開状態・製品名・AppId・配布先・0.1.6に一致");
         await File.WriteAllBytesAsync(Path.Combine(output, "published-tools.json"), catalogBytes);
         using var client = new PublicReleaseClient(cache: new PublicReleaseCache(Path.Combine(output, "release-cache")));
         var release = await client.Check(tool, null);
