@@ -95,6 +95,11 @@
       "id": "focus-translator",
       "name": "FocusTranslator",
       "definition": "tools/FocusTranslator/tool.json"
+    },
+    {
+      "id": "reading-repair",
+      "name": "ReadingRepair",
+      "definition": "tools/ReadingRepair/tool.json"
     }
   ]
 }
