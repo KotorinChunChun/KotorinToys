@@ -65,6 +65,11 @@
       "id": "md-visualizer",
       "name": "MdVisualizer",
       "definition": "tools/MdVisualizer/tool.json"
+    },
+    {
+      "id": "reading-repair",
+      "name": "ReadingRepair",
+      "definition": "tools/ReadingRepair/tool.json"
     }
   ]
 }

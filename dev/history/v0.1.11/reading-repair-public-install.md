@@ -1,0 +1,12 @@
+# ReadingRepair v0.0.1の公開・導入対応
+
+2026-11-04の利用者指示により、ReadingRepairをpublicへ変更し、既存ZIPは保持したまま標準Innoインストーラーと製品別台帳を同じReleaseへ追加する。
+
+本体は定義ベースの標準管理を使用するため製品コードの変更・本体バイナリの更新は不要。configの公開状態をpublishedにし、ツール一覧と子Git参照を公開mainへ反映する。公開情報workflowの更新後、本体クラスを使うCLIで公開照合・取得・実導入・status/show/stop・設定保持を確認する。専用試験の入口はtests/ReadingRepair.Acceptance。
+
+結果は実施後に追記する。生ログは対象版logs内。無関係なfeature/full-refactoringの作業は公開しない。
+
+
+公開準備の結果: ReadingRepairはpublic、ZIPは匿名再取得と既存SHA-256一致。公開用インストーラーは.NET 10.0.14、1859ファイルの秘密検査0件、backendの必要ファイル736件のSHA一致、実Whisperの文字起こし成功。setup容量236,040,348 bytes、SHA-256 `4665ca9ecfb5703b15ae1f271789d59e39447638fb05e6932f4a9c9e7c79a448`。台帳は標準の製品名・AppId・版・ファイル名で照合する。
+
+子schemaVersionを配信用configの要素へ混ぜないことを実際のOnlineToolCatalog.Parseで確認。専用受入ビルドは警告0・エラー0。コードは本体のPublicReleaseClient、ToolInstallationRunner、InstallerAdapter、ToolManagerを呼び出し、別の導入処理を再実装しない。

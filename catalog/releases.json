@@ -138,6 +138,20 @@
       },
       "length": 13730092,
       "publishedAt": "2026-10-30T08:52:23Z"
+    },
+    {
+      "package": {
+        "id": "reading-repair",
+        "name": "ReadingRepair",
+        "version": "0.0.1",
+        "appId": "KotorinToys.ReadingRepair",
+        "file": "ReadingRepair-0.0.1-setup.exe",
+        "sha256": "4665ca9ecfb5703b15ae1f271789d59e39447638fb05e6932f4a9c9e7c79a448",
+        "signature": "unsigned-public-build",
+        "kind": "inno"
+      },
+      "length": 236040348,
+      "publishedAt": "2026-11-03T17:13:25Z"
     }
   ]
 }
