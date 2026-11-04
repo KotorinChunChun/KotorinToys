@@ -572,7 +572,7 @@
     {
       "id": "reading-repair",
       "name": "ReadingRepair",
-      "version": "0.0.2",
+      "version": "0.0.3",
       "summary": "TTSの読みを検証し、ユーザー辞書と音声を改善する",
       "category": "音声",
       "executable": "Desktop/bin/Debug/net10.0-windows/ReadingRepair.exe",
