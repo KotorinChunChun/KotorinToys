@@ -40,3 +40,7 @@
 [submodule "tools/MdVisualizer"]
 	path = tools/MdVisualizer
 	url = https://github.com/KotorinChunChun/MdVisualizer.git
+
+[submodule "tools/ReadingRepair"]
+	path = tools/ReadingRepair
+	url = https://github.com/KotorinChunChun/ReadingRepair.git
