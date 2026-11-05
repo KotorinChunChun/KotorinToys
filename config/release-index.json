@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T22:39:44.4100187+00:00",
+  "generatedAt": "2026-11-05T03:29:51.8304430+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1059,6 +1059,42 @@
       "name": "OfficeAssist",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.2.1",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-04T22:45:18Z",
+          "assets": [
+            {
+              "name": "OfficeAssist-0.2.1-setup.exe",
+              "state": "uploaded",
+              "size": 85591160,
+              "digest": "sha256:b27601ccbf671084dd36bd4d899e449c3e808b7bd06297eda5e35087bfcc456d",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.1/OfficeAssist-0.2.1-setup.exe"
+            },
+            {
+              "name": "OfficeAssist-0.2.1-win-x64.zip",
+              "state": "uploaded",
+              "size": 102384870,
+              "digest": "sha256:fd19de070a516c32f431bc51182fd50219977c19bcfb4612cd36dfb74b22030c",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.1/OfficeAssist-0.2.1-win-x64.zip"
+            },
+            {
+              "name": "OfficeAssist-packages.json",
+              "state": "uploaded",
+              "size": 411,
+              "digest": "sha256:437dba31556257cb707b0fda9621e189a8f630ec1b0cec33995aee6d53cb8303",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.1/OfficeAssist-packages.json"
+            },
+            {
+              "name": "OfficeAssist-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 288,
+              "digest": "sha256:c7762a069076c5d13e821c9cd62064d78c91f505d9fa06a69338dd73b285cdf4",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.1/OfficeAssist-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.2.0",
           "draft": false,
