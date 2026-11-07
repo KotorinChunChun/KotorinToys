@@ -9,7 +9,7 @@ internal static class OperationDetailsTests
         var previous = SynchronizationContext.Current;
         try
         {
-            var tools = ToolCatalog.Load(root); var packages = ReleaseDownloader.Load(root);
+            var tools = ToolCatalog.Load(root); var packages = BundledReleaseFixture.Load(root);
             int shown = 0; string text = "";
             using var form = new Dashboard(root, showDetails: (_, value) => { shown++; text = value; }, fileExists: _ => false);
             var actual = tools.Select(_ => new InstallationState("未導入", null, null, null)).ToArray();

@@ -10,7 +10,7 @@ internal static class MsixPublicCheck
         if (!refresh.Accepted) throw new IOException(refresh.Detail);
         var tool = source.Load().Single(t => t.Id == "http-selector");
         using var client = new PublicReleaseClient();
-        var fallback = ReleaseDownloader.Load(root).Packages.Single(p => p.Package.Id == tool.Id);
+        var fallback = BundledReleaseFixture.Load(root).Packages.Single(p => p.Package.Id == tool.Id);
         var release = await client.Check(tool, fallback);
         if (!release.Confirmed || release.Package == null) throw new IOException(release.Detail);
         using var downloader = new ReleaseDownloader();

@@ -5,7 +5,7 @@ internal static class DashboardTests
     public static void Run(string root, Action<bool, string> check)
     {
         var tools = ToolCatalog.Load(root);
-        var catalog = ReleaseDownloader.Load(root);
+        var catalog = BundledReleaseFixture.Load(root);
         var releases = tools.Select(t => new PublicRelease(catalog.Packages.SingleOrDefault(p => p.Package.Id == t.Id), t.DistributionStatus == "published", true, "テスト")).ToArray();
         var installed = tools.Select(t => new InstallationState("導入済み", t.Version, null, "test.exe", "test-uninstaller.exe")).ToArray();
         var view = ToolVersionView.Create(installed[1] with { Version = "0.1.3" }, releases[1]);

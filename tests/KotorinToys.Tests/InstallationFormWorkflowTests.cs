@@ -18,7 +18,7 @@ internal static class InstallationFormWorkflowTests
     }
     static void RunUi(string root, Action<bool, string> check)
     {
-        var catalog = ReleaseDownloader.Load(root);
+        var catalog = BundledReleaseFixture.Load(root);
         var item = catalog.Packages[1] with { PublishedAt = DateTimeOffset.Parse("2026-10-16T18:00:00Z") };
         catalog = new(1, [item]); var manager = new ToolManager(root);
         int executions = 0, confirmations = 0; bool approved = true;

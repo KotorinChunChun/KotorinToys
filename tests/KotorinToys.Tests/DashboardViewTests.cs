@@ -10,7 +10,7 @@ internal static class DashboardViewTests
         {
             var directory=Path.Combine(fixtures,"display-settings");Directory.CreateDirectory(directory);
             var settings=Path.Combine(directory,"settings.json");File.WriteAllText(settings,"起動予約の架空原本");
-            var store=new DashboardViewStore(directory);var tools=ToolCatalog.Load(root);var catalog=ReleaseDownloader.Load(root);
+            var store=new DashboardViewStore(directory);var tools=ToolCatalog.Load(root);var catalog=BundledReleaseFixture.Load(root);
             string? repository=null,details=null;
             var notices = new List<string>();
             using(var form=new Dashboard(root,viewStore:store,fileExists:_=>true,openRepository:uri=>repository=uri.AbsoluteUri,showDetails:(name,_)=>details=name,notify:notices.Add))

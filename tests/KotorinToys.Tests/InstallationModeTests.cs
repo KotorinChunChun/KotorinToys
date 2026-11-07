@@ -8,7 +8,7 @@ internal static class InstallationModeTests
         try
         {
             int executions=0,confirmations=0;var wait=new TaskCompletionSource<ToolState>();
-            using var form=new InstallationForm(new(root),releases:ReleaseDownloader.Load(root),confirm:_=>{confirmations++;return false;},
+            using var form=new InstallationForm(new(root),releases:BundledReleaseFixture.Load(root),confirm:_=>{confirmations++;return false;},
                 execute:(_,_,_,_,_,_,_)=>{executions++;throw new Exception("実導入しません。");},
                 detectInstallation:_=>new("導入済み","0.0.1",root,"test.exe","unins000.exe"),
                 executionState:_=>wait.Task,fileExists:_=>true);

@@ -13,7 +13,7 @@ internal static class PublishedDownloadTests
             tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus != "unpublished")
             throw new IOException("公開configを管理一覧へ採用できません：" + result.Detail);
         using var client = new PublicReleaseClient();
-        var bundled = ReleaseDownloader.Load(root);
+        var bundled = BundledReleaseFixture.Load(root);
         var releases = new List<PublicRelease>();
         foreach (var tool in tools.Where(t => t.DistributionStatus == "published"))
         {
@@ -42,7 +42,7 @@ internal static class PublishedDownloadTests
         }
         else
         {
-            var bundled = ReleaseDownloader.Load(root);
+            var bundled = BundledReleaseFixture.Load(root);
             foreach (var tool in ToolCatalog.Load(root).Where(t => t.Id is "capchun-screen" or "chulip-video" or "chunap-tool"))
             {
                 var release = await client.Check(tool, bundled.Packages.SingleOrDefault(p => p.Package.Id == tool.Id));

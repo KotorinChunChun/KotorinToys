@@ -38,7 +38,7 @@ internal static class MicRouterIntegrationTests
             Require((await manager.Stop(tool)).State == "停止中", "Toysが正常終了後の実停止を確認");
             owned = false;
             using var client = new PublicReleaseClient();
-            var release = await client.Check(tool, ReleaseDownloader.Load(root).Packages.Single(p => p.Package.Id == tool.Id));
+            var release = await client.Check(tool, BundledReleaseFixture.Load(root).Packages.Single(p => p.Package.Id == tool.Id));
             Require(release.Confirmed && release.Prerelease && release.Package?.Package.Version == "1.0.18", "Toys自身の公開版・台帳照合に成功");
             return 0;
         }

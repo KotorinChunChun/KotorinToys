@@ -35,7 +35,7 @@ internal static class ToolLocationTests
         var previous=SynchronizationContext.Current;
         try
         {
-            var tools=ToolCatalog.Load(root);var catalog=ReleaseDownloader.Load(root);current=running;
+            var tools=ToolCatalog.Load(root);var catalog=BundledReleaseFixture.Load(root);current=running;
             var actual=tools.Select(_=>installed).ToArray();var states=tools.Select(_=>new ToolState("停止中")).ToArray();states[0]=state;
             var releases=tools.Select(t=>new PublicRelease(catalog.Packages.FirstOrDefault(p=>p.Package.Id==t.Id),false,false,"fixture")).ToArray();
             var notices=new List<string>();int details=0;

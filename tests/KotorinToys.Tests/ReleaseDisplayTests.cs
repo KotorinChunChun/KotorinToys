@@ -5,7 +5,7 @@ internal static class ReleaseDisplayTests
 {
     public static void Run(string root, Action<bool, string> check)
     {
-        var catalog = ReleaseDownloader.Load(root);
+        var catalog = BundledReleaseFixture.Load(root);
         var item = catalog.Packages[0] with { PublishedAt = DateTimeOffset.Parse("2026-10-16T18:00:00Z") };
         var tool = ToolCatalog.Load(root).Single(t => t.Id == item.Package.Id);
         check(ReleaseDisplay.Version(item) == item.Package.Version + "（2026/10/17 公開）", "UTC日付境界を日本時間へ変換し版の右へ表示");

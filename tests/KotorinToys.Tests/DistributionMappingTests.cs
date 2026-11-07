@@ -10,7 +10,7 @@ internal static class DistributionMappingTests
     public static async Task Run(string root, Action<bool, string> check)
     {
         var tools = ToolCatalog.Load(root);
-        var seven = new List<ReleasePackage>(ReleaseDownloader.Load(root).Packages.Where(p => p.Package.Id is "live-text-marker" or "smart-paste" or "ss-capture"));
+        var seven = new List<ReleasePackage>(BundledReleaseFixture.Load(root).Packages.Where(p => p.Package.Id is "live-text-marker" or "smart-paste" or "ss-capture"));
         foreach (var id in new[] { "capchun-screen", "chulip-video", "chunap-tool", "every-db", "voice-mixer-mic-router", "voice-mixer-spk-router" })
         {
             var tool = tools.Single(t => t.Id == id) with { DistributionStatus = "published" };

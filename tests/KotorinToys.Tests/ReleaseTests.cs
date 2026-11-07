@@ -14,7 +14,7 @@ internal static class ReleaseTests
         var package=new LocalPackage(tool.Id,tool.Name,tool.Version,tool.AppId,$"{tool.Name}-{tool.Version}-setup.exe",Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant(),"unsigned-public-build");
         var item=new ReleasePackage(package,bytes.Length);var catalog=new ReleaseCatalog(1,[item]);
         var cache=Path.Combine(fixtures,"release-cache");Directory.CreateDirectory(cache);
-        var pinned=ReleaseDownloader.Load(root);
+        var pinned=BundledReleaseFixture.Load(root);
         check(ToolCatalog.Load(root).Where(t=>t.DistributionStatus=="published" && ProductIdentity.FromId(t.Id)!=null).All(t=>pinned.Packages.Any(p=>p.Package.Id==t.Id && p.Package.Name==t.Name && p.Package.AppId==t.AppId && Version.TryParse(p.Package.Version,out _))),"既存の固定製品台帳の製品識別・版を照合し、定義追加製品に同梱fallbackを強制しない");
         var spk = ToolCatalog.Load(root).Single(t => t.Id == "voice-mixer-spk-router");
         var newerSpk = pinned.Packages.Single(p => p.Package.Id == spk.Id);

@@ -32,7 +32,7 @@ internal static class SpkRouterIntegrationTests
             Require((await manager.Stop(tool)).State == "停止中", "再起動後も正常停止");
             owned = false;
             using var client = new PublicReleaseClient();
-            var release = await client.Check(tool, ReleaseDownloader.Load(root).Packages.Single(p => p.Package.Id == tool.Id));
+            var release = await client.Check(tool, BundledReleaseFixture.Load(root).Packages.Single(p => p.Package.Id == tool.Id));
             Require(release.Confirmed && release.Prerelease && release.Package?.Package.Version == "1.0.10", "公開版と製品台帳の実照合");
             return 0;
         }

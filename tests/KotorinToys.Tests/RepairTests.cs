@@ -17,7 +17,7 @@ internal static class RepairTests
         var actual = detector.Detect(tool);
         check(actual is { State:"修復が必要", Repairable:true, Version:"0.1.5" } && actual.Directory == directory,
             "正式登録先と同梱定義を照合してEXE欠落の修復候補を作る");
-        var item = ReleaseDownloader.Load(root).Packages.Single(p=>p.Package.Id==tool.Id);
+        var item = BundledReleaseFixture.Load(root).Packages.Single(p=>p.Package.Id==tool.Id);
         var release = new PublicRelease(item,true,true,"fixture");
         ActionAvailability Rule(InstallationState installed, ToolState state, PublicRelease value) =>
             ToolActionPolicy.Evaluate("repair",tool,installed,state,value);
@@ -54,7 +54,7 @@ internal static class RepairTests
         var previous=SynchronizationContext.Current;
         try
         {
-            var tools=ToolCatalog.Load(root);var catalog=ReleaseDownloader.Load(root);var tool=tools.Single(t=>t.Id=="smart-paste");
+            var tools=ToolCatalog.Load(root);var catalog=BundledReleaseFixture.Load(root);var tool=tools.Single(t=>t.Id=="smart-paste");
             var item=catalog.Packages.Single(p=>p.Package.Id==tool.Id);int opened=0;
             var actual=new InstallationState("修復が必要",item.Package.Version,root,Path.Combine(root,tool.InstalledExecutable),Repairable:true);
             using var form=new Dashboard(root,detectInstallation:t=>t.Id==tool.Id?actual:new("未導入",null,null,null),fileExists:_=>false,

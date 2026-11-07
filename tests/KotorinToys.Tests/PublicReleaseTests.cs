@@ -22,7 +22,7 @@ internal static class PublicReleaseTests
         var tool = ToolCatalog.Load(root).Single(t => t.Id == "smart-paste");
         byte[] bytes = [1, 2, 3, 4];
         var package = new LocalPackage(tool.Id, tool.Name, "0.1.10", tool.AppId, "SmartPaste-0.1.10-setup.exe", Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant(), "unsigned-public-build");
-        var fallback = ReleaseDownloader.Load(root).Packages.Single(p => p.Package.Id == tool.Id);
+        var fallback = BundledReleaseFixture.Load(root).Packages.Single(p => p.Package.Id == tool.Id);
         string Url(string file) => "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.10/" + file;
         object[] Assets(string? url = null, string? digest = null) =>
         [
@@ -105,7 +105,7 @@ internal static class PublicReleaseTests
 
     public static async Task<int> Live(string root, IReadOnlyCollection<string>? toolIds = null)
     {
-        var bundled = ReleaseDownloader.Load(root); using var client = new PublicReleaseClient();
+        var bundled = BundledReleaseFixture.Load(root); using var client = new PublicReleaseClient();
         bool success = true;
         var tools = ToolCatalog.Load(root).Where(t => t.DistributionStatus == "published" && (toolIds == null || toolIds.Contains(t.Id))).ToArray();
         if (toolIds != null && !tools.Select(t => t.Id).Order().SequenceEqual(toolIds.Distinct().Order()))

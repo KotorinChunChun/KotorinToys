@@ -80,7 +80,7 @@ internal static class ReleaseAcceptance
         {
             if(states.Any(s=>s.State is not ("実行中" or "停止中")) || installed.Any(i=>i.State!="導入済み"))throw new IOException("正式導入と安全な現在状態が必要です。");
             using var downloader=new ReleaseDownloader();
-            var catalog=await downloader.Prepare(ReleaseDownloader.Load(root),tools,Path.Combine(directory,"downloads"));
+            var catalog=await downloader.Prepare(BundledReleaseFixture.Load(root),tools,Path.Combine(directory,"downloads"));
             for(int i=0;i<tools.Length;i++)
             {
                 if((await manager.Stop(tools[i])).State!="停止中")throw new IOException("正常終了を拒否しました。導入しません："+tools[i].Name);

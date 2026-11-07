@@ -5,7 +5,7 @@ internal static class ToolInstallationRunnerTests
     public static async Task Run(string root, Action<bool, string> check)
     {
         var tools = ToolCatalog.Load(root);
-        var catalog = ReleaseDownloader.Load(root);
+        var catalog = BundledReleaseFixture.Load(root);
         var supported = tools.First(t => t.DistributionStatus == "published");
         // 元の欠落・未公開条件を固定したfixture。実製品の公開後も負の回帰を残す。
         var unsupported = tools.Where(t => new[] { "shortcut-key-counter", "capchun-screen", "chulip-video", "chunap-tool" }.Contains(t.Id))

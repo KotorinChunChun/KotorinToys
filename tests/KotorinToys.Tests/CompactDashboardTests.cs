@@ -7,7 +7,7 @@ internal static class CompactDashboardTests
         var previous=SynchronizationContext.Current;
         try
         {
-            var tools=ToolCatalog.Load(root);var catalog=ReleaseDownloader.Load(root);
+            var tools=ToolCatalog.Load(root);var catalog=BundledReleaseFixture.Load(root);
             var actual=tools.Select(t=>new InstallationState("導入済み",t.Version,root,Path.Combine(root,t.InstalledExecutable),Path.Combine(root,"unins000.exe"))).ToArray();
             var releases=tools.Select(t=>new PublicRelease(catalog.Packages.SingleOrDefault(p=>p.Package.Id==t.Id),true,true,"照合の長い説明"+new string('説',300))).ToArray();
             releases[0]=releases[0] with{Package=releases[0].Package! with{PublishedAt=DateTimeOffset.Parse("2026-10-19T00:00:00Z")}};

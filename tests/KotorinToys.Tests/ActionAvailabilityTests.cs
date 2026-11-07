@@ -13,7 +13,7 @@ internal static class ActionAvailabilityTests
     {
         var tools = ToolCatalog.Load(root); var tool = tools[0];
         var installed = new InstallationState("導入済み", "0.0.1", root, "test.exe", "unins000.exe");
-        var release = new PublicRelease(ReleaseDownloader.Load(root).Packages.Single(p => p.Package.Id == tool.Id), true, true, "fixture");
+        var release = new PublicRelease(BundledReleaseFixture.Load(root).Packages.Single(p => p.Package.Id == tool.Id), true, true, "fixture");
         ActionAvailability Rule(string operation, string state = "停止中", bool exists = true, bool busy = false) =>
             ToolActionPolicy.Evaluate(operation, tool, installed, new(state), release, exists, exists, exists, busy);
         foreach (var state in new[] { "確認中", "起動処理中", "停止処理中", "処理中" })
@@ -41,7 +41,7 @@ internal static class ActionAvailabilityTests
             bool exists = false;
             var actual = tools.Select(_ => installed).ToArray();
             var states = tools.Select(_ => new ToolState("停止中")).ToArray();
-            var releases = tools.Select(t => new PublicRelease(ReleaseDownloader.Load(root).Packages.SingleOrDefault(p => p.Package.Id == t.Id), true, true, "fixture")).ToArray();
+            var releases = tools.Select(t => new PublicRelease(BundledReleaseFixture.Load(root).Packages.SingleOrDefault(p => p.Package.Id == t.Id), true, true, "fixture")).ToArray();
             using var dashboard = new Dashboard(root, fileExists: _ => exists);
             dashboard.CreateControl();
             var grid = (DataGridView)dashboard.Controls.Find("toolTable", true).Single();
@@ -54,7 +54,7 @@ internal static class ActionAvailabilityTests
             check(!start.Enabled && !dashboard.Controls.Find("uninstallSelected", true).Single().Enabled, "終了処理中は起動・削除を競合させない");
 
             var ss = tools.Single(t => t.Id == "ss-capture"); string execution = "実行中";
-            using var advanced = new InstallationForm(new(root), releases: ReleaseDownloader.Load(root),
+            using var advanced = new InstallationForm(new(root), releases: BundledReleaseFixture.Load(root),
                 detectInstallation: _ => installed, executionState: _ => Task.FromResult(new ToolState(execution)), fileExists: _ => exists);
             advanced.CreateControl(); Pump(advanced.RefreshAvailability());
             var ffmpeg = (Button)advanced.Controls.Find("installFfmpeg", true).Single();

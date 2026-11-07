@@ -36,7 +36,7 @@ internal static class DashboardSearchTests
             var home=Path.Combine(fixtures,"search-view");Directory.CreateDirectory(home);
             var settingsPath=Path.Combine(home,"settings.json");File.WriteAllText(settingsPath,"架空の起動設定・履歴");
             var store=new DashboardViewStore(home);var source=new ToolCatalogSource(root,home,_=>{requests++;return Task.FromResult(response);});
-            var manager=new ToolManager(root,catalogSource:source);var catalog=ReleaseDownloader.Load(root);
+            var manager=new ToolManager(root,catalogSource:source);var catalog=BundledReleaseFixture.Load(root);
             InstallationState Installed(ToolDefinition t)=>t.Id!=definitions[0].Id && t.Id!=definitions[1].Id?new("未導入",null,null,null):new("導入済み",t.Id==definitions[0].Id?"0.0.1":catalog.Packages.Single(p=>p.Package.Id==t.Id).Package.Version,root,"fixture.exe");
             using var form=new Dashboard(root,toolManager:manager,viewStore:store,detectInstallation:Installed,fileExists:_=>false,
                 executionCheck:(t,_)=>Task.FromResult(new ToolState(t.Id==definitions[0].Id?"実行中":"停止中")),

@@ -30,7 +30,7 @@ internal static class PublicReleaseCacheUiTests
         var previous = SynchronizationContext.Current;
         try
         {
-            var tools = ToolCatalog.Load(root); var catalog = ReleaseDownloader.Load(root);
+            var tools = ToolCatalog.Load(root); var catalog = BundledReleaseFixture.Load(root);
             var tool = tools.Single(t => t.Id == "ss-capture");
             var package = catalog.Packages.Single(p => p.Package.Id == tool.Id);
             var release = Limited(package);
@@ -88,7 +88,7 @@ internal static class PublicReleaseCacheUiTests
     // 実機の最終表示確認用。通信・導入・設定保存・アプリ制御は行わない。
     public static int Panel(string root)
     {
-        var catalog = ReleaseDownloader.Load(root); var manager = new ToolManager(root);
+        var catalog = BundledReleaseFixture.Load(root); var manager = new ToolManager(root);
         var publications = manager.Load().ToDictionary(t => t.Id, t => Limited(catalog.Packages.FirstOrDefault(p => p.Package.Id == t.Id)));
         using var form = new Dashboard(root, toolManager: manager, detectInstallation: Missing,
             releaseCheck: (tool, _, _) => Task.FromResult(publications[tool.Id]), executionCheck: (t, _) => Stopped(t),

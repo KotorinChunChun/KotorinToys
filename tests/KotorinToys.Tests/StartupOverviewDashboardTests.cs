@@ -56,16 +56,17 @@ internal static class StartupOverviewDashboardTests
     }
     static void InFlight(string root, string fixtures, Action<bool, string> check)
     {
-        var tools = ToolCatalog.Load(root); int calls = 0, configs = 0;
+        int calls = 0, configs = 0;
         var online = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root);
+        var remainingTool = online[1];
         var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var source = new ToolCatalogSource(root, Path.Combine(fixtures, "startup-ui-config"), _ =>
-        { configs++; return Task.FromResult(OnlineCatalogTests.Encode(online[1])); });
+        { configs++; return Task.FromResult(OnlineCatalogTests.Encode(remainingTool)); });
         async Task<StartupOverview> Read(ToolDefinition tool, CancellationToken token)
         {
             var current = ++calls;
-            if (current <= tools.Length) await gate.Task.WaitAsync(token);
-            return new(current <= tools.Length ? "本体経由" : "OS（タスク）", tool.Id);
+            if (current <= online.Length) await gate.Task.WaitAsync(token);
+            return new(current <= online.Length ? "本体経由" : "OS（タスク）", tool.Id);
         }
         using var form = new Dashboard(root, toolManager: new(root, catalogSource: source), startupCheck: Read, detectInstallation:_=>new("導入済み","1.0.0",root,"fixture.exe"),
             releaseCheck: (_, fallback, _) => Task.FromResult(new PublicRelease(fallback, false, false, "fixture")));
@@ -73,8 +74,8 @@ internal static class StartupOverviewDashboardTests
         check(configs == 0 && !refresh.IsCompleted, "旧一覧の自動起動照合が完了するまでconfig差替を待つ");
         gate.SetResult(); Pump(pending); Pump(refresh);
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
-        check(grid.Rows.Count == 1 && grid.Rows[0].Cells["tool"].Value?.ToString() == tools[1].Name &&
-            grid.Rows[0].Cells["startup"].Value?.ToString() == "OS（タスク）" && calls == tools.Length + 1, "一覧が減っても旧照合結果を別アプリへ転用しない");
+        check(grid.Rows.Count == 1 && grid.Rows[0].Cells["tool"].Value?.ToString() == remainingTool.Name &&
+            grid.Rows[0].Cells["startup"].Value?.ToString() == "OS（タスク）" && calls == online.Length + 1, "一覧が減っても旧照合結果を別アプリへ転用しない");
     }
     static void Closing(string root, Action<bool, string> check)
     {

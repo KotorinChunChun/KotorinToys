@@ -47,7 +47,7 @@ internal static class PublicReleaseCacheTests
     {
         var tool = ToolCatalog.Load(root).Single(t => t.Id == "smart-paste");
         var other = ToolCatalog.Load(root).First(t => t.Id == "ss-capture");
-        var fallback = ReleaseDownloader.Load(root).Packages.Single(p => p.Package.Id == tool.Id);
+        var fallback = BundledReleaseFixture.Load(root).Packages.Single(p => p.Package.Id == tool.Id);
         var start = DateTimeOffset.Parse("2026-10-23T15:20:00Z");
         string DirectoryFor(string name) => Path.Combine(fixtures, "public-release-cache", name);
 

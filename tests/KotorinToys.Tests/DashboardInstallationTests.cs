@@ -11,7 +11,7 @@ internal static class DashboardInstallationTests
     }
     public static void Run(string root, Action<bool, string> check)
     {
-        var tools = ToolCatalog.Load(root); var catalog = ReleaseDownloader.Load(root);
+        var tools = ToolCatalog.Load(root); var catalog = BundledReleaseFixture.Load(root);
         var actual = tools.ToDictionary(t => t.Id, _ => new InstallationState("未導入", null, null, null));
         int requests = 0, advanced = 0; var notices = new List<string>();
         var calls = new List<(string Id, string Operation, ReleaseCatalog? Catalog)>();

@@ -6,7 +6,7 @@ internal static class UxPreview
     public static int Run(string root,string fixtures)
     {
         Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
-        var tools=ToolCatalog.Load(root);var catalog=ReleaseDownloader.Load(root);
+        var tools=ToolCatalog.Load(root);var catalog=BundledReleaseFixture.Load(root);
         var actual=tools.ToDictionary(t=>t.Id,t=>new InstallationState("未導入",null,null,null));
         actual[tools[0].Id]=new("導入済み","0.0.1",fixtures,Path.Combine(fixtures,"available.exe"),Path.Combine(fixtures,"unins000.exe"));
         actual["smart-paste"]=new("修復が必要","0.1.5",fixtures,Path.Combine(fixtures,"missing.exe"),Repairable:true);

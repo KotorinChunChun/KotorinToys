@@ -459,7 +459,8 @@
         "silent-start"
       ],
       "runtimes": [],
-      "toolRoot": "tools/VoiceMixerSpkRouter"
+      "toolRoot": "tools/VoiceMixerSpkRouter",
+      "repositoryUrl": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter"
     },
     {
       "id": "operation-recorder",
