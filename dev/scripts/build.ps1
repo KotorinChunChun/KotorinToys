@@ -15,6 +15,13 @@ try {
     if ($LASTEXITCODE) { throw 'HttpSelectorの管理連携ビルドに失敗しました。' }
     & cargo build --locked --manifest-path tools/FocusTranslator/Cargo.toml --target-dir tools/FocusTranslator/target/management
     if ($LASTEXITCODE) { throw 'FocusTranslatorの管理連携ビルドに失敗しました。' }
+    Push-Location tools/ChuwitchWindow
+    try {
+        npm run build
+        if ($LASTEXITCODE) { throw 'ChuwitchWindowのフロントエンドビルドに失敗しました。' }
+        cargo build --locked --manifest-path src-tauri/Cargo.toml --features custom-protocol
+        if ($LASTEXITCODE) { throw 'ChuwitchWindowの管理連携ビルドに失敗しました。' }
+    } finally { Pop-Location }
     & (Join-Path $projectRoot 'tools/EveryDB/dev/scripts/build-debug-EveryDB-kotorintoys.ps1')
     if ($LASTEXITCODE) { throw 'EveryDBの管理連携ビルドに失敗しました。' }
     & (Join-Path $projectRoot 'tools/ScriptSync/dev/scripts/build-debug-ScriptSync-kotorintoys.ps1')

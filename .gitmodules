@@ -58,3 +58,7 @@
 [submodule "tools/FocusTranslator"]
 	path = tools/FocusTranslator
 	url = https://github.com/KotorinChunChun/FocusTranslator.git
+
+[submodule "tools/ChuwitchWindow"]
+	path = tools/ChuwitchWindow
+	url = https://github.com/KotorinChunChun/ChuwitchWindow.git

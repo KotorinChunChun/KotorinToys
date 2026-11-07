@@ -54,6 +54,8 @@ pwsh -NoProfile -File dev/scripts/build.ps1
 
 対象と出力先は[build.ps1](../../dev/scripts/build.ps1)と各子のtool.jsonを正本とします。この入口は子の専用ビルドも呼びます。出力先のEXEが実行中なら、利用者の作業を確認して正常終了してから実施します。勝手に強制終了しません。配布用setupの生成・公開ではありません。
 
+ChuwitchWindowの初回ビルド前や依存の変更後は、`tools/ChuwitchWindow`で`npm ci`を実行してください。ChuwitchWindowだけをビルドする場合は、同じフォルダーで`npm run build`と`cargo build --locked --manifest-path src-tauri/Cargo.toml --features custom-protocol`を実行します。生成したEXEは、ローカル開発一覧でChuwitchWindowを選択し「起動 / 設定を開く」から実行できます。
+
 ## 専用設定での開発起動
 
 ```powershell
