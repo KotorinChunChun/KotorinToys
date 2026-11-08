@@ -65,6 +65,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Test') {
 if (!$IsWindows) { return }
 $request = [Console]::In.ReadToEnd() | ConvertFrom-Json
 if ($request.hook_event_name -ne 'PreToolUse') { return }
+Write-HookDiagnostic 'received'
 # CUAはブラウザーとネイティブで同じツール名を使う。ネイティブを開く入口だけを対象にする。
 if ($request.tool_input.code -notmatch '\bcua\s*\.\s*(?:getApp|computer\s*\.\s*launch_app)\s*\(') {
     Write-HookDiagnostic 'outside-scope'

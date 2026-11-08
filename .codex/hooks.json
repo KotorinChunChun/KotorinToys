@@ -3,13 +3,13 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "*",
+        "matcher": "^(mcp__cua_repl(?:__)?js|cua_repl\\.js)$",
         "hooks": [
           {
             "type": "command",
             "command": "pwsh -NoProfile -Command \"& (Join-Path (git rev-parse --show-toplevel) 'dev/scripts/confirm-cli-before-computer-use.ps1')\"",
             "timeout": 10,
-            "statusMessage": "CLI検証hookの呼び出しを診断中"
+            "statusMessage": "WindowsアプリのCLI検証を確認中"
           }
         ]
       }
