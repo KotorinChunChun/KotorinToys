@@ -10,7 +10,8 @@ internal static class DashboardTests
         var installed = tools.Select(t => new InstallationState("導入済み", t.Version, null, "test.exe", "test-uninstaller.exe")).ToArray();
         var view = ToolVersionView.Create(installed[1] with { Version = "0.1.3" }, releases[1]);
         check(view.CanUpdate && view.Update == "更新あり", "公開版が新しいときだけ更新可能");
-        check(ToolVersionView.Create(installed[1], releases[1]).Update == "公開版と同じ", "同一版は更新不要");
+        var publishedSmartPaste = releases[1].Package!.Package.Version;
+        check(ToolVersionView.Create(installed[1] with { Version = publishedSmartPaste }, releases[1]).Update == "公開版と同じ", "同一版は更新不要");
         check(!ToolVersionView.Create(installed[1] with { Version = "9.0.0" }, releases[1]).CanUpdate, "公開版へのダウングレードを提案しない");
         check(!ToolVersionView.Create(installed[1], releases[1] with { Confirmed = false }).CanUpdate, "同梱台帳だけで最新や更新可能にしない");
         check(ToolVersionView.Create(installed[1] with { State = "未導入", Version = null }, releases[1]).Installed == "未導入", "開発配置を正式導入版にしない");
