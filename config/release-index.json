@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T00:36:12.8880611+00:00",
+  "generatedAt": "2026-11-08T06:11:35.8558982+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1910,6 +1910,35 @@
       "name": "VoiceMixerSpkRouter",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v1.0.14",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-08T06:11:19Z",
+          "assets": [
+            {
+              "name": "VoiceMixerSpkRouter-1.0.14-setup.exe",
+              "state": "uploaded",
+              "size": 38701503,
+              "digest": "sha256:a9e54aa05f941110f333028cdc65b548a2fe9d957175c238a39d326384e180a6",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.14/VoiceMixerSpkRouter-1.0.14-setup.exe"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-packages.json",
+              "state": "uploaded",
+              "size": 443,
+              "digest": "sha256:11df9f56ef11d4961940b789defc92a47f2b37d74f2df15aacc07584af6dae4b",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.14/VoiceMixerSpkRouter-packages.json"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:10707148664d0f4c90b38ffac84c6b37b26da4749965cd2be2a800320a85715e",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.14/VoiceMixerSpkRouter-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v1.0.11",
           "draft": false,
