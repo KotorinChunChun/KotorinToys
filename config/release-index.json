@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T09:13:06.4761303+00:00",
+  "generatedAt": "2026-11-08T15:13:09.8398691+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1423,6 +1423,35 @@
       "name": "SmartPaste",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.6",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-08T12:05:22Z",
+          "assets": [
+            {
+              "name": "SmartPaste-0.1.6-setup.exe",
+              "state": "uploaded",
+              "size": 166995247,
+              "digest": "sha256:f5e7c54e9655f9a930af96e6a87b5c76118e1968a95049e7c334b19035428c9d",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.6/SmartPaste-0.1.6-setup.exe"
+            },
+            {
+              "name": "SmartPaste-packages.json",
+              "state": "uploaded",
+              "size": 403,
+              "digest": "sha256:c4a5f4211790dd0e82c6f97e795d42074043bfffd449f22babf73e4d485468c5",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.6/SmartPaste-packages.json"
+            },
+            {
+              "name": "SmartPaste-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 94,
+              "digest": "sha256:c473630709e72a86c959a6099e4e6483c49b6631840e3e2c632b3f0074ee6739",
+              "browser_download_url": "https://github.com/KotorinChunChun/SmartPaste/releases/download/v0.1.6/SmartPaste-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.5",
           "draft": false,
