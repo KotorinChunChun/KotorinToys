@@ -26,7 +26,12 @@ internal static class OnlineCatalogTests
         }
         var bytes = File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath));
         var bundled = OnlineToolCatalog.Parse(bytes, root);
-        check(bundled.Select(t => t.Id).SequenceEqual(ToolCatalog.Load(root).Select(t => t.Id)), "同梱configは現行12ツールと同じ順序");
+        var localIds = ToolCatalog.Load(root).Select(t => t.Id).ToArray();
+        var bundledIds = bundled.Select(t => t.Id).ToArray();
+        check(localIds.Except(bundledIds).SequenceEqual(["chuwitch-window"]) &&
+            bundledIds.Except(localIds).SequenceEqual(["office-assist"]) &&
+            bundledIds.Where(id => id != "office-assist").SequenceEqual(localIds.Where(id => id != "chuwitch-window")),
+            "共通ツールの順序と開発・配布専用ツールを区別");
         foreach (var (id, name) in new[] { ("voice-mixer-mic-router", "VoiceMixerMicRouter"), ("voice-mixer-spk-router", "VoiceMixerSpkRouter") })
         {
             check(bundled.Count(t => t.Id == id) == 1, name + "をオンライン一覧に重複なく登録");

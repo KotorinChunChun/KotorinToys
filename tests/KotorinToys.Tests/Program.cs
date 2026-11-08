@@ -359,11 +359,15 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 13, "schema 2でMdVisualizerを含む13ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 11 && tools.Single(t => t.Id == "shortcut-key-counter").DistributionStatus == "unpublished", "本体対応11ツールと今回公開しないShortcutKeyCounterを区別");
-        Check(tools.Count(t => t.DistributionStatus == "unpublished") == 2, "ShortcutKeyCounter・HttpSelectorは本体用Inno配布の対象外");
-        Check(tools.All(t => t.Id == "voice-mixer-spk-router" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0), "SpkRouterは追加ランタイム不要、他ツールの依存情報を保持");
-        Check(tools.All(t => t.Capabilities?.Contains(t.Id == "md-visualizer" ? "start" : "silent-start")==true && t.SupportedEnvironment=="windows11-x64"),"13ツールの確認済み能力と環境");
+        Check(tools.Length == 15 && tools.Any(tool => tool.Id == "chuwitch-window"),
+            "schema 2でChuwitchWindowを含む15ツールを解決する");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 12, "公開対応12ツールを解決する");
+        Check(tools.Where(t => t.DistributionStatus == "unpublished").Select(t => t.Id).SequenceEqual(
+            ["shortcut-key-counter", "http-selector", "chuwitch-window"]), "本体用Inno配布の対象外を区別");
+        Check(tools.All(t => t.Id is "voice-mixer-spk-router" or "chuwitch-window" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0),
+            "追加ランタイム不要のツールと他ツールの依存情報を保持");
+        Check(tools.All(t => t.Capabilities?.Contains(t.Id is "md-visualizer" or "chuwitch-window" ? "start" : "silent-start") == true &&
+            t.SupportedEnvironment == "windows11-x64"), "15ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

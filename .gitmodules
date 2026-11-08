@@ -44,3 +44,7 @@
 [submodule "tools/ReadingRepair"]
 	path = tools/ReadingRepair
 	url = https://github.com/KotorinChunChun/ReadingRepair.git
+
+[submodule "tools/ChuwitchWindow"]
+	path = tools/ChuwitchWindow
+	url = https://github.com/KotorinChunChun/ChuwitchWindow.git
