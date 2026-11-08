@@ -22,6 +22,21 @@ function Get-SourceCommit {
     $commit
 }
 
+function Write-HookDiagnostic([string]$Decision) {
+    # 呼出名と判定だけを残す。コード、引数、画面内容は記録しない。
+    try {
+        $directory = Get-TestDirectory ([guid]$request.session_id) ([guid]$request.turn_id)
+        [IO.Directory]::CreateDirectory($directory) | Out-Null
+        @{
+            timeUtc = [DateTimeOffset]::UtcNow.ToString('o')
+            toolName = [string]$request.tool_name
+            decision = $Decision
+        } | ConvertTo-Json -Compress | Add-Content -LiteralPath (Join-Path $directory 'hook-events.jsonl') -Encoding utf8
+    } catch {
+        [Console]::Error.WriteLine('CLI検証hookの診断記録を保存できませんでした。')
+    }
+}
+
 if ($PSCmdlet.ParameterSetName -eq 'Test') {
     if ([string]::IsNullOrWhiteSpace($GuiCheck)) { throw '実画面でしか確認できない項目を指定してください。' }
     $directory = Get-TestDirectory $SessionId $TurnId
@@ -51,7 +66,10 @@ if (!$IsWindows) { return }
 $request = [Console]::In.ReadToEnd() | ConvertFrom-Json
 if ($request.hook_event_name -ne 'PreToolUse') { return }
 # CUAはブラウザーとネイティブで同じツール名を使う。ネイティブを開く入口だけを対象にする。
-if ($request.tool_input.code -notmatch '\bcua\s*\.\s*(?:getApp|computer\s*\.\s*launch_app)\s*\(') { return }
+if ($request.tool_input.code -notmatch '\bcua\s*\.\s*(?:getApp|computer\s*\.\s*launch_app)\s*\(') {
+    Write-HookDiagnostic 'outside-scope'
+    return
+}
 
 try {
     $session = [guid]::Parse($request.session_id)
@@ -62,12 +80,16 @@ try {
         (Test-Path -LiteralPath (Join-Path $directory 'cli.log') -PathType Leaf)) {
         $receipt = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
         if ($receipt.exitCode -eq 0 -and $receipt.sourceCommit -eq (Get-SourceCommit) -and
-            ![string]::IsNullOrWhiteSpace($receipt.guiCheck)) { return }
+            ![string]::IsNullOrWhiteSpace($receipt.guiCheck)) {
+            Write-HookDiagnostic 'allow'
+            return
+        }
     }
     $reason = "対象機能をCLIで検証してからWindowsアプリを開いてください。dev/scripts/confirm-cli-before-computer-use.ps1 に -SessionId $session -TurnId $turn と CLIコマンド、実画面でしか確認できない項目を渡します。docs/testing.md の手順を参照してください。"
 } catch {
     $reason = 'CLI検証の記録を照合できません。現在のセッションとターンで検証をやり直してください。'
 }
+Write-HookDiagnostic 'deny'
 @{ hookSpecificOutput = @{
     hookEventName = 'PreToolUse'
     permissionDecision = 'deny'
