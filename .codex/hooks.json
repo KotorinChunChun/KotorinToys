@@ -3,7 +3,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "^(mcp__cua_repl__js|cua_repl\\.js)$",
+        "matcher": "^(mcp__cua_repl(?:__)?js|cua_repl\\.js)$",
         "hooks": [
           {
             "type": "command",
