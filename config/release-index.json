@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T07:20:54.8281876+00:00",
+  "generatedAt": "2026-11-08T07:40:10.8595103+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1754,6 +1754,56 @@
       "name": "VoiceMixerMicRouter",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v1.0.31",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-08T07:39:51Z",
+          "assets": [
+            {
+              "name": "installation.md",
+              "state": "uploaded",
+              "size": 3071,
+              "digest": "sha256:5a53a0cddeaf48d38f06ca2adcb5bde1c67244891750c0873f262cdb99a450f1",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.31/installation.md"
+            },
+            {
+              "name": "kotorintoys-integration.md",
+              "state": "uploaded",
+              "size": 3548,
+              "digest": "sha256:2731ae7967e7b9b9d325bf2e3cfb0065f6568b8254d70bd3999eaa5e31457f2d",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.31/kotorintoys-integration.md"
+            },
+            {
+              "name": "kotorintoys-tool-entry.json",
+              "state": "uploaded",
+              "size": 1420,
+              "digest": "sha256:1f68d3b06453dc55816cdad9043aac5dbb0125e34bc7788045d12c51cc0e6b23",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.31/kotorintoys-tool-entry.json"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:addefd4612336a6c0581c2e1a367dbb1a263e74f90a18b674d505c2b35b67bb9",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.31/SHA256SUMS.txt"
+            },
+            {
+              "name": "VoiceMixerMicRouter-1.0.31-setup.exe",
+              "state": "uploaded",
+              "size": 38584324,
+              "digest": "sha256:aeb5cca0845b54e7366f65b6cca6b1ab9cb778a217df6828d365ea1871b436b2",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.31/VoiceMixerMicRouter-1.0.31-setup.exe"
+            },
+            {
+              "name": "VoiceMixerMicRouter-packages.json",
+              "state": "uploaded",
+              "size": 443,
+              "digest": "sha256:d18678a990546e4fc2d54031499759c3aa829d14071aa158914bf0be40c65bd2",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerMicRouter/releases/download/v1.0.31/VoiceMixerMicRouter-packages.json"
+            }
+          ]
+        },
         {
           "tag_name": "v1.0.23",
           "draft": false,
