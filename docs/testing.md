@@ -46,3 +46,20 @@ GitHub Releasesへの公開前に、配布候補の版・採用コミット・�
 - 変更に関係する正常系と、未導入、入力不正、通信失敗、取消などから代表的な異常系を試す。更新や削除を扱う場合は、対象と結果、既存の設定・履歴の保持を確認する。
 - 手順、期待結果、実際の結果、重大度、修正結果、未確認項目を版別の実装報告に記録する。必要な画像やログは `dev/history/vX.Y.Z/logs/<実行識別子>/` に保存し、対象画面が正しく写り、個人情報が含まれていないことを確認する。
 - 主要操作を妨げる問題、誤操作やデータ損失につながる問題は修正し、影響範囲を再検証してから公開する。軽微な改善候補は理由と優先度を記録する。公開に必要な確認ができない場合は、未確認項目と理由を報告して公開を保留する。
+
+## WindowsデスクトップテストのCLI検証
+
+本体と管理対象アプリの実画面テストでは、対象版、試験用データ、隔離した設定、実行コマンドを先に用意する。既存のCLIや回帰テストで設定・入力・結果・異常系を確認し、CLI入口が不足する場合は可能な範囲で整備する。画面の表示やマウス・キーボードでの操作など、実画面で確認する項目を明示する。
+
+1. Codexの `/hooks` またはデスクトップの設定にあるHooksで、プロジェクトの `.codex/hooks.json` の定義を確認して信頼する。仕様は[OpenAI公式のHooks説明](https://learn.chatgpt.com/docs/hooks#review-and-trust-hooks)を参照する。
+2. Windowsアプリの選択・起動がCLI検証の未実施で拒否されたら、案内に表示されるセッションIDとターンIDを指定して、現在の対象機能に合ったCLI試験を実行する。以下の例は本体の検索試験で、ビルドと必要な子定義の準備を済ませた後にpwshで実行する。
+
+   ```powershell
+   ./dev/scripts/confirm-cli-before-computer-use.ps1 -SessionId $sessionId -TurnId $turnId `
+       -CliExecutable './artifacts/code-tests/bin/KotorinToys.Tests/debug/KotorinToys.Tests.exe' `
+       -CliArguments @('--search-tests') -GuiCheck 'カテゴリ選択後のキーボードフォーカス'
+   ```
+
+3. コマンドが成功すると、結果と実画面の確認項目を版別ログに記録する。同じターンで対象アプリを選択し直し、残るGUI項目を確認する。ソースや試験条件を変更した場合はCLI試験を再実行する。
+
+hookは、Windows上のComputer Useで `cua.getApp` または `cua.computer.launch_app` を使う入口を検査する。以前に取得したアプリの参照を使い回さない。内蔵ブラウザーのWebテスト、画面の一覧取得、終了報告はこの条件の対象外。実行時の適用には、Codexが当該ツール呼び出しをhookへ渡すことが必要。
