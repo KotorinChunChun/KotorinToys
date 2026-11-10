@@ -51,13 +51,13 @@ internal static class HostUpdateFormTests
         var service = new Fake();
         using var form = new HostUpdateForm(service); form.CreateControl(); form.PerformLayout();
         var install = Control<Button>(form, "installHostUpdate");
-        var switching = Control<CheckBox>(form, "switchHostChannel");
-        var channel = Control<ComboBox>(form, "hostTargetChannel");
+        var stableSwitch = Control<Button>(form, "switchToStable");
+        var previewSwitch = Control<Button>(form, "switchToPreview");
         check(form.Text == WindowTitle.Create("本体アップデート") && form.Icon != null, "本体更新画面は共通タイトルと04アイコンを使用");
-        check(!switching.Checked && !install.Enabled && !channel.Enabled, "未確認時は更新できず種類切替は無効");
+        check(!install.Enabled && !form.Controls.Find("checkHostUpdate", true).Any() && !form.Controls.Find("cancelHostUpdate", true).Any(), "未確認時は更新できず種類切替は無効");
         Pump(form.RefreshRelease());
         check(service.Queries.Last() == HostUpdateChannel.Preview && Control<Label>(form, "hostCurrentVersion").Text.Contains("0.1.0（開発版）") &&
-            Control<Label>(form, "hostAvailableVersion").Text.Contains("0.1.1（公開日不明）（開発版）") && install.Enabled,
+            Control<Label>(form, "hostAvailableVersion").Text.Contains("0.1.1（公開日不明）（開発版）") && install.Enabled && stableSwitch.Enabled && !previewSwitch.Enabled,
             "開発版は開発版のみ自動確認しチェックなしで更新可能");
         service.Item = service.Item with { PublishedAt = DateTimeOffset.Parse("2026-10-16T18:00:00Z") };
         Pump(form.RefreshRelease());
@@ -72,23 +72,23 @@ internal static class HostUpdateFormTests
         }
         service.Item = service.Item with { Package = service.Item.Package with { Version = "0.1.1", File = "KotorinToys-0.1.1-setup.exe" } };
         service.FailCheck = true; Pump(form.RefreshRelease());
-        check(!install.Enabled && Control<Label>(form, "hostAvailableVersion").Text == "公開版：未確認", "確認失敗時は古い候補を使わない");
+        check(!install.Enabled && Control<Label>(form, "hostAvailableVersion").Text == "公開バージョン：未確認", "確認失敗時は古い候補を使わない");
         service.FailCheck = false; service.CheckGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
         var pending = form.RefreshRelease(); var requests = service.Queries.Count;
         Pump(form.RefreshRelease()); Pump(form.InstallUpdate());
-        check(service.Queries.Count == requests && service.Handoffs == 0 && !switching.Enabled && !install.Enabled && Control<Button>(form, "cancelHostUpdate").Enabled,
-            "確認中の二重操作を抑止し取消可能");
-        form.CancelOperation(); Pump(pending);
-        check(Control<Label>(form, "hostUpdateStatus").Text.Contains("取り消") && switching.Enabled && !install.Enabled, "確認取消後に操作を復旧");
-        service.CheckGate = null; Pump(form.RefreshRelease());
+        check(service.Queries.Count == requests && service.Handoffs == 0 && !stableSwitch.Enabled && !install.Enabled &&
+            Control<Button>(form, "closeHostUpdate").Enabled, "確認中は二重操作を防ぎ閉じる操作を許可");
+        service.CheckGate.SetResult(); Pump(pending); service.CheckGate = null;
         service.FailHandoff = true; Pump(form.InstallUpdate());
-        check(Control<Label>(form, "hostUpdateStatus").Text.Contains("開始できません") && !install.Enabled && switching.Enabled, "引継ぎ失敗時は本体を閉じない");
+        var failedStatus = Control<Label>(form, "hostUpdateStatus").Text;
+        check(failedStatus.Contains("開始できません") && install.Enabled && stableSwitch.Enabled,
+            $"引継ぎ失敗後に再試行できる（状態={failedStatus}、更新={install.Enabled}、切替={stableSwitch.Enabled}）");
         service.FailHandoff = false; service.HandoffGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        Pump(form.RefreshRelease()); pending = form.InstallUpdate(); var count = service.Handoffs; Pump(form.InstallUpdate());
+        pending = form.InstallUpdate(); var count = service.Handoffs; Pump(form.InstallUpdate());
         check(service.Handoffs == count && service.LastHandoff == (HostUpdateChannel.Preview, HostUpdateChannel.Preview, false) && !install.Enabled &&
-            Control<Button>(form, "cancelHostUpdate").Enabled, "開発版の更新はワンクリックで引継ぎ二重実行を抑止");
+            !Control<Button>(form, "closeHostUpdate").Enabled, "開発版の更新はワンクリックで引継ぎと二重実行・中断を抑止");
         service.HandoffGate.SetResult(); Pump(pending);
-        check(Control<Label>(form, "hostUpdateStatus").Text.Contains("再起動") && !Control<Button>(form, "cancelHostUpdate").Enabled && !switching.Enabled, "引継ぎ後は強制取消できない");
+        check(Control<Label>(form, "hostUpdateStatus").Text.Contains("再起動") && !stableSwitch.Enabled && !previewSwitch.Enabled, "引継ぎ後は版の切替も無効");
         var stable = new Fake { CurrentChannel = HostUpdateChannel.Stable };
         using var stableForm = new HostUpdateForm(stable); stableForm.CreateControl(); Pump(stableForm.RefreshRelease());
         check(stable.Queries.Last() == HostUpdateChannel.Stable && Control<Button>(stableForm, "installHostUpdate").Enabled, "通常版は通常版のみ自動確認しワンクリック更新可能");
@@ -102,17 +102,17 @@ internal static class HostUpdateFormTests
         var older = new Fake { CurrentVersion = "0.2.0", CurrentChannel = HostUpdateChannel.Preview };
         bool confirm = false; string prompt = "";
         using var switchForm = new HostUpdateForm(older, message => { prompt = message; return confirm; }); switchForm.CreateControl(); Pump(switchForm.RefreshRelease());
-        Control<CheckBox>(switchForm, "switchHostChannel").Checked = true; Application.DoEvents();
-        check(older.Queries.Last() == HostUpdateChannel.Stable && Control<Button>(switchForm, "installHostUpdate").Enabled, "種類切替を選ぶと反対側の公開版を確認");
+        Pump(switchForm.SwitchTo(HostUpdateChannel.Stable));
+        check(older.Queries.Contains(HostUpdateChannel.Stable) && Control<Button>(switchForm, "switchToStable").Enabled, "種類切替を選ぶと反対側の公開版を確認");
         Pump(switchForm.InstallUpdate());
         check(older.Handoffs == 0 && prompt.Contains("古い版") && prompt.Contains("0.2.0") && prompt.Contains("0.1.1"), "古い通常版への切替は注意と確認が必須");
-        confirm = true; Pump(switchForm.InstallUpdate());
+        confirm = true; Pump(switchForm.SwitchTo(HostUpdateChannel.Stable));
         check(older.LastHandoff == (HostUpdateChannel.Preview, HostUpdateChannel.Stable, true), "古い通常版は明示確認後のみ引き継ぐ");
         var unknown = new Fake { CurrentChannel = HostUpdateChannel.Unknown };
         using var unknownForm = new HostUpdateForm(unknown, _ => false); unknownForm.CreateControl(); Pump(unknownForm.RefreshRelease());
         check(unknown.Queries.Count == 0 && !Control<Button>(unknownForm, "installHostUpdate").Enabled && Control<Label>(unknownForm, "hostUpdateStatus").Text.Contains("判定できません"),
             "種類が判定不能な版は推測せず明示選択を求める");
-        Control<CheckBox>(unknownForm, "switchHostChannel").Checked = true; Application.DoEvents(); Pump(unknownForm.InstallUpdate());
+        Pump(unknownForm.SwitchTo(HostUpdateChannel.Stable));
         check(unknown.Queries.Last() == HostUpdateChannel.Stable && unknown.Handoffs == 0, "種類不明からの導入も確認を取り消せる");
         using var closing = new HostUpdateForm(new Fake { CheckGate = new(TaskCreationOptions.RunContinuationsAsynchronously) });
         pending = closing.RefreshRelease(); closing.Dispose(); Pump(pending); check(closing.IsDisposed, "画面破棄時は確認を取り消す");
@@ -123,7 +123,7 @@ internal static class HostUpdateFormTests
         dashboard.OpenSelfUpdate(); check(opened == 1, "本体ボタンから更新画面を開く");
         var resultService = new Fake { Result = new(1, Guid.NewGuid().ToString("N"), root, "0.1.1", "0.1.2", "失敗", "アクセス拒否の試験", false, 7, DateTimeOffset.UtcNow) };
         using var history = new HostUpdateForm(resultService); history.CreateControl(); history.PerformLayout();
-        check(Control<Label>(history, "hostLastUpdate").Text.Contains("0.1.1 → 0.1.2 / 失敗") && Control<Label>(history, "hostLastUpdate").Text.Contains("アクセス拒否の試験"), "前回更新の対象版・結果・理由を保持");
+        check(!history.Controls.Find("hostLastUpdate", true).Any() && Control<Button>(history, "openHostUpdateLog").Enabled, "履歴は更新画面から独立したログボタンで開く");
         history.Size = history.MinimumSize; history.PerformLayout();
         var reasonLabel = Control<Label>(history, "hostUpdateBlockedReason");
         resultService.Blocked = "更新できません：正式導入先とは別のEXEです。\n実行中：C:\\develop\\source\\bin\\debug\\KotorinToys.exe\n正式な実行ファイル：C:\\Programs\\KotorinToys\\KotorinToys.exe\n対処：正式導入版を起動してください。";

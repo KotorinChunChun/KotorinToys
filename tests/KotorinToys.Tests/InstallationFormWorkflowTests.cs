@@ -50,8 +50,22 @@ internal static class InstallationFormWorkflowTests
             detectInstallation: _ => new("未導入", null, null, null), executionState: _ => Task.FromResult(new ToolState("停止中")));
         Pump(canceled.RunSelected());
         check(executions == 1 && canceled.Controls.Find("installationSummary", true).Single().Text.Contains("変更していません"), "確認をキャンセルした場合は導入を実行しない");
+        var fullCatalog = ReleaseDownloader.Load(root);
+        var ids = fullCatalog.Packages.Take(2).Select(p => p.Package.Id).ToArray();
+        var installedIds = new HashSet<string>();
+        using var direct = new InstallationForm(manager, releases: fullCatalog, operation: "install",
+            confirm: _ => throw new InvalidOperationException("一覧からの新規導入で確認を出してはいけません。"),
+            execute: (selected, operation, _, _, _, _, _) =>
+            {
+                installedIds.UnionWith(selected.Select(t => t.Id));
+                return Task.FromResult(selected.Select(t => new InstallResult(t.Id, operation, "成功", "")).ToArray());
+            }, detectInstallation: _ => new("未導入", null, null, null),
+            executionState: _ => Task.FromResult(new ToolState("停止中")), initialTargets: ids, startWithoutConfirmation: true);
+        Pump(direct.RunSelected());
+        check(ids.Length == 2 && installedIds.SetEquals(ids) && direct.Text == WindowTitle.Create("一括インストール"),
+            "一覧からの新規導入は複数対象を追加確認なしで実行");
         using var advanced = new InstallationForm(manager, releases: catalog); advanced.CreateControl(); advanced.PerformLayout();
-        check(advanced.Text == WindowTitle.Create("一括インストール") &&
+        check(advanced.Text == WindowTitle.Create("詳細設定") &&
             new[] { "chooseLocalCatalog", "useGithubReleases", "installFfmpeg", "batchInstall", "batchUninstall", "selectInstallable" }
                 .All(name => advanced.Controls.Find(name, true).Length == 1), "一括画面で導入削除・FFmpeg・台帳を用途別ページへ集約");
         var target = (CheckedListBox)advanced.Controls.Find("installationTargets", true).Single();

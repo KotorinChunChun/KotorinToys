@@ -6,7 +6,7 @@ internal sealed partial class Dashboard : BrandedForm
     ToolDefinition[] tools;
     readonly DataGridView grid = new() { Name = "toolTable", Dock = DockStyle.Fill, ReadOnly = true,
         AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false,
-        SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false,
+        SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = true,
         AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells };
     readonly Action<string> notify;
     readonly Action<string, string> showDetails;
@@ -25,6 +25,7 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>> releaseCheck;
     readonly Action<string?, ReleaseCatalog?> showInstaller;
     readonly Action<string, string, ReleaseCatalog?> showToolInstaller;
+    readonly Action<string[], ReleaseCatalog?> showBatchInstaller;
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
     readonly Action<Uri> openRepository;
     readonly Func<string, bool> fileExists;
@@ -57,7 +58,8 @@ internal sealed partial class Dashboard : BrandedForm
         Func<string, bool>? fileExists = null,
         Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null,
         Action<string, string>? showDetails = null, DashboardViewStore? viewStore = null,
-        Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null, ToolLocations? locations = null)
+        Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null, ToolLocations? locations = null,
+        Action<string[], ReleaseCatalog?>? showBatchInstaller = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.viewStore = viewStore ?? (settings == null ? null : new DashboardViewStore(settings.DirectoryPath));
@@ -72,7 +74,10 @@ internal sealed partial class Dashboard : BrandedForm
         this.releaseCheck = releaseCheck ?? CheckRelease;
         this.showInstaller = showInstaller ?? ((id, catalog) => { using var form = new InstallationForm(manager, id, catalog, publications: PublicationSnapshot()); form.ShowDialog(this); });
         this.showToolInstaller = showToolInstaller ?? ((id, operation, catalog) =>
-        { using var form = new InstallationForm(manager, id, catalog, operation, publications: PublicationSnapshot()); form.ShowDialog(this); });
+        { using var form = new InstallationForm(manager, id, catalog, operation, publications: PublicationSnapshot(), startWithoutConfirmation: operation == "install"); form.ShowDialog(this); });
+        this.showBatchInstaller = showBatchInstaller ?? ((ids, catalog) =>
+        { using var form = new InstallationForm(manager, releases: catalog, operation: "install", publications: PublicationSnapshot(),
+            initialTargets: ids, startWithoutConfirmation: true); form.ShowDialog(this); });
         this.detectInstallation = detectInstallation ?? manager.Installation;
         this.fileExists = fileExists ?? File.Exists;
         this.executionCheck = executionCheck ?? manager.Status;

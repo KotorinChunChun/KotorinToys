@@ -35,6 +35,7 @@ internal sealed class HostApplicationContext : ApplicationContext
         {
             if (!exiting && args.CloseReason == CloseReason.UserClosing) { args.Cancel = true; dashboard.Hide(); }
         };
+        dashboard.Resize += (_, _) => HideMinimized(dashboard);
         var menu = new ContextMenuStrip();
         menu.Items.Add("管理画面を開く", null, (_, _) => ShowDashboard());
         menu.Items.Add("KotorinToysを終了", null, (_, _) => ExitThread());
@@ -71,15 +72,32 @@ internal sealed class HostApplicationContext : ApplicationContext
     }
     public void ShowDashboard()
     {
-        dashboard.Show();
-        dashboard.WindowState = FormWindowState.Normal;
-        dashboard.Activate();
+        PresentWindow(dashboard);
         dashboard.BeginInvoke(new Action(async () =>
         {
             await initialization;
             if (!exiting) await updates.Check(lifetime.Token);
         }));
     }
+
+    internal static void PresentWindow(Form window)
+    {
+        window.Show();
+        // 最小化時だけOSに復元を依頼し、最小化前の最大化状態も保つ。
+        if (window.WindowState == FormWindowState.Minimized) ShowWindow(window.Handle, 9 /* SW_RESTORE */);
+        window.BringToFront();
+        window.Activate();
+    }
+
+    internal static void HideMinimized(Form window)
+    {
+        if (window.Visible && window.WindowState == FormWindowState.Minimized) window.Hide();
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", ExactSpelling = true)]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    static extern bool ShowWindow(IntPtr window, int command);
+
     protected override void ExitThreadCore()
     {
         if (exiting) return;

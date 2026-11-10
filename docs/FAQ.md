@@ -44,4 +44,4 @@
 
 ## 録画用FFmpegはどう入れますか？
 
-SSCaptureを正式導入して停止した後、「一括インストール」の「FFmpeg」タブから導入・修復します。[手順](USERS_GUIDE.md#sscaptureのffmpeg導入)を参照してください。他アプリの外部依存は各アプリの「使い方を開く」で確認します。
+SSCaptureを正式導入して停止した後、「詳細設定」の「FFmpeg」タブから導入・修復します。[手順](USERS_GUIDE.md#sscaptureのffmpeg導入)を参照してください。他アプリの外部依存は各アプリの「使い方を開く」で確認します。

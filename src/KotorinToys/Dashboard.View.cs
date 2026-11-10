@@ -10,7 +10,17 @@ internal sealed partial class Dashboard
     readonly DashboardViewStore? viewStore;
     string? sortColumn;
     bool sortDescending, applyingView;
-    internal int SelectedIndex => grid.CurrentRow is { Visible:true, Tag:string id } ? Array.FindIndex(tools,t=>t.Id==id) : -1;
+    internal int SelectedIndex
+    {
+        get
+        {
+            var selected = SelectedRows();
+            return selected.Length == 1 ? selected[0] : -1;
+        }
+    }
+    int[] SelectedRows() => grid.SelectedRows.Cast<DataGridViewRow>().Where(row => row.Visible)
+        .OrderBy(row => row.Index).Select(row => Array.FindIndex(tools, tool => Equals(tool.Id, row.Tag)))
+        .Where(index => index >= 0).ToArray();
     DataGridViewRow RowFor(int index) => grid.Rows.Cast<DataGridViewRow>().Single(row=>Equals(row.Tag,tools[index].Id));
     void AddToolRow(ToolDefinition tool) { int row = grid.Rows.Add(tool.Name, tool.Summary, DashboardText.Categories(tool.Category), "", "", "確認中", "未確認", ""); grid.Rows[row].Tag=tool.Id; }
 
@@ -56,6 +66,7 @@ internal sealed partial class Dashboard
         try
         {
             string? selected=grid.CurrentRow?.Tag as string;
+            var selectedIds=grid.SelectedRows.Cast<DataGridViewRow>().Where(r=>r.Visible).Select(r=>r.Tag).ToHashSet();
             string? selectedColumn=grid.CurrentCell?.OwningColumn?.Name;
             bool Matches(int i)=>ToolSearch.Matches(tools[i],search.Text,selectedCategory) && (viewFilter.SelectedIndex switch
             {
@@ -66,11 +77,17 @@ internal sealed partial class Dashboard
             });
             if(grid.CurrentRow is {Tag:string id} && Array.FindIndex(tools,t=>t.Id==id) is var current && current>=0 && !Matches(current)) grid.CurrentCell=null;
             for(int i=0;i<tools.Length;i++) RowFor(i).Visible=Matches(i);
+            var retained=grid.Rows.Cast<DataGridViewRow>().Where(r=>r.Visible && selectedIds.Contains(r.Tag)).ToArray();
             if(sortColumn!=null)grid.Sort(new ViewComparer(sortColumn,sortDescending));
             foreach(DataGridViewColumn column in grid.Columns) column.HeaderCell.SortGlyphDirection=column.Name==sortColumn
                 ?sortDescending?SortOrder.Descending:SortOrder.Ascending:SortOrder.None;
             var row=grid.Rows.Cast<DataGridViewRow>().FirstOrDefault(r=>r.Visible && Equals(r.Tag,selected)) ?? grid.Rows.Cast<DataGridViewRow>().FirstOrDefault(r=>r.Visible);
             if(row!=null)grid.CurrentCell=row.Cells[selectedColumn??"tool"];else{grid.CurrentCell=null;grid.ClearSelection();}
+            if(retained.Length>0)
+            {
+                grid.ClearSelection();
+                foreach(var selectedRow in retained) selectedRow.Selected=true;
+            }
             viewCount.Text=grid.Rows.Cast<DataGridViewRow>().Count(r=>r.Visible)+"件";
             clearFilters.Enabled=search.Text.Length>0 || selectedCategory!=null || viewFilter.SelectedIndex!=0;
             UpdateActions();

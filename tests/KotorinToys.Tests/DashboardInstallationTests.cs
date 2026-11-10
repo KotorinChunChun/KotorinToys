@@ -15,6 +15,7 @@ internal static class DashboardInstallationTests
         var actual = tools.ToDictionary(t => t.Id, _ => new InstallationState("未導入", null, null, null));
         int requests = 0, advanced = 0; var notices = new List<string>();
         var calls = new List<(string Id, string Operation, ReleaseCatalog? Catalog)>();
+        var batches = new List<string[]>();
         TaskCompletionSource? gate = null;
         async Task<PublicRelease> Fetch(ToolDefinition tool, ReleasePackage? fallback, CancellationToken token)
         {
@@ -23,6 +24,7 @@ internal static class DashboardInstallationTests
         }
         using var form = new Dashboard(root, releaseCheck: Fetch, detectInstallation: t => actual[t.Id],
             showToolInstaller: (id, operation, releases) => calls.Add((id, operation, releases)),
+            showBatchInstaller: (ids, _) => batches.Add(ids),
             showInstaller: (_, _) => advanced++, notify: notices.Add, fileExists: _ => true,
             executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")));
         form.CreateControl(); form.PerformLayout();
@@ -30,6 +32,15 @@ internal static class DashboardInstallationTests
         Pump(form.RefreshAll()); grid.CurrentCell = grid.Rows[0].Cells[0];
         check(form.Controls.Find("installSelected", true).Single().Enabled && !form.Controls.Find("updateSelected", true).Single().Enabled,
             "メインで未導入の公開製品はインストールだけ可能");
+        grid.Rows[1].Selected = true;
+        Pump(form.RefreshAll());
+        check(grid.SelectedRows.Count == 2 && form.Controls.Find("installSelected", true).Single().Enabled &&
+            !form.Controls.Find("start", true).Single().Enabled && !form.Controls.Find("uninstallSelected", true).Single().Enabled,
+            "状態更新後も複数選択を保持し、単体操作を無効にする");
+        Pump(form.OpenToolInstallation("install"));
+        check(batches.Count == 1 && batches[0].SequenceEqual(tools.Take(2).Select(t => t.Id)) && calls.Count == 0 && advanced == 0,
+            "一覧のインストール操作は選択中の2件だけをまとめて渡す");
+        grid.Rows[1].Selected = false;
         gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
         var pending = form.OpenToolInstallation("install");
         Pump(form.OpenToolInstallation("install")); grid.CurrentCell = grid.Rows[1].Cells[0];
@@ -40,6 +51,11 @@ internal static class DashboardInstallationTests
         grid.CurrentCell = grid.Rows[0].Cells[0];
         actual[tools[0].Id] = new("導入済み", "0.0.1", null, "fixture.exe", "test-uninstaller.exe");
         Pump(form.RefreshAll());
+        grid.Rows[1].Selected = true;
+        check(!form.Controls.Find("installSelected", true).Single().Enabled, "導入済みと未導入の混在時は一括インストールを無効にする");
+        Pump(form.OpenToolInstallation("install"));
+        check(batches.Count == 1, "混在した選択を暗黙に更新または導入しない");
+        grid.Rows[1].Selected = false;
         check(form.Controls.Find("updateSelected", true).Single().Enabled && form.Controls.Find("uninstallSelected", true).Single().Enabled,
             "導入済み・新公開版ありでアップデートと削除が有効");
         Pump(form.OpenToolInstallation("update"));

@@ -11,6 +11,7 @@ internal sealed partial class InstallationForm : BrandedForm
     readonly ReleaseCatalog? publicCatalog;
     readonly IReadOnlyDictionary<string, PublicRelease>? publications;
     readonly string? singleOperation;
+    readonly bool startWithoutConfirmation;
     readonly Func<string, bool> confirm;
     readonly InstallationExecution execute;
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
@@ -44,16 +45,21 @@ internal sealed partial class InstallationForm : BrandedForm
         string? operation = null, Func<string, bool>? confirm = null, InstallationExecution? execute = null,
         Func<ToolDefinition, InstallationState>? detectInstallation = null,
         Func<ToolDefinition, Task<ToolState>>? executionState = null, Func<string, bool>? fileExists = null,
-        IReadOnlyDictionary<string, PublicRelease>? publications = null)
+        IReadOnlyDictionary<string, PublicRelease>? publications = null,
+        IReadOnlyCollection<string>? initialTargets = null, bool startWithoutConfirmation = false)
     {
         manager = toolManager; tools = manager.Load();
         this.detectInstallation = detectInstallation ?? manager.Installation;
         this.executionState = executionState ?? (tool => manager.Status(tool));
         this.fileExists = fileExists ?? File.Exists;
         foreach (var tool in tools) executionStates[tool.Id] = new("確認中");
-        if (operation != null && (operation is not ("install" or "update" or "repair" or "uninstall") || tools.All(t => t.Id != initialTarget)))
-            throw new ArgumentException("単体操作の対象・種別が不正です。");
+        var ids = initialTargets?.ToHashSet(StringComparer.Ordinal) ?? (initialTarget == null ? [] : new HashSet<string>([initialTarget], StringComparer.Ordinal));
+        if (operation != null && (operation is not ("install" or "update" or "repair" or "uninstall") ||
+            ids.Count == 0 || ids.Any(id => tools.All(t => t.Id != id)) || operation != "install" && ids.Count != 1))
+            throw new ArgumentException("操作の対象・種別が不正です。");
+        if (startWithoutConfirmation && operation != "install") throw new ArgumentException("直接実行は新規インストール専用です。");
         singleOperation = operation;
+        this.startWithoutConfirmation = startWithoutConfirmation;
         if (operation == "uninstall") source.Text = "選択したツールをアンインストールします。";
         if (operation == "repair") source.Text = "設定・履歴を保持し、登録済みの導入先へ修復します。";
         this.confirm = confirm ?? (text => MessageBox.Show(this, text, WindowTitle.Create("対象の確認"), MessageBoxButtons.OKCancel) == DialogResult.OK);
@@ -62,12 +68,12 @@ internal sealed partial class InstallationForm : BrandedForm
         publicCatalog = releases;
         this.publications = publications;
         if (publicCatalog != null) ReleaseDownloader.Validate(publicCatalog, manager.KnownTools());
-        Text = WindowTitle.Create(operation == null ? "一括インストール" :
+        Text = WindowTitle.Create(operation == null ? "詳細設定" : ids.Count > 1 ? "一括インストール" :
             operation == "install" ? "インストール" : operation == "update" ? "アップデート" : operation == "repair" ? "修復" : "アンインストール");
         Size = new(980, 600); MinimumSize = new(850, 520);
         Font = new("Yu Gothic UI", 11); StartPosition = FormStartPosition.CenterParent;
-        foreach (var tool in tools) targets.Items.Add(TargetText(tool), tool.Id == initialTarget);
-        if (operation != null) completion.Text = tools.Single(t => t.Id == initialTarget).Name + "：操作内容を確認してください。";
+        foreach (var tool in tools) targets.Items.Add(TargetText(tool), ids.Contains(tool.Id));
+        if (operation != null) completion.Text = startWithoutConfirmation ? "インストールの準備中…" : "操作内容を確認してください。";
         results.Columns.Add("product", "ツール"); results.Columns.Add("state", "結果"); results.Columns.Add("detail", "理由・次の操作");
         results.Columns[0].FillWeight = 24; results.Columns[1].FillWeight = 23; results.Columns[2].FillWeight = 53;
         results.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -319,12 +325,17 @@ internal sealed partial class InstallationForm : BrandedForm
         SetRunning(true);
         await RefreshAvailability();
         SetRunning(false);
-        var denied = selected.Select(t => (Tool: t, Rule: InstallAvailability(t, singleOperation ?? operation))).FirstOrDefault(x => !x.Rule.Enabled);
+        var denied = selected.Select(t => (Tool: t, Rule: startWithoutConfirmation && detectInstallation(t).State != "未導入"
+            ? ActionAvailability.Deny("導入状態が変わりました。一覧で確認してください。")
+            : InstallAvailability(t, singleOperation ?? operation))).FirstOrDefault(x => !x.Rule.Enabled);
         if (denied.Tool != null) { completion.Text = denied.Tool.Name + "：" + denied.Rule.Reason; return; }
-        string confirmation;
-        try { confirmation = ReleaseDisplay.Confirmation(selected, operation, detectInstallation, publicCatalog, catalogPath, manager.KnownTools()); }
-        catch (Exception ex) { completion.Text = "操作内容を確認できません：" + ex.Message; return; }
-        if (!confirm(confirmation)) { completion.Text = "操作をキャンセルしました。変更していません。"; return; }
+        if (!startWithoutConfirmation)
+        {
+            string confirmation;
+            try { confirmation = ReleaseDisplay.Confirmation(selected, operation, detectInstallation, publicCatalog, catalogPath, manager.KnownTools()); }
+            catch (Exception ex) { completion.Text = "操作内容を確認できません：" + ex.Message; return; }
+            if (!confirm(confirmation)) { completion.Text = "操作をキャンセルしました。変更していません。"; return; }
+        }
         SetRunning(true); cancellation = new(); var current = cancellation;
         log.Clear(); results.Rows.Clear(); completion.ForeColor = SystemColors.ControlText;
         AppendLog(catalogPath == null ? "GitHub Releases：製品・版・容量・SHA-256を照合します。未署名の配布物です。" : "ローカル配布台帳：" + catalogPath + "（未署名）");

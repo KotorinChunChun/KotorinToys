@@ -59,7 +59,8 @@ internal sealed partial class Dashboard
 
     void ReplaceTools(ToolDefinition[] next)
     {
-        string? selected = SelectedIndex is var index && index >= 0 ? tools[index].Id : null;
+        var selected = SelectedRows().Select(index => tools[index].Id).ToHashSet();
+        var current = grid.CurrentRow?.Tag as string;
         tools = next;
         installations = tools.Select(detectInstallation).ToArray();
         states = tools.Select(_ => new ToolState("確認中")).ToArray();
@@ -72,8 +73,13 @@ internal sealed partial class Dashboard
         RebuildCategories();
         if (tools.Length > 0)
         {
-            var row = Array.FindIndex(tools, t => t.Id == selected);
+            var row = Array.FindIndex(tools, t => t.Id == current);
             grid.CurrentCell = grid.Rows[Math.Max(0, row)].Cells["tool"];
+            if (tools.Any(t => selected.Contains(t.Id)))
+            {
+                grid.ClearSelection();
+                foreach (DataGridViewRow item in grid.Rows) item.Selected = item.Tag is string id && selected.Contains(id);
+            }
         }
         ApplySnapshot(installations, states, releases);
     }

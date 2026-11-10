@@ -168,6 +168,7 @@ internal static class Program
                 HostLaunchTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ux-preview"])) return UxPreview.Run(root,fixtures);
             if (args.SequenceEqual(["--readiness-tests"])) { ReleaseReadinessTests.Run(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--window-presentation-tests"])) { HostWindowPresentationTests.Run(Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-mode-tests"])) { InstallationModeTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--view-tests"])) { DashboardViewTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--repair-tests"])) { RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); RepairTests.Form(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }

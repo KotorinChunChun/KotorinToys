@@ -25,7 +25,11 @@ internal sealed partial class Dashboard
         detailMenu.Items.Add("詳細を表示", null, (_, _) => OpenSelectedDetails());
         detailMenu.Opening += (_, e) => e.Cancel = busy || refreshingCatalog || SelectedIndex < 0;
         grid.ContextMenuStrip = detailMenu;
-        grid.CellMouseDown += (_, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) grid.CurrentCell = grid.Rows[e.RowIndex].Cells["detail"]; };
+        grid.CellMouseDown += (_, e) =>
+        {
+            if (e.Button != MouseButtons.Right || e.RowIndex < 0) return;
+            SelectOne(e.RowIndex, "detail");
+        };
         grid.KeyDown += (_, e) =>
         {
             if (e.KeyCode == Keys.Enter && grid.CurrentCell?.OwningColumn?.Name == "detail")
@@ -34,7 +38,8 @@ internal sealed partial class Dashboard
         grid.CellDoubleClick += async (_, e) =>
         {
             if (e.RowIndex < 0 || busy || e.ColumnIndex == grid.Columns["detail"]!.Index) return;
-            grid.CurrentCell = grid.Rows[e.RowIndex].Cells["tool"]; await Execute(DashboardCommand.Start);
+            if (SelectedRows().Length != 1) return;
+            SelectOne(e.RowIndex, "tool"); await Execute(DashboardCommand.Start);
         };
         actions.Controls.Add(new Label { Text = "選択中アプリ：", AutoSize = true, Margin = new(3, 8, 8, 0) });
         hostActions.Controls.Add(new Label { Text = "本体全体：", AutoSize = true, Margin = new(3, 8, 8, 0) });
@@ -53,7 +58,7 @@ internal sealed partial class Dashboard
             button.Click += async (_, _) => await OpenStartupSettings(() =>
             { using var form = new StartupSettingsForm(settings, startup, manager.KnownTools()); form.ShowDialog(this); }); hostActions.Controls.Add(button);
         }
-        var installation = new Button { Name = "advancedSettings", Text = "一括インストール", AutoSize = true };
+        var installation = new Button { Name = "advancedSettings", Text = "詳細設定", AutoSize = true };
         installation.Click += async (_, _) => await OpenInstallation(false); hostActions.Controls.Add(installation);
         var hostUpdate = new Button { Name = "hostUpdate", Text = "本体アップデート", AutoSize = true };
         hostUpdate.Click += (_, _) => OpenSelfUpdate(); hostActions.Controls.Add(hostUpdate);
@@ -68,5 +73,12 @@ internal sealed partial class Dashboard
         ApplySnapshot(installations, states, releases);
         Shown += async (_, _) => { timer.Start(); await RefreshAll(); };
         timer.Tick += async (_, _) => { if (!busy) await RefreshStates(); };
+    }
+
+    void SelectOne(int row, string column)
+    {
+        grid.CurrentCell = grid.Rows[row].Cells[column];
+        grid.ClearSelection();
+        grid.Rows[row].Selected = true;
     }
 }

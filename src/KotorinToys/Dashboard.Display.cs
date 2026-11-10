@@ -21,7 +21,9 @@ internal sealed partial class Dashboard
     {
         if (UiClosed) return;
         var issue = string.Join("\n", new[] { catalogError, stateError }.Where(text => !string.IsNullOrWhiteSpace(text)));
-        grid.AccessibleDescription = string.IsNullOrEmpty(issue) && tools.Length == 0 ? "登録ツールなし（configで一覧が空に設定されています）" : issue;
+        grid.AccessibleDescription = string.IsNullOrEmpty(issue)
+            ? tools.Length == 0 ? "登録ツールなし（configで一覧が空に設定されています）" : "Ctrlキーで個別に、Shiftキーで範囲を複数選択できます。"
+            : issue;
         if (hostActions.Controls.Find("refresh", false).SingleOrDefault() is Button refresh)
             tooltips.SetToolTip(refresh, string.IsNullOrEmpty(issue) ? "実行状態・一覧・公開版を更新します。公開情報は5分のキャッシュを使い、期限後に再取得します。取得制限の解除待ち中は通信しません。" : issue);
         for (int i = 0; i < tools.Length; i++)
@@ -66,20 +68,38 @@ internal sealed partial class Dashboard
         if (UiClosed) return;
         grid.Enabled = !busy && !refreshingCatalog;
         actions.AccessibleDescription = hostActions.AccessibleDescription = busy || refreshingCatalog ? "処理中です。完了するまでお待ちください。" : null;
-        int i = SelectedIndex;
+        var selected = SelectedRows();
+        int i = selected.Length == 1 ? selected[0] : -1;
+        ActionAvailability SingleAction(string operation) => selected.Length > 1
+            ? ActionAvailability.Deny("この操作はアプリを1件だけ選択してください。") : Availability(i, operation);
         var repository = i >= 0 && i < tools.Length ? ToolRepository.Find(tools[i]) : null;
         ActionHints.Apply(github, busy || refreshingCatalog ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") :
+            selected.Length > 1 ? ActionAvailability.Deny("この操作はアプリを1件だけ選択してください。") :
             repository != null ? ActionAvailability.Allow(repository.AbsoluteUri) : ActionAvailability.Deny("GitHub公開先が未設定、またはツールが未選択です。"), tooltips);
         foreach (var name in new[] { "start", "stop", "manual" })
             if (actions.Controls.Find(name, false).SingleOrDefault() is Button button)
-                ActionHints.Apply(button, Availability(i, name), tooltips);
+                ActionHints.Apply(button, SingleAction(name), tooltips);
         bool repair = i >= 0 && i < installations.Length && installations[i].State == "修復が必要";
         install.Text = repair ? "修復" : "インストール";
         var installRule = i < 0 || i >= tools.Length ? ActionAvailability.Deny("先に対象アプリを選択してください。") :
             repair ? Availability(i, "repair") : ToolActionPolicy.InstallEntry(tools[i], busy || refreshingCatalog || checkingReleases);
+        if (selected.Length > 1) installRule = BatchInstallAvailability(selected);
         ActionHints.Apply(install, installRule, tooltips);
-        ActionHints.Apply(update, Availability(i, "update"), tooltips);
-        ActionHints.Apply(uninstall, Availability(i, "uninstall"), tooltips);
+        ActionHints.Apply(update, SingleAction("update"), tooltips);
+        ActionHints.Apply(uninstall, SingleAction("uninstall"), tooltips);
+    }
+
+    ActionAvailability BatchInstallAvailability(int[] selected, bool duringOperation = false)
+    {
+        foreach (int index in selected)
+        {
+            if (installations[index].State != "未導入")
+                return ActionAvailability.Deny(tools[index].Name + "：一括インストールでは未導入のアプリを選択してください。");
+            var rule = duringOperation ? Availability(index, "install", true) :
+                ToolActionPolicy.InstallEntry(tools[index], busy || refreshingCatalog || checkingReleases);
+            if (!rule.Enabled) return ActionAvailability.Deny(tools[index].Name + "：" + rule.Reason);
+        }
+        return ActionAvailability.Allow("選択したアプリを順番にインストールします。");
     }
 
     ActionAvailability Availability(int index, string operation, bool duringOperation = false)

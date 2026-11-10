@@ -76,7 +76,13 @@ internal sealed partial class Dashboard
     {
         if (requested is not ("install" or "update" or "repair" or "uninstall")) throw new ArgumentException("未対応の操作です。", nameof(requested));
         if (busy || refreshingCatalog || checkingReleases || IsDisposed) return;
-        var index = SelectedIndex;
+        var selected = SelectedRows();
+        if (selected.Length > 1)
+        {
+            if (requested == "install") await InstallBatch(selected);
+            return;
+        }
+        var index = selected.Length == 1 ? selected[0] : -1;
         if (index < 0 || index >= tools.Length) return;
         var tool = tools[index];
         if (requested == "update" && !ToolVersionView.Create(installations[index], releases[index]).CanUpdate) return;
@@ -107,6 +113,31 @@ internal sealed partial class Dashboard
             await RefreshStates(true);
         }
         catch (Exception ex) { ShowOperationFailure("導入画面を開けません：" + ex.Message); }
+        finally { EndOperation(); }
+    }
+
+    async Task InstallBatch(int[] selected)
+    {
+        if (!BatchInstallAvailability(selected).Enabled || !TryBeginOperation()) return;
+        try
+        {
+            await RefreshReleases();
+            await RefreshStates(true);
+            if (IsDisposed) return;
+            var rule = BatchInstallAvailability(selected, true);
+            if (!rule.Enabled) { ShowOperationFailure(rule.Reason); return; }
+            var catalog = ConfirmedCatalog();
+            foreach (int index in selected)
+            {
+                var tool = tools[index];
+                if (ToolInstallationRunner.PublicReason(tool, catalog, releases[index]) is { } reason)
+                { ShowOperationFailure(tool.Name + "：" + reason, tool.Id); return; }
+                operationErrors.Remove(tool.Id);
+            }
+            showBatchInstaller(selected.Select(index => tools[index].Id).ToArray(), catalog);
+            await RefreshStates(true);
+        }
+        catch (Exception ex) { ShowOperationFailure("インストールを開始できません：" + ex.Message); }
         finally { EndOperation(); }
     }
     bool TryBeginOperation()
