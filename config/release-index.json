@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T09:50:24.2455709+00:00",
+  "generatedAt": "2026-11-10T16:36:13.9081594+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -1088,6 +1088,35 @@
       "name": "OfficeAssist",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.2.2",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-10T16:35:35Z",
+          "assets": [
+            {
+              "name": "OfficeAssist-0.2.2-setup.exe",
+              "state": "uploaded",
+              "size": 85798196,
+              "digest": "sha256:a92e7cf701ecb124a769fd9102a2ffe3ce7e7fe3029464238554b7417fe6d8a0",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.2/OfficeAssist-0.2.2-setup.exe"
+            },
+            {
+              "name": "OfficeAssist-packages.json",
+              "state": "uploaded",
+              "size": 411,
+              "digest": "sha256:fb91a38822a1395a43c7ef8e4d454360309ccf32d8033f00d97795ae4230e40c",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.2/OfficeAssist-packages.json"
+            },
+            {
+              "name": "OfficeAssist-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:9d40c49a9c3ac03a88001ace06462f63072f39e1e87a850f7dcbdc0f247d7cf7",
+              "browser_download_url": "https://github.com/KotorinChunChun/OfficeAssist/releases/download/v0.2.2/OfficeAssist-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.2.1",
           "draft": false,
