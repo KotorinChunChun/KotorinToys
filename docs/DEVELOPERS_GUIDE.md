@@ -1,12 +1,16 @@
 # KotorinToys 開発者ガイド
 
-画面の使い方は[利用者向けガイド](USERS_GUIDE.md)・[自動起動の操作](startup-settings.md)へ分離しています。開発時の詳細は[操作可否の実装](development/operation-availability.md)・[自動起動の判定と保守](development/startup-settings.md)を参照してください。
+画面の操作は[利用者向けガイド](USERS_GUIDE.md)と[自動起動の操作](startup-settings.md)を参照してください。実装の詳細は[操作可否の実装](development/operation-availability.md)と[自動起動の判定と保守](development/startup-settings.md)にまとめています。
 
-新規アプリは[定義で追加する標準管理製品](development/definition-managed-products.md)を参照してください。更新列は4値に保ち、理由と対処は詳細セルのクリック／Enterでも読めます。修復・表示保存・用途別タブ・公開前検査は[操作改善の設計と検証](development/operation-improvements.md)へまとめています。
+アプリを新しく追加する場合は[定義で追加する標準管理製品](development/definition-managed-products.md)を参照してください。「更新」列の表示は4種類に保ちます。「詳細」セルをクリックするか、選択してEnterキーを押すと、理由と対処を確認できます。修復、表示設定の保存、用途別タブ、公開前の検査は[操作改善の設計と検証](development/operation-improvements.md)にまとめています。
 
 ## 前提
 
-EXE導入・削除の診断はInstallerDiagnosticsが実行ごとに保存します。Inno終了コードはInstallerAdapterで分類し、MSIXの既存診断とは区別します。/LOGは引数リストで渡し、空白や日本語のパスも単一引数に保持します。SSCapture補助は導入先ハッシュ・root・operation・今回のutcを照合してからmessageだけを取り込みます。ログなし・壊れたログでは原因を推測せず、読取不能を表示します。診断作成失敗ではsetupを開始せず、実行後の結果保存失敗でsetupを再実行しません。詳細ログの自動アップロード・設定や履歴の収集はしません。
+InstallerDiagnosticsは、EXEの導入や削除を実行するたびに診断を保存します。InstallerAdapterはInnoの終了コードを分類し、既存のMSIX診断とは区別します。/LOGは引数リストで渡し、パスに空白や日本語が含まれていても、1つの引数として扱います。
+
+SSCaptureの補助ログは、導入先ハッシュ、root、operation、今回のutcを照合し、messageだけを取り込みます。ログがない場合や壊れている場合は、原因を推測せず読み取れないことを表示します。
+
+診断を作成できなければsetupを開始しません。実行後に結果を保存できなかった場合も、setupは再実行しません。詳細ログの自動アップロードや、設定・履歴の収集は行いません。
 
 - Windows 11 x64
 - PowerShellコマンドは `pwsh` で実行する

@@ -1,6 +1,6 @@
 # インストーラー作成環境
 
-本体と対応ツールはユーザー単位のInno Setup EXEを採用する。0.1.5からEveryDBも同じ形式で配布する。EveryDBはネイティブEXEとWebView2 Runtimeを使用し、共通maintenanceだけが自己完結型.NETである。
+本体と対応ツールは、ユーザーごとに導入するInno Setup形式のEXEで配布する。0.1.5からEveryDBも同じ形式で配布する。EveryDBはネイティブEXEとWebView2 Runtimeを使い、共通maintenanceだけを自己完結型.NETで配布する。
 
 例外としてHttpSelectorは署名付きMSIXを維持する。0.1.6ソースの[MSIX管理](msix-management.md)は公開MSIXを検証してWindowsへ渡す機能であり、HttpSelectorをInnoへ梱包し直す機能ではない。本体・MaintenanceはWindows SDK APIを参照するため、発行時は新しいTFMの依存DLLと利用条件も含めて点検する。
 

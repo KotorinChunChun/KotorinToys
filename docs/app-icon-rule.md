@@ -1,12 +1,12 @@
 # 本体アイコンの共通規約
 
-本体KotorinToysは、採用04「青い小鳥と赤・緑の積み木」を使う。正本は[src/KotorinToys/assets/KotorinToys.ico](../src/KotorinToys/assets/KotorinToys.ico)。マスターPNGと再生成方法は[素材の説明](../src/KotorinToys/assets/README.md)を参照する。収録ツールは各製品の固有アイコンを維持する。
+KotorinToys本体には、採用案04「青い小鳥と赤・緑の積み木」を使う。基準となるファイルは[src/KotorinToys/assets/KotorinToys.ico](../src/KotorinToys/assets/KotorinToys.ico)。マスターPNGと再生成方法は[素材の説明](../src/KotorinToys/assets/README.md)を参照する。収録ツールには各製品のアイコンを使う。
 
 | 表示箇所 | 設定・所有権 |
 | --- | --- |
 | 本体EXE、メンテナンスEXE、Explorer | 各csprojのApplicationIconで同じICOを埋め込む |
 | 通知領域（タスクトレイ） | AppIcon.Createで埋込みリソースから生成し、トレイ終了後に破棄する |
-| 管理画面、設定画面、導入画面のタイトルバー／タスクバー | BrandedFormを継承する。画面ごとのIconを基底クラスが所有・破棄する |
+| 管理画面、設定画面、導入画面のタイトルバー／タスクバー | BrandedFormを継承する。基底クラスが画面ごとのIconを管理し、不要になったら破棄する |
 | 本体セットアップ／アンインストーラー | Innoテンプレートの本体条件でSetupIconFileを指定する |
 | スタートメニュー／EXE参照のショートカット／削除一覧 | 各製品EXEの先頭アイコンを参照する |
 

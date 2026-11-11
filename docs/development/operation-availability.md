@@ -1,6 +1,6 @@
 # 操作可否と理由の実装（開発者向け）
 
-利用者向けは[利用ガイド](../USERS_GUIDE.md)・[自動起動の操作](../startup-settings.md)。実装はToolActionPolicyとActionAvailability、画面側のActionHintsを正本とする。
+利用者向けの操作手順は[利用ガイド](../USERS_GUIDE.md)と[自動起動の操作](../startup-settings.md)を参照する。実装を確認するときは、ToolActionPolicy、ActionAvailability、画面側のActionHintsを参照する。
 
 | 操作 | 有効条件 |
 | --- | --- |
