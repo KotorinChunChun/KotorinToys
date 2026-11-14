@@ -83,7 +83,8 @@ internal static class EveryDbDistributionAcceptance
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         var manager=new ToolManager(root,(_,_)=>throw new IOException("公開一覧の検証画面では製品を起動しません。"));
         using var form=new Dashboard(root,new HostSettingsStore(Path.Combine(output,"settings")),toolManager:manager,
-            showToolInstaller:(_,_,_)=>throw new IOException("導入の実検証は専用CLI受入を使用します。"));
+            showToolInstaller:(_,_,_)=>throw new IOException("導入の実検証は専用CLI受入を使用します。"),
+            runUpdates: (_, _, _, _) => throw new IOException("更新の実検証は専用CLI受入を使用します。"));
         form.Shown+=(_,_)=> { var screen=Screen.FromControl(form).WorkingArea; form.Bounds=new(screen.Left+screen.Width/2,screen.Top,screen.Width-screen.Width/2,screen.Height); };
         Application.Run(form);
         return 0;

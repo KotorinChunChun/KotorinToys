@@ -24,6 +24,11 @@ internal static class DashboardInstallationTests
         }
         using var form = new Dashboard(root, releaseCheck: Fetch, detectInstallation: t => actual[t.Id],
             showToolInstaller: (id, operation, releases) => calls.Add((id, operation, releases)),
+            runUpdates: (targets, releases, _, _) =>
+            {
+                calls.Add((targets.Single().Id, "update", releases));
+                return Task.FromResult<InstallResult[]>([new(targets.Single().Id, "update", "成功", "検証済み")]);
+            },
             showBatchInstaller: (ids, _) => batches.Add(ids),
             showInstaller: (_, _) => advanced++, notify: notices.Add, fileExists: _ => true,
             executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")));
@@ -59,7 +64,7 @@ internal static class DashboardInstallationTests
         check(form.Controls.Find("updateSelected", true).Single().Enabled && form.Controls.Find("uninstallSelected", true).Single().Enabled,
             "導入済み・新公開版ありでアップデートと削除が有効");
         Pump(form.OpenToolInstallation("update"));
-        check(calls.Count == 2 && calls[1].Operation == "update", "メインのアップデートは単体操作を指定する");
+        check(calls.Count == 2 && calls[1].Operation == "update", "メインのアップデートは選択アプリを更新する");
         int before = requests;
         Pump(form.OpenToolInstallation("uninstall"));
         check(calls.Count == 3 && calls[2].Operation == "uninstall" && requests == before, "削除は公開版取得不要で選択製品の削除へ進む");
@@ -80,6 +85,7 @@ internal static class DashboardInstallationTests
         var host = form.Controls.Find("hostActions", true).Single();
         check(new[] { "installSelected", "updateSelected", "uninstallSelected", "manual" }.All(name => form.Controls.Find(name, true).Single().Parent == selected) &&
             form.Controls.Find("advancedSettings", true).Single().Parent == host, "単体操作と本体の詳細設定は別行に配置");
+        CheckBatchUpdates(root, tools, catalog, check);
 
         var candidate = tools[0]; var fallback = catalog.Packages.Single(p => p.Package.Id == candidate.Id);
         var previous = new InstallationState("未導入", null, null, null); var operations = new List<string>(); int autoChecks = 0;
@@ -100,5 +106,46 @@ internal static class DashboardInstallationTests
         previous = previous with { Version = fallback.Package.Version };
         Pump(replace.OpenToolInstallation("install"));
         check(operations.Count == 2 && notices.Last().Contains("新しい公開版"), "同じ版なら自動確認後も上書き更新しない");
+    }
+
+    static void CheckBatchUpdates(string root, ToolDefinition[] tools, ReleaseCatalog catalog, Action<bool, string> check)
+    {
+        var actual = tools.Select(_ => new InstallationState("未導入", null, null, null)).ToArray();
+        actual[0] = new("導入済み", "0.0.1", null, "fixture.exe");
+        actual[1] = actual[0] with { Version = catalog.Packages.Single(p => p.Package.Id == tools[1].Id).Package.Version };
+        actual[2] = actual[0];
+        var batches = new List<string[]>();
+        var notices = new List<string>();
+        var installerDialogs = 0;
+        using var form = new Dashboard(root,
+            detectInstallation: tool => actual[Array.FindIndex(tools, t => t.Id == tool.Id)],
+            releaseCheck: (_, package, _) => Task.FromResult(new PublicRelease(package, package != null, false, "fixture")),
+            executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")), fileExists: _ => true,
+            showToolInstaller: (_, _, _) => installerDialogs++, showBatchInstaller: (_, _) => installerDialogs++, notify: notices.Add,
+            runUpdates: (targets, _, _, _) =>
+            {
+                batches.Add(targets.Select(t => t.Id).ToArray());
+                return Task.FromResult(targets.Select(t => t.Id == tools[0].Id
+                    ? new InstallResult(t.Id, "update", "失敗", "検証用終了コード：7")
+                    : new InstallResult(t.Id, "update", "成功", "検証用更新完了")).ToArray());
+            });
+        form.CreateControl();
+        Pump(form.RefreshAll());
+        var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
+        var update = form.Controls.Find("updateSelected", true).Single();
+        var all = form.Controls.Find("updateAll", true).Single();
+        var filter = (ComboBox)form.Controls.Find("viewFilter", true).Single();
+        grid.CurrentCell = grid.Rows[0].Cells[0];
+        grid.Rows[1].Selected = grid.Rows[3].Selected = true;
+        check(update.Enabled && all.Enabled, "最新版・未導入が混在しても更新対象があれば操作可能");
+        Pump(form.OpenToolInstallation("update"));
+        check(batches.Single().SequenceEqual([tools[0].Id]), "選択更新は最新版と未導入を飛ばし、選択外も更新しない");
+        filter.SelectedIndex = 3;
+        check(!grid.Rows[0].Visible && !grid.Rows[2].Visible, "すべて更新の試験で導入済み行を絞り込みから除外");
+        Pump(form.UpdateTools(all: true));
+        check(batches.Count == 2 && batches[1].SequenceEqual([tools[0].Id, tools[2].Id]) && installerDialogs == 0 && notices.Count == 0,
+            "すべて更新は表示条件に関わらず新しい公開版がある導入済みアプリだけを画面なしで順に処理");
+        check(form.Controls.Find("toolUpdateStatus", true).Single().Text.Contains("失敗 1件 / 成功 1件") &&
+            grid.Rows[0].Cells["detail"].ToolTipText.Contains("終了コード：7"), "結果件数と個別の失敗理由を一覧に表示");
     }
 }

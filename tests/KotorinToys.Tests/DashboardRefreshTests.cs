@@ -25,7 +25,12 @@ internal static class DashboardRefreshTests
                 true, false, "最新照合");
         }
         using var form = new Dashboard(root, releaseCheck: Fetch,
-            showToolInstaller: (id, operation, catalog) => { dialogs++; selected = id; offered = catalog; check(operation == "update", "アップデートは単体操作画面へ接続"); },
+            showToolInstaller: (_, _, _) => throw new InvalidOperationException("更新画面を開きました。"),
+            runUpdates: (targets, catalog, _, _) =>
+            {
+                dialogs++; selected = targets.Single().Id; offered = catalog;
+                return Task.FromResult<InstallResult[]>([new(selected, "update", "成功", "検証済み")]);
+            },
             detectInstallation: tool => new("導入済み", tool.Version, null, "fixture.exe"), notify: _ => { }, fileExists: _ => true,
             executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")));
         form.CreateControl(); form.PerformLayout();
@@ -43,15 +48,16 @@ internal static class DashboardRefreshTests
         var first = form.RefreshReleases(); var second = form.RefreshReleases();
         check(ReferenceEquals(first, second) && requests == tools.Length, "同時の公開照合要求を一つの通信へ集約");
         gate.SetResult(); Pump(first);
+        Pump(form.RefreshAll());
         gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
         int before = requests;
         var updating = form.OpenInstallation(true);
         check(!selectedRow.Enabled && !hostRow.Enabled, "更新処理中は選択操作と本体操作の両方を抑止");
         var duplicate = form.OpenInstallation(true);
-        check(duplicate.IsCompletedSuccessfully && requests == before + tools.Length && dialogs == 0, "処理中の再操作で照合と導入画面を重複しない");
+        check(duplicate.IsCompletedSuccessfully && requests == before + tools.Length && dialogs == 0, "処理中の再操作で照合と更新を重複しない");
         grid.CurrentCell = grid.Rows[2].Cells[0]; // 通信中の選択変更を模擬。
         gate.SetResult(); Pump(updating);
-        check(requests == before + tools.Length && dialogs == 1, "更新は公開情報を再取得してから導入画面へ進む");
+        check(requests == before + tools.Length && dialogs == 1, "更新は公開情報を再取得してから画面を開かずに実行する");
         check(selected == tools[1].Id && offered?.Packages.Single(p => p.Package.Id == selected).Package.Version == "9.0.0", "途中で行を変えても押した製品の最新台帳を渡す");
         check(selectedRow.Enabled && hostRow.Enabled, "更新処理後に両操作行を復旧");
         newer = false; grid.CurrentCell = grid.Rows[1].Cells[0];

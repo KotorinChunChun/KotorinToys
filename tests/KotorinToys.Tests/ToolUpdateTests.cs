@@ -62,5 +62,21 @@ internal static class ToolUpdateTests
         result = await replace.Run(tool, catalog);
         check(result.State == "失敗" && !events.Any(e => e.StartsWith("restart:")) && result.Detail.Contains("元アプリは停止したまま"),
             "別配置の導入失敗時は別製品を自動起動しない");
+
+        var published = InstallerAdapter.Load(catalog).Packages.Single(p => p.Id == tool.Id).Version;
+        registered = registered with { Version = published };
+        result = await coordinator.Run(tool, catalog, updateOnly: true);
+        check(result.State == "スキップ" && installs == previousInstalls && stops == previousStops,
+            "取得中に最新版になった製品は停止や再インストールをせずスキップ");
+        registered = new("未導入", null, null, null);
+        result = await coordinator.Run(tool, catalog, updateOnly: true);
+        check(result.State == "失敗" && installs == previousInstalls && stops == previousStops,
+            "取得中に削除された製品はアップデートから新規導入しない");
+        registered = new("導入済み", "0.0.1", "C:/installed", "C:/installed/SmartPaste.exe");
+        restarted = new("実行中");
+        int previousStarts = starts;
+        result = await coordinator.Run(tool with { Capabilities = ["status", "show", "stop", "start"] }, catalog, updateOnly: true);
+        check(result.State == "要確認" && installs == previousInstalls + 1 && starts == previousStarts && result.Detail.Contains("画面を出さずに起動できません"),
+            "画面表示が必須のアプリは更新後に起動せず、利用者へ案内する");
     }
 }

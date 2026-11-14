@@ -28,6 +28,8 @@ internal static class UxPreview
             controlExecution:(t,starting)=>{states[t.Id]=new(starting?"実行中":"停止中",Detail:"架空応答です。");return Task.FromResult(states[t.Id]);},
             releaseCheck:(t,_,_)=>Task.FromResult(Release(t)),showInstaller:(id,releases)=>ShowInstaller(id,null,releases),
             showToolInstaller:(id,op,releases)=>ShowInstaller(id,op,releases),fileExists:Exists,
+            runUpdates: (targets, _, _, _) => Task.FromResult(targets.Select(tool =>
+                new InstallResult(tool.Id, "update", "成功", "架空の更新結果です。")).ToArray()),
             openRepository:_=>{},showSelfUpdater:()=>{},viewStore:new(Path.Combine(fixtures,"view")));
         using(panel)
         {

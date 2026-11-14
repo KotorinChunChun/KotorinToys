@@ -75,6 +75,7 @@ internal sealed partial class Dashboard
     internal async Task OpenToolInstallation(string requested)
     {
         if (requested is not ("install" or "update" or "repair" or "uninstall")) throw new ArgumentException("未対応の操作です。", nameof(requested));
+        if (requested == "update") { await UpdateTools(all: false); return; }
         if (busy || refreshingCatalog || checkingReleases || IsDisposed) return;
         var selected = SelectedRows();
         if (selected.Length > 1)
@@ -85,7 +86,6 @@ internal sealed partial class Dashboard
         var index = selected.Length == 1 ? selected[0] : -1;
         if (index < 0 || index >= tools.Length) return;
         var tool = tools[index];
-        if (requested == "update" && !ToolVersionView.Create(installations[index], releases[index]).CanUpdate) return;
         if (requested == "install" && ToolActionPolicy.InstallEntry(tool) is { Enabled: false } entry)
         { ShowOperationFailure(tool.Name + "：" + entry.Reason, tool.Id); return; }
         if (!TryBeginOperation()) return;
@@ -109,6 +109,7 @@ internal sealed partial class Dashboard
             else if (requested != "repair" && (requested == "install" ? actual.State != "未導入" : !ToolVersionView.Create(actual, releases[index]).CanUpdate))
             { ShowOperationFailure(tool.Name + "：導入状態または公開版が変わりました。状態を更新して確認してください。", tool.Id); return; }
             operationErrors.Remove(tool.Id);
+            updateResults.Remove(tool.Id);
             showToolInstaller(tool.Id, requested, catalog);
             await RefreshStates(true);
         }

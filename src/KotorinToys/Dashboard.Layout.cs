@@ -50,6 +50,7 @@ internal sealed partial class Dashboard
             button.Click += async (_, _) => await Execute(command); actions.Controls.Add(button);
         }
         github.Click += (_, _) => OpenRepository(); actions.Controls.Add(github);
+        updateAll.Click += async (_, _) => await UpdateTools(all: true); hostActions.Controls.Add(updateAll);
         var refresh = new Button { Text = "状態を更新", Name = "refresh", AutoSize = true };
         refresh.Click += async (_, _) => await RefreshAll(); hostActions.Controls.Add(refresh);
         if (settings != null && startup != null)
@@ -65,9 +66,11 @@ internal sealed partial class Dashboard
         install.Click += async (_, _) => await OpenToolInstallation(install.Text == "修復" ? "repair" : "install"); actions.Controls.Add(install);
         update.Click += async (_, _) => await OpenToolInstallation("update"); actions.Controls.Add(update);
         uninstall.Click += async (_, _) => await OpenToolInstallation("uninstall"); actions.Controls.Add(uninstall);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 1 };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 5, ColumnCount = 1 };
         layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.AutoSize));
+        layout.RowStyles.Add(new(SizeType.AutoSize));
         layout.Controls.Add(viewBar,0,0); layout.Controls.Add(grid, 0, 1); layout.Controls.Add(actions, 0, 2); layout.Controls.Add(hostActions, 0, 3); Controls.Add(layout);
+        layout.Controls.Add(updateStatus, 0, 4);
         ActionHints.Attach(actions, tooltips); ActionHints.Attach(hostActions, tooltips);
         ActionHints.Attach(layout, tooltips);
         ApplySnapshot(installations, states, releases);

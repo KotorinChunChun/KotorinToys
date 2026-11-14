@@ -16,6 +16,9 @@ internal sealed partial class Dashboard : BrandedForm
     string? catalogError, stateError;
     readonly Button install = new() { Name = "installSelected", Text = "インストール", AutoSize = true, Enabled = false };
     readonly Button update = new() { Name = "updateSelected", Text = "アップデート", AutoSize = true, Enabled = false };
+    readonly Button updateAll = new() { Name = "updateAll", Text = "すべて更新", AutoSize = true, Enabled = false };
+    readonly Label updateStatus = new() { Name = "toolUpdateStatus", AutoSize = true, Visible = false, Margin = new(12, 2, 12, 8) };
+    readonly Dictionary<string, InstallResult> updateResults = new();
     readonly Button uninstall = new() { Name = "uninstallSelected", Text = "アンインストール", AutoSize = true, Enabled = false };
     readonly Button github = new() { Name = "github", Text = "GitHubを開く", AutoSize = true, Enabled = false };
     readonly ToolTip tooltips = new();
@@ -26,6 +29,7 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Action<string?, ReleaseCatalog?> showInstaller;
     readonly Action<string, string, ReleaseCatalog?> showToolInstaller;
     readonly Action<string[], ReleaseCatalog?> showBatchInstaller;
+    readonly Func<IReadOnlyList<ToolDefinition>, ReleaseCatalog, IProgress<InstallResult>, CancellationToken, Task<InstallResult[]>> runUpdates;
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
     readonly Action<Uri> openRepository;
     readonly Func<string, bool> fileExists;
@@ -46,6 +50,7 @@ internal sealed partial class Dashboard : BrandedForm
     StartupOverview[] startupSnapshots;
     bool busy, checkingReleases, refreshingCatalog, resourcesDisposed;
     bool UiClosed => resourcesDisposed || IsDisposed || Disposing;
+    internal bool UpdatingTools { get; private set; }
 
     public Dashboard(string root, HostSettingsStore? settings = null, StartupCoordinator? startup = null,
         Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>>? releaseCheck = null,
@@ -59,7 +64,8 @@ internal sealed partial class Dashboard : BrandedForm
         Func<ToolDefinition, CancellationToken, Task<ToolState>>? executionCheck = null,
         Action<string, string>? showDetails = null, DashboardViewStore? viewStore = null,
         Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null, ToolLocations? locations = null,
-        Action<string[], ReleaseCatalog?>? showBatchInstaller = null)
+        Action<string[], ReleaseCatalog?>? showBatchInstaller = null,
+        Func<IReadOnlyList<ToolDefinition>, ReleaseCatalog, IProgress<InstallResult>, CancellationToken, Task<InstallResult[]>>? runUpdates = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.viewStore = viewStore ?? (settings == null ? null : new DashboardViewStore(settings.DirectoryPath));
@@ -78,6 +84,8 @@ internal sealed partial class Dashboard : BrandedForm
         this.showBatchInstaller = showBatchInstaller ?? ((ids, catalog) =>
         { using var form = new InstallationForm(manager, releases: catalog, operation: "install", publications: PublicationSnapshot(),
             initialTargets: ids, startWithoutConfirmation: true); form.ShowDialog(this); });
+        this.runUpdates = runUpdates ?? ((targets, catalog, progress, token) =>
+            new ToolInstallationRunner(manager).Run(targets, "update", catalog, null, progress, cancellation: token));
         this.detectInstallation = detectInstallation ?? manager.Installation;
         this.fileExists = fileExists ?? File.Exists;
         this.executionCheck = executionCheck ?? manager.Status;

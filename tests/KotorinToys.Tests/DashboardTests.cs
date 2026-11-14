@@ -30,8 +30,10 @@ internal static class DashboardTests
         check(grid.CurrentRow?.Cells["tool"].Value?.ToString() == "SSCapture" && grid.Rows.Cast<DataGridViewRow>().All(row => row.Cells["state"].Value?.ToString() == "実行中"), "選択変更後も状態は表の各行で確認できる");
         check(new[] { "overallStatus", "selectedStatus", "lastOperation", "catalogStatus", "selfUpdateStatus" }
             .All(name => form.Controls.Find(name, true).Length == 0), "メイン下部の状態・説明ラベルを生成しない");
-        check(grid.Parent is TableLayoutPanel layout && layout.RowCount == 4 && layout.Controls.Count == 4 && form.Controls.Find("viewBar",true).Length==1,
-            "メインは上部の絞り込み・一覧・2つの操作行でフッター領域を残さない");
+        var updateStatus = form.Controls.Find("toolUpdateStatus", true).Single();
+        check(grid.Parent is TableLayoutPanel layout && form.Controls.Find("viewBar", true).Length == 1 &&
+            !updateStatus.Visible && layout.GetRowHeights()[layout.GetRow(updateStatus)] == 0,
+            "更新を開始するまで結果欄を表示せず、一覧に高さを確保する");
         check(!((Button)form.Controls.Find("updateSelected", true).Single()).Enabled, "同一版はアップデートを無効にする");
         check(((Button)form.Controls.Find("uninstallSelected", true).Single()).Enabled &&
             ((Button)form.Controls.Find("installSelected", true).Single()).Enabled, "導入済みでも公開版の再確認とアンインストールへ進める");
