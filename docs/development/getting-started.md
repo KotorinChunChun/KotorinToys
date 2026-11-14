@@ -68,6 +68,8 @@ pwsh -NoProfile -File dev/scripts/start.ps1 -LocalCatalog
 
 引数なしのstart.ps1は通常の配信用一覧を使います。開発時の隔離と製品の通常起動を混同しません。
 
+EchoTypeはローカル開発一覧の「すべて」に表示されます。利用するには、定義を含むEchoTypeのソースを `tools/EchoType` に配置してください。設定や手動起動の手順は、一覧でEchoTypeを選択して「使い方を開く」で確認できます。起動・停止・自動起動・配布管理への連携は準備中です。
+
 ## 検証へ進む
 
 通常のコード検証は[管理機構の検証](../testing.md)、子の起動・表示・正常停止の受入は[連携検証](tool-integration.md)を参照してください。GUI・音声・OCR・録画・サインインは、ビルド成功だけで確認済みにしません。

@@ -100,6 +100,11 @@
       "id": "chuwitch-window",
       "name": "ChuwitchWindow",
       "definition": "tools/ChuwitchWindow/tool.json"
+    },
+    {
+      "id": "echo-type",
+      "name": "EchoType",
+      "definition": "tools/EchoType/tool.json"
     }
   ]
 }

@@ -369,8 +369,11 @@ internal static class Program
             "ShortcutKeyCounterとAgentTasktrayViewerは本体用Inno配布の対象外");
         Check(tools.Single(t => t.Id == "voice-mixer-spk-router").Runtimes is { Length: 0 } &&
             tools.All(t => t.Runtimes != null), "SpkRouterは追加ランタイム不要、全ツールは依存情報を明示");
-        Check(tools.All(t => t.Capabilities?.Any(c => c is "start" or "silent-start") == true &&
-            t.SupportedEnvironment == "windows11-x64"), "全ツールの起動能力と対応環境を確認");
+        var echoType = tools.Single(t => t.Id == "echo-type");
+        Check(echoType is { Capabilities.Length: 0, DistributionStatus: "unpublished", RepositoryUrl: null } &&
+            echoType.InstalledExecutable == "EchoType.App.exe", "EchoTypeはローカル一覧と説明書に対応し、管理起動と配布は未対応");
+        Check(tools.All(t => t.SupportedEnvironment == "windows11-x64" &&
+            (t.Id == echoType.Id || t.Capabilities?.Any(c => c is "start" or "silent-start") == true)), "管理起動対応ツールの起動能力と全ツールの対応環境を確認");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

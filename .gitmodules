@@ -58,3 +58,7 @@
 [submodule "tools/ChuwitchWindow"]
 	path = tools/ChuwitchWindow
 	url = https://github.com/KotorinChunChun/ChuwitchWindow.git
+
+[submodule "tools/EchoType"]
+	path = tools/EchoType
+	update = none

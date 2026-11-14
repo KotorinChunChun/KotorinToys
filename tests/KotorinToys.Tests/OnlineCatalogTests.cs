@@ -27,7 +27,7 @@ internal static class OnlineCatalogTests
         var bytes = File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath));
         var bundled = OnlineToolCatalog.Parse(bytes, root);
         var localTools = ToolCatalog.Load(root);
-        string[] developmentOnly = ["focus-translator", "chuwitch-window"];
+        string[] developmentOnly = ["focus-translator", "chuwitch-window", "echo-type"];
         check(developmentOnly.All(id => localTools.Any(t => t.Id == id && t.DistributionStatus == "unpublished")),
             "開発専用の製品はローカル一覧に未公開として登録");
         check(bundled.Select(t => t.Id).SequenceEqual(localTools.Where(t => !developmentOnly.Contains(t.Id)).Select(t => t.Id)),

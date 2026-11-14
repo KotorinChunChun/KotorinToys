@@ -34,6 +34,12 @@ internal static class LocalCatalogTests
             var grid = (DataGridView)form.Controls.Find("toolTable", true).Single();
             check(grid.Rows.Count == expected.Length && grid.Rows.Cast<DataGridViewRow>().Any(row => Equals(row.Tag, "operation-recorder")),
                 "ローカル一覧の状態更新後もOperationRecorderの行を保持");
+            var echoType = grid.Rows.Cast<DataGridViewRow>().Single(row => Equals(row.Tag, "echo-type"));
+            grid.CurrentCell = echoType.Cells["tool"];
+            check(form.Controls.Find("manual", true).Single().Enabled &&
+                new[] { "start", "stop", "installSelected", "updateSelected", "github" }
+                    .All(name => !form.Controls.Find(name, true).Single().Enabled),
+                "EchoTypeは一覧から使い方を開け、未対応の操作は無効");
             check(File.ReadAllBytes(cache).SequenceEqual(before),
                 "ローカル一覧の更新はオンライン一覧キャッシュを書き換えない");
         }
