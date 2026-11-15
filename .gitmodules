@@ -62,3 +62,6 @@
 [submodule "tools/EchoType"]
 	path = tools/EchoType
 	update = none
+[submodule "tools/TranscriptionServer"]
+	path = tools/TranscriptionServer
+	url = https://github.com/KotorinChunChun/TranscriptionServer.git
