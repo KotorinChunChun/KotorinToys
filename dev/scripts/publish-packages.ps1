@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB','OperationRecorder','OfficeAssist')]
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB','OperationRecorder','OfficeAssist','EchoType')]
     [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste'),
     [switch]$ExcludeFFmpeg,
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
@@ -45,6 +45,8 @@ $runId = 'packages-' + [Guid]::NewGuid().ToString('N')
 $staging = Join-Path $projectRoot "artifacts/packages/$runId"
 $logDirectory = Join-Path $projectRoot "dev/history/$RecordVersion/logs/$runId"
 New-Item -ItemType Directory -Path $staging, $logDirectory | Out-Null
+# EchoType本体、補助プロセス、共通maintenanceの自己完結ランタイムを同じ修正版に揃える。
+$echoRuntimeArgument = '-p:KotorinToysRuntimeVersion=10.0.15'
 function Copy-Required([string]$Source, [string]$Destination) {
     if (-not (Test-Path -LiteralPath $Source)) { throw "配布に必要なファイルがありません: $Source" }
     Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force
@@ -56,18 +58,23 @@ function Assert-Files([string]$Root, [string[]]$RelativePaths) {
         }
     }
 }
-function Publish-Application([string]$Project, [string]$Output, [string]$Label, [string[]]$Extra = @()) {
-    $revisionProduct = if ($Label -eq 'SmartPaste.Ocr') { 'SmartPaste' } else { $Label }
+function Publish-Application([string]$Project, [string]$Output, [string]$Label, [string[]]$Extra = @(),
+    [switch]$ConsoleRuntime) {
+    $revisionProduct = ($Label -split '\.', 2)[0]
     $revision = Get-SnapshotRevision (Get-DistributionProduct $revisionProduct).Folder
     $revisionArguments = @(if ($revision) { "-p:SourceRevisionId=$revision" })
+    if ($revisionProduct -eq 'EchoType') { $Extra += $echoRuntimeArgument }
     & dotnet publish (Join-Path $projectRoot $Project) -c Release -r win-x64 --self-contained true `
         --artifacts-path (Join-Path $staging "build/$Label") -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false -o $Output --nologo @Extra @revisionArguments 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory "$Label.log") | Out-Host
     if ($LASTEXITCODE -ne 0) { throw "$Label の自己完結型発行に失敗しました。" }
-    Assert-Files $Output @('coreclr.dll','hostfxr.dll','hostpolicy.dll','System.Private.CoreLib.dll','System.Windows.Forms.dll')
+    $runtimeFiles = @('coreclr.dll','hostfxr.dll','hostpolicy.dll','System.Private.CoreLib.dll')
+    if (-not $ConsoleRuntime) { $runtimeFiles += 'System.Windows.Forms.dll' }
+    Assert-Files $Output $runtimeFiles
     $runtimeConfig = Get-ChildItem -LiteralPath $Output -Filter '*.runtimeconfig.json' | Select-Object -First 1
     if ($null -eq $runtimeConfig) { throw "$Label のランタイム設定がありません。" }
     $runtimeOptions = (Get-Content -LiteralPath $runtimeConfig.FullName -Raw | ConvertFrom-Json).runtimeOptions
-    if ($runtimeOptions.framework -or $runtimeOptions.frameworks -or $runtimeOptions.includedFrameworks.Count -lt 2) {
+    $minimumFrameworks = if ($ConsoleRuntime) { 1 } else { 2 }
+    if ($runtimeOptions.framework -or $runtimeOptions.frameworks -or $runtimeOptions.includedFrameworks.Count -lt $minimumFrameworks) {
         throw "$Label が自己完結型になっていません。"
     }
     Copy-RuntimeLicenses $Output $Label
@@ -96,8 +103,35 @@ function Copy-RuntimeLicenses([string]$Output, [string]$Label) {
         if (Test-Path -LiteralPath $thirdParty -PathType Leaf) { Copy-Required $thirdParty $notices }
     }
 }
+function Copy-EchoTypeVcRuntime([string]$Output) {
+    # ONNX Runtimeが必要とするx64 CRTを、Visual Studioの再配布用ファイルからアプリの隣へ配置する。
+    $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+    $buildTools = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    if ($LASTEXITCODE -or !$buildTools) { throw 'Visual StudioのC++ x64ビルドツールが見つかりません。' }
+    $redist = Get-ChildItem -Path "$buildTools/VC/Redist/MSVC/*/x64/Microsoft.VC143.CRT" -Directory |
+        Sort-Object { [version]$_.Parent.Parent.Name } -Descending | Select-Object -First 1
+    if (!$redist) { throw 'Visual C++の再配布用x64 CRTが見つかりません。' }
+    $files = @('msvcp140.dll', 'msvcp140_1.dll', 'vcruntime140.dll', 'vcruntime140_1.dll')
+    Assert-Files $redist.FullName $files
+    $receipt = foreach ($file in $files) {
+        $source = Join-Path $redist.FullName $file
+        $signature = Get-AuthenticodeSignature -LiteralPath $source
+        if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch '(?:^|,\s*)O=Microsoft Corporation(?:,|$)') {
+            throw "Visual C++再配布ファイルの発行元を確認できません：$file"
+        }
+        Copy-Required $source $Output
+        $sourceHash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash
+        if ((Get-FileHash -LiteralPath (Join-Path $Output $file) -Algorithm SHA256).Hash -ne $sourceHash) {
+            throw "Visual C++再配布ファイルのコピーが一致しません：$file"
+        }
+        [pscustomobject]@{ file = $file; version = (Get-Item -LiteralPath $source).VersionInfo.FileVersion;
+            source = "VC/Redist/MSVC/$($redist.Parent.Parent.Name)/x64/Microsoft.VC143.CRT"; sha256 = $sourceHash.ToLowerInvariant() }
+    }
+    $receipt | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $logDirectory 'EchoType-vc-runtime.json') -Encoding utf8
+}
 $maintenanceOutput = Join-Path $staging 'maintenance'
 $maintenanceRevisionArguments = @(if ($maintenanceRevision) { "-p:SourceRevisionId=$maintenanceRevision" })
+if ($Products -contains 'EchoType') { $maintenanceRevisionArguments += $echoRuntimeArgument }
 & dotnet publish (Join-Path $projectRoot 'src/KotorinToys.Maintenance/KotorinToys.Maintenance.csproj') -c Release -r win-x64 --self-contained true --artifacts-path (Join-Path $staging 'build/maintenance') -p:DebugType=None -p:DebugSymbols=false -o $maintenanceOutput --nologo @maintenanceRevisionArguments 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory 'maintenance.log') | Out-Host
 if ($LASTEXITCODE -ne 0) { throw '単体削除用メンテナンスの発行に失敗しました。' }
 Assert-Files $maintenanceOutput @('KotorinToys.Maintenance.exe','coreclr.dll','hostfxr.dll','hostpolicy.dll')
@@ -115,12 +149,12 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'README.md') $output
             Copy-Required (Join-Path $projectRoot 'docs') $output
             Copy-Required (Join-Path $projectRoot 'catalog/host.json') (Join-Path $output 'tool.json')
-            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','ScriptSync','OfficeAssist')) {
+            foreach ($name in @('LiveTextMarker','SmartPaste','SSCapture','ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','ScriptSync','OfficeAssist','EchoType')) {
                 $definitionOutput = Join-Path $output "tools/$name"
                 New-Item -ItemType Directory -Path $definitionOutput -Force | Out-Null
                 Copy-Required (Join-Path $projectRoot "tools/$name/tool.json") $definitionOutput
                 Copy-Required (Join-Path $projectRoot "tools/$name/README.md") $definitionOutput
-                if ($name -in @('ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','ScriptSync','OfficeAssist')) {
+                if ($name -in @('ShortcutKeyCounter','CapchunScreen','ChulipVideo','ChunapTool','HttpSelector','EveryDB','VoiceMixerMicRouter','VoiceMixerSpkRouter','OperationRecorder','ScriptSync','OfficeAssist','EchoType')) {
                     # 同梱READMEから辿れる説明だけを含める。子EXE・利用者DBは含めない。
                     Copy-Required (Join-Path $projectRoot "tools/$name/docs") $definitionOutput
                 }
@@ -172,6 +206,16 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/dotnet-LICENSE.txt') (Join-Path $output 'licenses')
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/windowsdesktop-LICENSE.txt') (Join-Path $output 'licenses')
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses/dotnet-THIRD-PARTY-NOTICES.txt') (Join-Path $output 'licenses')
+        }
+        'EchoType' {
+            Publish-Application $identity.Project $output $product
+            Publish-Application 'tools/EchoType/src/EchoType.Captions/EchoType.Captions.csproj' (Join-Path $output 'Captions') 'EchoType.Captions'
+            Publish-Application 'tools/EchoType/src/EchoType.WindowsSpeech/EchoType.WindowsSpeech.csproj' (Join-Path $output 'WindowsSpeech') 'EchoType.WindowsSpeech' -ConsoleRuntime
+            Copy-EchoTypeVcRuntime $output
+            Assert-Files $output @('CaptionDll/CaptionDllHost.exe','Captions/EchoType.Captions.exe',
+                'WindowsSpeech/EchoType.WindowsSpeech.exe','setup-asr.ps1','setup-haas.ps1',
+                'Asr/worker.py','Asr/requirements.txt','Asr/requirements-qwen.txt','Asr/requirements-fast.txt',
+                'Asr/requirements-cuda.txt','Asr/silero_vad_v6.onnx','Asr/whisper_setup.py','Asr/whisper-models.json')
         }
         { $_ -in @('CapchunWindow','ChulipVideo','ChunapTool','OperationRecorder','OfficeAssist') } {
             Publish-Application $identity.Project $output $product

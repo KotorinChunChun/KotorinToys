@@ -169,6 +169,12 @@ internal static class Program
             if (args.SequenceEqual(["--public-release-cache-ui-tests"])) { PublicReleaseCacheUiTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-panel"])) return PublicReleaseCacheUiTests.Panel(root);
             if (args.SequenceEqual(["--local-catalog-tests"])) { LocalCatalogTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args is ["--echo-type-package-test", var echoCatalog, var echoPayload])
+            {
+                Task.Run(() => EchoTypePackageTests.Run(root, fixtures, echoCatalog, echoPayload, Check)).GetAwaiter().GetResult();
+                Console.WriteLine($"PASS: {count} 件");
+                return 0;
+            }
             if (args.SequenceEqual(["--operation-recorder-registration-tests"])) { OperationRecorderRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-diagnosis-tests"])) { InstallationDiagnosisTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installer-diagnostics-tests"])) { InstallerDiagnosticsTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -370,10 +376,12 @@ internal static class Program
         Check(tools.Single(t => t.Id == "voice-mixer-spk-router").Runtimes is { Length: 0 } &&
             tools.All(t => t.Runtimes != null), "SpkRouterは追加ランタイム不要、全ツールは依存情報を明示");
         var echoType = tools.Single(t => t.Id == "echo-type");
-        Check(echoType is { Capabilities.Length: 0, DistributionStatus: "unpublished", RepositoryUrl: null } &&
-            echoType.InstalledExecutable == "EchoType.App.exe", "EchoTypeはローカル一覧と説明書に対応し、管理起動と配布は未対応");
+        Check(echoType.DistributionStatus == "unpublished" && echoType.InstalledExecutable == "EchoType.exe" &&
+            echoType.Capabilities!.SequenceEqual(new[] { "status", "show", "stop", "silent-start" }) &&
+            ProductIdentity.FromTool(echoType)?.Id == echoType.Id,
+            "EchoTypeはローカル一覧・管理起動・開発用配布台帳に対応し、公開配布は未登録");
         Check(tools.All(t => t.SupportedEnvironment == "windows11-x64" &&
-            (t.Id == echoType.Id || t.Capabilities?.Any(c => c is "start" or "silent-start") == true)), "管理起動対応ツールの起動能力と全ツールの対応環境を確認");
+            t.Capabilities?.Any(c => c is "start" or "silent-start") == true), "全ツールの管理起動能力と対応環境を確認");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

@@ -11,6 +11,7 @@ function Get-DistributionProduct([string]$Name) {
         ChunapTool = @{ Id='chunap-tool'; AppId='KotorinToys.ChunapTool'; Folder='ChunapTool'; Repository='ChunapTool'; Project='tools/ChunapTool/src/ChunapTool/ChunapTool.csproj' }
         OperationRecorder = @{ Id='operation-recorder'; AppId='KotorinToys.OperationRecorder'; Folder='OperationRecorder'; Repository='OperationRecorder'; Project='tools/OperationRecorder/src/OperationRecorder/OperationRecorderApp.csproj' }
         OfficeAssist = @{ Id='office-assist'; AppId='KotorinToys.OfficeAssist'; Folder='OfficeAssist'; Repository='OfficeAssist'; Project='tools/OfficeAssist/src/OfficeAssist/OfficeAssist.csproj' }
+        EchoType = @{ Id='echo-type'; AppId='KotorinToys.EchoType'; Folder='EchoType'; Repository='EchoType'; Project='tools/EchoType/src/EchoType.App/EchoType.App.csproj' }
     }
     if (-not $products.ContainsKey($Name)) { throw "配布対象外の製品です：$Name" }
     return [pscustomobject]$products[$Name]

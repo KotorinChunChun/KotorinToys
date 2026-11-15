@@ -24,6 +24,7 @@ internal static class LocalCatalogTests
                 releaseCheck: (_, fallback, _) => Task.FromResult(new PublicRelease(fallback, false, false, "隔離試験")),
                 detectInstallation: _ => new("未導入", null, null, null),
                 executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")),
+                fileExists: path => Path.GetFileName(path) == "EchoType.exe" || File.Exists(path),
                 startupCheck: (_, _) => Task.FromResult(new StartupOverview("未確認", "隔離試験")));
             form.CreateControl();
             var refresh = form.RefreshAll();
@@ -37,9 +38,10 @@ internal static class LocalCatalogTests
             var echoType = grid.Rows.Cast<DataGridViewRow>().Single(row => Equals(row.Tag, "echo-type"));
             grid.CurrentCell = echoType.Cells["tool"];
             check(form.Controls.Find("manual", true).Single().Enabled &&
-                new[] { "start", "stop", "installSelected", "updateSelected", "github" }
+                form.Controls.Find("start", true).Single().Enabled &&
+                new[] { "stop", "installSelected", "updateSelected" }
                     .All(name => !form.Controls.Find(name, true).Single().Enabled),
-                "EchoTypeは一覧から使い方を開け、未対応の操作は無効");
+                "EchoTypeはローカル一覧から手動起動でき、公式配布の導入ボタンは未公開の間無効");
             check(File.ReadAllBytes(cache).SequenceEqual(before),
                 "ローカル一覧の更新はオンライン一覧キャッシュを書き換えない");
         }
