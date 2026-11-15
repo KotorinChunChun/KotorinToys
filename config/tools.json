@@ -572,10 +572,10 @@
     {
       "id": "talk-recorder",
       "name": "TalkRecorder",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "summary": "マイクとスピーカーの音を同時に録音し、時間を揃えて音源ごとに保存する",
       "category": "音声、録音",
-      "executable": "release/v0.1.0/TalkRecorder.exe",
+      "executable": "target/release/TalkRecorder.exe",
       "installedExecutable": "TalkRecorder.exe",
       "appId": "KotorinToys.TalkRecorder",
       "manual": "docs/user-guide.md",
@@ -583,7 +583,7 @@
       "distributionStatus": "unpublished",
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
-      "capabilities": [],
+      "capabilities": ["status", "show", "stop", "silent-start"],
       "runtimes": [
         {
           "id": "speech-runtime",
