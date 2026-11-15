@@ -1,6 +1,8 @@
-# KotorinToys
+# KotorinToys - ことりのおもちゃ箱
 
-KotorinToysを使うと、Windows用のアプリをひとつの画面からインストール・起動・更新できます。
+## 何のためのソフトか
+
+KotorinToysは、画面の撮影や音声入力、ファイル整理などに使うKotoriChunのWindowsアプリを、ひとつの画面で管理するソフトです。やりたい作業に合うアプリを探し、対応するアプリのインストール・起動・更新をまとめて行えます。
 
 ## できること
 
@@ -9,6 +11,38 @@ KotorinToysを使うと、Windows用のアプリをひとつの画面からイ�
 - 「通常」「要更新」「未導入」「すべて」で一覧を切り替える。
 - サインイン時に起動するアプリを選ぶ。
 - 各アプリの使い方やGitHubページを開く。
+
+## アプリ一覧
+
+やりたい作業からアプリを選べるよう、用途ごとに並べています。「ローカル」の表記があるアプリは開発用の一覧に登録されています。インストールや更新に対応しているかは、KotorinToysの画面で確認できます。
+
+| カテゴリ | アプリ | 何のために使うか |
+| --- | --- | --- |
+| 撮影 | [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 作業画面を画像や動画で残し、撮影したファイルを整理する |
+| 撮影 | [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PCで行った作業を、画面画像付きの手順書にする |
+| 撮影・配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunWindow) | 操作画面を録画し、キーやマウスの入力をあとから映像と照らし合わせる |
+| 編集 | [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 撮影済みの動画から必要な場面を抜き出し、手順書の画像に使う |
+| 編集 | [PPPaint](https://github.com/KotorinChunChun/PPPaint) | 画像を補正し、レイヤーを分けて図形や説明を書き足す |
+| 文書 | [MdVisualizer](https://github.com/KotorinChunChun/MdVisualizer) | Markdownの文書や図表を読み、表示を確認しながら編集する |
+| 学習 | [ShortcutKeyCounter](https://github.com/KotorinChunChun/ShortcutKeyCounter) | よく使うショートカットを把握し、画面共有で押したキーを伝える |
+| デスクトップ整理 | [ChunapTool](https://github.com/KotorinChunChun/ChunapTool) | 指定したウィンドウの位置と大きさを数値で揃える |
+| デスクトップ整理 | [ChuwitchWindow](https://github.com/KotorinChunChun/ChuwitchWindow)（ローカル） | 複数のモニターに開いたウィンドウを移動・整列する |
+| 配信 | [LiveTextMarker](https://github.com/KotorinChunChun/LiveTextMarker) | 画面共有や配信で、見てほしい文字を下線や強調表示で示す |
+| 配信 | [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | 配信や通話に送るマイクなどの音声入力を切り替える |
+| 配信 | [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | アプリやブラウザーの再生音を、選んだ2系統の出力先に送る |
+| 配信 | [ScriptSync（読みあわせ）](https://github.com/KotorinChunChun/ScriptSync) | 台本の音声を発話ごとに録り直し、採用したテイクを一本の音声にまとめる |
+| 音声 | [EchoType](https://github.com/KotorinChunChun/EchoType)（ローカル） | キーボードで文章を打つ代わりに、話した内容をWindowsアプリへ入力する |
+| 音声 | [ReadingRepair](https://github.com/KotorinChunChun/ReadingRepair) | 日本語の読み上げで誤読される語を見つけ、音声合成用の辞書を直す |
+| 翻訳・文字認識 | [FocusTranslator](https://github.com/KotorinChunChun/FocusTranslator)（ローカル） | コピーできない画面上の文字を取り出し、翻訳や用語の確認に使う |
+| データ管理 | [EveryDB](https://github.com/KotorinChunChun/EveryDB) | 別々のデータに散らばった情報を、一か所から検索する |
+| データ管理 | [HttpSelector](https://github.com/KotorinChunChun/HttpSelector) | リンク先を確認し、仕事用や個人用など、使いたいブラウザーのプロファイルで開く |
+| データ管理 | [SmartPaste](https://github.com/KotorinChunChun/SmartPaste) | エクスプローラーに貼り付けるファイルの名前を、その場で確認して整理する |
+| Office | [OfficeAssist](https://github.com/KotorinChunChun/OfficeAssist) | Excelに画像を貼り付けたり、複数のCSV・TSVをまとめて取り込んだりする |
+| AI利用状況 | [AgentTasktrayViewer](https://github.com/KotorinChunChun/AgentTasktrayViewer) | CodexとClaude Codeの利用枠があとどれだけ残っているかを通知領域で確認する |
+
+画面を記録するアプリの選び方は[記録ツールの使い分け](docs/recording-tools.md)を参照してください。
+
+各アプリの独自コードと文書にはMITライセンスが適用されます。著作権表示とライセンス本文は各アプリのREADMEから確認できます。第三者のコンポーネントや素材には、それぞれのライセンスが適用されます。
 
 ## インストール
 
@@ -28,28 +62,6 @@ KotorinToysを使うと、Windows用のアプリをひとつの画面からイ�
 4. 新しいバージョンを探すには「状態を更新」を押します。「要更新」に表示されたアプリは「アップデート」で更新できます。
 
 アプリを終了するときは「停止させる」を押します。起動済みのアプリをもう一度開くと、既存の画面を表示します。操作の詳細は[使い方](docs/USERS_GUIDE.md)をご覧ください。
-
-## アプリの例
-
-アプリを主な用途ごとに並べ、複数のカテゴリを併記しています。本体の一覧は配信情報に応じて変わります。インストールや更新に対応しているかは、本体の表示で確認してください。
-
-| カテゴリ | アプリ | 用途 |
-| --- | --- | --- |
-| 文書、Markdown、図表編集 | [MdVisualizer](https://github.com/KotorinChunChun/MdVisualizer) | Markdown・図表を閲覧・編集する |
-| 撮影、配信 | [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 画面を撮影・録画し、保存先やファイル名を管理する |
-| 撮影、配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunWindow) | 操作風景と入力イベントを動画・ログに残す |
-| 撮影、編集 | [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 動画から手順書用の画像を切り出す |
-| AI用記録 | [ShortcutKeyCounter](https://github.com/KotorinChunChun/ShortcutKeyCounter) | ショートカットキーの使用回数を集計し、入力を表示する |
-| AI用記録、撮影 | [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PC操作を記録し、画像付きの手順書を作る |
-| 音声、配信 | [VoiceMixerMicRouter](https://github.com/KotorinChunChun/VoiceMixerMicRouter) | マイクなどの入力を切り替え、複数の音声出力へ送る |
-| 音声、配信 | [VoiceMixerSpkRouter](https://github.com/KotorinChunChun/VoiceMixerSpkRouter) | アプリやブラウザーの音声を複数の再生先へ送る |
-| DB、検索 | [EveryDB](https://github.com/KotorinChunChun/EveryDB) | 複数のデータソースをまとめて検索する |
-| 検索、ブラウザー | [HttpSelector](https://github.com/KotorinChunChun/HttpSelector) | リンクを確認し、ブラウザーのプロファイルを選んで開く |
-| ファイル操作、整理 | [SmartPaste](https://github.com/KotorinChunChun/SmartPaste) | ファイルを貼り付けるときに名前を確認・整理する |
-| ウィンドウ操作、配信 | [ChunapTool](https://github.com/KotorinChunChun/ChunapTool) | ウィンドウの位置・サイズを調整する |
-| 表示支援、配信 | [LiveTextMarker](https://github.com/KotorinChunChun/LiveTextMarker) | 画面上の文字に下線や強調表示を付ける |
-
-画面を記録するアプリの選び方は[記録ツールの使い分け](docs/recording-tools.md)を参照してください。
 
 ## 設定とデータについて
 
