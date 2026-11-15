@@ -644,6 +644,25 @@
         }
       ],
       "toolRoot": "tools/ReadingRepair"
+    },
+    {
+      "id": "transcription-server",
+      "name": "TranscriptionServer",
+      "version": "0.1.17",
+      "summary": "音声・動画の文字起こしと話者分離を共通APIで提供する",
+      "category": "音声、文字起こし",
+      "executable": "target/debug/TranscriptionServer.exe",
+      "installedExecutable": "TranscriptionServer.exe",
+      "appId": "KotorinToys.TranscriptionServer",
+      "manual": "README.md",
+      "readme": "README.md",
+      "repositoryUrl": "https://github.com/KotorinChunChun/TranscriptionServer",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [],
+      "runtimes": [],
+      "toolRoot": "tools/TranscriptionServer"
     }
   ]
 }

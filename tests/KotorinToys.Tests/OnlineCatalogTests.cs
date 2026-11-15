@@ -28,10 +28,17 @@ internal static class OnlineCatalogTests
         var bundled = OnlineToolCatalog.Parse(bytes, root);
         var localIds = ToolCatalog.Load(root).Select(t => t.Id).ToArray();
         var bundledIds = bundled.Select(t => t.Id).ToArray();
+        const string transcriptionId = "transcription-server";
+        string[] bundledOnly = ["office-assist", "talk-recorder", transcriptionId];
         check(localIds.Except(bundledIds).SequenceEqual(["chuwitch-window"]) &&
-            bundledIds.Except(localIds).SequenceEqual(["office-assist"]) &&
-            bundledIds.Where(id => id != "office-assist").SequenceEqual(localIds.Where(id => id != "chuwitch-window")),
+            bundledIds.Except(localIds).SequenceEqual(bundledOnly) &&
+            bundledIds.Where(id => !bundledOnly.Contains(id)).SequenceEqual(localIds.Where(id => id != "chuwitch-window")),
             "共通ツールの順序と開発・配布専用ツールを区別");
+        var transcription = bundled.Single(t => t.Id == transcriptionId);
+        check(ToolRepository.Find(transcription)?.AbsoluteUri == "https://github.com/KotorinChunChun/TranscriptionServer" &&
+            transcription.DistributionStatus == "unpublished" && !ToolActionPolicy.InstallEntry(transcription).Enabled &&
+            !ToolActionPolicy.Evaluate("start", transcription, new("未導入", null, null, null), new("停止中"), executableExists: true).Enabled,
+            "TranscriptionServerはGitHubを参照でき、対応していない導入・起動を許可しない");
         foreach (var (id, name) in new[] { ("voice-mixer-mic-router", "VoiceMixerMicRouter"), ("voice-mixer-spk-router", "VoiceMixerSpkRouter") })
         {
             check(bundled.Count(t => t.Id == id) == 1, name + "をオンライン一覧に重複なく登録");

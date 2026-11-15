@@ -48,3 +48,7 @@
 [submodule "tools/ChuwitchWindow"]
 	path = tools/ChuwitchWindow
 	url = https://github.com/KotorinChunChun/ChuwitchWindow.git
+
+[submodule "tools/TranscriptionServer"]
+	path = tools/TranscriptionServer
+	url = https://github.com/KotorinChunChun/TranscriptionServer.git
