@@ -203,17 +203,17 @@
     },
     {
       "id": "capchun-screen",
-      "name": "CapchunWindow",
+      "name": "CapchunScreen",
       "version": "0.1.2",
       "summary": "モニターや選択ウィンドウを録画し、操作履歴をTSVへ保存する",
       "category": "撮影、配信",
-      "executable": "artifacts/management/bin/CapchunScreen/debug/CapchunWindow.exe",
-      "installedExecutable": "CapchunWindow.exe",
+      "executable": "artifacts/management/bin/CapchunScreen/debug/CapchunScreen.exe",
+      "installedExecutable": "CapchunScreen.exe",
       "appId": "KotorinToys.CapchunScreen",
       "manual": "docs/users-guide.md",
       "readme": "README.md",
       "shortcuts": "config/shortcuts.json",
-      "distributionStatus": "published",
+      "distributionStatus": "unpublished",
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
       "capabilities": [
@@ -244,7 +244,7 @@
           "kind": "external",
           "optional": true,
           "feature": "仮想カメラ",
-          "guide": "仮想カメラ使用時のみ別途ドライバーが必要です。CapchunWindowの「導入ガイド」で公式配布先と導入手順を確認できます。"
+          "guide": "仮想カメラ使用時のみ別途ドライバーが必要です。CapchunScreenの「導入ガイド」で公式配布先と導入手順を確認できます。"
         }
       ],
       "toolRoot": "tools/CapchunScreen",

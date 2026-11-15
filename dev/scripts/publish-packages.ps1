@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunWindow','ChulipVideo','ChunapTool','EveryDB','OperationRecorder','OfficeAssist','EchoType')]
+    [ValidateSet('KotorinToys','LiveTextMarker','SmartPaste','SSCapture','CapchunScreen','ChulipVideo','ChunapTool','EveryDB','OperationRecorder','OfficeAssist','EchoType')]
     [string[]]$Products = @('KotorinToys','LiveTextMarker','SmartPaste'),
     [switch]$ExcludeFFmpeg,
     [ValidatePattern('^v\d+\.\d+\.\d+$')][string]$RecordVersion
@@ -239,7 +239,7 @@ foreach ($product in $Products | Select-Object -Unique) {
                 'Asr/worker.py','Asr/requirements.txt','Asr/requirements-qwen.txt','Asr/requirements-fast.txt',
                 'Asr/requirements-cuda.txt','Asr/silero_vad_v6.onnx','Asr/whisper_setup.py','Asr/whisper-models.json')
         }
-        { $_ -in @('CapchunWindow','ChulipVideo','ChunapTool','OperationRecorder','OfficeAssist') } {
+        { $_ -in @('CapchunScreen','ChulipVideo','ChunapTool','OperationRecorder','OfficeAssist') } {
             Publish-Application $identity.Project $output $product
             $licenses = Join-Path $projectRoot "tools/$($identity.Folder)/licenses"
             if (Test-Path -LiteralPath $licenses -PathType Container) { Copy-Required $licenses $output }
@@ -260,7 +260,7 @@ foreach ($product in $Products | Select-Object -Unique) {
     }
     Assert-Files $output @("$product.exe", 'README.md')
     if (-not $identity.Native) { Assert-Files $output @("$product.runtimeconfig.json") }
-    if ($product -in @('CapchunWindow','ChulipVideo','ChunapTool') -and @(Get-ChildItem -LiteralPath $output -Recurse -File | Where-Object Name -in @('ffmpeg.exe','ffprobe.exe')).Count) { throw '外部FFmpegが配布物へ混入しています。' }
+    if ($product -in @('CapchunScreen','ChulipVideo','ChunapTool') -and @(Get-ChildItem -LiteralPath $output -Recurse -File | Where-Object Name -in @('ffmpeg.exe','ffprobe.exe')).Count) { throw '外部FFmpegが配布物へ混入しています。' }
     if ($product -eq 'EchoType') { Copy-Required $echoMaintenance (Join-Path $output 'maintenance') }
     else { Copy-Required $maintenanceOutput $output }
     if (Test-Path -LiteralPath (Join-Path $output 'data')) { throw '利用者データが配布対象へ混入しています。' }

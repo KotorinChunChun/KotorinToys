@@ -12,7 +12,7 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
         new("smart-paste", "SmartPaste", "KotorinToys.SmartPaste"),
         new("ss-capture", "SSCapture", "KotorinToys.SSCapture"),
         new("shortcut-key-counter", "ShortcutKeyCounter", "KotorinToys.ShortcutKeyCounter"),
-        new("capchun-screen", "CapchunWindow", "KotorinToys.CapchunScreen"),
+        new("capchun-screen", "CapchunScreen", "KotorinToys.CapchunScreen", CapchunScreenLegacy.Repository),
         new("chulip-video", "ChulipVideo", "KotorinToys.ChulipVideo", "ChulipVideo-CSharp"),
         new("chunap-tool", "ChunapTool", "KotorinToys.ChunapTool"),
         new("http-selector", "HttpSelector", "KotorinToys.HttpSelector"),

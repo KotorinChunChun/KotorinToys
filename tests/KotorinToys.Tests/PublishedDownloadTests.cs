@@ -43,7 +43,8 @@ internal static class PublishedDownloadTests
         else
         {
             var bundled = BundledReleaseFixture.Load(root);
-            foreach (var tool in ToolCatalog.Load(root).Where(t => t.Id is "capchun-screen" or "chulip-video" or "chunap-tool"))
+            foreach (var tool in ToolCatalog.Load(root).Where(t => t.DistributionStatus == "published" &&
+                         t.Id is "capchun-screen" or "chulip-video" or "chunap-tool"))
             {
                 var release = await client.Check(tool, bundled.Packages.SingleOrDefault(p => p.Package.Id == tool.Id));
                 if (!release.Confirmed || release.Package == null || release.Package.PublishedAt == null)

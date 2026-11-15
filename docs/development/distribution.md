@@ -16,7 +16,7 @@
 | setupと固定ハッシュ台帳の生成 | build-installers.ps1 |
 | Releaseの公開 | publish-releases.ps1 |
 
-既定の発行対象は本体・LiveTextMarker・SmartPasteです。CapchunWindow／ChulipVideo／ChunapTool、EveryDB、OperationRecorderなどの指定可否・引数は各スクリプトで確認します。`test-distribution-scripts.ps1`で固定表との整合を検査できます。
+既定の発行対象は本体・LiveTextMarker・SmartPasteです。CapchunScreen／ChulipVideo／ChunapTool、EveryDB、OperationRecorderなどの指定可否・引数は各スクリプトで確認します。`test-distribution-scripts.ps1`で固定表との整合を検査できます。
 
 publish-releases.ps1は固定アカウント・採用ソース・台帳・ハッシュを確認します。既存Releaseやassetは上書きせず、新しい配布物は新しい版へ進めます。
 

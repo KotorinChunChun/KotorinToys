@@ -29,7 +29,7 @@ internal static class OnlineToolCatalog
             if (catalog.SchemaVersion != 1) throw new IOException("未対応の一覧config形式です。");
             Validate(catalog.Tools, root, MaximumTools);
             // 公開configでの未設定は無効化を意味する。旧ローカル定義用の固定URLへ戻さない。
-            return catalog.Tools.Select(t => t with { RepositoryUrl = t.RepositoryUrl ?? "" }).ToArray();
+            return catalog.Tools.Select(t => CapchunScreenLegacy.NormalizeCatalog(t with { RepositoryUrl = t.RepositoryUrl ?? "" })).ToArray();
         }
         catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException or ArgumentException or NullReferenceException)
         { throw new IOException("一覧configの形式が不正です。", ex); }

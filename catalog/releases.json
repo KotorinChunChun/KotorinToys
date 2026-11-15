@@ -39,18 +39,6 @@
     },
     {
       "package": {
-        "id": "capchun-screen",
-        "name": "CapchunWindow",
-        "version": "0.1.2",
-        "appId": "KotorinToys.CapchunScreen",
-        "file": "CapchunWindow-0.1.2-setup.exe",
-        "sha256": "4ba8b4c2a4c453d56d706b7f48b7caacc9c868675ad927e6d4339b39ae429177",
-        "signature": "unsigned-public-build"
-      },
-      "length": 80734735
-    },
-    {
-      "package": {
         "id": "chulip-video",
         "name": "ChulipVideo",
         "version": "0.2.1",

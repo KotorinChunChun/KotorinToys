@@ -1,8 +1,8 @@
 # 画面・操作記録ツールの使い分け
 
-SSCapture、OperationRecorder、CapchunWindowは、残したい情報と成果物に合わせて選びます。各ツールの目的・背景に関する共通の説明は、このページにまとめます。
+SSCapture、OperationRecorder、CapchunScreenは、残したい情報と成果物に合わせて選びます。各ツールの目的・背景に関する共通の説明は、このページにまとめます。
 
-| 観点 | SSCapture | OperationRecorder | CapchunWindow |
+| 観点 | SSCapture | OperationRecorder | CapchunScreen |
 |---|---|---|---|
 | 主目的 | 画像・映像を再利用しやすい形で撮影する | 画像と手順を記録し、画像付き手順書を自動生成する | 操作風景と入力イベントを同じ時間軸で残し、動画による手順を記録する |
 | 主な記録形式 | 静止画・動画 | 静止画・操作ログ・手順書 | 動画・操作ログ（現行の直接出力はTSV） |
@@ -19,11 +19,11 @@ SSCapture、OperationRecorder、CapchunWindowは、残したい情報と成果�
 
 ## OperationRecorder：画像付き手順書を自動で作る
 
-ステップ記録ツール（psr）の代替を目的に、操作の画像と手順を記録し、手順書を自動生成するツールです。AIへ渡す作業コンテキストにも適しています。自動生成する文章は比較的定型的であり、込み入った連続操作や途中の画面変化を伝える場合は、動画を残すCapchunWindowが適しています。
+ステップ記録ツール（psr）の代替を目的に、操作の画像と手順を記録し、手順書を自動生成するツールです。AIへ渡す作業コンテキストにも適しています。自動生成する文章は比較的定型的であり、込み入った連続操作や途中の画面変化を伝える場合は、動画を残すCapchunScreenが適しています。
 
 [OperationRecorderの説明](../tools/OperationRecorder/README.md)
 
-## CapchunWindow：時間軸のある操作手順を動画で残す
+## CapchunScreen：時間軸のある操作手順を動画で残す
 
 設定作業、アプリ操作、サーバー設定などを、操作風景の動画と同期した入力イベントとして蓄積します。アプリ別のショートカット情報を整理し、残す操作・残さない操作を事前に選びます。同じ作業を繰り返して比較・改善し、最適な手順を正として残す工程までを効率化します。
 
@@ -31,8 +31,8 @@ SSCapture、OperationRecorder、CapchunWindowは、残したい情報と成果�
 
 操作ログをTSV・JSONなどの構造化形式や字幕として再利用し、AIの学習データや他ソフトウェアへ渡すことを目的としています。現在の直接出力はTSVです。JSON形式の操作ログ・字幕の直接出力は現行機能に含まれません。
 
-[CapchunWindowの説明](../tools/CapchunScreen/README.md)
+[CapchunScreenの説明](../tools/CapchunScreen/README.md)
 
 ### ChulipVideoで編集・共有する
 
-CapchunWindowの動画とTSVは、自作のChulipVideoによる動画編集との互換性を持たせています。ChulipVideoのWebサイトで動画素材とプロジェクトデータを配信すれば、動画を再エンコードせずに動画マニュアルとして共有できます。字幕の表示・非表示、再生速度の調整、補足コメント、別録音の音声を重ねる使い方は、ChulipVideo側の編集・配信・視聴機能として位置付けます。KotorinToys収録のChulipVideo C#版と、Webサイトの機能範囲は区別します。
+CapchunScreenの動画とTSVは、自作のChulipVideoによる動画編集との互換性を持たせています。ChulipVideoのWebサイトで動画素材とプロジェクトデータを配信すれば、動画を再エンコードせずに動画マニュアルとして共有できます。字幕の表示・非表示、再生速度の調整、補足コメント、別録音の音声を重ねる使い方は、ChulipVideo側の編集・配信・視聴機能として位置付けます。KotorinToys収録のChulipVideo C#版と、Webサイトの機能範囲は区別します。

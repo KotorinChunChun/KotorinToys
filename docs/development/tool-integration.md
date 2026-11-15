@@ -23,7 +23,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path a
 
 | 対象 | スイッチ／入口 | 前提と区別 |
 | --- | --- | --- |
-| CapchunWindow・ChulipVideo・ChunapTool | --new-tools-ipc、--new-tools-panel | 専用設定・passive等で実録画や外部窓操作を抑止。パネル表示は製品機能の受入ではない |
+| CapchunScreen・ChulipVideo・ChunapTool | --new-tools-ipc、--new-tools-panel | 専用設定・passive等で実録画や外部窓操作を抑止。パネル表示は製品機能の受入ではない |
 | ShortcutKeyCounter | --shortcut-ipc、--shortcut-panel | Debugの専用DBを使用し入力Hook・オーバーレイ等を抑止。既存通常プロセスがある場合は実行しない |
 | HttpSelectorの開発IPC | --http-selector-ipc | target/managementの隔離Debug。正式MSIXの導入確認とは別 |
 | HttpSelectorのMSIX | --http-selector-msix | 署名付き実パッケージの登録が必要。導入済みユーザーデータを使うため別途退避・受入条件を確認 |

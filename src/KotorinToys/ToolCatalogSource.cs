@@ -35,6 +35,8 @@ internal sealed class ToolCatalogSource
             if (cache.SchemaVersion != 1 || !string.Equals(this.root, cache.Root, StringComparison.OrdinalIgnoreCase)) throw new IOException("別配置のキャッシュです。");
             OnlineToolCatalog.Validate(cache.Tools, root, OnlineToolCatalog.MaximumTools);
             OnlineToolCatalog.Validate(cache.RetiredTools, root, 512);
+            cache = cache with { Tools = cache.Tools.Select(CapchunScreenLegacy.NormalizeCatalog).ToArray(),
+                RetiredTools = cache.RetiredTools.Select(CapchunScreenLegacy.NormalizeCatalog).ToArray() };
             ValidateIdentities(cache.Tools.Concat(cache.RetiredTools).ToArray(), tools);
             var current = cache.Tools.Select(t => t.Id).ToHashSet();
             // 同梱定義は一度非表示になっても予約の照合・解除用に残す。

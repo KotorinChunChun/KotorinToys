@@ -51,7 +51,9 @@ internal static class ToolInstallationRunnerTests
         check(ToolInstallationRunner.UnsupportedReason(msix with { Msix = new("Other_1234567890123", MsixPolicy.Publisher) }) != null, "未知のFamilyを本体導入許可へ追加しない");
         check(ToolInstallationRunner.UnsupportedReason(msix with { Msix = null }) != null, "HttpSelectorのMSIX必須条件をconfigで取り外せない");
         results = await runner.Run(tools.Where(t => t.Id is "capchun-screen" or "chulip-video" or "chunap-tool").ToArray(), "install", catalog, null);
-        check(results.Length == 3 && results.All(r => r.State == "成功"), "公開済み追加3製品は共通取得・導入処理へ接続できる");
+        check(results.Length == 3 && results.Count(r => r.State == "成功") == 2 &&
+              results.Single(r => r.Id == "capchun-screen").Detail.Contains("未公開"),
+              "公開済みの2製品は導入でき、改名後の未公開版は取得・実行しない");
         var package = new LocalPackage(msix.Id, msix.Name, "0.0.3.3", msix.AppId, MsixPolicy.FileName("0.0.3.3"), new string('a', 64), "signed-msix", "msix");
         results = await runner.Run([msix], "install", new(1, [new(package, 100)]), null);
         check(results.Single().State == "成功", "MSIX公開配布も取得・専用実行へ接続する");

@@ -10,8 +10,8 @@ foreach ($file in @('distribution-products.ps1','publish-packages.ps1','build-in
     [void][Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $file), [ref]$tokens, [ref]$parseErrors)
     if ($parseErrors.Count) { throw "$file のPowerShell構文が不正です。" }
 }
-$cap = Get-DistributionProduct 'CapchunWindow'
-if ($cap.Folder -ne 'CapchunScreen' -or $cap.AppId -ne 'KotorinToys.CapchunScreen' -or $cap.Repository -ne 'CapchunWindow') { throw 'CapchunWindowの固定識別が不正です。' }
+$cap = Get-DistributionProduct 'CapchunScreen'
+if ($cap.Folder -ne 'CapchunScreen' -or $cap.AppId -ne 'KotorinToys.CapchunScreen' -or $cap.Repository -ne 'CapchunWindow') { throw 'CapchunScreenの固定識別が不正です。' }
 if ((Get-DistributionProduct 'ChulipVideo').Repository -ne 'ChulipVideo-CSharp') { throw '別実装へ公開する設定です。' }
 $every = Get-DistributionProduct 'EveryDB'
 if ($every.Id -ne 'every-db' -or $every.AppId -ne 'KotorinToys.EveryDB' -or $every.Repository -ne 'EveryDB' -or -not $every.Native) { throw 'EveryDBのネイティブ配布識別が不正です。' }
@@ -20,7 +20,7 @@ if ($recorder.Id -ne 'operation-recorder' -or $recorder.AppId -ne 'KotorinToys.O
 $rejected = $false
 try { Get-DistributionProduct 'ShortcutKeyCounter' | Out-Null } catch { $rejected = $true }
 if (-not $rejected) { throw '今回公開しない製品を許可してしまいます。' }
-Assert-CommonDistributionProducts @('KotorinToys','LiveTextMarker','SmartPaste','CapchunWindow','ChulipVideo','ChunapTool','EveryDB','OperationRecorder')
+Assert-CommonDistributionProducts @('KotorinToys','LiveTextMarker','SmartPaste','CapchunScreen','ChulipVideo','ChunapTool','EveryDB','OperationRecorder')
 $capture = Get-DistributionProduct 'SSCapture'
 if ($capture.Id -ne 'ss-capture' -or $capture.AppId -ne 'KotorinToys.SSCapture' -or $capture.PackagingScript -ne 'tools/SSCapture/scripts/package.ps1') { throw 'SSCaptureの固定識別と専用配布入口が不正です。' }
 foreach ($file in @('publish-packages.ps1','build-installers.ps1','publish-releases.ps1')) {

@@ -22,7 +22,11 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
                 return new("確認できない", null, null, null, Detail: "導入先の登録がありません。");
             directory = Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory));
             var executable = PathSafety.Resolve(directory, tool.InstalledExecutable);
-            if (!File.Exists(executable))
+            bool hasCurrentExecutable = File.Exists(executable);
+            string? legacyExecutable = null;
+            if (!hasCurrentExecutable && tool.Id == "capchun-screen")
+                legacyExecutable = PathSafety.Resolve(directory, CapchunScreenLegacy.Executable);
+            if (!hasCurrentExecutable && (legacyExecutable is null || !File.Exists(legacyExecutable)))
                 return MissingExecutable(tool, directory, executable);
             var definition = PathSafety.Resolve(directory, "tool.json");
             if (!File.Exists(definition))
@@ -32,10 +36,17 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             using var identity = ReadIdentity(definition);
             if (identity.RootElement.GetProperty("id").GetString() != tool.Id || identity.RootElement.GetProperty("appId").GetString() != tool.AppId)
                 return new("確認できない", null, directory, null, Detail: "製品定義 tool.json のIDまたはAppIdが一致しません。別製品として起動・上書きしません。");
+            bool legacy = legacyExecutable is not null && CapchunScreenLegacy.MatchesInstallation(tool,
+                identity.RootElement.GetProperty("name").GetString(),
+                identity.RootElement.GetProperty("installedExecutable").GetString(),
+                identity.RootElement.GetProperty("version").GetString());
+            if (legacy) executable = legacyExecutable!;
+            if (!File.Exists(executable)) return MissingExecutable(tool, directory, executable);
             var version = FileVersionInfo.GetVersionInfo(executable);
-            if (!string.Equals(version.ProductName, tool.Name, StringComparison.Ordinal))
-                return new("確認できない", null, directory, null, Detail: $"実行ファイルの製品名が一致しません。対象：{tool.Name} / 検出：{version.ProductName ?? "不明"}。");
             var installedVersion = $"{version.FileMajorPart}.{version.FileMinorPart}.{version.FileBuildPart}";
+            if (!string.Equals(version.ProductName, legacy ? CapchunScreenLegacy.Repository : tool.Name, StringComparison.Ordinal) ||
+                legacy && installedVersion != CapchunScreenLegacy.Version)
+                return new("確認できない", null, directory, null, Detail: $"実行ファイルの製品名が一致しません。対象：{tool.Name} / 検出：{version.ProductName ?? "不明"}。");
             var uninstaller = PathSafety.Resolve(directory, "unins000.exe");
             return new("導入済み", installedVersion, directory, executable, File.Exists(uninstaller) ? uninstaller : null, File.Exists(uninstaller) ? "" : "削除プログラムがありません。");
         }

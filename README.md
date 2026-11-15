@@ -36,7 +36,7 @@ Windows用の便利なアプリを、ひとつの画面からインストール�
 | カテゴリ | アプリ | 用途 |
 | --- | --- | --- |
 | 撮影、配信 | [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 画面を撮影・録画し、保存先やファイル名を管理する |
-| 撮影、配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunWindow) | 操作風景と入力イベントを動画・ログに残す |
+| 撮影、配信 | [CapchunScreen](https://github.com/KotorinChunChun/CapchunWindow) | 操作風景と入力イベントを動画・ログに残す。新名称版は未公開 |
 | 撮影、編集 | [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 動画から手順書用の画像を切り出す |
 | AI用記録 | [ShortcutKeyCounter](https://github.com/KotorinChunChun/ShortcutKeyCounter) | ショートカットキーの使用回数を集計し、入力を表示する |
 | AI用記録、撮影 | [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PC操作を記録し、画像付きの手順書を作る |
