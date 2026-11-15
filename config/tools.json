@@ -634,7 +634,7 @@
     {
       "id": "talk-recorder",
       "name": "TalkRecorder",
-      "version": "0.1.1",
+      "version": "0.1.0",
       "summary": "マイクとスピーカーの音を同時に録音し、時間を揃えて音源ごとに保存する",
       "category": "音声、録音",
       "executable": "target/release/TalkRecorder.exe",
@@ -662,7 +662,8 @@
           "guide": "圧縮保存にはFFmpegが必要です。"
         }
       ],
-      "toolRoot": "tools/TalkRecorder"
+      "toolRoot": "tools/TalkRecorder",
+      "repositoryUrl": "https://github.com/KotorinChunChun/TalkRecorder"
     },
     {
       "id": "reading-repair",
