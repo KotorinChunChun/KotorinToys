@@ -44,7 +44,7 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             if (!File.Exists(executable)) return MissingExecutable(tool, directory, executable);
             var version = FileVersionInfo.GetVersionInfo(executable);
             var installedVersion = $"{version.FileMajorPart}.{version.FileMinorPart}.{version.FileBuildPart}";
-            if (!string.Equals(version.ProductName, legacy ? CapchunScreenLegacy.Repository : tool.Name, StringComparison.Ordinal) ||
+            if (!string.Equals(version.ProductName, legacy ? CapchunScreenLegacy.ProductName : tool.Name, StringComparison.Ordinal) ||
                 legacy && installedVersion != CapchunScreenLegacy.Version)
                 return new("確認できない", null, directory, null, Detail: $"実行ファイルの製品名が一致しません。対象：{tool.Name} / 検出：{version.ProductName ?? "不明"}。");
             var uninstaller = PathSafety.Resolve(directory, "unins000.exe");

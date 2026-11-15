@@ -74,7 +74,7 @@ internal static class ToolCatalog
             else
                 tool = entry.Deserialize<ToolDefinition>(Json) ?? throw new IOException("登録情報が空です。");
             Validate(tool, root, schema == 2);
-            tools.Add(tool);
+            tools.Add(CapchunScreenLegacy.NormalizeCatalog(tool));
         }
 
         if (tools.Count == 0 || tools.Select(t => t.Id).Distinct().Count() != tools.Count)

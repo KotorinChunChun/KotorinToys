@@ -25,7 +25,7 @@ git submodule update --init --recursive -- `
 
 取得先の正本は[.gitmodules](../../.gitmodules)です。AgentTasktrayViewerには取得元URLが未設定のため上のコマンドへ含めていません。全体ビルドやローカル開発一覧を使う場合は、提供された独立ソースを`tools/AgentTasktrayViewer`へ準備してください。公開URLを推測して登録しません。未登録アプリは自動取得しません。
 
-公開先で採用コミットを取得できない場合は、そのコミットの公開状況を確認します。別実装や別リポジトリへの置換で回避しません。公開先は [CapchunScreenのGitHubリポジトリ](https://github.com/KotorinChunChun/CapchunWindow) とChulipVideo-CSharpです。
+公開先で採用コミットを取得できない場合は、そのコミットの公開状況を確認します。別実装や別リポジトリへの置換で回避しません。公開先は [CapchunScreenのGitHubリポジトリ](https://github.com/KotorinChunChun/CapchunScreen) とChulipVideo-CSharpです。
 
 ## 変更前の確認
 

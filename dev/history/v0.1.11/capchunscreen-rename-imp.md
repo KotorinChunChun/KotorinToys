@@ -10,3 +10,9 @@
 - [x] ChulipVideoとSSCaptureの現行参照、SSCaptureとVoiceMixerMicRouterの保守コードも点検した。両保守プロジェクトのビルドは警告・エラー0件。別プロジェクトの作業履歴を伴うため、これら3ツールの固定リビジョンは更新していない。
 
 本体検証ログはGit対象外の `logs/capchunscreen-rename-20261116/` に保存。録画と紹介画像の検証は[CapchunScreenの実装報告](../../../tools/CapchunScreen/dev/history/v0.1.3/v0.1.3-imp.md)を参照。
+
+## GitHubリポジトリの改名
+
+- [x] GitHub上の同じリポジトリを `KotorinChunChun/CapchunScreen` に改名した。旧トップページの転送と、新URLでのGit接続、v0.1.2のリリースページおよび既存インストーラーへのアクセスを確認した。
+- [x] 本体README、開発ガイド、版別記録のリンク、サブモジュール設定、カタログ、配布スクリプトを新URLに更新した。旧カタログ・キャッシュは、該当製品の固定ID・AppId・製品名・実行ファイルを照合して旧URLを読み替える。
+- [x] 本体テストと保守ツールのビルドは警告・エラー0件。配布テスト66件とオンラインカタログテスト162件が成功した。GitHubボタン試験はCapchunScreenが成功し、EchoTypeの項目で失敗した。実行ログは `logs/capchunscreen-repository-20261116/` に保存した。
