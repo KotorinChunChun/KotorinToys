@@ -33,6 +33,7 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 | 配信 | [ScriptSync（読みあわせ）](https://github.com/KotorinChunChun/ScriptSync) | 台本の音声を発話ごとに録り直し、採用したテイクを一本の音声にまとめる |
 | 音声 | [EchoType](https://github.com/KotorinChunChun/EchoType)（ローカル） | キーボードで文章を打つ代わりに、話した内容をWindowsアプリへ入力する |
 | 音声 | [ReadingRepair](https://github.com/KotorinChunChun/ReadingRepair) | 日本語の読み上げで誤読される語を見つけ、音声合成用の辞書を直す |
+| 音声 | TalkRecorder（未配布） | マイクとスピーカーの音を同時に録音し、時間を揃えて音源ごとに保存する |
 | 翻訳・文字認識 | [FocusTranslator](https://github.com/KotorinChunChun/FocusTranslator)（ローカル） | コピーできない画面上の文字を取り出し、翻訳や用語の確認に使う |
 | データ管理 | [EveryDB](https://github.com/KotorinChunChun/EveryDB) | 別々のデータに散らばった情報を、一か所から検索する |
 | データ管理 | [HttpSelector](https://github.com/KotorinChunChun/HttpSelector) | リンク先を確認し、仕事用や個人用など、使いたいブラウザーのプロファイルで開く |
