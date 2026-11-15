@@ -30,14 +30,19 @@ internal static class OnlineCatalogTests
         string[] developmentOnly = ["focus-translator", "chuwitch-window", "echo-type"];
         check(developmentOnly.All(id => localTools.Any(t => t.Id == id && t.DistributionStatus == "unpublished")),
             "開発専用の製品はローカル一覧に未公開として登録");
-        const string listingOnly = "transcription-server";
-        check(bundled.Where(t => t.Id != listingOnly).Select(t => t.Id).SequenceEqual(localTools.Where(t => !developmentOnly.Contains(t.Id)).Select(t => t.Id)),
-            "開発専用・掲載専用の製品を除き、同梱configはローカル収録一覧と同じ順序");
-        var transcription = bundled.Single(t => t.Id == listingOnly);
+        string[] configOnly = ["transcription-server", "talk-recorder"];
+        check(bundled.Where(t => !configOnly.Contains(t.Id)).Select(t => t.Id).SequenceEqual(localTools.Where(t => !developmentOnly.Contains(t.Id)).Select(t => t.Id)),
+            "開発専用・配信configのみの製品を除き、同梱configはローカル収録一覧と同じ順序");
+        var transcription = bundled.Single(t => t.Id == "transcription-server");
         check(ToolRepository.Find(transcription)?.AbsoluteUri == "https://github.com/KotorinChunChun/TranscriptionServer" &&
             transcription.DistributionStatus == "unpublished" && !ToolActionPolicy.InstallEntry(transcription).Enabled &&
             !ToolActionPolicy.Evaluate("start", transcription, new("未導入", null, null, null), new("停止中"), executableExists: true).Enabled,
             "TranscriptionServerはGitHubを参照でき、対応していない導入・起動を許可しない");
+        var recorder = bundled.Single(t => t.Id == "talk-recorder");
+        check(recorder.AppId == "KotorinToys.TalkRecorder" && recorder.InstalledExecutable == "TalkRecorder.exe" &&
+            recorder.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]) &&
+            recorder.DistributionStatus == "unpublished" && !ToolActionPolicy.InstallEntry(recorder).Enabled,
+            "TalkRecorderはローカル導入版の常駐管理に対応し、公開インストーラーは無効");
         var releases = ReleaseDownloader.Load(root, bundled);
         foreach (var (id, name) in new[] { ("voice-mixer-mic-router", "VoiceMixerMicRouter"), ("voice-mixer-spk-router", "VoiceMixerSpkRouter") })
         {

@@ -632,6 +632,39 @@
       "toolRoot": "tools/PPPaint"
     },
     {
+      "id": "talk-recorder",
+      "name": "TalkRecorder",
+      "version": "0.1.1",
+      "summary": "マイクとスピーカーの音を同時に録音し、時間を揃えて音源ごとに保存する",
+      "category": "音声、録音",
+      "executable": "target/release/TalkRecorder.exe",
+      "installedExecutable": "TalkRecorder.exe",
+      "appId": "KotorinToys.TalkRecorder",
+      "manual": "docs/user-guide.md",
+      "readme": "README.md",
+      "distributionStatus": "unpublished",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": ["status", "show", "stop", "silent-start"],
+      "runtimes": [
+        {
+          "id": "speech-runtime",
+          "name": "speech.cpp / Silero VAD",
+          "kind": "external",
+          "feature": "会話の判定",
+          "guide": "音声ランタイムと標準VADモデル、Vulkanに対応するGPUドライバーが必要です。"
+        },
+        {
+          "id": "ffmpeg",
+          "name": "FFmpeg",
+          "kind": "external",
+          "feature": "M4A・Opus・FLACの保存",
+          "guide": "圧縮保存にはFFmpegが必要です。"
+        }
+      ],
+      "toolRoot": "tools/TalkRecorder"
+    },
+    {
       "id": "reading-repair",
       "name": "ReadingRepair",
       "version": "0.0.1",
