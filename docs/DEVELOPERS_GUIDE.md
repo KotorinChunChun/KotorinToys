@@ -15,6 +15,7 @@
 | 起動引数・管理IPC・文書の契約 | [共通契約](../contracts/README.md) |
 | 定義だけで追加できる製品の条件 | [標準管理製品](development/definition-managed-products.md) |
 | 配信用の一覧・並び順・説明 | [GitHub configの運用](online-tool-catalog.md) |
+| 音声モデルの利用先と仕様変更の通知 | [音声モデルを使うアプリと更新通知](development/speech-model-dependencies.md) |
 | ボタンを押せる条件と理由 | [操作可否](development/operation-availability.md) |
 | 自動起動の所有・判定・復旧 | [自動起動の実装](development/startup-settings.md) |
 | 画面タイトル・アイコン | [タイトル規約](window-title-rule.md)・[アイコン規約](app-icon-rule.md) |
