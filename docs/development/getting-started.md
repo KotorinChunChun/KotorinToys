@@ -72,7 +72,7 @@ EchoTypeはローカル開発一覧の「すべて」に表示されます。定
 
 未公開のEchoTypeを導入検証する場合は、`dev/scripts/publish-packages.ps1 -Products EchoType` で配布候補を生成し、出力先を `dev/scripts/build-installers.ps1 -PackageDirectory <配布候補の出力先> -Products EchoType` に渡します。本体をローカル開発一覧で起動し、「一括インストール」の「開発者向け」で生成された `packages.json` を選択します。
 
-配布候補には .NET と、発話検出で使う Visual C++ の再配布用 x64 DLL を同梱します。DLL は Visual Studio の `VC/Redist/MSVC/<版>/x64/Microsoft.VC143.CRT` から取得します。署名とコピー前後のSHA-256を確認し、発行時の版別ログに出所とファイル版を記録します。[Microsoftの再配布手順](https://learn.microsoft.com/ja-jp/cpp/windows/determining-which-dlls-to-redistribute)
+EchoTypeの配布候補はPCに導入された .NET 10 Desktop Runtime（x64）を使います。セットアップは不足時にMicrosoft公式の取得先を案内します。発話検出で使うVisual C++の再配布用x64 DLLは、Visual Studioの `VC/Redist/MSVC/<版>/x64/Microsoft.VC143.CRT` から同梱します。署名とコピー前後のSHA-256を確認し、発行時の版別ログに出所とファイル版を記録します。 [Microsoftの再配布手順](https://learn.microsoft.com/ja-jp/cpp/windows/determining-which-dlls-to-redistribute)
 
 ## 検証へ進む
 

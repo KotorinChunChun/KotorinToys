@@ -45,8 +45,6 @@ $runId = 'packages-' + [Guid]::NewGuid().ToString('N')
 $staging = Join-Path $projectRoot "artifacts/packages/$runId"
 $logDirectory = Join-Path $projectRoot "dev/history/$RecordVersion/logs/$runId"
 New-Item -ItemType Directory -Path $staging, $logDirectory | Out-Null
-# EchoType本体、補助プロセス、共通maintenanceの自己完結ランタイムを同じ修正版に揃える。
-$echoRuntimeArgument = '-p:KotorinToysRuntimeVersion=10.0.15'
 function Copy-Required([string]$Source, [string]$Destination) {
     if (-not (Test-Path -LiteralPath $Source)) { throw "配布に必要なファイルがありません: $Source" }
     Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force
@@ -58,15 +56,30 @@ function Assert-Files([string]$Root, [string[]]$RelativePaths) {
         }
     }
 }
+function Assert-SharedFramework([string]$Output, [string]$Framework) {
+    $config = Get-ChildItem -LiteralPath $Output -Filter '*.runtimeconfig.json' | Select-Object -First 1
+    if (!$config) { throw "共有ランタイムの設定がありません：$Output" }
+    $options = (Get-Content -LiteralPath $config.FullName -Raw | ConvertFrom-Json).runtimeOptions
+    $references = @($options.framework; $options.frameworks) | Where-Object { $_ -and $_.name -eq $Framework -and $_.version -like '10.0.*' }
+    if (!$references -or $options.includedFrameworks -or
+        (Get-ChildItem -LiteralPath $Output -File | Where-Object Name -In @('coreclr.dll','hostfxr.dll','hostpolicy.dll','System.Private.CoreLib.dll'))) {
+        throw ".NET 10の共有ランタイムを参照する構成ではありません：$Output"
+    }
+}
 function Publish-Application([string]$Project, [string]$Output, [string]$Label, [string[]]$Extra = @(),
     [switch]$ConsoleRuntime) {
     $revisionProduct = ($Label -split '\.', 2)[0]
     $revision = Get-SnapshotRevision (Get-DistributionProduct $revisionProduct).Folder
     $revisionArguments = @(if ($revision) { "-p:SourceRevisionId=$revision" })
-    if ($revisionProduct -eq 'EchoType') { $Extra += $echoRuntimeArgument }
-    & dotnet publish (Join-Path $projectRoot $Project) -c Release -r win-x64 --self-contained true `
+    $selfContained = if ($revisionProduct -eq 'EchoType') { 'false' } else { 'true' }
+    & dotnet publish (Join-Path $projectRoot $Project) -c Release -r win-x64 --self-contained $selfContained `
         --artifacts-path (Join-Path $staging "build/$Label") -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false -o $Output --nologo @Extra @revisionArguments 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory "$Label.log") | Out-Host
-    if ($LASTEXITCODE -ne 0) { throw "$Label の自己完結型発行に失敗しました。" }
+    if ($LASTEXITCODE -ne 0) { throw "$Label の発行に失敗しました。" }
+    if ($selfContained -eq 'false') {
+        $framework = if ($ConsoleRuntime) { 'Microsoft.NETCore.App' } else { 'Microsoft.WindowsDesktop.App' }
+        Assert-SharedFramework $Output $framework
+        return
+    }
     $runtimeFiles = @('coreclr.dll','hostfxr.dll','hostpolicy.dll','System.Private.CoreLib.dll')
     if (-not $ConsoleRuntime) { $runtimeFiles += 'System.Windows.Forms.dll' }
     Assert-Files $Output $runtimeFiles
@@ -129,13 +142,21 @@ function Copy-EchoTypeVcRuntime([string]$Output) {
     }
     $receipt | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $logDirectory 'EchoType-vc-runtime.json') -Encoding utf8
 }
-$maintenanceOutput = Join-Path $staging 'maintenance'
 $maintenanceRevisionArguments = @(if ($maintenanceRevision) { "-p:SourceRevisionId=$maintenanceRevision" })
-if ($Products -contains 'EchoType') { $maintenanceRevisionArguments += $echoRuntimeArgument }
-& dotnet publish (Join-Path $projectRoot 'src/KotorinToys.Maintenance/KotorinToys.Maintenance.csproj') -c Release -r win-x64 --self-contained true --artifacts-path (Join-Path $staging 'build/maintenance') -p:DebugType=None -p:DebugSymbols=false -o $maintenanceOutput --nologo @maintenanceRevisionArguments 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory 'maintenance.log') | Out-Host
-if ($LASTEXITCODE -ne 0) { throw '単体削除用メンテナンスの発行に失敗しました。' }
-Assert-Files $maintenanceOutput @('KotorinToys.Maintenance.exe','coreclr.dll','hostfxr.dll','hostpolicy.dll')
-Copy-RuntimeLicenses $maintenanceOutput 'maintenance'
+function Publish-Maintenance([string]$Label, [string]$SelfContained) {
+    $destination = Join-Path $staging $Label
+    & dotnet publish (Join-Path $projectRoot 'src/KotorinToys.Maintenance/KotorinToys.Maintenance.csproj') -c Release -r win-x64 --self-contained $SelfContained --artifacts-path (Join-Path $staging "build/$Label") -p:DebugType=None -p:DebugSymbols=false -o $destination --nologo @maintenanceRevisionArguments 2>&1 | Tee-Object -FilePath (Join-Path $logDirectory "$Label.log") | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw '単体削除用メンテナンスの発行に失敗しました。' }
+    Assert-Files $destination @('KotorinToys.Maintenance.exe')
+    if ($SelfContained -eq 'false') { Assert-SharedFramework $destination 'Microsoft.NETCore.App' }
+    else {
+        Assert-Files $destination @('coreclr.dll','hostfxr.dll','hostpolicy.dll')
+        Copy-RuntimeLicenses $destination $Label
+    }
+    return $destination
+}
+if ($Products -contains 'EchoType') { $echoMaintenance = Publish-Maintenance 'echo-maintenance' 'false' }
+if ($Products | Where-Object { $_ -ne 'EchoType' }) { $maintenanceOutput = Publish-Maintenance 'maintenance' 'true' }
 foreach ($product in $Products | Select-Object -Unique) {
     $identity = Get-DistributionProduct $product
     $output = Join-Path $staging $product
@@ -212,6 +233,7 @@ foreach ($product in $Products | Select-Object -Unique) {
             Publish-Application 'tools/EchoType/src/EchoType.Captions/EchoType.Captions.csproj' (Join-Path $output 'Captions') 'EchoType.Captions'
             Publish-Application 'tools/EchoType/src/EchoType.WindowsSpeech/EchoType.WindowsSpeech.csproj' (Join-Path $output 'WindowsSpeech') 'EchoType.WindowsSpeech' -ConsoleRuntime
             Copy-EchoTypeVcRuntime $output
+            Copy-Required (Join-Path $projectRoot 'tools/EchoType/LICENSE') $output
             Assert-Files $output @('CaptionDll/CaptionDllHost.exe','Captions/EchoType.Captions.exe',
                 'WindowsSpeech/EchoType.WindowsSpeech.exe','setup-asr.ps1','setup-haas.ps1',
                 'Asr/worker.py','Asr/requirements.txt','Asr/requirements-qwen.txt','Asr/requirements-fast.txt',
@@ -239,7 +261,8 @@ foreach ($product in $Products | Select-Object -Unique) {
     Assert-Files $output @("$product.exe", 'README.md')
     if (-not $identity.Native) { Assert-Files $output @("$product.runtimeconfig.json") }
     if ($product -in @('CapchunWindow','ChulipVideo','ChunapTool') -and @(Get-ChildItem -LiteralPath $output -Recurse -File | Where-Object Name -in @('ffmpeg.exe','ffprobe.exe')).Count) { throw '外部FFmpegが配布物へ混入しています。' }
-    Copy-Required $maintenanceOutput $output
+    if ($product -eq 'EchoType') { Copy-Required $echoMaintenance (Join-Path $output 'maintenance') }
+    else { Copy-Required $maintenanceOutput $output }
     if (Test-Path -LiteralPath (Join-Path $output 'data')) { throw '利用者データが配布対象へ混入しています。' }
     & (Join-Path $PSScriptRoot 'test-public-payload-security.ps1') -Payload $output -ReportDirectory (Join-Path $logDirectory "$product-security")
     $files = @(Get-ChildItem -LiteralPath $output -File -Recurse | Sort-Object FullName | ForEach-Object {
