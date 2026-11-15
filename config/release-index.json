@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T17:10:59.8974805+00:00",
+  "generatedAt": "2026-11-15T17:47:15.7215961+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -17,21 +17,21 @@
               "state": "uploaded",
               "size": 80734735,
               "digest": "sha256:4ba8b4c2a4c453d56d706b7f48b7caacc9c868675ad927e6d4339b39ae429177",
-              "browser_download_url": "https://github.com/KotorinChunChun/CapchunWindow/releases/download/v0.1.2/CapchunWindow-0.1.2-setup.exe"
+              "browser_download_url": "https://github.com/KotorinChunChun/CapchunScreen/releases/download/v0.1.2/CapchunWindow-0.1.2-setup.exe"
             },
             {
               "name": "CapchunWindow-packages.json",
               "state": "uploaded",
               "size": 415,
               "digest": "sha256:2c46f91ff2e5b0b9701827b80515eb297dbc46fb5ea5e72eef58375bb80a8db2",
-              "browser_download_url": "https://github.com/KotorinChunChun/CapchunWindow/releases/download/v0.1.2/CapchunWindow-packages.json"
+              "browser_download_url": "https://github.com/KotorinChunChun/CapchunScreen/releases/download/v0.1.2/CapchunWindow-packages.json"
             },
             {
               "name": "CapchunWindow-SHA256SUMS.txt",
               "state": "uploaded",
               "size": 97,
               "digest": "sha256:180cdb22c4f60c668a0b1e54bb1a1d48ea8a446c68bb2e7197acb0792f1c3c48",
-              "browser_download_url": "https://github.com/KotorinChunChun/CapchunWindow/releases/download/v0.1.2/CapchunWindow-SHA256SUMS.txt"
+              "browser_download_url": "https://github.com/KotorinChunChun/CapchunScreen/releases/download/v0.1.2/CapchunWindow-SHA256SUMS.txt"
             }
           ]
         }
