@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T09:44:10.3669317+00:00",
+  "generatedAt": "2026-11-16T14:53:42.5516548+00:00",
   "repositories": [
     {
       "name": "CapchunWindow",
@@ -146,6 +146,41 @@
               "size": 96,
               "digest": "sha256:baaa254f15be771baa4e2b59251aa9d45805af27e6fc9dfb7aca88d24bf40383",
               "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.1/SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EchoType",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.0",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-15T12:17:03Z",
+          "assets": [
+            {
+              "name": "EchoType-0.1.0-setup.exe",
+              "state": "uploaded",
+              "size": 237269736,
+              "digest": "sha256:e097cfdcae36ed7c22fbe07c3fd899d40629fefbc62aa703ae64eabd7d3aa11b",
+              "browser_download_url": "https://github.com/KotorinChunChun/EchoType/releases/download/v0.1.0/EchoType-0.1.0-setup.exe"
+            },
+            {
+              "name": "EchoType-packages.json",
+              "state": "uploaded",
+              "size": 622,
+              "digest": "sha256:e156ab3c62d77ebe4d82049e65b6498ba48b3b066834296639a637afea8098d6",
+              "browser_download_url": "https://github.com/KotorinChunChun/EchoType/releases/download/v0.1.0/EchoType-packages.json"
+            },
+            {
+              "name": "EchoType-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 92,
+              "digest": "sha256:e859f2649ae2fc9389eefb8ed19d5831ae06e25fc243df4b8bc0ef8912f3a4c1",
+              "browser_download_url": "https://github.com/KotorinChunChun/EchoType/releases/download/v0.1.0/EchoType-SHA256SUMS.txt"
             }
           ]
         }
@@ -1861,6 +1896,63 @@
               "size": 93,
               "digest": "sha256:c19b51a7ed90510764951ecd71b6b1cf9115cb507230872f1e70af201c71e7af",
               "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.0/SSCapture-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TalkRecorder",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.1",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-16T14:52:37Z",
+          "assets": [
+            {
+              "name": "TalkRecorder-0.1.1-setup.exe",
+              "state": "uploaded",
+              "size": 40230864,
+              "digest": "sha256:4929e7635c74f1907c465859716294507da99a93c856ae952b0dcd752620801e",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.1/TalkRecorder-0.1.1-setup.exe"
+            },
+            {
+              "name": "TalkRecorder-packages.json",
+              "state": "uploaded",
+              "size": 638,
+              "digest": "sha256:ca6d0fb503d0dccb023655f7fd5a334c31230ab40fe640078a2d7286a1848d46",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.1/TalkRecorder-packages.json"
+            },
+            {
+              "name": "TalkRecorder-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:5d69c9a1da1859290e441b16dd263af06e63451c4f7460c73a549ac3ae91627a",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.1/TalkRecorder-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.0",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-15T18:27:57Z",
+          "assets": [
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 99,
+              "digest": "sha256:d9b39a720eeec3429cdf5d6bb3413d18f365262e658c1513de55cda62c7c3f05",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.0/SHA256SUMS.txt"
+            },
+            {
+              "name": "TalkRecorder-v0.1.0-win-x64.zip",
+              "state": "uploaded",
+              "size": 3725674,
+              "digest": "sha256:8281ed55793f9694b2989d8268517b579e2cb54e33479e1fa545903a205799ed",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.0/TalkRecorder-v0.1.0-win-x64.zip"
             }
           ]
         }
