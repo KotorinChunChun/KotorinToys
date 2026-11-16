@@ -572,7 +572,7 @@
     {
       "id": "talk-recorder",
       "name": "TalkRecorder",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "summary": "マイクとスピーカーの音を同時に録音し、時間を揃えて音源ごとに保存する",
       "category": "音声、録音",
       "executable": "target/release/TalkRecorder.exe",
@@ -580,7 +580,7 @@
       "appId": "KotorinToys.TalkRecorder",
       "manual": "docs/user-guide.md",
       "readme": "README.md",
-      "distributionStatus": "unpublished",
+      "distributionStatus": "published",
       "supportedEnvironment": "windows11-x64",
       "investigationStatus": "confirmed",
       "capabilities": ["status", "show", "stop", "silent-start"],
@@ -602,6 +602,37 @@
       ],
       "toolRoot": "tools/TalkRecorder",
       "repositoryUrl": "https://github.com/KotorinChunChun/TalkRecorder"
+    },
+    {
+      "id": "echo-type",
+      "name": "EchoType",
+      "version": "0.1.0",
+      "summary": "キーの長押しで録音し、認識した音声をWindowsアプリに入力する",
+      "category": "音声、文字入力",
+      "executable": "release/v0.1.0/EchoType.exe",
+      "installedExecutable": "EchoType.exe",
+      "appId": "KotorinToys.EchoType",
+      "manual": "README.md",
+      "readme": "README.md",
+      "repositoryUrl": "https://github.com/KotorinChunChun/EchoType",
+      "distributionStatus": "published",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": [
+        "status",
+        "show",
+        "stop",
+        "silent-start"
+      ],
+      "runtimes": [
+        {
+          "id": "dotnet10",
+          "name": ".NET 10 Desktop x64",
+          "kind": "dotnet-desktop",
+          "major": 10
+        }
+      ],
+      "toolRoot": "tools/EchoType"
     },
     {
       "id": "reading-repair",
