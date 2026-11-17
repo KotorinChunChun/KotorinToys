@@ -23,6 +23,7 @@ internal static class Program
     {
         try
         {
+            if (args.SequenceEqual(["--local-installed-catalog-tests"])) { LocalInstalledCatalogTests.Run(KotorinToys.Program.FindRoot(), Path.Combine(KotorinToys.Program.FindRoot(), "dev/history/v0.1.18/logs/focus-local-" + Guid.NewGuid().ToString("N")), Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.Length == 3 && args[0] == "--local-startup-readiness") return LocalStartupReadiness.Run(args[1], args[2]).GetAwaiter().GetResult();
             if (args.Length == 3 && args[0] == "--local-startup-reapply") return LocalStartupReadiness.Reapply(args[1], args[2]).GetAwaiter().GetResult();
             if (args.Length == 4 && args[0] == "--mdvisualizer-install-acceptance") return MdVisualizerMsixTests.InstallActual(args[1], args[2], args[3]).GetAwaiter().GetResult();
