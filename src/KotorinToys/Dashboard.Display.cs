@@ -29,12 +29,14 @@ internal sealed partial class Dashboard
         for (int i = 0; i < tools.Length; i++)
         {
             var row = RowFor(i);
+            var updateResult = updateResults.GetValueOrDefault(tools[i].Id);
             row.Cells["startup"].Value = installations[i].State == "未導入" ? "-" : startupSnapshots[i].Text;
             row.Cells["startup"].ToolTipText = startupSnapshots[i].Detail;
             var texts = new[] { states[i].Detail, installations[i].State != "導入済み" ? installations[i].Detail : null,
                 !releases[i].Confirmed || releases[i].Package == null ? ReleaseProblems.Explanation(releases[i]) : null,
                 startupSnapshots[i].NeedsAttention ? startupSnapshots[i].Detail : null,
-                operationErrors.GetValueOrDefault(tools[i].Id), issue };
+                operationErrors.GetValueOrDefault(tools[i].Id),
+                updateResult == null ? null : $"更新 {updateResult.State}　{updateResult.Detail}", issue };
             var detail = string.Join("\n", texts.Append(DashboardText.Advice(tools[i], installations[i], states[i], releases[i])).Where(text => !string.IsNullOrWhiteSpace(text)).Distinct());
             row.Cells["detail"].Value = DashboardText.Detail(tools[i], installations[i], states[i], releases[i], startupSnapshots[i], operationErrors.GetValueOrDefault(tools[i].Id), catalogError, stateError);
             if (installations[i].State == "未導入")
@@ -46,6 +48,7 @@ internal sealed partial class Dashboard
                 row.Cells["detail"].ToolTipText += "\n" + detail;
                 continue;
             }
+            if (updateResult is { State: not ("成功" or "スキップ") }) row.Cells["detail"].Value = "更新 " + updateResult.State;
             row.Cells["detail"].ToolTipText = detail;
             var locationRule = locations.Running(states[i]);
             bool location = locationRule.Enabled && row.Cells["detail"].Value?.ToString() == "別配置で実行中";
@@ -85,7 +88,8 @@ internal sealed partial class Dashboard
             repair ? Availability(i, "repair") : ToolActionPolicy.InstallEntry(tools[i], busy || refreshingCatalog || checkingReleases);
         if (selected.Length > 1) installRule = BatchInstallAvailability(selected);
         ActionHints.Apply(install, installRule, tooltips);
-        ActionHints.Apply(update, SingleAction("update"), tooltips);
+        ActionHints.Apply(update, UpdateAvailability(selected, all: false), tooltips);
+        ActionHints.Apply(updateAll, UpdateAvailability([], all: true), tooltips);
         ActionHints.Apply(uninstall, SingleAction("uninstall"), tooltips);
     }
 

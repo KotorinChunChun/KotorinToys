@@ -21,7 +21,12 @@ internal static class MsixDashboardTests
         var calls = new List<string>(); var notices = new List<string>();
         using var form = new Dashboard(root, releaseCheck: (t, _, _) => Task.FromResult(releases[Array.FindIndex(tools, tool => tool.Id == t.Id)]),
             detectInstallation: t => actual[Array.FindIndex(tools, tool => tool.Id == t.Id)],
-            showToolInstaller: (id, operation, catalog) => calls.Add(id + ":" + operation + ":" + catalog?.Packages.Single().Package.Kind), notify: notices.Add, fileExists: _ => true);
+            showToolInstaller: (id, operation, catalog) => calls.Add(id + ":" + operation + ":" + catalog?.Packages.Single().Package.Kind),
+            runUpdates: (targets, catalog, _, _) =>
+            {
+                calls.Add(targets.Single().Id + ":update:" + catalog.Packages.Single().Package.Kind);
+                return Task.FromResult<InstallResult[]>([new(tool.Id, "update", "成功", "検証済み")]);
+            }, notify: notices.Add, fileExists: _ => true);
         form.CreateControl(); form.ApplySnapshot(actual, states, releases); form.PerformLayout();
         var grid = (DataGridView)form.Controls.Find("toolTable", true).Single(); grid.CurrentCell = grid.Rows[i].Cells[0];
         bool Enabled(string name) => form.Controls.Find(name, true).Single().Enabled;

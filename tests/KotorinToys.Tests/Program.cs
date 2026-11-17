@@ -145,7 +145,14 @@ internal static class Program
             if (args.SequenceEqual(["--search-tests"])) { DashboardSearchTests.Run(root,fixtures,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--location-tests"])) { ToolLocationTests.Run(root,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--release-assets-tests"])) { ReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
-            if (args.SequenceEqual(["--replacement-tests"])) { InstallerTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); ReplacementTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--replacement-tests"]) || args.SequenceEqual(["--background-update-runner-tests"]))
+            {
+                InstallerTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+                ToolUpdateTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+                if (args[0] == "--replacement-tests") ReplacementTests.Run(root, fixtures, Check).GetAwaiter().GetResult();
+                else ToolInstallationRunnerTests.Run(root, Check).GetAwaiter().GetResult();
+                Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
             if (args.SequenceEqual(["--release-index-tests"]))
             {
                 DistributionMappingTests.Run(root, Check).GetAwaiter().GetResult();
@@ -170,6 +177,13 @@ internal static class Program
             if (args.SequenceEqual(["--readiness-tests"])) { ReleaseReadinessTests.Run(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--window-presentation-tests"])) { HostWindowPresentationTests.Run(Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-mode-tests"])) { InstallationModeTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args.SequenceEqual(["--dashboard-update-tests"]))
+            {
+                DashboardRefreshTests.Run(root, Check);
+                DashboardInstallationTests.Run(root, Check);
+                MsixDashboardTests.Run(root, Check);
+                Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
             if (args.SequenceEqual(["--view-tests"])) { DashboardViewTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--repair-tests"])) { RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); RepairTests.Form(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--ux-tests"])) { OperationDetailsTests.Run(root, Check); OperationDetailsTests.Transport(root, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }

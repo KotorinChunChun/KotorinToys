@@ -17,6 +17,8 @@ internal static class DashboardDiscoveryPanel
             executionCheck:(t,_)=>Task.FromResult(State(t)),controlExecution:(t,_)=>Task.FromResult(State(t)),
             releaseCheck:(_,fallback,_)=>Task.FromResult(new PublicRelease(fallback,fallback!=null,true,"専用fixture・通信なし")),
             showInstaller:(_,_)=>Notify("検証では導入しません。"),showToolInstaller:(_,_,_)=>Notify("検証では導入しません。"),
+            runUpdates: (targets, _, _, _) => Task.FromResult(targets.Select(tool =>
+                new InstallResult(tool.Id, "update", "未実行", "検証用の画面です。")).ToArray()),
             showSelfUpdater:()=>Notify("検証では本体更新しません。"),openRepository:_=>Notify("検証ではブラウザーを開きません。"),notify:Notify);
         form.Text=WindowTitle.Create("検証用一覧");
         var area=Screen.PrimaryScreen!.WorkingArea;

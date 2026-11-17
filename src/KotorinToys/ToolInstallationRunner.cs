@@ -37,7 +37,8 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
         ReleaseCatalog? catalog, string? localCatalog, IProgress<InstallResult>? progress = null,
         IProgress<string>? downloadProgress = null, CancellationToken cancellation = default)
     {
-        if (operation is not ("install" or "repair" or "uninstall")) throw new IOException("未対応の導入操作です。");
+        if (operation is not ("install" or "update" or "repair" or "uninstall")) throw new IOException("未対応の導入操作です。");
+        if (operation == "update" && localCatalog != null) throw new IOException("自動更新には照合済みの公開版が必要です。");
         var results = new List<InstallResult>();
         foreach (var tool in targets.DistinctBy(t => t.Id))
         {
@@ -47,7 +48,7 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
                 cancellation.ThrowIfCancellationRequested();
                 if (UnsupportedReason(tool) is { } unsupported) throw new IOException(unsupported);
                 string? path = localCatalog;
-                if (operation is "install" or "repair" && path == null)
+                if (operation is "install" or "update" or "repair" && path == null)
                 {
                     if (PublicReason(tool, catalog) is { } reason) throw new IOException(reason);
                     ReleaseDownloader.Validate(catalog!, manager.KnownTools());

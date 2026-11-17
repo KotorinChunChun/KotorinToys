@@ -18,7 +18,7 @@ internal sealed class ToolUpdateCoordinator(
         definitions: manager.KnownTools, stopExpected: (tool, state) => manager.StopForReplacement(tool, state),
         preserveSidecars: ReplacementData.Preserve) { }
 
-    public async Task<InstallResult> Run(ToolDefinition tool, string catalog, bool repair = false)
+    public async Task<InstallResult> Run(ToolDefinition tool, string catalog, bool repair = false, bool updateOnly = false)
     {
         ToolState? before = null; bool stopped = false, alternate = false;
         InstallResult result;
@@ -30,6 +30,13 @@ internal sealed class ToolUpdateCoordinator(
                 !MsixPolicy.Installed(actual) && actual.State != "未導入") throw new IOException("導入先と製品識別を確認できません：" + actual.Detail);
             var package = InstallerAdapter.Load(catalog, definitions?.Invoke() ?? [tool]).Packages.SingleOrDefault(p => p.Id == tool.Id)
                 ?? throw new IOException("配布台帳に対象製品がありません：" + tool.Name);
+            if (updateOnly)
+            {
+                if (!MsixPolicy.Installed(actual) || !Version.TryParse(actual.Version, out var current))
+                    throw new IOException("更新直前に導入済みのバージョンを確認できませんでした。");
+                if (current >= Version.Parse(package.Version))
+                    return new(tool.Id, "update", "スキップ", "導入済みのバージョンが公開版と同じか、それより新しいため更新対象外です。");
+            }
             if ((MsixPolicy.Installed(actual) || repair) && Version.TryParse(actual.Version, out var installedVersion) &&
                 Version.TryParse(package.Version, out var requestedVersion) && installedVersion > requestedVersion)
                 throw new IOException("導入済み版より古い公開版へ戻す操作は行いません。");
@@ -68,6 +75,9 @@ internal sealed class ToolUpdateCoordinator(
             result = result with { Detail = result.Detail + " / 別配置の元アプリは停止したままです。元の設定・履歴を確認してから起動してください。" };
         if (stopped && before != null && (!alternate || result.State == "成功") && !(tool.Msix != null && result.State == "要確認"))
         {
+            if (updateOnly && tool.Capabilities?.Contains("silent-start") != true)
+                return result with { State = result.State == "成功" ? "要確認" : result.State,
+                    Detail = result.Detail + " / このアプリは画面を出さずに起動できません。利用するときに「起動 / 設定を開く」を押してください。" };
             try
             {
                 var restored = await restart(tool, before.LaunchOrigin);

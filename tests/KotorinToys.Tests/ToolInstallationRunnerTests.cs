@@ -56,5 +56,24 @@ internal static class ToolInstallationRunnerTests
         results = await runner.Run([msix], "install", new(1, [new(package, 100)]), null);
         check(results.Single().State == "成功", "MSIX公開配布も取得・専用実行へ接続する");
         check(ToolInstallationRunner.PublicReason(msix, new(1, [new(package with { Kind = "inno" }, 100)])) != null, "MSIXにEXE種別の台帳を渡さない");
+
+        order.Clear();
+        var next = tools.First(t => t.Id == "smart-paste");
+        var background = new ToolInstallationRunner(new(root),
+            (_, tool, _, _) =>
+            {
+                order.Add("download:" + tool.Id);
+                return Task.FromResult("test-packages.json");
+            },
+            (tool, operation, _, _) =>
+            {
+                order.Add("execute:" + tool.Id);
+                check(operation == "update", "バックグラウンド実行で更新専用の処理を指定");
+                return Task.FromResult(new InstallResult(tool.Id, operation, tool.Id == supported.Id ? "失敗" : "成功", "試験結果"));
+            });
+        results = await background.Run([supported, next], "update", catalog, null);
+        check(results.Select(r => r.State).SequenceEqual(["失敗", "成功"]) &&
+            order.SequenceEqual(["download:" + supported.Id, "execute:" + supported.Id, "download:" + next.Id, "execute:" + next.Id]),
+            "バックグラウンド更新は1件ずつ完結し、失敗しても次のアプリを処理");
     }
 }
