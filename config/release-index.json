@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T15:36:55.9419192+00:00",
+  "generatedAt": "2026-11-18T16:51:57.9382438+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -1304,6 +1304,35 @@
       "available": true,
       "releases": [
         {
+          "tag_name": "v0.1.8",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-18T16:50:16Z",
+          "assets": [
+            {
+              "name": "OperationRecorder-0.1.8-setup.exe",
+              "state": "uploaded",
+              "size": 97778216,
+              "digest": "sha256:d9b9ed24a6b72cb9da2bb3a90f8c2b2a020bca93f56c5e38678f461e646705a6",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.8/OperationRecorder-0.1.8-setup.exe"
+            },
+            {
+              "name": "OperationRecorder-packages.json",
+              "state": "uploaded",
+              "size": 422,
+              "digest": "sha256:a88d709783f085d2d0ce9c1adc42d10dd36d46bee39b056378d907e0ec906673",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.8/OperationRecorder-packages.json"
+            },
+            {
+              "name": "OperationRecorder-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 100,
+              "digest": "sha256:3838807277befea75e15fd004836ebc551504a6dfefb059f879d386377110540",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.8/OperationRecorder-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
           "tag_name": "v0.1.6",
           "draft": false,
           "prerelease": true,
@@ -1978,6 +2007,35 @@
       "available": true,
       "releases": [
         {
+          "tag_name": "v0.1.2",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-18T16:15:19Z",
+          "assets": [
+            {
+              "name": "TalkRecorder-0.1.2-setup.exe",
+              "state": "uploaded",
+              "size": 42954528,
+              "digest": "sha256:acde2db322eaba6b02da623ba555826ea2b23fd3181f7200a4c31be01970ef2c",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.2/TalkRecorder-0.1.2-setup.exe"
+            },
+            {
+              "name": "TalkRecorder-packages.json",
+              "state": "uploaded",
+              "size": 638,
+              "digest": "sha256:5c75bd3cdf29e010b3a7c7841acb70894d20ba22611feb811841369a86026b15",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.2/TalkRecorder-packages.json"
+            },
+            {
+              "name": "TalkRecorder-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:c3019aa2ffad9a7587e74aa40460cfec3adc3c914410b6077374afdd015542e8",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.2/TalkRecorder-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
           "tag_name": "v0.1.1",
           "draft": false,
           "prerelease": true,
@@ -2034,6 +2092,42 @@
       "name": "TranscriptionServer",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.20",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-18T16:42:03Z",
+          "assets": [
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 326,
+              "digest": "sha256:e8c0e78c489a260b87bf28b18d279e9fa90f3c53247c604283ce1828c62b6bb1",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.20/SHA256SUMS.txt"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.20-setup-x64.exe",
+              "state": "uploaded",
+              "size": 6110912,
+              "digest": "sha256:86f63a04f2d75887b5a01248ab3961074094d2f71f3dfaa5c48166353334b1a7",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.20/TranscriptionServer-v0.1.20-setup-x64.exe"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.20-source.zip",
+              "state": "uploaded",
+              "size": 409777,
+              "digest": "sha256:0c9e1ed8e60244c9274eff9b58df146d750864b7425b303a5257488f556a8949",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.20/TranscriptionServer-v0.1.20-source.zip"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.20-windows-x64.zip",
+              "state": "uploaded",
+              "size": 5787290,
+              "digest": "sha256:7d17a2a59acc3de8d14dffbc5d2844a88bb67bb60dfdd37e91e97d4bf2156fe6",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.20/TranscriptionServer-v0.1.20-windows-x64.zip"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.18",
           "draft": false,
