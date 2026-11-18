@@ -124,7 +124,8 @@ internal sealed class ToolCatalogSource
         foreach (var tool in next)
             if (known.TryGetValue(tool.Id, out var old) && (old.AppId != tool.AppId || old.Name != tool.Name || old.Msix != tool.Msix ||
                 !string.IsNullOrEmpty(old.RepositoryUrl) && old.RepositoryUrl != tool.RepositoryUrl &&
-                    (!string.IsNullOrEmpty(tool.RepositoryUrl) || ProductIdentity.FromId(tool.Id) == null)))
+                    (!string.IsNullOrEmpty(tool.RepositoryUrl) || ProductIdentity.FromId(tool.Id) == null) &&
+                    !(tool.Id == "capchun-screen" && ProductIdentity.FromTool(tool) is { } renamed && renamed == ProductIdentity.FromTool(old))))
                 throw new IOException("既存IDの製品名・識別・MSIX識別・公開先は変更できません：" + tool.Id);
     }
 

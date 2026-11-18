@@ -16,7 +16,7 @@ internal static class ToolRepository
 
     public static Uri? Find(ToolDefinition tool)
     {
-        if (tool.Id == "capchun-screen")
+        if (tool.Id == "capchun-screen" && !string.IsNullOrEmpty(tool.RepositoryUrl))
             return ProductIdentity.FromTool(tool) is { } capchun ? new Uri("https://github.com/KotorinChunChun/" + capchun.Repository) : null;
         if (tool.RepositoryUrl != null)
             return OnlineToolCatalog.IsRepositoryUrl(tool.RepositoryUrl) ? new Uri(tool.RepositoryUrl) : null;

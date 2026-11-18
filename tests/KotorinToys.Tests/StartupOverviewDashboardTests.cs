@@ -58,11 +58,11 @@ internal static class StartupOverviewDashboardTests
     }
     static void InFlight(string root, string fixtures, Action<bool, string> check)
     {
-        var tools = ToolCatalog.Load(root); int calls = 0, configs = 0;
-        var online = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root);
+        int calls = 0, configs = 0;
+        var tools = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root);
         var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var source = new ToolCatalogSource(root, Path.Combine(fixtures, "startup-ui-config"), _ =>
-        { configs++; return Task.FromResult(OnlineCatalogTests.Encode(online[1])); });
+        { configs++; return Task.FromResult(OnlineCatalogTests.Encode(tools[1])); });
         async Task<StartupOverview> Read(ToolDefinition tool, CancellationToken token)
         {
             var current = ++calls;

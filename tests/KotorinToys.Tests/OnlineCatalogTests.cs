@@ -74,6 +74,18 @@ internal static class OnlineCatalogTests
         var newTool = tool with { Id = "future-tool", Name = "FutureTool", ToolRoot = "tools/FutureTool", AppId = "KotorinToys.FutureTool", DistributionStatus = "unpublished", Summary = "後から追加するツール" };
         check(OnlineToolCatalog.Parse(Encode(newTool), fixtures).Single().Id == newTool.Id, "新ツールの定義を子フォルダーなしで読み込める");
         check(OnlineToolCatalog.Parse(Encode(), root).Length == 0, "空configで全件非表示にできる");
+        var capchun = bundled.Single(t => t.Id == "capchun-screen");
+        var legacyCapchun = capchun with { RepositoryUrl = "https://github.com/KotorinChunChun/CapchunWindow" };
+        var capchunResponse = Encode(legacyCapchun);
+        var renamedSource = new ToolCatalogSource(root, Path.Combine(fixtures, "capchun-cache"),
+            _ => Task.FromResult(capchunResponse));
+        check((await renamedSource.Refresh()).Accepted &&
+            ToolRepository.Find(renamedSource.Load().Single())?.AbsoluteUri == capchun.RepositoryUrl,
+            "CapchunScreen移行時に旧URLを含む一覧を読み込み正規の配布先を開く");
+        capchunResponse = Encode(capchun);
+        check((await renamedSource.Refresh()).Accepted, "CapchunWindowの既存一覧を改名後の正規URLへ更新");
+        capchunResponse = Encode(capchun with { RepositoryUrl = "https://github.com/KotorinChunChun/OtherApp" });
+        check(!(await renamedSource.Refresh()).Accepted, "既知の改名と無関係な配布先への更新を拒否");
         check(OnlineToolCatalog.Parse(new byte[] { 0xef, 0xbb, 0xbf }.Concat(bytes).ToArray(), root).Length == bundled.Length, "UTF-8 BOM付きのconfigも読み込める");
         Reject(() => OnlineToolCatalog.Parse(new byte[OnlineToolCatalog.MaximumBytes + 1], root), "過大なconfigを拒否");
         Reject(() => OnlineToolCatalog.Parse(Encoding.UTF8.GetBytes("{\"schemaVersion\":1,\"SchemaVersion\":1,\"tools\":[]}"), root), "大文字小文字を変えた重複プロパティも拒否");
