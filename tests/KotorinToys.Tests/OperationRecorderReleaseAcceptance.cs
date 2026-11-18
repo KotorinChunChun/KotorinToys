@@ -8,7 +8,7 @@ using KotorinToys;
 internal static class OperationRecorderReleaseAcceptance
 {
     const string ToolId = "operation-recorder";
-    const string ProductVersion = "0.1.8";
+    const string ProductVersion = "0.1.9";
     internal static ToolDefinition Definition => new(ToolId, "OperationRecorder",
         "artifacts/management/bin/OperationRecorderApp/debug/OperationRecorder.exe", "docs/kotorintoys-integration.md",
         Summary: "PC操作と前後の画面を記録し、画像付きの操作手順書を作成する", Category: "操作記録",
@@ -165,7 +165,7 @@ internal static class OperationRecorderReleaseAcceptance
         {
             var packages = InstallerAdapter.Load(catalog, [tool]);
             Require(packages.Packages.Length == 1 && packages.Packages[0].Id == ToolId && packages.Packages[0].Version == ProductVersion,
-                "対象製品だけの0.1.8実配布台帳");
+                "対象製品だけの0.1.9実配布台帳");
             var installed = await adapter.Install(tool, catalog, target);
             receipts.Add(new { Step = "新規導入", Result = installed });
             Require(installed.State == "成功" && manager.Installation(tool) is { State: "導入済み", Version: ProductVersion } &&
@@ -284,6 +284,27 @@ internal static class OperationRecorderReleaseAcceptance
         return outcome;
     }
 
+    public static int Candidate(string directory)
+    {
+        var tool = Definition;
+        var setup = new FileInfo(Path.Combine(directory, $"OperationRecorder-{ProductVersion}-setup.exe"));
+        var checksum = Hash(setup.FullName).ToLowerInvariant();
+        var tag = $"v{ProductVersion}";
+        var url = $"{tool.RepositoryUrl}/releases/download/{tag}/{setup.Name}";
+        var listing = JsonSerializer.SerializeToElement(new[] { new
+        {
+            tag_name = tag, draft = false, prerelease = false,
+            assets = new[] { new { name = setup.Name, state = "uploaded", size = setup.Length,
+                digest = "sha256:" + checksum, browser_download_url = url } },
+        }});
+        var metadata = PublicReleaseMetadata.Select(listing);
+        var manifest = File.ReadAllText(Path.Combine(directory, "OperationRecorder-packages.json"));
+        var package = metadata.Package(tool, manifest, metadata.Asset(tool, setup.Name), null);
+        Require(package.Package.Version == ProductVersion && package.Package.Sha256 == checksum && package.Length == setup.Length,
+            "現行本体の検証処理で配布候補の台帳とsetupの版・SHA-256・容量が一致");
+        return 0;
+    }
+
     // 公開完了後、本体と同じ匿名取得・サイズ・SHA-256照合を実行する。製品は起動しない。
     public static async Task<int> Online(string root, string output)
     {
@@ -298,7 +319,7 @@ internal static class OperationRecorderReleaseAcceptance
         Require(tool.DistributionStatus == "published" && tool.Version == ProductVersion &&
             tool.Name == Definition.Name && tool.AppId == Definition.AppId &&
             tool.RepositoryUrl == Definition.RepositoryUrl,
-            "公開mainの登録が公開状態・製品名・AppId・配布先・0.1.8に一致");
+            "公開mainの登録が公開状態・製品名・AppId・配布先・0.1.9に一致");
         await File.WriteAllBytesAsync(Path.Combine(output, "published-tools.json"), catalogBytes);
         using var client = new PublicReleaseClient(cache: new PublicReleaseCache(Path.Combine(output, "release-cache")));
         var release = await client.Check(tool, null);

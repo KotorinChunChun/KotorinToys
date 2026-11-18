@@ -34,6 +34,7 @@ internal static class Program
             if (args.Length == 3 && args[0] == "--replacement-fixture") return ReplacementTests.Serve(args[1], args[2]).GetAwaiter().GetResult();
             if (args.Length == 3 && args[0] == "--operation-recorder-installer-acceptance") return OperationRecorderReleaseAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2]).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--operation-recorder-public-acceptance") return OperationRecorderReleaseAcceptance.Online(KotorinToys.Program.FindRoot(),args[1]).GetAwaiter().GetResult();
+            if (args.Length == 2 && args[0] == "--operation-recorder-candidate-acceptance") return OperationRecorderReleaseAcceptance.Candidate(args[1]);
             if (args.SequenceEqual(["--operation-recorder-ipc"])) return OperationRecorderIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--operation-recorder-panel"])) return OperationRecorderIntegrationTests.Panel();
             if (args.SequenceEqual(["--spk-router-ipc"])) return SpkRouterIntegrationTests.Run().GetAwaiter().GetResult();
