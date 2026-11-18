@@ -284,7 +284,7 @@ internal static class Program
             {
                 Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
                 var area = Screen.PrimaryScreen!.WorkingArea;
-                using var panel = new HostUpdateForm(new HostSelfUpdateService(root, fixtures))
+                using var panel = new HostUpdateForm(new HostSelfUpdateService(fixtures))
                 {
                     StartPosition = FormStartPosition.Manual,
                     Bounds = new(area.Left + area.Width / 2, area.Top, area.Width - area.Width / 2, area.Height)

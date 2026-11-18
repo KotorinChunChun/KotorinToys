@@ -13,16 +13,23 @@ internal interface IHostSelfUpdateService
     SelfUpdateResult? LastResult();
 }
 
-internal sealed class HostSelfUpdateService(string root, string settingsDirectory) : IHostSelfUpdateService
+internal sealed class HostSelfUpdateService(string settingsDirectory, string? processPath) : IHostSelfUpdateService
 {
+    public HostSelfUpdateService(string settingsDirectory) : this(settingsDirectory, Environment.ProcessPath) { }
+
     readonly SemaphoreSlim gate = new(1);
     public string CurrentVersion => HostProduct.CurrentVersion;
-    public string? BlockReason()
+    public string? BlockReason() => BlockReason(out _);
+
+    string? BlockReason(out string? installationDirectory)
     {
+        installationDirectory = null;
         try
         {
             var actual = new InstallationDetector().Detect(HostProduct.Definition);
-            return HostSelfUpdateEligibility.Explain(actual, root, Environment.ProcessPath, CurrentVersion, File.Exists);
+            var reason = HostSelfUpdateEligibility.Explain(actual, processPath, CurrentVersion, File.Exists);
+            if (reason == null) installationDirectory = actual.Directory;
+            return reason;
         }
         catch (Exception ex) { return "正式導入を照合できません：" + ex.Message; }
     }
@@ -44,7 +51,8 @@ internal sealed class HostSelfUpdateService(string root, string settingsDirector
         if (!await gate.WaitAsync(0, cancellation)) throw new IOException("本体の更新処理が既に実行中です。");
         try
         {
-            if (BlockReason() is { } blocked) throw new IOException(blocked);
+            if (BlockReason(out var installationDirectory) is { } blocked) throw new IOException(blocked);
+            var root = Path.GetFullPath(installationDirectory!);
             if (to is not (HostUpdateChannel.Stable or HostUpdateChannel.Preview) ||
                 from is not (HostUpdateChannel.Stable or HostUpdateChannel.Preview or HostUpdateChannel.Unknown) ||
                 (from != to) != switchConfirmed) throw new IOException("更新対象の種類または切替確認が不正です。");
@@ -141,7 +149,7 @@ internal sealed class HostSelfUpdateService(string root, string settingsDirector
             var path = PathSafety.Resolve(settingsDirectory, "updates/latest.json");
             if (!File.Exists(path)) return null;
             var result = SelfUpdateFiles.Read<SelfUpdateResult>(path);
-            return result.SchemaVersion == 1 && Guid.TryParseExact(result.Id, "N", out _) && SelfUpdateFiles.SamePath(result.Root, root) &&
+            return result.SchemaVersion == 1 && Guid.TryParseExact(result.Id, "N", out _) && SelfUpdateFiles.SamePath(result.Root, Path.GetDirectoryName(processPath)) &&
                 result.State is "成功" or "失敗" or "要確認" or "再起動待ち" or "取消" ? result : null;
         }
         catch (Exception) { return null; }

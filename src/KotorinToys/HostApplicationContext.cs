@@ -23,7 +23,7 @@ internal sealed class HostApplicationContext : ApplicationContext
         var settings=new HostSettingsStore(settingsDirectory??HostSettingsStore.DefaultDirectory);
         var manager = CreateManager(root, settings.DirectoryPath, localCatalog);
         var coordinator=new StartupCoordinator(settings,new TaskSchedulerGateway(),manager,Environment.ProcessPath!);
-        var updateService = new HostSelfUpdateService(root, settings.DirectoryPath);
+        var updateService = new HostSelfUpdateService(settings.DirectoryPath);
         dashboard = new Dashboard(root,settings,coordinator, toolManager: manager, selfUpdates: updateService,
             showSelfUpdater: () =>
             {

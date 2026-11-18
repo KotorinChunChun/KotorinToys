@@ -72,7 +72,7 @@ internal sealed partial class Dashboard : BrandedForm
         this.locations = locations ?? new();
         this.showDetails = showDetails ?? ((name, explanation) => { using var form = new OperationDetailsForm(name, explanation,
             OpenInstalledLocation, InstalledLocationAvailability()); form.ShowDialog(this); });
-        this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(root, settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
+        this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
         this.showSelfUpdater = showSelfUpdater ?? (() => { using var form = new HostUpdateForm(this.selfUpdates); form.ShowDialog(this); });
         this.notify = notify ?? (message => MessageBox.Show(this, message, WindowTitle.Create("操作できません"), MessageBoxButtons.OK, MessageBoxIcon.Warning));
         this.startupCheck = startupCheck ?? (startup != null ? new StartupOverviewReader(startup).Read :

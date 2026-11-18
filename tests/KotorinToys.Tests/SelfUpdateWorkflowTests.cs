@@ -97,8 +97,8 @@ internal static class SelfUpdateWorkflowTests
         using var canceled = new CancellationTokenSource(); canceled.Cancel(); bool canceledCopy = false;
         try { await HostSelfUpdateService.CopyWorker(source, Path.Combine(fixtures, "canceled-clone"), canceled.Token); } catch (OperationCanceledException) { canceledCopy = true; }
         check(canceledCopy, "更新プロセスの準備にも取消を伝播");
-        var service = new HostSelfUpdateService(root, settings);
-        check(service.BlockReason() != null, "開発プロセスは正式導入の本体を自己更新しない");
+        check(new HostSelfUpdateService(settings).BlockReason() != null, "開発プロセスは正式導入の本体を自己更新しない");
+        var service = new HostSelfUpdateService(settings, Path.Combine(root, "KotorinToys.exe"));
         var receipt = new SelfUpdateResult(1, valid.Id, root, "0.1.0", "0.1.1", "成功", "test", true, 0, DateTimeOffset.UtcNow);
         SelfUpdateFiles.Write(Path.Combine(settings, "updates", "latest.json"), receipt);
         check(service.LastResult() == receipt, "次回起動時の更新結果を保存先から読める");
