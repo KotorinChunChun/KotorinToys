@@ -26,5 +26,11 @@ internal static class ProductIdentityTests
         check(ProductIdentity.FromId(null) is null && ProductIdentity.FromName(null) is null, "欠落した製品識別を補完しない");
         check(ProductIdentity.FromName("smartpaste") is null && ProductIdentity.FromId("SMART-PASTE") is null, "製品識別の大文字小文字を曖昧一致しない");
         check(ProductIdentity.FromId("chulip-video")?.Repository == "ChulipVideo-CSharp", "C#版は同名Python版ではなく専用リポジトリへ固定");
+        var capchun = new ToolDefinition("capchun-screen", "CapchunWindow", "CapchunWindow.exe", "README.md",
+            AppId: "KotorinToys.CapchunScreen", RepositoryUrl: "https://github.com/KotorinChunChun/CapchunWindow");
+        check(ProductIdentity.FromTool(capchun)?.Repository == "CapchunScreen" &&
+            ProductIdentity.FromTool(capchun with { RepositoryUrl = "https://github.com/KotorinChunChun/CapchunScreen" })?.Repository == "CapchunScreen" &&
+            ProductIdentity.FromTool(capchun with { RepositoryUrl = "https://github.com/OtherOwner/CapchunScreen" }) is null,
+            "CapchunWindowの旧定義と新定義を正規のCapchunScreenに解決し別所有者を拒否");
     }
 }

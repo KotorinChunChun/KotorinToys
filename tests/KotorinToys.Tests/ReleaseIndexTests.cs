@@ -35,14 +35,15 @@ internal static class ReleaseIndexTests
         check(Rejected(JsonSerializer.Serialize(new { schemaVersion = 1, generatedAt = now, repositories = maximum.Append(new { name = "Extra", available = true, releases = empty }) })), "対象上限を超える公開先を拒否");
 
         var tools = ToolCatalog.Load(root);
-        var selected = new[] { tools.Single(t => t.Id == "smart-paste"), tools.Single(t => t.Id == "voice-mixer-spk-router") };
+        var capchun = tools.Single(t => t.Id == "capchun-screen");
+        var selected = new[] { tools.Single(t => t.Id == "smart-paste"), tools.Single(t => t.Id == "voice-mixer-spk-router"), capchun };
         byte[] bytes = "release-index-fixture"u8.ToArray();
         string hash = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
         var packages = selected.ToDictionary(t => t.Name,
             t => new LocalPackage(t.Id, t.Name, "1.2.3", t.AppId, t.Name + "-1.2.3-setup.exe", hash, "unsigned-public-build"));
         string Url(ToolDefinition tool, string file) => $"https://github.com/KotorinChunChun/{ProductIdentity.FromTool(tool)!.Repository}/releases/download/v1.2.3/{file}";
         var index = JsonSerializer.Serialize(new { schemaVersion = 1, generatedAt = now, repositories = selected.Select(tool => new {
-            name = ProductIdentity.FromTool(tool)!.Repository, available = true,
+            name = tool == capchun ? "CapchunWindow" : ProductIdentity.FromTool(tool)!.Repository, available = true,
             releases = new[] { new { tag_name = "v1.2.3", draft = false, prerelease = true, published_at = now, assets = new[] {
                 new { name = tool.Name + "-packages.json", state = "uploaded", size = 512, browser_download_url = Url(tool, tool.Name + "-packages.json"), digest = (string?)null },
                 new { name = packages[tool.Name].File, state = "uploaded", size = bytes.Length, browser_download_url = Url(tool, packages[tool.Name].File), digest = (string?)("sha256:" + hash) }
@@ -61,6 +62,14 @@ internal static class ReleaseIndexTests
         var second = await client.Check(selected[1], null);
         check(first.Confirmed && second.Confirmed && indexCalls == 1 && manifestCalls == 2,
             $"複数製品で一覧を1回共有し、各製品の公開台帳を照合（一覧{indexCalls}、台帳{manifestCalls}、1件目={first.Detail}、2件目={second.Detail}）");
+        var renamed = await client.Check(capchun, null);
+        check(renamed.Confirmed && renamed.Package?.Package == packages[capchun.Name] && indexCalls == 1 && manifestCalls == 3,
+            "旧CapchunWindow名の一覧からも新CapchunScreenの配布先を照合");
+        using var oldAssetClient = new PublicReleaseClient(new Handler(_ => new(HttpStatusCode.OK)
+        {
+            Content = new StringContent(index.Replace("/CapchunScreen/releases/", "/CapchunWindow/releases/", StringComparison.Ordinal))
+        }));
+        check(!(await oldAssetClient.Check(capchun, null)).Confirmed, "旧一覧でもインストーラーの参照先は正規URLだけを許可");
         using var downloader = new ReleaseDownloader(new Handler(request =>
         {
             check(request.RequestUri!.AbsoluteUri == Url(selected[1], packages[selected[1].Name].File), "SpkRouterの固定リリースから取得");

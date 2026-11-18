@@ -85,7 +85,10 @@ internal sealed partial class PublicReleaseClient : IDisposable
                 return Confirmed(transcription, false, "GitHub公開版とSHA256SUMSを照合しました。", null, listing, checksumText);
             }
             var listText = await Read(PublicReleaseIndex.Source, PublicReleaseIndex.MaximumBytes, token);
-            var list = PublicReleaseIndex.Releases(listText.Value, repository, cache.UtcNow);
+            bool renamedCapchun = tool.Id == "capchun-screen";
+            var list = PublicReleaseIndex.Releases(listText.Value, repository, cache.UtcNow, allowMissing: renamedCapchun);
+            if (renamedCapchun && list.ValueKind == JsonValueKind.Undefined)
+                list = PublicReleaseIndex.Releases(listText.Value, "CapchunWindow", cache.UtcNow);
             var latest = PublicReleaseMetadata.Select(list, includePrerelease, exactPrerelease: exactPrerelease);
             var manifest = latest.Asset(tool, tool.Name + "-packages.json");
             var installer = latest.Asset(tool, $"{tool.Name}-{latest.Version}-setup.exe");

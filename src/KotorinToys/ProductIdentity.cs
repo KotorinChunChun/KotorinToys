@@ -14,7 +14,7 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
         new("smart-paste", "SmartPaste", "KotorinToys.SmartPaste"),
         new("ss-capture", "SSCapture", "KotorinToys.SSCapture"),
         new("shortcut-key-counter", "ShortcutKeyCounter", "KotorinToys.ShortcutKeyCounter"),
-        new("capchun-screen", "CapchunWindow", "KotorinToys.CapchunScreen"),
+        new("capchun-screen", "CapchunWindow", "KotorinToys.CapchunScreen", "CapchunScreen"),
         new("chulip-video", "ChulipVideo", "KotorinToys.ChulipVideo", "ChulipVideo-CSharp"),
         new("chunap-tool", "ChunapTool", "KotorinToys.ChunapTool"),
         new("http-selector", "HttpSelector", "KotorinToys.HttpSelector"),
@@ -41,7 +41,9 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
             return TranscriptionDistribution.Supports(tool) ? byId[tool.Id] : null;
         if (byId.TryGetValue(tool.Id, out var known))
             return known.Name == tool.Name && known.AppId == tool.AppId &&
-                (string.IsNullOrEmpty(tool.RepositoryUrl) || tool.RepositoryUrl == "https://github.com/KotorinChunChun/" + known.Repository) ? known : null;
+                (string.IsNullOrEmpty(tool.RepositoryUrl) || tool.RepositoryUrl == "https://github.com/KotorinChunChun/" + known.Repository ||
+                    (known.Id == "capchun-screen" && tool.RepositoryUrl == "https://github.com/KotorinChunChun/CapchunWindow"))
+                ? known : null;
         if (tool.Msix != null || tool.Id is "host" or "dashboard" || tool.Name == "KotorinToys" ||
             tool.AppId != "KotorinToys." + tool.Name || tool.InstalledExecutable != tool.Name + ".exe" ||
             string.IsNullOrEmpty(tool.RepositoryUrl) || !OnlineToolCatalog.IsRepositoryUrl(tool.RepositoryUrl) ||

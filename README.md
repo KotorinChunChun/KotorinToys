@@ -20,7 +20,7 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 | --- | --- | --- |
 | 撮影 | [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 作業画面を画像や動画で残し、撮影したファイルを整理する |
 | 撮影 | [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PCで行った作業を、画面画像付きの手順書にする |
-| 撮影・配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunWindow) | 操作画面を録画し、キーやマウスの入力をあとから映像と照らし合わせる |
+| 撮影・配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunScreen) | 操作画面を録画し、キーやマウスの入力をあとから映像と照らし合わせる |
 | 編集 | [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 撮影済みの動画から必要な場面を抜き出し、手順書の画像に使う |
 | 編集 | [PPPaint](https://github.com/KotorinChunChun/PPPaint) | 画像を補正し、レイヤーを分けて図形や説明を書き足す |
 | 文書 | [MdVisualizer](https://github.com/KotorinChunChun/MdVisualizer) | Markdownの文書や図表を読み、表示を確認しながら編集する |

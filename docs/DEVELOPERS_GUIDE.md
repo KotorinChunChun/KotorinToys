@@ -82,7 +82,7 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj -c Debug --artifac
 
 ## 独立Git管理
 
-親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。公開登録済みの12件は以下で取得できます。CapchunScreenはCapchunWindow、ChulipVideoはChulipVideo-CSharpを取得します。HttpSelectorの公開URLも.gitmodulesに登録しています。
+親リポジトリのtools内の各フォルダーは独立したGitリポジトリです。まず子で変更をコミットし、親でmode-160000の採用コミットを記録します。公開登録済みの12件は以下で取得できます。CapchunWindowのソースはCapchunScreen、ChulipVideoのソースはChulipVideo-CSharpから取得します。HttpSelectorの公開URLも.gitmodulesに登録しています。
 
 ```powershell
 git clone https://github.com/KotorinChunChun/KotorinToys.git

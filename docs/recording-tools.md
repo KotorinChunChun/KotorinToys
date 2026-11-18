@@ -31,7 +31,7 @@ SSCapture、OperationRecorder、CapchunWindowは、残したい情報と成果�
 
 操作ログをTSV・JSONなどの構造化形式や字幕として再利用し、AIの学習データや他ソフトウェアへ渡すことを目的としています。現在の直接出力はTSVです。JSON形式の操作ログ・字幕の直接出力は現行機能に含まれません。
 
-[CapchunWindowの説明](https://github.com/KotorinChunChun/CapchunWindow)
+[CapchunWindowの説明](https://github.com/KotorinChunChun/CapchunScreen)
 
 ### ChulipVideoで編集・共有する
 
