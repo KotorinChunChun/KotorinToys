@@ -15,6 +15,14 @@ internal static class ManagedProductDeclaration
         using var document = JsonDocument.Parse(File.ReadAllText(path));
         if (document.RootElement.GetProperty("schemaVersion").GetInt32() != 1) throw new IOException("未対応の製品定義です。");
         var definition = document.RootElement.Deserialize<ToolDefinition>(ToolCatalog.Json) ?? throw new IOException("製品定義が空です。");
+        if (product == "OperationRecorder" &&
+            definition is { Id: "operation-recorder", Name: "OperationRecorder", AppId: "KotorinToys.OperationRecorder",
+                Version: "0.1.8" or "0.1.9", DistributionStatus: "development",
+                InstalledExecutable: "OperationRecorder.exe", RepositoryUrl: "https://github.com/KotorinChunChun/OperationRecorder" })
+        {
+            // この2版のセットアップに開発用の値が入っていた。ほかの項目は通常の製品照合を通す。
+            definition = definition with { DistributionStatus = "published" };
+        }
         if (definition.Name != product || ProductIdentity.FromTool(definition) == null) throw new IOException("未対応または不一致の製品定義です。");
         return definition with { ToolRoot = "", Executable = definition.InstalledExecutable };
     }

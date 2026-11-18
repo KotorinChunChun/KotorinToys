@@ -8,7 +8,7 @@ using KotorinToys;
 internal static class OperationRecorderReleaseAcceptance
 {
     const string ToolId = "operation-recorder";
-    const string ProductVersion = "0.1.9";
+    const string ProductVersion = "0.1.10";
     internal static ToolDefinition Definition => new(ToolId, "OperationRecorder",
         "artifacts/management/bin/OperationRecorderApp/debug/OperationRecorder.exe", "docs/kotorintoys-integration.md",
         Summary: "PC操作と前後の画面を記録し、画像付きの操作手順書を作成する", Category: "操作記録",
@@ -165,7 +165,7 @@ internal static class OperationRecorderReleaseAcceptance
         {
             var packages = InstallerAdapter.Load(catalog, [tool]);
             Require(packages.Packages.Length == 1 && packages.Packages[0].Id == ToolId && packages.Packages[0].Version == ProductVersion,
-                "対象製品だけの0.1.9実配布台帳");
+                "対象製品だけの0.1.10実配布台帳");
             var installed = await adapter.Install(tool, catalog, target);
             receipts.Add(new { Step = "新規導入", Result = installed });
             Require(installed.State == "成功" && manager.Installation(tool) is { State: "導入済み", Version: ProductVersion } &&
@@ -302,6 +302,31 @@ internal static class OperationRecorderReleaseAcceptance
         var package = metadata.Package(tool, manifest, metadata.Asset(tool, setup.Name), null);
         Require(package.Package.Version == ProductVersion && package.Package.Sha256 == checksum && package.Length == setup.Length,
             "現行本体の検証処理で配布候補の台帳とsetupの版・SHA-256・容量が一致");
+        var payload = Path.Combine(directory, "unpacked-all", "{app}");
+        var declaration = ManagedProductDeclaration.Read(tool.Name, payload);
+        Require(declaration.Version == ProductVersion && declaration.DistributionStatus == "published",
+            "展開した製品定義を更新ヘルパーが受理する");
+        var fixture = Path.Combine(directory, "previous-declarations-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(fixture);
+        var definitionPath = Path.Combine(fixture, "tool.json");
+        foreach (string version in new[] { "0.1.8", "0.1.9" })
+        {
+            File.WriteAllText(definitionPath, JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1, declaration.Id, declaration.Name, declaration.AppId, declaration.Summary,
+                declaration.Executable, declaration.InstalledExecutable, declaration.Manual, declaration.Readme,
+                declaration.Shortcuts, declaration.RepositoryUrl, declaration.Capabilities, declaration.Runtimes,
+                declaration.SupportedEnvironment, declaration.InvestigationStatus, declaration.Icon,
+                version, distributionStatus = "development",
+            }, ToolCatalog.Json));
+            Require(ManagedProductDeclaration.Read(tool.Name, fixture).Version == version,
+                $"保守ヘルパーが公開済みの旧製品定義 {version} を受理する");
+        }
+        File.WriteAllText(definitionPath, File.ReadAllText(definitionPath).Replace("\"0.1.9\"", "\"0.1.7\"", StringComparison.Ordinal));
+        bool refused = false;
+        try { ManagedProductDeclaration.Read(tool.Name, fixture); }
+        catch (IOException) { refused = true; }
+        Require(refused, "互換対象外の開発用定義を拒否する");
         return 0;
     }
 
@@ -319,7 +344,7 @@ internal static class OperationRecorderReleaseAcceptance
         Require(tool.DistributionStatus == "published" && tool.Version == ProductVersion &&
             tool.Name == Definition.Name && tool.AppId == Definition.AppId &&
             tool.RepositoryUrl == Definition.RepositoryUrl,
-            "公開mainの登録が公開状態・製品名・AppId・配布先・0.1.9に一致");
+            "公開mainの登録が公開状態・製品名・AppId・配布先・0.1.10に一致");
         await File.WriteAllBytesAsync(Path.Combine(output, "published-tools.json"), catalogBytes);
         using var client = new PublicReleaseClient(cache: new PublicReleaseCache(Path.Combine(output, "release-cache")));
         var release = await client.Check(tool, null);
