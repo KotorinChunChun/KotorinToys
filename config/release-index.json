@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T13:58:19.8337182+00:00",
+  "generatedAt": "2026-11-18T15:36:06.8910144+00:00",
   "repositories": [
     {
-      "name": "CapchunWindow",
+      "name": "CapchunScreen",
       "available": true,
       "releases": [
         {
@@ -540,6 +540,35 @@
       "name": "KotorinToys",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.21",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-18T15:35:48Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.21-setup.exe",
+              "state": "uploaded",
+              "size": 87238586,
+              "digest": "sha256:31c0d86a3f32f1597f561209b7a6512301e23b5a3298c74b85c994eed4a9fb05",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.21/KotorinToys-0.1.21-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 389,
+              "digest": "sha256:42e06a0aba0eeaf472304bfe273bc055bd5a4df9ca8f311e0172227ff9f9119c",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.21/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:8a962a6d9a898b1e45b4947dd73a1ad308fd60dd0d8c8276ad7d411f5d14beb7",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.21/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.20",
           "draft": false,
@@ -1996,6 +2025,70 @@
               "size": 3725674,
               "digest": "sha256:8281ed55793f9694b2989d8268517b579e2cb54e33479e1fa545903a205799ed",
               "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.0/TalkRecorder-v0.1.0-win-x64.zip"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TranscriptionServer",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.1.18",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-16T15:46:29Z",
+          "assets": [
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 326,
+              "digest": "sha256:01f2cdcc0631f96bd6799b0fa4c4f458694aa1eb1cc27fb7338a7a3fdd4b5606",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.18/SHA256SUMS.txt"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.18-setup-x64.exe",
+              "state": "uploaded",
+              "size": 6146936,
+              "digest": "sha256:de9deeb352a182677c9003f7aac232ebb8a28baf576c70b516ca116786568978",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.18/TranscriptionServer-v0.1.18-setup-x64.exe"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.18-source.zip",
+              "state": "uploaded",
+              "size": 397900,
+              "digest": "sha256:d4da869b23abfde4f9f6b03ded2cd4682ab0e79d67f1754378396f22a4d8c72b",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.18/TranscriptionServer-v0.1.18-source.zip"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.18-windows-x64.zip",
+              "state": "uploaded",
+              "size": 5770483,
+              "digest": "sha256:db1ac88d11c5df72aeea056ba33c8f27bb1c4cbe1bf701d548b89d822d6e4594",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.18/TranscriptionServer-v0.1.18-windows-x64.zip"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.17",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-16T14:45:35Z",
+          "assets": [
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 111,
+              "digest": "sha256:3080218a17a882c3eec029fb4d2bd9e5b535af65b475ffabaf2ace5db711b814",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.17/SHA256SUMS.txt"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.17-windows-x64.zip",
+              "state": "uploaded",
+              "size": 5769894,
+              "digest": "sha256:7e0240c3b3f16c386ed42420e3703df5bfa0ec022ce5d33b8657e1e298a80b17",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.17/TranscriptionServer-v0.1.17-windows-x64.zip"
             }
           ]
         }
