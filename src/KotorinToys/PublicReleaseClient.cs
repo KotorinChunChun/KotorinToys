@@ -26,6 +26,7 @@ internal sealed partial class PublicReleaseClient : IDisposable
         {
             cancellation.ThrowIfCancellationRequested();
             if (tool.Msix != null) return await CheckMsix(tool, fallback, cancellation);
+            if (TranscriptionDistribution.Supports(tool)) return await CheckCore(tool, fallback, false, false, cancellation);
             if (tool.DistributionStatus != "published")
             {
                 if (tool.Id == "shortcut-key-counter" && tool.Name == "ShortcutKeyCounter" &&
@@ -66,6 +67,23 @@ internal sealed partial class PublicReleaseClient : IDisposable
             deadline.CancelAfter(TimeSpan.FromSeconds(45));
             var token = deadline.Token;
             var repository = ProductIdentity.FromTool(tool)?.Repository ?? throw new IOException("公開製品の検証済み配布先がありません。");
+            if (TranscriptionDistribution.Supports(tool))
+            {
+                var listing = await Read(PublicReleaseIndex.Source, PublicReleaseIndex.MaximumBytes, token);
+                var releases = PublicReleaseIndex.Releases(listing.Value, repository, cache.UtcNow, allowMissing: true);
+                // 公開一覧の生成が新しい定義に追いつくまでは、この製品の固定APIをキャッシュして使う。
+                if (releases.ValueKind == JsonValueKind.Undefined)
+                {
+                    listing = await Read(TranscriptionDistribution.Releases, PublicReleaseIndex.MaximumBytes, token);
+                    using var document = JsonDocument.Parse(listing.Value);
+                    releases = document.RootElement.Clone();
+                }
+                var release = PublicReleaseMetadata.Select(releases, includePrerelease: false);
+                var checksums = release.Asset(tool, "SHA256SUMS.txt");
+                var checksumText = await Read(new(checksums.GetProperty("browser_download_url").GetString()!), 32768, token);
+                var transcription = release.TranscriptionInstaller(tool, checksumText.Value);
+                return Confirmed(transcription, false, "GitHub公開版とSHA256SUMSを照合しました。", null, listing, checksumText);
+            }
             var listText = await Read(PublicReleaseIndex.Source, PublicReleaseIndex.MaximumBytes, token);
             var list = PublicReleaseIndex.Releases(listText.Value, repository, cache.UtcNow);
             var latest = PublicReleaseMetadata.Select(list, includePrerelease, exactPrerelease: exactPrerelease);

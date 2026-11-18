@@ -39,13 +39,13 @@ internal static class ReleaseReadiness
                     published.DistributionStatus!=tool.DistributionStatus)
                     Add(tool,"エラー","公開configの製品・配布先・配布方式が採用定義と一致しません。");
             }
-            if(tool.Msix==null && tool.DistributionStatus!="published")
+            if(!ToolInstallationRunner.HasPublicInstaller(tool))
             { Add(tool,"案内のみ","未公開／ZIP候補。本体から導入できる製品としては数えません。");continue; }
             var fallback=catalog.Packages.SingleOrDefault(p=>p.Package.Id==tool.Id);
             if(ToolInstallationRunner.UnsupportedReason(tool) is { } unsupported)
             { Add(tool,"エラー",unsupported);continue; }
             if(fallback!=null && (fallback.Package.Name!=tool.Name || fallback.Package.AppId!=tool.AppId ||
-                tool.Msix!=null && fallback.Package.Kind!="msix" || tool.Msix==null && fallback.Package.Kind!="inno"))
+                fallback.Package.Kind!=ToolInstallationRunner.PackageKind(tool)))
             { Add(tool,"エラー","定義と公開台帳の製品・配布方式が一致しません。");continue; }
             if(online==null)
             { Add(tool,fallback==null?"未照合":"静的確認",fallback==null?"同梱台帳なし。公開前にオンライン照合が必要です。":"製品・版・ファイル名・容量・SHA-256の形式を確認。実公開は未照合です。");continue; }
@@ -56,7 +56,7 @@ internal static class ReleaseReadiness
                 var item=release.Package;
                 ReleaseDownloader.Validate(new(1,[item]),tools);
                 if(item.Package.Id!=tool.Id || item.Package.Name!=tool.Name || item.Package.AppId!=tool.AppId ||
-                    tool.Msix!=null && item.Package.Kind!="msix" || tool.Msix==null && item.Package.Kind!="inno")
+                    item.Package.Kind!=ToolInstallationRunner.PackageKind(tool))
                     throw new IOException("公開台帳の製品・配布方式が定義と一致しません。");
                 if(tool.Msix!=null && Version.Parse(item.Package.Version)<Version.Parse(tool.Version))throw new IOException("公開MSIXが定義の必要版より古い状態です。");
                 Add(tool,"公開照合済み",item.Package.Version+"：製品・tag・台帳・容量・SHA-256をGitHub情報と照合しました。");

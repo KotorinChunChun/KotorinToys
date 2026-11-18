@@ -25,7 +25,8 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
             if (tool.Msix != null) return await MsixInstaller.Create(manager, tool).Install(tool, catalogPath);
             diagnostics = Diagnostics(tool, "install", directory ?? manager.Installation(tool).Directory);
             var package = Load(catalogPath, manager.KnownTools()).Packages.SingleOrDefault(p => p.Id == tool.Id) ?? throw new IOException("対象のローカル配布物がありません。");
-            if (package.Kind != "inno") throw new IOException("EXEとMSIXの配布方式が一致しません。");
+            if (package.Kind != (TranscriptionDistribution.Supports(tool) ? TranscriptionDistribution.Kind : "inno"))
+                throw new IOException("対象アプリの配布方式が一致しません。");
             if (package.AppId != tool.AppId || package.Name != tool.Name)
                 throw new IOException("登録情報と配布物が一致しません。");
             var file = PathSafety.Resolve(Path.GetDirectoryName(Path.GetFullPath(catalogPath))!, package.File);

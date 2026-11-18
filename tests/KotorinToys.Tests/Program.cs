@@ -23,6 +23,8 @@ internal static class Program
     {
         try
         {
+            if (args is ["--tool-update-job", var workerSettings, var jobId])
+                return ToolUpdateJob.Run(workerSettings, jobId).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--local-installed-catalog-tests"])) { LocalInstalledCatalogTests.Run(KotorinToys.Program.FindRoot(), Path.Combine(KotorinToys.Program.FindRoot(), "dev/history/v0.1.18/logs/focus-local-" + Guid.NewGuid().ToString("N")), Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.Length == 3 && args[0] == "--local-startup-readiness") return LocalStartupReadiness.Run(args[1], args[2]).GetAwaiter().GetResult();
             if (args.Length == 3 && args[0] == "--local-startup-reapply") return LocalStartupReadiness.Reapply(args[1], args[2]).GetAwaiter().GetResult();
@@ -184,6 +186,45 @@ internal static class Program
                 DashboardInstallationTests.Run(root, Check);
                 MsixDashboardTests.Run(root, Check);
                 Console.WriteLine($"PASS: {count} 件"); return 0;
+            }
+            if (args.SequenceEqual(["--transcription-release-check"]))
+            {
+                var tool = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root)
+                    .Single(TranscriptionDistribution.Supports);
+                var release = Task.Run(async () =>
+                {
+                    using var client = new PublicReleaseClient(cache: new PublicReleaseCache());
+                    return await client.Check(tool, null);
+                }).GetAwaiter().GetResult();
+                if (!release.Confirmed || release.Package == null) throw new IOException(release.Detail);
+                using var downloader = new ReleaseDownloader();
+                var item = release.Package;
+                _ = Task.Run(() => downloader.Prepare(new(1, [item]), [tool with { Version = item.Package.Version }], fixtures)).GetAwaiter().GetResult();
+                Console.WriteLine($"{tool.Name} {item.Package.Version} / {item.Package.File} / SHA-256照合済み");
+                var installation = new InstallationDetector().Detect(tool);
+                Console.WriteLine($"導入状態 {installation.State} / {installation.Version} / {installation.Detail}");
+                return 0;
+            }
+            if (args.SequenceEqual(["--detached-update-tests"]))
+            {
+                Task.Run(async () =>
+                {
+                    var tool = ToolCatalog.Load(root).First();
+                    var settings = Path.Combine(fixtures, "detached-settings");
+                    using var closing = new CancellationTokenSource();
+                    var wait = ToolUpdateJob.Start(root, settings, [tool], new(1, []), closing.Token);
+                    closing.Cancel();
+                    try { await wait; }
+                    catch (OperationCanceledException) { }
+                    var directory = Directory.GetDirectories(Path.Combine(settings, "tool-updates")).Single();
+                    var receipt = Path.Combine(directory, "result.json");
+                    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                    while (!File.Exists(receipt)) await Task.Delay(50, timeout.Token);
+                    var report = SelfUpdateFiles.Read<ToolUpdateReport>(receipt);
+                    Check(report.Finished && report.Results is [{ State: "失敗" }],
+                        "画面側の待機を取り消しても別プロセスが配布定義を検証し、結果を保存する");
+                }).GetAwaiter().GetResult();
+                return 0;
             }
             if (args.SequenceEqual(["--view-tests"])) { DashboardViewTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--repair-tests"])) { RepairTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); RepairTests.Form(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }

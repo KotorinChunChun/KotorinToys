@@ -59,6 +59,13 @@ internal sealed partial class ToolManager
             }
         }
 
+        if (TranscriptionDistribution.Supports(tool))
+        {
+            if (matches.Count == 1 && !inaccessible) return new("実行中", matches[0], RunningExecutable: path);
+            return matches.Count == 0 && !inaccessible ? new("停止中") :
+                new("確認できない", Detail: "TranscriptionServerの実行プロセスを一意に確認できません。");
+        }
+
         try
         {
             var reply = await Send(tool, "status", cancellation: cancellation);

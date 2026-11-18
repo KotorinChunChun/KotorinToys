@@ -7,6 +7,7 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
     static readonly ProductIdentity[] products =
     [
         new("voice-mixer-spk-router", "VoiceMixerSpkRouter", "KotorinToys.VoiceMixerSpkRouter"),
+        new(TranscriptionDistribution.Id, TranscriptionDistribution.Name, TranscriptionDistribution.AppId),
         new("host", "KotorinToys", "KotorinToys"),
         new("md-visualizer", "MdVisualizer", "KotorinToys.MdVisualizer"),
         new("live-text-marker", "LiveTextMarker", "KotorinToys.LiveTextMarker"),
@@ -36,6 +37,8 @@ internal sealed record ProductIdentity(string Id, string Name, string AppId, str
     public static ProductIdentity? FromTool(ToolDefinition tool)
     {
         if (tool == null || string.IsNullOrWhiteSpace(tool.Id)) return null;
+        if (tool.Id == TranscriptionDistribution.Id)
+            return TranscriptionDistribution.Supports(tool) ? byId[tool.Id] : null;
         if (byId.TryGetValue(tool.Id, out var known))
             return known.Name == tool.Name && known.AppId == tool.AppId &&
                 (string.IsNullOrEmpty(tool.RepositoryUrl) || tool.RepositoryUrl == "https://github.com/KotorinChunChun/" + known.Repository) ? known : null;

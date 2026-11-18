@@ -143,7 +143,7 @@ internal sealed partial class Dashboard
     }
     bool TryBeginOperation()
     {
-        if (busy || refreshingCatalog || IsDisposed) return false;
+        if (busy || refreshingCatalog || IsDisposed || BackgroundUpdateBusy) return false;
         busy = true;
         actions.Enabled = hostActions.Enabled = false;
         UpdateActions();

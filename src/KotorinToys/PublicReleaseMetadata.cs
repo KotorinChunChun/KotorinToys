@@ -104,6 +104,23 @@ internal sealed class PublicReleaseMetadata
         return new(Version, PublishedAt, asset.GetProperty("browser_download_url").GetString()!, length, hash);
     }
 
+    public ReleasePackage TranscriptionInstaller(ToolDefinition tool, string checksums)
+    {
+        var name = TranscriptionDistribution.FileName(Version);
+        var asset = Asset(tool, name);
+        var matches = checksums.TrimStart('\uFEFF').Split('\n').Select(line => Regex.Match(line.TrimEnd('\r'), @"^([a-fA-F0-9]{64}) [ *](.+)$"))
+            .Where(match => match.Success && match.Groups[2].Value == name).ToArray();
+        if (matches.Length != 1) throw new IOException("TranscriptionServerのSHA-256が欠落または重複しています。");
+        var hash = matches[0].Groups[1].Value.ToLowerInvariant();
+        if (asset.GetProperty("digest").GetString() != "sha256:" + hash)
+            throw new IOException("GitHubのassetハッシュとSHA256SUMSが一致しません。");
+        var package = new LocalPackage(tool.Id, tool.Name, Version, tool.AppId, name, hash,
+            TranscriptionDistribution.Signature, TranscriptionDistribution.Kind);
+        var result = new ReleasePackage(package, asset.GetProperty("size").GetInt64(), PublishedAt);
+        ReleaseDownloader.Validate(new(1, [result]), [tool]);
+        return result;
+    }
+
     public ReleasePackage Msix(ToolDefinition tool, string checksums, ReleasePackage? fallback)
     {
         if (!MsixPolicy.Supports(tool)) throw new IOException("未対応のMSIX製品識別です。");

@@ -7,7 +7,7 @@ internal sealed partial class StartupSettingsForm : BrandedForm
     readonly ToolDefinition[] tools;
     readonly CheckBox hostStartup=new(){Text="本体をサインイン時に開始する",AutoSize=true};
     readonly CheckBox showDashboard=new(){Text="サインイン時に管理画面も表示する",AutoSize=true};
-    readonly DataGridView grid=new(){Name="startupTools",Dock=DockStyle.Fill,AllowUserToAddRows=false,AllowUserToDeleteRows=false,RowHeadersVisible=false,AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill};
+    readonly SingleRowWheelGrid grid=new(){Name="startupTools",Dock=DockStyle.Fill,AllowUserToAddRows=false,AllowUserToDeleteRows=false,RowHeadersVisible=false,AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill};
     readonly Label message=new(){Name="startupMessage",Dock=DockStyle.Bottom,Height=65,Padding=new Padding(10),AutoEllipsis=true};
     readonly FlowLayoutPanel actions=new(){Dock=DockStyle.Bottom,Height=52,Padding=new Padding(8)};
     public StartupSettingsForm(HostSettingsStore settings,StartupCoordinator startup,ToolDefinition[] definitions)

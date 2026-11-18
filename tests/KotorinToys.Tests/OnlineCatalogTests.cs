@@ -29,16 +29,30 @@ internal static class OnlineCatalogTests
         var localIds = ToolCatalog.Load(root).Select(t => t.Id).ToArray();
         var bundledIds = bundled.Select(t => t.Id).ToArray();
         const string transcriptionId = "transcription-server";
-        string[] bundledOnly = ["office-assist", "talk-recorder", transcriptionId];
+        string[] bundledOnly = ["office-assist", "talk-recorder", "echo-type", transcriptionId];
         check(localIds.Except(bundledIds).SequenceEqual(["chuwitch-window"]) &&
             bundledIds.Except(localIds).SequenceEqual(bundledOnly) &&
             bundledIds.Where(id => !bundledOnly.Contains(id)).SequenceEqual(localIds.Where(id => id != "chuwitch-window")),
             "共通ツールの順序と開発・配布専用ツールを区別");
         var transcription = bundled.Single(t => t.Id == transcriptionId);
         check(ToolRepository.Find(transcription)?.AbsoluteUri == "https://github.com/KotorinChunChun/TranscriptionServer" &&
-            transcription.DistributionStatus == "unpublished" && !ToolActionPolicy.InstallEntry(transcription).Enabled &&
+            ToolActionPolicy.InstallEntry(transcription).Enabled &&
             !ToolActionPolicy.Evaluate("start", transcription, new("未導入", null, null, null), new("停止中"), executableExists: true).Enabled,
-            "TranscriptionServerはGitHubを参照でき、対応していない導入・起動を許可しない");
+            "TranscriptionServerは専用インストーラーで導入でき、管理起動は無効");
+        var installer = TranscriptionDistribution.FileName("0.1.18");
+        var url = TranscriptionDistribution.Repository + "/releases/download/v0.1.18/";
+        var hash = new string('a', 64);
+        var fixture = "[{\"draft\":false,\"prerelease\":false,\"tag_name\":\"v0.1.18\",\"assets\":[" +
+            $"{{\"name\":\"{installer}\",\"state\":\"uploaded\",\"size\":5,\"digest\":\"sha256:{hash}\",\"browser_download_url\":\"{url}{installer}\"}}]}}]";
+        using (var document = JsonDocument.Parse(fixture))
+        {
+            var publication = PublicReleaseMetadata.Select(document.RootElement);
+            var candidate = publication.TranscriptionInstaller(transcription, $"{hash}  {installer}\n");
+            check(candidate.Package.File == installer && ReleaseDownloader.Asset(candidate, transcription).AbsoluteUri == url + installer,
+                "TranscriptionServerの固定リリース名と配布URLを照合する");
+            Reject(() => publication.TranscriptionInstaller(transcription, $"{new string('b', 64)}  {installer}\n"),
+                "GitHubのハッシュと不一致のTranscriptionServerセットアップを拒否する");
+        }
         foreach (var (id, name) in new[] { ("voice-mixer-mic-router", "VoiceMixerMicRouter"), ("voice-mixer-spk-router", "VoiceMixerSpkRouter") })
         {
             check(bundled.Count(t => t.Id == id) == 1, name + "をオンライン一覧に重複なく登録");

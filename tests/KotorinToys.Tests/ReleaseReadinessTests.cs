@@ -9,9 +9,19 @@ internal static class ReleaseReadinessTests
         var report=await ReleaseReadiness.Check(root,tools,catalog);
         check(report.Passed && !report.Online && !report.ReadyToPublish,"静的検査を実公開の照合成功と混同しない");
         check(report.Items.Any(i=>i.Level=="案内のみ") && !report.Items.Any(i=>i.Id=="shortcut-key-counter" && i.Level=="公開照合済み"),"未公開・ZIP候補を導入可能として数えない");
-        var managedCount=tools.Count(t=>t.Msix!=null || t.DistributionStatus=="published");
-        Task<PublicRelease> Good(ToolDefinition t,ReleasePackage? fallback)=>Task.FromResult(new PublicRelease(fallback ??
-            new(new(t.Id,t.Name,t.Version,t.AppId,t.Msix == null ? t.Name+"-"+t.Version+"-setup.exe" : MsixPolicy.FileName(t.Version,t.Id),new string('a',64),t.Msix == null ? "unsigned-public-build" : "signed-msix",t.Msix == null ? "inno" : "msix"),1),true,true,"fixture"));
+        var managedCount=tools.Count(ToolInstallationRunner.HasPublicInstaller);
+        Task<PublicRelease> Good(ToolDefinition t,ReleasePackage? fallback)
+        {
+            var kind = ToolInstallationRunner.PackageKind(t);
+            var (file, signature) = kind switch
+            {
+                "msix" => (MsixPolicy.FileName(t.Version, t.Id), "signed-msix"),
+                TranscriptionDistribution.Kind => (TranscriptionDistribution.FileName(t.Version), TranscriptionDistribution.Signature),
+                _ => ($"{t.Name}-{t.Version}-setup.exe", "unsigned-public-build")
+            };
+            return Task.FromResult(new PublicRelease(fallback ?? new(new(t.Id,t.Name,t.Version,t.AppId,file,
+                new string('a',64),signature,kind),1),true,true,"fixture"));
+        }
         report=await ReleaseReadiness.Check(root,tools,catalog,tools,Good);
         check(!(await ReleaseReadiness.Check(root,tools,catalog,online:Good)).ReadyToPublish,"公開configを省略したオンライン検査を公開準備完了にしない");
         check(report.ReadyToPublish && report.Items.Count(i=>i.Level=="公開照合済み")==managedCount,"公開configと全対応製品の配布物が一致した場合だけ公開準備完了");

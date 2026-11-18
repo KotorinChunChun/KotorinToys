@@ -4,7 +4,7 @@ internal sealed partial class Dashboard
 {
     ActionAvailability UpdateAvailability(int[] selected, bool all)
     {
-        if (busy || refreshingCatalog) return ActionAvailability.Deny("処理中です。完了するまでお待ちください。");
+        if (busy || refreshingCatalog || BackgroundUpdateBusy) return ActionAvailability.Deny("処理中です。完了するまでお待ちください。");
         if (checkingReleases) return ActionAvailability.Deny("公開版を確認しています。");
         if (all)
             return Enumerable.Range(0, tools.Length).Any(i => MsixPolicy.Installed(installations[i]) && ToolActionPolicy.InstallEntry(tools[i]).Enabled)
@@ -21,7 +21,7 @@ internal sealed partial class Dashboard
         if (UiClosed) return;
         var selected = all ? Enumerable.Range(0, tools.Length).ToArray() : SelectedRows();
         if (!UpdateAvailability(selected, all).Enabled || !TryBeginOperation()) return;
-        UpdatingTools = true;
+        preparingToolUpdates = true;
         SetUpdateStatus("更新を確認しています…");
         try
         {
@@ -55,6 +55,24 @@ internal sealed partial class Dashboard
 
             if (targets.Count > 0)
             {
+                var catalog = new ReleaseCatalog(1, ConfirmedCatalog()!.Packages
+                    .Where(item => targets.Any(tool => tool.Id == item.Package.Id)).ToArray());
+                if (all || selected.Length > 1)
+                {
+                    var lines = targets.Select(tool =>
+                    {
+                        var index = Array.FindIndex(tools, candidate => candidate.Id == tool.Id);
+                        var item = catalog.Packages.Single(package => package.Package.Id == tool.Id);
+                        return $"{tool.Name}　{installations[index].Version} → {ReleaseDisplay.Version(item)}";
+                    });
+                    if (!confirmUpdates(string.Join("\n", lines) + "\n\nまとめてアップデートしますか？\nKotorinToysを終了しても処理は続きます。"))
+                    {
+                        SetUpdateStatus("アップデートを取り消しました。");
+                        return;
+                    }
+                    if (UiClosed) return;
+                }
+                SetUpdateStatus($"バックグラウンドで更新中　{targets.Count}件");
                 bool running = true;
                 var progress = new Progress<InstallResult>(result =>
                 {
@@ -63,23 +81,45 @@ internal sealed partial class Dashboard
                     SetUpdateStatus($"更新中　{tool.Name}（{targets.IndexOf(tool) + 1}/{targets.Count}）");
                 });
                 // 取得・検証からインストーラー実行まで、既存の処理を1アプリずつ使う。
-                try { results.AddRange(await runUpdates(targets, ConfirmedCatalog()!, progress, lifetime.Token)); }
+                try { results.AddRange(await runUpdates(targets, catalog, progress, lifetime.Token)); }
                 finally { running = false; }
             }
             if (UiClosed) return;
-            foreach (var result in results) updateResults[result.Id] = result;
-            var counts = string.Join(" / ", results.GroupBy(r => r.State).Select(group => $"{group.Key} {group.Count()}件"));
-            var guidance = results.Any(r => r.State is not ("成功" or "スキップ")) || uncheckedRelease ? "　詳細欄を確認してください。" : "";
-            SetUpdateStatus("アップデート終了　" + counts + guidance);
+            ShowUpdateResults(results, uncheckedRelease);
             await RefreshStates(true);
         }
         catch (Exception ex) { if (!UiClosed) SetUpdateStatus("アップデートを完了できませんでした。" + ex.Message); }
         finally
         {
-            UpdatingTools = false;
+            preparingToolUpdates = false;
             if (!UiClosed) UpdateDetails();
             EndOperation();
         }
+    }
+
+    void RestoreBackgroundUpdate()
+    {
+        if (updateSettings == null) return;
+        var report = ToolUpdateJob.Latest(updateSettings);
+        if (report == null) return;
+        bool interrupted = !report.Finished && !BackgroundUpdateBusy;
+        if (!interrupted && (report.Id, report.Finished) == (restoredUpdate?.Id, restoredUpdate?.Finished)) return;
+        if (interrupted)
+        {
+            SetUpdateStatus("バックグラウンド更新が中断されました。導入状態を確認してください。");
+            return;
+        }
+        restoredUpdate = report;
+        if (report.Finished) ShowUpdateResults(report.Results);
+        else SetUpdateStatus("バックグラウンドで更新中");
+    }
+
+    void ShowUpdateResults(IReadOnlyList<InstallResult> results, bool uncheckedRelease = false)
+    {
+        foreach (var result in results) updateResults[result.Id] = result;
+        var counts = string.Join(" / ", results.GroupBy(r => r.State).Select(group => $"{group.Key} {group.Count()}件"));
+        var guidance = results.Any(r => r.State is not ("成功" or "スキップ")) || uncheckedRelease ? "　詳細欄を確認してください。" : "";
+        SetUpdateStatus("アップデート終了　" + counts + guidance);
     }
 
     void SetUpdateStatus(string text)

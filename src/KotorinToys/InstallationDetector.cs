@@ -14,7 +14,9 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             return new("未導入", null, null, null, Detail: "正式導入の検出方法は未登録です。");
         try
         {
-            var registration = (registryReader ?? ReadRegistration)(tool.AppId);
+            var isTranscription = TranscriptionDistribution.Supports(tool);
+            var registration = registryReader != null ? registryReader(isTranscription ? TranscriptionDistribution.NativeAppId : tool.AppId) :
+                isTranscription ? TranscriptionDistribution.ReadRegistration() : ReadRegistration(tool.AppId);
             if (registration == null)
                 return new("未導入", null, null, null);
             var directory = registration.Directory;
@@ -22,6 +24,7 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
                 return new("確認できない", null, null, null, Detail: "導入先の登録がありません。");
             directory = Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory));
             var executable = PathSafety.Resolve(directory, tool.InstalledExecutable);
+            if (isTranscription) return TranscriptionDistribution.Detect(directory, executable, registration.Version);
             if (!File.Exists(executable))
                 return MissingExecutable(tool, directory, executable);
             var definition = PathSafety.Resolve(directory, "tool.json");

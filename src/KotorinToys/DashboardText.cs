@@ -14,7 +14,7 @@ internal static class DashboardText
     public static string Update(ToolDefinition tool, InstallationState installed, PublicRelease release)
     {
         if (installed.State == "未導入") return "-";
-        if (release.Portable != null || ToolInstallationRunner.UnsupportedReason(tool) != null || tool.Msix == null && tool.DistributionStatus != "published") return "未対応";
+        if (release.Portable != null || ToolInstallationRunner.UnsupportedReason(tool) != null || !ToolInstallationRunner.HasPublicInstaller(tool)) return "未対応";
         if (installed.State == "未導入") return "未導入";
         if (!release.Confirmed || release.Package == null || !MsixPolicy.Installed(installed)) return "未対応";
         var view = ToolVersionView.Create(installed, release);
@@ -39,7 +39,7 @@ internal static class DashboardText
         if (execution.State == "確認できない") return ExecutionIssue(execution);
         if (ReleaseProblems.Summary(release) is { } problem) return problem;
         if (release.Portable != null) return "ZIP配布あり";
-        if (tool.Msix == null && tool.DistributionStatus != "published") return "導入は未対応";
+        if (!ToolInstallationRunner.HasPublicInstaller(tool)) return "導入は未対応";
         if (!release.Confirmed) return "公開版を再確認";
         if (installed.State == "未導入") return "インストール可";
         return string.IsNullOrWhiteSpace(execution.Detail) ? "" : "状態の説明あり";

@@ -23,6 +23,16 @@ internal static class PackageCatalogReader
         foreach (var package in value.Packages)
         {
             var product = ProductIdentity.FromId(package.Id, definitions) ?? throw new IOException("未登録の配布製品です。検証済み定義が必要です。");
+            if (package.Id == TranscriptionDistribution.Id)
+            {
+                if (value.DistributionStatus != "published" || package.Name != product.Name || package.AppId != product.AppId ||
+                    package.Kind != TranscriptionDistribution.Kind || package.Signature != TranscriptionDistribution.Signature ||
+                    !System.Text.RegularExpressions.Regex.IsMatch(package.Version, @"^\d+\.\d+\.\d+$") ||
+                    !System.Text.RegularExpressions.Regex.IsMatch(package.Sha256, "^[a-f0-9]{64}$") ||
+                    package.File != TranscriptionDistribution.FileName(package.Version))
+                    throw new IOException("TranscriptionServerの配布定義が不正です。");
+                continue;
+            }
             if (package.Kind == "msix")
             {
                 if (!MsixPolicy.Valid(package) || !System.Text.RegularExpressions.Regex.IsMatch(package.Sha256, "^[a-f0-9]{64}$"))

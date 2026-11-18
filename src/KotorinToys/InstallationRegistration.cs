@@ -4,4 +4,4 @@ using System.Security;
 
 namespace KotorinToys;
 
-internal sealed record InstallationRegistration(string? Directory);
+internal sealed record InstallationRegistration(string? Directory, string? Version = null);

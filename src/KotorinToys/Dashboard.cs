@@ -4,7 +4,7 @@ internal sealed partial class Dashboard : BrandedForm
 {
     readonly ToolManager manager;
     ToolDefinition[] tools;
-    readonly DataGridView grid = new() { Name = "toolTable", Dock = DockStyle.Fill, ReadOnly = true,
+    readonly SingleRowWheelGrid grid = new() { Name = "toolTable", Dock = DockStyle.Fill, ReadOnly = true,
         AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false,
         SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = true,
         AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells };
@@ -30,6 +30,10 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Action<string, string, ReleaseCatalog?> showToolInstaller;
     readonly Action<string[], ReleaseCatalog?> showBatchInstaller;
     readonly Func<IReadOnlyList<ToolDefinition>, ReleaseCatalog, IProgress<InstallResult>, CancellationToken, Task<InstallResult[]>> runUpdates;
+    readonly Func<string, bool> confirmUpdates;
+    readonly string? updateSettings;
+    ToolUpdateReport? restoredUpdate;
+    bool BackgroundUpdateBusy => updateSettings != null && ToolUpdateJob.IsRunning(updateSettings);
     readonly Func<ToolDefinition, InstallationState> detectInstallation;
     readonly Action<Uri> openRepository;
     readonly Func<string, bool> fileExists;
@@ -50,7 +54,8 @@ internal sealed partial class Dashboard : BrandedForm
     StartupOverview[] startupSnapshots;
     bool busy, checkingReleases, refreshingCatalog, resourcesDisposed;
     bool UiClosed => resourcesDisposed || IsDisposed || Disposing;
-    internal bool UpdatingTools { get; private set; }
+    internal bool UpdatingTools => preparingToolUpdates || BackgroundUpdateBusy;
+    bool preparingToolUpdates;
 
     public Dashboard(string root, HostSettingsStore? settings = null, StartupCoordinator? startup = null,
         Func<ToolDefinition, ReleasePackage?, CancellationToken, Task<PublicRelease>>? releaseCheck = null,
@@ -65,7 +70,8 @@ internal sealed partial class Dashboard : BrandedForm
         Action<string, string>? showDetails = null, DashboardViewStore? viewStore = null,
         Func<ToolDefinition,bool,Task<ToolState>>? controlExecution = null, ToolLocations? locations = null,
         Action<string[], ReleaseCatalog?>? showBatchInstaller = null,
-        Func<IReadOnlyList<ToolDefinition>, ReleaseCatalog, IProgress<InstallResult>, CancellationToken, Task<InstallResult[]>>? runUpdates = null)
+        Func<IReadOnlyList<ToolDefinition>, ReleaseCatalog, IProgress<InstallResult>, CancellationToken, Task<InstallResult[]>>? runUpdates = null,
+        Func<string, bool>? confirmUpdates = null)
     {
         manager = toolManager ?? new(root); tools = manager.Load();
         this.viewStore = viewStore ?? (settings == null ? null : new DashboardViewStore(settings.DirectoryPath));
@@ -84,8 +90,11 @@ internal sealed partial class Dashboard : BrandedForm
         this.showBatchInstaller = showBatchInstaller ?? ((ids, catalog) =>
         { using var form = new InstallationForm(manager, releases: catalog, operation: "install", publications: PublicationSnapshot(),
             initialTargets: ids, startWithoutConfirmation: true); form.ShowDialog(this); });
-        this.runUpdates = runUpdates ?? ((targets, catalog, progress, token) =>
-            new ToolInstallationRunner(manager).Run(targets, "update", catalog, null, progress, cancellation: token));
+        updateSettings = runUpdates == null ? settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory : null;
+        this.runUpdates = runUpdates ?? ((targets, catalog, _, token) =>
+            ToolUpdateJob.Start(manager.Root, updateSettings!, targets, catalog, token));
+        this.confirmUpdates = confirmUpdates ?? (message => MessageBox.Show(this, message, WindowTitle.Create("アップデートの確認"),
+            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes);
         this.detectInstallation = detectInstallation ?? manager.Installation;
         this.fileExists = fileExists ?? File.Exists;
         this.executionCheck = executionCheck ?? manager.Status;

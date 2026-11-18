@@ -86,6 +86,7 @@ internal static class DashboardInstallationTests
         check(new[] { "installSelected", "updateSelected", "uninstallSelected", "manual" }.All(name => form.Controls.Find(name, true).Single().Parent == selected) &&
             form.Controls.Find("advancedSettings", true).Single().Parent == host, "単体操作と本体の詳細設定は別行に配置");
         CheckBatchUpdates(root, tools, catalog, check);
+        CheckWheel(check);
 
         var candidate = tools[0]; var fallback = catalog.Packages.Single(p => p.Package.Id == candidate.Id);
         var previous = new InstallationState("未導入", null, null, null); var operations = new List<string>(); int autoChecks = 0;
@@ -108,6 +109,25 @@ internal static class DashboardInstallationTests
         check(operations.Count == 2 && notices.Last().Contains("新しい公開版"), "同じ版なら自動確認後も上書き更新しない");
     }
 
+    static void CheckWheel(Action<bool, string> check)
+    {
+        using var grid = new SingleRowWheelGrid { Size = new(200, 120), AllowUserToAddRows = false };
+        grid.Columns.Add("tool", "ツール");
+        grid.Rows.Add(20);
+        _ = grid.Handle;
+        grid.Rows[1].Visible = false;
+        grid.FirstDisplayedScrollingRowIndex = 0;
+        var wheel = typeof(SingleRowWheelGrid).GetMethod("OnMouseWheel",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        void Scroll(int delta) => wheel.Invoke(grid, [new HandledMouseEventArgs(MouseButtons.None, 0, 10, 30, delta)]);
+        Scroll(-60);
+        check(grid.FirstDisplayedScrollingRowIndex == 0, "ホイールの半刻みだけでは行を動かさない");
+        Scroll(-60);
+        check(grid.FirstDisplayedScrollingRowIndex == 2, "ホイール1刻みで非表示行を飛ばして表示中の1行だけ進む");
+        Scroll(120);
+        check(grid.FirstDisplayedScrollingRowIndex == 0, "逆方向もホイール1刻みで1行戻る");
+    }
+
     static void CheckBatchUpdates(string root, ToolDefinition[] tools, ReleaseCatalog catalog, Action<bool, string> check)
     {
         var actual = tools.Select(_ => new InstallationState("未導入", null, null, null)).ToArray();
@@ -117,11 +137,14 @@ internal static class DashboardInstallationTests
         var batches = new List<string[]>();
         var notices = new List<string>();
         var installerDialogs = 0;
+        var confirmations = new List<string>();
+        bool approve = false;
         using var form = new Dashboard(root,
             detectInstallation: tool => actual[Array.FindIndex(tools, t => t.Id == tool.Id)],
             releaseCheck: (_, package, _) => Task.FromResult(new PublicRelease(package, package != null, false, "fixture")),
             executionCheck: (_, _) => Task.FromResult(new ToolState("停止中")), fileExists: _ => true,
             showToolInstaller: (_, _, _) => installerDialogs++, showBatchInstaller: (_, _) => installerDialogs++, notify: notices.Add,
+            confirmUpdates: message => { confirmations.Add(message); return approve; },
             runUpdates: (targets, _, _, _) =>
             {
                 batches.Add(targets.Select(t => t.Id).ToArray());
@@ -139,11 +162,18 @@ internal static class DashboardInstallationTests
         grid.Rows[1].Selected = grid.Rows[3].Selected = true;
         check(update.Enabled && all.Enabled, "最新版・未導入が混在しても更新対象があれば操作可能");
         Pump(form.OpenToolInstallation("update"));
-        check(batches.Single().SequenceEqual([tools[0].Id]), "選択更新は最新版と未導入を飛ばし、選択外も更新しない");
+        check(batches.Count == 0 && confirmations.Count == 1, "一括確認を取り消すと更新を開始しない");
+        approve = true;
+        confirmations.Clear();
+        Pump(form.OpenToolInstallation("update"));
+        check(batches.Single().SequenceEqual([tools[0].Id]) && confirmations.Count == 1 &&
+            confirmations[0].Contains(tools[0].Name) && !confirmations[0].Contains(tools[1].Name),
+            "選択更新は最新版と未導入を除外し、実際の対象を1回だけ確認する");
         filter.SelectedIndex = 3;
         check(!grid.Rows[0].Visible && !grid.Rows[2].Visible, "すべて更新の試験で導入済み行を絞り込みから除外");
         Pump(form.UpdateTools(all: true));
-        check(batches.Count == 2 && batches[1].SequenceEqual([tools[0].Id, tools[2].Id]) && installerDialogs == 0 && notices.Count == 0,
+        check(batches.Count == 2 && batches[1].SequenceEqual([tools[0].Id, tools[2].Id]) && confirmations.Count == 2 &&
+            confirmations[1].Contains(tools[0].Name) && confirmations[1].Contains(tools[2].Name) && installerDialogs == 0 && notices.Count == 0,
             "すべて更新は表示条件に関わらず新しい公開版がある導入済みアプリだけを画面なしで順に処理");
         check(form.Controls.Find("toolUpdateStatus", true).Single().Text.Contains("失敗 1件 / 成功 1件") &&
             grid.Rows[0].Cells["detail"].ToolTipText.Contains("終了コード：7"), "結果件数と個別の失敗理由を一覧に表示");

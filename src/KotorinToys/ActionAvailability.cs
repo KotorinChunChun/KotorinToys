@@ -14,7 +14,7 @@ internal static class ToolActionPolicy
     {
         if (busy) return ActionAvailability.Deny("処理中です。完了するまでお待ちください。");
         if (ToolInstallationRunner.UnsupportedReason(tool) is { } unsupported) return ActionAvailability.Deny(unsupported);
-        if (tool.Msix == null && tool.DistributionStatus != "published")
+        if (!ToolInstallationRunner.HasPublicInstaller(tool))
             return ActionAvailability.Deny("本体対応インストーラーは未公開です。「GitHubを開く」または「使い方」を確認してください。");
         return ActionAvailability.Allow("公開版と実行状態を確認してインストールまたは更新します。");
     }
@@ -51,6 +51,8 @@ internal static class ToolActionPolicy
                 ? ActionAvailability.Allow("設定・履歴を保持してアンインストールします。")
                 : ActionAvailability.Deny("正式導入または削除プログラムを確認できません。");
         if (operation is not ("install" or "update" or "repair")) return ActionAvailability.Deny("未対応の操作です。");
+        if (operation == "update" && TranscriptionDistribution.Supports(tool) && execution.State != "停止中")
+            return ActionAvailability.Deny("稼働中のTranscriptionServerは管理画面から更新できます。KotorinToysからは停止中に更新してください。");
         if (operation == "update" && installed.State == "未導入")
             return ActionAvailability.Deny("未導入です。「インストール」を押してください。");
         if (checkingReleases) return ActionAvailability.Deny("公開版を確認しています。完了するまでお待ちください。");

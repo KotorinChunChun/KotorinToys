@@ -19,9 +19,9 @@ internal sealed partial class InstallationForm : BrandedForm
     readonly Func<string, bool> fileExists;
     readonly Dictionary<string, ToolState> executionStates = new();
     readonly ToolTip hints = new();
-    readonly CheckedListBox targets = new() { Name = "installationTargets", Dock = DockStyle.Fill, CheckOnClick = true, HorizontalScrollbar = true };
+    readonly SingleRowWheelChecklist targets = new() { Name = "installationTargets", Dock = DockStyle.Fill, CheckOnClick = true, HorizontalScrollbar = true };
     readonly TextBox log = new() { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical };
-    readonly DataGridView results = new() { Name = "installationResults", Dock = DockStyle.Fill, ReadOnly = true,
+    readonly SingleRowWheelGrid results = new() { Name = "installationResults", Dock = DockStyle.Fill, ReadOnly = true,
         AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false,
         AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells };
     readonly Label completion = new() { Name = "installationSummary", Dock = DockStyle.Fill, AutoSize = true, Padding = new(8),

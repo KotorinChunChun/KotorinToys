@@ -41,8 +41,7 @@ internal sealed class HostApplicationContext : ApplicationContext
         menu.Items.Add("KotorinToysを終了", null, (_, _) => ExitThread());
         tray = new NotifyIcon { Text = "KotorinToys", Icon = icon, ContextMenuStrip = menu, Visible = true };
         tray.MouseDoubleClick += (_, _) => ShowDashboard();
-        management = new("dashboard", dispatcher, ShowDashboard, ExitThread,
-            () => dashboard.UpdatingTools ? "アプリを更新しています。完了後に終了してください。" : null);
+        management = new("dashboard", dispatcher, ShowDashboard, ExitThread);
         updates = new(updateService, () => !exiting && !dashboard.IsDisposed && dashboard.Visible && !dashboard.UpdatingTools && !dashboard.OwnedForms.OfType<HostUpdateForm>().Any(),
             (release, channel) =>
             {
@@ -58,6 +57,8 @@ internal sealed class HostApplicationContext : ApplicationContext
             await Task.Yield();
             try
             {
+                while (ToolUpdateJob.IsRunning(settings.DirectoryPath))
+                    await Task.Delay(500, lifetime.Token);
                 await (ensureTargets?.Invoke(lifetime.Token) ?? coordinator.StartViaTargets(lifetime.Token));
                 if (!exiting && !dashboard.Visible) await dashboard.RefreshAll();
             }
@@ -102,7 +103,6 @@ internal sealed class HostApplicationContext : ApplicationContext
     protected override void ExitThreadCore()
     {
         if (exiting) return;
-        if (dashboard.UpdatingTools) { Notify("アプリを更新しています。完了後に終了してください。"); return; }
         exiting = true;
         lifetime.Cancel();
         management.Dispose();

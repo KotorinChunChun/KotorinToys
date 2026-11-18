@@ -10,7 +10,7 @@ internal static class PublicReleaseIndex
     internal static readonly TimeSpan MaximumAge = TimeSpan.FromHours(24);
     internal const int MaximumBytes = 2 * 1024 * 1024;
 
-    internal static JsonElement Releases(string text, string repository, DateTimeOffset now)
+    internal static JsonElement Releases(string text, string repository, DateTimeOffset now, bool allowMissing = false)
     {
         using var document = JsonDocument.Parse(text, new JsonDocumentOptions { MaxDepth = 32 });
         var root = document.RootElement;
@@ -26,6 +26,7 @@ internal static class PublicReleaseIndex
             repositories.Select(item => item.GetProperty("name").GetString()).Distinct(StringComparer.Ordinal).Count() != repositories.Length)
             throw new IOException("公開情報一覧の製品名または件数が不正です。");
         var matches = repositories.Where(item => item.GetProperty("name").GetString() == repository).ToArray();
+        if (allowMissing && matches.Length == 0) return default;
         if (matches.Length != 1 || !matches[0].GetProperty("available").GetBoolean())
             throw new ReleaseReadException(ReleaseProblem.Connection, "この製品の公開情報を更新できませんでした。時間をおいて再確認してください。");
         var releases = matches[0].GetProperty("releases");

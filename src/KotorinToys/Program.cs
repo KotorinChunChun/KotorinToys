@@ -4,6 +4,11 @@ internal static class Program
     [STAThread]
     static void Main(string[] args)
     {
+        if (args is ["--tool-update-job", var workerSettings, var jobId])
+        {
+            Environment.ExitCode = ToolUpdateJob.Run(workerSettings, jobId).GetAwaiter().GetResult();
+            return;
+        }
         ApplicationConfiguration.Initialize();
         var rootIndex = Array.IndexOf(args, "--root");
         var root = rootIndex >= 0 && rootIndex + 1 < args.Length ? Path.GetFullPath(args[rootIndex + 1]) : FindRoot();

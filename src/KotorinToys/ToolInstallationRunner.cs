@@ -5,6 +5,12 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
     Func<ReleaseCatalog, ToolDefinition, IProgress<string>?, CancellationToken, Task<string>>? prepare = null,
     Func<ToolDefinition, string, string?, CancellationToken, Task<InstallResult>>? execute = null)
 {
+    internal static bool HasPublicInstaller(ToolDefinition tool) =>
+        tool.Msix != null || tool.DistributionStatus == "published" || TranscriptionDistribution.Supports(tool);
+
+    internal static string PackageKind(ToolDefinition tool) => tool.Msix != null ? "msix" :
+        TranscriptionDistribution.Supports(tool) ? TranscriptionDistribution.Kind : "inno";
+
     internal static string? UnsupportedReason(ToolDefinition tool)
     {
         var product = ProductIdentity.FromTool(tool);
@@ -18,13 +24,13 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
     internal static string? PublicReason(ToolDefinition tool, ReleaseCatalog? catalog, PublicRelease? publication = null)
     {
         if (UnsupportedReason(tool) is { } reason) return reason;
-        if (tool.Msix == null && tool.DistributionStatus != "published")
+        if (!HasPublicInstaller(tool))
             return "本体対応インストーラーは未公開です。ポータブル版などの利用方法は「GitHubを開く」または「使い方」を確認してください。";
         if (publication is { Confirmed: false }) return ReleaseProblems.Explanation(publication);
         var package = catalog?.Packages.SingleOrDefault(p => p.Package.Id == tool.Id)?.Package;
         if (package == null) return "照合済みの公開インストーラーがありません。「状態を更新」で再確認してください。";
         if (package.Name != tool.Name || package.AppId != tool.AppId ||
-            (tool.Msix != null ? !MsixPolicy.Valid(package) : package.Kind != "inno"))
+            package.Kind != PackageKind(tool) || tool.Msix != null && !MsixPolicy.Valid(package))
             return "公開配布情報と製品識別が一致しません。実行しません。";
         return null;
     }

@@ -49,7 +49,12 @@ internal static class HostUpdateFormTests
     static void RunOnUi(string root, Action<bool, string> check)
     {
         var service = new Fake();
-        using var form = new HostUpdateForm(service); form.CreateControl(); form.PerformLayout();
+        Uri? openedRepository = null;
+        using var form = new HostUpdateForm(service, openRepository: uri => openedRepository = uri); form.CreateControl(); form.PerformLayout();
+        var repositoryButton = Control<Button>(form, "openHostGitHub");
+        typeof(Button).GetMethod("OnClick", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .Invoke(repositoryButton, [EventArgs.Empty]);
+        check(openedRepository?.AbsoluteUri == "https://github.com/KotorinChunChun/KotorinToys", "本体アップデートから本体のGitHubを開く");
         var install = Control<Button>(form, "installHostUpdate");
         var stableSwitch = Control<Button>(form, "switchToStable");
         var previewSwitch = Control<Button>(form, "switchToPreview");

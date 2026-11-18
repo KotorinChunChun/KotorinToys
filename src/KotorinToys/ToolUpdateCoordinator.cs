@@ -14,7 +14,8 @@ internal sealed class ToolUpdateCoordinator(
 {
     public ToolUpdateCoordinator(ToolManager manager, InstallerAdapter adapter) : this(manager.Installation,
         tool => manager.StatusForReplacement(tool), tool => manager.Stop(tool),
-        (tool, origin) => manager.Start(tool, false, origin), (tool, catalog, directory) => adapter.Install(tool, catalog, directory),
+        (tool, origin) => manager.Start(tool, false, origin is "via_kotorintoys" or "direct_task" ? origin : "host_manual"),
+        (tool, catalog, directory) => adapter.Install(tool, catalog, directory),
         definitions: manager.KnownTools, stopExpected: (tool, state) => manager.StopForReplacement(tool, state),
         preserveSidecars: ReplacementData.Preserve) { }
 
@@ -47,6 +48,8 @@ internal sealed class ToolUpdateCoordinator(
             if (before.State is not ("実行中" or "停止中")) throw new IOException("更新前の起動状態を確認できません：" + before.Detail);
             if (before.State == "実行中")
             {
+                if (TranscriptionDistribution.Supports(tool))
+                    throw new IOException("稼働中のTranscriptionServerは、文字起こしサービスの管理画面から更新してください。");
                 alternate = before.RunningExecutable != null &&
                     !string.Equals(before.RunningExecutable, actual.Executable, StringComparison.OrdinalIgnoreCase);
                 var state = stopExpected == null ? await stop(tool) : await stopExpected(tool, before);

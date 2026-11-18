@@ -17,9 +17,9 @@ internal static class SelfUpdateFiles
     public static readonly JsonSerializerOptions Json = new(ToolCatalog.Json)
     { MaxDepth = 16, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow };
 
-    public static T Read<T>(string path)
+    public static T Read<T>(string path, int limit = 65536)
     {
-        if (new FileInfo(path).Length > 65536) throw new IOException("更新記録の容量が不正です。");
+        if (new FileInfo(path).Length > limit) throw new IOException("更新記録の容量が不正です。");
         return JsonSerializer.Deserialize<T>(File.ReadAllBytes(path), Json) ?? throw new IOException("更新記録が空です。");
     }
 

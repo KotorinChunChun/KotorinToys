@@ -12,7 +12,7 @@ if ($catalog.schemaVersion -ne 1 -or $null -eq $catalog.tools -or @($catalog.too
 $repositories = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 $null = $repositories.Add('KotorinToys')
 foreach ($tool in $catalog.tools) {
-    if ($tool.distributionStatus -ne 'published' -and $null -eq $tool.msix -and $tool.id -ne 'shortcut-key-counter') { continue }
+    if ($tool.distributionStatus -ne 'published' -and $null -eq $tool.msix -and $tool.id -notin @('shortcut-key-counter','transcription-server')) { continue }
     if ($tool.repositoryUrl -cnotmatch '^https://github\.com/KotorinChunChun/([A-Za-z0-9][A-Za-z0-9._-]{0,99})$') {
         throw "公開先の指定が不正です：$($tool.id)"
     }

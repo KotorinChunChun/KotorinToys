@@ -14,7 +14,7 @@ internal sealed partial class PublicReleaseClient
 
     static void RequireAllowed(Uri uri)
     {
-        if (!(ReleaseDownloader.Allowed(uri) || uri == PublicReleaseIndex.Source))
+        if (!(ReleaseDownloader.Allowed(uri) || uri == PublicReleaseIndex.Source || uri == TranscriptionDistribution.Releases))
             throw new IOException("公開情報の許可外URLへ移動しません。");
     }
 

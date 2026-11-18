@@ -11,6 +11,7 @@ internal sealed class HostUpdateForm : BrandedForm
     readonly Button stable = new() { Name = "switchToStable", Text = "通常版に切り替える", AutoSize = true };
     readonly Button preview = new() { Name = "switchToPreview", Text = "開発版に切り替える", AutoSize = true };
     readonly Button log = new() { Name = "openHostUpdateLog", Text = "ログを開く", AutoSize = true };
+    readonly Button github = new() { Name = "openHostGitHub", Text = "GitHubを開く", AutoSize = true };
     readonly Button install = new() { Name = "installHostUpdate", Text = "アップデート", AutoSize = true };
     readonly Button close = new() { Name = "closeHostUpdate", Text = "閉じる", AutoSize = true };
     readonly CancellationTokenSource lifetime = new();
@@ -21,7 +22,7 @@ internal sealed class HostUpdateForm : BrandedForm
     bool Busy => checking || installing || transferred;
 
     public HostUpdateForm(IHostSelfUpdateService service, Func<string, bool>? confirmSwitch = null,
-        PublicRelease? initialRelease = null, HostUpdateChannel initialChannel = HostUpdateChannel.Unknown)
+        PublicRelease? initialRelease = null, HostUpdateChannel initialChannel = HostUpdateChannel.Unknown, Action<Uri>? openRepository = null)
     {
         this.service = service;
         this.confirmSwitch = confirmSwitch ?? (message => MessageBox.Show(this, message, WindowTitle.Create("版の切り替え"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes);
@@ -32,7 +33,7 @@ internal sealed class HostUpdateForm : BrandedForm
         var selection = new FlowLayoutPanel { AutoSize = true, Margin = new(0, 10, 0, 8) };
         selection.Controls.AddRange([stable, preview]);
         var logRow = new FlowLayoutPanel { AutoSize = true };
-        logRow.Controls.AddRange([new Label { Text = "更新ログ：", AutoSize = true, Margin = new(3, 8, 3, 0) }, log]);
+        logRow.Controls.AddRange([new Label { Text = "更新ログ：", AutoSize = true, Margin = new(3, 8, 3, 0) }, log, github]);
         var content = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true, Padding = new(14) };
         content.Controls.AddRange([current, available, status, selection, logRow, blocked]);
         content.ClientSizeChanged += (_, _) =>
@@ -48,6 +49,16 @@ internal sealed class HostUpdateForm : BrandedForm
         preview.Click += async (_, _) => await SwitchTo(HostUpdateChannel.Preview);
         install.Click += async (_, _) => await InstallUpdate();
         log.Click += (_, _) => OpenLog();
+        github.Click += (_, _) =>
+        {
+            var repository = new Uri("https://github.com/KotorinChunChun/KotorinToys");
+            try
+            {
+                if (openRepository != null) openRepository(repository);
+                else System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(repository.AbsoluteUri) { UseShellExecute = true });
+            }
+            catch (Exception ex) { status.Text = "GitHubを開けません。" + ex.Message; }
+        };
         close.Click += (_, _) => Close();
         FormClosing += (_, args) =>
         {

@@ -74,8 +74,8 @@ internal sealed partial class Dashboard
         ActionHints.Attach(actions, tooltips); ActionHints.Attach(hostActions, tooltips);
         ActionHints.Attach(layout, tooltips);
         ApplySnapshot(installations, states, releases);
-        Shown += async (_, _) => { timer.Start(); await RefreshAll(); };
-        timer.Tick += async (_, _) => { if (!busy) await RefreshStates(); };
+        Shown += async (_, _) => { RestoreBackgroundUpdate(); timer.Start(); await RefreshAll(); };
+        timer.Tick += async (_, _) => { if (!busy) { RestoreBackgroundUpdate(); await RefreshStates(); } };
     }
 
     void SelectOne(int row, string column)

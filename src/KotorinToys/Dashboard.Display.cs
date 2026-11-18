@@ -85,6 +85,8 @@ internal sealed partial class Dashboard
         bool repair = i >= 0 && i < installations.Length && installations[i].State == "修復が必要";
         install.Text = repair ? "修復" : "インストール";
         var installRule = i < 0 || i >= tools.Length ? ActionAvailability.Deny("先に対象アプリを選択してください。") :
+            TranscriptionDistribution.Supports(tools[i]) && MsixPolicy.Installed(installations[i])
+                ? ActionAvailability.Deny("TranscriptionServerは導入済みです。「アップデート」を確認してください。") :
             repair ? Availability(i, "repair") : ToolActionPolicy.InstallEntry(tools[i], busy || refreshingCatalog || checkingReleases);
         if (selected.Length > 1) installRule = BatchInstallAvailability(selected);
         ActionHints.Apply(install, installRule, tooltips);
