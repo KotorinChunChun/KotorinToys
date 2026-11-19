@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:06:34.5946201+00:00",
+  "generatedAt": "2026-11-19T21:34:36.4443306+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -98,6 +98,49 @@
       "name": "ChunapTool",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.3",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-19T15:16:44Z",
+          "assets": [
+            {
+              "name": "ChunapTool-0.1.3-setup.exe",
+              "state": "uploaded",
+              "size": 85850353,
+              "digest": "sha256:69453eaf9d31689dcb7ee509b9463fe007a58589a9d54cfb2e6fec1d57a96211",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.3/ChunapTool-0.1.3-setup.exe"
+            },
+            {
+              "name": "ChunapTool-0.1.3-win-x64.zip",
+              "state": "uploaded",
+              "size": 59112204,
+              "digest": "sha256:9b149b6a26bfbe02bfdc8a535df0407ad99ccb1b091cbcdfd093095aa13650af",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.3/ChunapTool-0.1.3-win-x64.zip"
+            },
+            {
+              "name": "ChunapTool-packages.json",
+              "state": "uploaded",
+              "size": 403,
+              "digest": "sha256:fefd7ee54794a629650875cb366e34cf72d4e9506f8d4e5b7983b663d8f1bf65",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.3/ChunapTool-packages.json"
+            },
+            {
+              "name": "ChunapTool-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 94,
+              "digest": "sha256:0d0815e3e9cb13b58c80c1c2fd371a592607515eb9f9150fd8a056ff12aa53ec",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.3/ChunapTool-SHA256SUMS.txt"
+            },
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 190,
+              "digest": "sha256:a15ba090574522afb807412c5aabbab845802ebb9e4a4c473832c2ba7f44b4c9",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.3/SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.2",
           "draft": false,
