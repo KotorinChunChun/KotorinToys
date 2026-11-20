@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T11:49:27.0360872+00:00",
+  "generatedAt": "2026-11-20T13:37:11.8874100+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -1347,6 +1347,35 @@
       "available": true,
       "releases": [
         {
+          "tag_name": "v0.1.15",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-20T13:31:50Z",
+          "assets": [
+            {
+              "name": "OperationRecorder-0.1.15-setup.exe",
+              "state": "uploaded",
+              "size": 102217347,
+              "digest": "sha256:4efa7a6a225b05bde48599dc31b4f8e5b1689e8afd87f94f0cd20fb76bd5f86c",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.15/OperationRecorder-0.1.15-setup.exe"
+            },
+            {
+              "name": "OperationRecorder-packages.json",
+              "state": "uploaded",
+              "size": 433,
+              "digest": "sha256:24735ab382513b3a881b6516fbe90329c910c4eab960336f357443ee4c6c395f",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.15/OperationRecorder-packages.json"
+            },
+            {
+              "name": "OperationRecorder-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 102,
+              "digest": "sha256:ed29d8bff7c438989ec52287c0ea8325c91c633655cf80c0b7ea6dfb54ecbe08",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.15/OperationRecorder-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
           "tag_name": "v0.1.10",
           "draft": false,
           "prerelease": false,
@@ -1517,6 +1546,77 @@
               "size": 101,
               "digest": "sha256:63b60a330e687744385b7d9eaa25b2979a2eec02f69f7b4f3d405f74d30f05f5",
               "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.2/OperationRecorder-SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PPPaint",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.2.36",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-20T13:35:03Z",
+          "assets": [
+            {
+              "name": "PPPaint-0.2.36-setup.exe",
+              "state": "uploaded",
+              "size": 81894032,
+              "digest": "sha256:79f866b2cd41c246d59c959faa5c4153c98ca7bc023114edfa2a416811f274b7",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.36/PPPaint-0.2.36-setup.exe"
+            },
+            {
+              "name": "PPPaint-packages.json",
+              "state": "uploaded",
+              "size": 433,
+              "digest": "sha256:6e2c7d529b2b1c493b70a74acc04cc01597aed53ee6c33c0369171e450fefeb3",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.36/PPPaint-packages.json"
+            },
+            {
+              "name": "PPPaint-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 92,
+              "digest": "sha256:735308d9c9352ba6faf88119935d632be74b0c36d75b5c7b6fbbc75cb7b19c12",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.36/PPPaint-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.2.35",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-08T08:22:19Z",
+          "assets": [
+            {
+              "name": "PPPaint-0.2.35-setup.exe",
+              "state": "uploaded",
+              "size": 81859856,
+              "digest": "sha256:95b708cc6fc920d2c11522e978ce5364cda2d092ba0f7ce40a1d4019a3fadf83",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.35/PPPaint-0.2.35-setup.exe"
+            },
+            {
+              "name": "PPPaint-0.2.35-setup.exe.sha256",
+              "state": "uploaded",
+              "size": 92,
+              "digest": "sha256:f9a0bb4d2db68a6cf0fe6e2de710dab8441cdbedc660b12843a64472075a30b8",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.35/PPPaint-0.2.35-setup.exe.sha256"
+            },
+            {
+              "name": "PPPaint-v0.2.35-win-x64.zip",
+              "state": "uploaded",
+              "size": 121346167,
+              "digest": "sha256:139fdec565f82a583967dd836b73bab64b8915b70885cda9fc5f1a77a9a0c9dd",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.35/PPPaint-v0.2.35-win-x64.zip"
+            },
+            {
+              "name": "PPPaint-v0.2.35-win-x64.zip.sha256",
+              "state": "uploaded",
+              "size": 94,
+              "digest": "sha256:20dc980a57afb414bf4a6a9b13138555b40a99095e2d2f0affa23de46b4b979f",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.35/PPPaint-v0.2.35-win-x64.zip.sha256"
             }
           ]
         }
