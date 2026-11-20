@@ -80,6 +80,31 @@
       "id": "chuwitch-window",
       "name": "ChuwitchWindow",
       "definition": "tools/ChuwitchWindow/tool.json"
+    },
+    {
+      "id": "script-sync",
+      "name": "ScriptSync",
+      "definition": "tools/ScriptSync/tool.json"
+    },
+    {
+      "id": "agent-tasktray-viewer",
+      "name": "AgentTasktrayViewer",
+      "definition": "tools/AgentTasktrayViewer/tool.json"
+    },
+    {
+      "id": "office-assist",
+      "name": "OfficeAssist",
+      "definition": "tools/OfficeAssist/tool.json"
+    },
+    {
+      "id": "focus-translator",
+      "name": "FocusTranslator",
+      "definition": "tools/FocusTranslator/tool.json"
+    },
+    {
+      "id": "echo-type",
+      "name": "EchoType",
+      "definition": "tools/EchoType/tool.json"
     }
   ]
 }

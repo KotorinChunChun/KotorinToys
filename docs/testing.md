@@ -1,23 +1,61 @@
-# 管理機構の検証
+# 管理機構の検証（開発者向け）
 
 普段の設定や起動予約を変えずに共通検査を行うには、リポジトリのルートで次のコマンドを実行します。
 
 ```powershell
 cd C:/develop/KotorinToys
-dotnet run --project tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path artifacts/f1-tests
+dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path artifacts/code-tests
+./artifacts/code-tests/bin/KotorinToys.Tests/debug/KotorinToys.Tests.exe
 ```
 
-本体の管理窓口が使用中でないとき、`-- --host-lifetime`を付けると、本体の無表示起動・画面の開閉・明示終了も検査します。通常起動予約や子ツールの設定は変更しません。
+通常のfixtureを使う回帰と、実アプリやOS予約を使う追加試験を区別します。子のソース・定義が必要な検査は、[ソース準備](development/getting-started.md)を完了してから行ってください。
 
 `-- --live`は停止中の3ツールを順に起動し、無表示、同一PID、実画面、前面PID、正常停止を検査します。テストで起動したツールはfinallyで正常停止します。画面を前面に出すには対話操作の権限が必要なので、バックグラウンドのCLIだけでは失敗する場合があります。その場合は失敗の記録を残し、前面の管理画面から開く操作や行のダブルクリックを実際に試して、その結果を別に記録します。
 
-本体の`--self-test`は、既存ツールを変更せずSKIPとして記録し、停止中のツールだけを無表示で起動・再起動・正常停止して元へ戻します。SKIPは合格ではありません。結果は`dev/history/v0.1.0/logs/<実行識別子>/`へ保存します。
+| 入口 | 対象と条件 |
+| --- | --- |
+| テストEXEの--host-lifetime | 本体の無表示起動・画面の開閉・明示終了。本体の管理窓口が使用中でないこと |
+| テストEXEの--live | 初期3ツール向けの無表示・既存PID・画面・前面化・正常停止。全収録アプリの受入とは別 |
+| テストEXEの--scheduler | 専用GUID付きタスクを作成・解除するScheduler試験 |
+| test-refactoring.ps1 | 本体と初期3ツールのビルド・試験。Host対象にもScheduler・lifetime試験を含む |
 
-画面検証時の起動コマンド：
+開始前に各入口の前提と副作用を確認し、利用者設定・予約・録画・音声を保護します。既存プロセスのSKIPは合格ではありません。試験が起動したPIDだけを正常停止し、前面化が許可されない環境の失敗を成功へ補完しません。
 
-```powershell
-cd C:/develop/KotorinToys
-dotnet run --project src/KotorinToys/KotorinToys.csproj -- --root C:/develop/KotorinToys
-```
+test-refactoring.ps1の`-Version`は記録版です。省略時の旧既定値へ新しい結果を混在させず、catalogの版等を確認して明示します。[記録版を指定する例](architecture.md#回帰検証)を参照してください。
 
-管理画面を閉じても管理部と子ツールは継続します。本体の明示終了は通知領域の「KotorinToysを終了」です。
+旧製品の`--self-test`は固定9件と旧出力先を前提とし、現行catalog全件の試験には使いません。現行の推奨入口は上の通常回帰と製品別の試験です。文書更新だけで旧コードを修正したとは扱いません。
+
+## 画面・公開・導入の区分
+
+画面プレビューは[操作改善の設計](development/operation-improvements.md)、導入・自己更新は[配布の手順](development/distribution.md)と各専用仕様を参照します。
+
+ビルド、模擬HTTP、公開メタデータ照合、実ファイル取得、実導入、実GUI、実サインイン、録画・OCR・音声は別の結果として記録します。書類を整理するだけの作業では、これらを形式的に実行しません。
+
+管理画面を閉じても管理部と子アプリは継続します。本体を終了する操作は通知領域の「KotorinToysを終了」です。開発用の画面を開く手順は[専用設定での起動](development/getting-started.md#専用設定での開発起動)にまとめています。
+
+## リリース前のUI・主要機能の確認
+
+GitHub Releasesへの公開前に、配布候補の版・採用コミット・配布ファイルを確認し、利用者が実際に使う入口から起動する。変更した操作に加え、初回起動、起動済み画面の再表示、代表的な設定と主要操作を確認する。CLIと自動テストで確認できる機能はそこで検証し、見た目、フォーカス、画面遷移などは対象ウィンドウを前面に出して実画面で確認する。
+
+- 初めて使う人の視点で、操作の入口、ボタン名、無効時の理由、処理中・完了・失敗時の表示と次の操作を確認する。主要操作をマウスとキーボードで試し、フォーカスの順序と見え方を確認する。
+- 代表的な画面サイズと表示倍率で、文字の欠け、ボタンの重なり、読みにくさを確認する。サイズ変更に関係する修正では、最大化・復元と解像度変更を試す。
+- 変更に関係する正常系と、未導入、入力不正、通信失敗、取消などから代表的な異常系を試す。更新や削除を扱う場合は、対象と結果、既存の設定・履歴の保持を確認する。
+- 手順、期待結果、実際の結果、重大度、修正結果、未確認項目を版別の実装報告に記録する。必要な画像やログは `dev/history/vX.Y.Z/logs/<実行識別子>/` に保存し、対象画面が正しく写り、個人情報が含まれていないことを確認する。
+- 主要操作を妨げる問題、誤操作やデータ損失につながる問題は修正し、影響範囲を再検証してから公開する。軽微な改善候補は理由と優先度を記録する。公開に必要な確認ができない場合は、未確認項目と理由を報告して公開を保留する。
+
+## WindowsデスクトップテストのCLI検証
+
+本体と管理対象アプリの実画面テストでは、対象版、試験用データ、隔離した設定、実行コマンドを先に用意する。既存のCLIや回帰テストで設定・入力・結果・異常系を確認し、CLI入口が不足する場合は可能な範囲で整備する。画面の表示やマウス・キーボードでの操作など、実画面で確認する項目を明示する。
+
+1. Codexの `/hooks` またはデスクトップの設定にあるHooksで、プロジェクトの `.codex/hooks.json` の定義を確認して信頼する。仕様は[OpenAI公式のHooks説明](https://learn.chatgpt.com/docs/hooks#review-and-trust-hooks)を参照する。
+2. Windowsアプリの選択・起動がCLI検証の未実施で拒否されたら、案内に表示されるセッションIDとターンIDを指定して、現在の対象機能に合ったCLI試験を実行する。以下の例は本体の検索試験で、ビルドと必要な子定義の準備を済ませた後にpwshで実行する。
+
+   ```powershell
+   ./dev/scripts/confirm-cli-before-computer-use.ps1 -SessionId $sessionId -TurnId $turnId `
+       -CliExecutable './artifacts/code-tests/bin/KotorinToys.Tests/debug/KotorinToys.Tests.exe' `
+       -CliArguments @('--search-tests') -GuiCheck 'カテゴリ選択後のキーボードフォーカス'
+   ```
+
+3. コマンドが成功すると、結果と実画面の確認項目を版別ログに記録する。同じターンで対象アプリを選択し直し、残るGUI項目を確認する。ソースや試験条件を変更した場合はCLI試験を再実行する。
+
+hookは、Windows上のComputer Useで `cua.getApp` または `cua.computer.launch_app` を使う入口を検査する。以前に取得したアプリの参照を使い回さない。内蔵ブラウザーのWebテスト、画面の一覧取得、終了報告はこの条件の対象外。実行時の適用には、Codexが当該ツール呼び出しをhookへ渡すことが必要。

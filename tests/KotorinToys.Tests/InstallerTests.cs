@@ -62,8 +62,10 @@ internal static class InstallerTests
             authenticodeSignature: _ => new("CN=Other", PppaintDistribution.Thumbprint, true));
         check((await adapter.Install(pppaint, pppaintCatalog)).State == "失敗" && executions == 0, "PPPaintは固定と異なるAuthenticode署名者を実行しない");
         adapter = new InstallerAdapter(new(root), (_, _) => { executions++; return Task.FromResult(0); },
+            detectInstallation: _ => new("未導入", null, null, null),
             authenticodeSignature: _ => new(PppaintDistribution.Publisher, PppaintDistribution.Thumbprint, true));
-        check((await adapter.Install(pppaint, pppaintCatalog)).State == "要確認" && executions == 1, "PPPaintはSHA256後に固定署名者・時刻印を照合して実行する");
+        check((await adapter.Install(pppaint, pppaintCatalog, pppaintDirectory)).State == "要確認" && executions == 1,
+            "PPPaintはSHA256後に固定署名者・時刻印を照合して実行する");
         foreach (var invalid in new[] { pppaintPackage with { Signature = "unsigned-public-build" }, pppaintPackage with { Kind = "inno" },
             pppaintPackage with { File = "PPPaint-0.2.35-setup.exe" } })
         {

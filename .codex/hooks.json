@@ -1,0 +1,18 @@
+{
+  "description": "Windowsデスクトップの実画面テスト前にCLI検証を確認する",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(mcp__cua_repl(?:__)?js|cua_repl\\.js)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -Command \"& (Join-Path (git rev-parse --show-toplevel) 'dev/scripts/confirm-cli-before-computer-use.ps1')\"",
+            "timeout": 10,
+            "statusMessage": "WindowsアプリのCLI検証を確認中"
+          }
+        ]
+      }
+    ]
+  }
+}

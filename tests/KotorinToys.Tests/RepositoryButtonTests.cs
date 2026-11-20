@@ -12,7 +12,9 @@ internal static class RepositoryButtonTests
             ["voice-mixer-spk-router"] = "VoiceMixerSpkRouter", ["voice-mixer-mic-router"] = "VoiceMixerMicRouter", ["every-db"] = "EveryDB", ["capchun-screen"] = "CapchunScreen",
             ["chulip-video"] = "ChulipVideo-CSharp", ["chunap-tool"] = "ChunapTool",
             ["operation-recorder"] = "OperationRecorder", ["md-visualizer"] = "MdVisualizer",
-            ["reading-repair"] = "ReadingRepair", ["chuwitch-window"] = "ChuwitchWindow", ["pppaint"] = "PPPaint"
+            ["reading-repair"] = "ReadingRepair", ["chuwitch-window"] = "ChuwitchWindow", ["pppaint"] = "PPPaint",
+            ["script-sync"] = "ScriptSync", ["office-assist"] = "OfficeAssist",
+            ["focus-translator"] = "FocusTranslator", ["echo-type"] = "EchoType"
         };
         int opened = 0; Uri? requested = null;
         using var form = new Dashboard(root, openRepository: uri => { opened++; requested = uri; }, notify: _ => { });
@@ -37,7 +39,7 @@ internal static class RepositoryButtonTests
                 opened == before && github.AccessibleDescription?.Contains("未設定") == true,
                 tool.Name + " はアプリのトップページのみを開き未設定URLを創作しない");
         }
-        var published = tools.First(tool => expected.ContainsKey(tool.Id));
+        var published = tools.First(tool => expected.ContainsKey(tool.Id)) with { RepositoryUrl = null };
         check(ToolRepository.Find(published with { Name = "Other" }) == null &&
             ToolRepository.Find(published with { AppId = "KotorinToys.Other" }) == null &&
             ToolRepository.Find(published with { Id = "unknown" }) == null, "別製品・未知IDのリンクを補完しない");

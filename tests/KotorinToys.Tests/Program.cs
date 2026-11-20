@@ -173,6 +173,12 @@ internal static class Program
             if (args.SequenceEqual(["--public-release-cache-ui-tests"])) { PublicReleaseCacheUiTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--public-release-cache-panel"])) return PublicReleaseCacheUiTests.Panel(root);
             if (args.SequenceEqual(["--local-catalog-tests"])) { LocalCatalogTests.Run(root, fixtures, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
+            if (args is ["--echo-type-package-test", var echoCatalog, var echoPayload])
+            {
+                Task.Run(() => EchoTypePackageTests.Run(root, fixtures, echoCatalog, echoPayload, Check)).GetAwaiter().GetResult();
+                Console.WriteLine($"PASS: {count} 件");
+                return 0;
+            }
             if (args.SequenceEqual(["--operation-recorder-registration-tests"])) { OperationRecorderRegistrationTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installation-diagnosis-tests"])) { InstallationDiagnosisTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--installer-diagnostics-tests"])) { InstallerDiagnosticsTests.Run(root,fixtures,Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -418,16 +424,17 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 16 && tools.Any(tool => tool.Id == "chuwitch-window") &&
+        Check(tools.Length == 21 && tools.Any(tool => tool.Id == "chuwitch-window") &&
             tools.Any(tool => tool.Id == "pppaint" && PppaintDistribution.Supports(tool)),
-            "schema 2でPPPaintの手動起動用定義を含む16ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 13, "公開対応13ツールを解決する");
+            "schema 2でPPPaintの手動起動用定義を含む21ツールを解決する");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 14, "公開対応14ツールを解決する");
         Check(tools.Where(t => t.DistributionStatus == "unpublished").Select(t => t.Id).SequenceEqual(
-            ["shortcut-key-counter", "http-selector", "chuwitch-window"]), "本体用Inno配布の対象外を区別");
-        Check(tools.All(t => t.Id is "voice-mixer-spk-router" or "chuwitch-window" or "pppaint" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0),
+            ["shortcut-key-counter", "http-selector", "chuwitch-window", "script-sync", "agent-tasktray-viewer", "focus-translator", "echo-type"]),
+            "ローカル一覧の未公開定義を区別");
+        Check(tools.All(t => t.Id is "voice-mixer-spk-router" or "chuwitch-window" or "pppaint" or "focus-translator" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0),
             "追加ランタイム不要のツールと他ツールの依存情報を保持");
         Check(tools.All(t => t.Capabilities?.Contains(t.Id is "md-visualizer" or "chuwitch-window" or "pppaint" ? "start" : "silent-start") == true &&
-            t.SupportedEnvironment == "windows11-x64"), "16ツールの確認済み能力と環境");
+            t.SupportedEnvironment == "windows11-x64"), "21ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

@@ -29,10 +29,13 @@ internal static class OnlineCatalogTests
         var localIds = ToolCatalog.Load(root).Select(t => t.Id).ToArray();
         var bundledIds = bundled.Select(t => t.Id).ToArray();
         const string transcriptionId = "transcription-server";
-        string[] bundledOnly = ["office-assist", "talk-recorder", "echo-type", transcriptionId];
-        check(localIds.Except(bundledIds).SequenceEqual(["chuwitch-window"]) &&
+        string[] localOnly = ["agent-tasktray-viewer", "chuwitch-window", "focus-translator", "script-sync"];
+        string[] bundledOnly = ["talk-recorder", transcriptionId];
+        string[] localDevelopment = ["office-assist", "echo-type"];
+        check(localIds.Except(bundledIds).Order().SequenceEqual(localOnly) &&
             bundledIds.Except(localIds).SequenceEqual(bundledOnly) &&
-            bundledIds.Where(id => !bundledOnly.Contains(id)).SequenceEqual(localIds.Where(id => id != "chuwitch-window")),
+            bundledIds.Except(bundledOnly.Concat(localDevelopment)).SequenceEqual(localIds.Except(localOnly.Concat(localDevelopment))) &&
+            localDevelopment.All(id => bundledIds.Contains(id) && localIds.Contains(id)),
             "共通ツールの順序と開発・配布専用ツールを区別");
         var transcription = bundled.Single(t => t.Id == transcriptionId);
         check(ToolRepository.Find(transcription)?.AbsoluteUri == "https://github.com/KotorinChunChun/TranscriptionServer" &&
