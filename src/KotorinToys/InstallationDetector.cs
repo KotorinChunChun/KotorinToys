@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Security;
+using System.Security.Cryptography;
 
 namespace KotorinToys;
 
@@ -25,6 +26,8 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
             directory = Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory));
             var executable = PathSafety.Resolve(directory, tool.InstalledExecutable);
             if (isTranscription) return TranscriptionDistribution.Detect(directory, executable, registration.Version);
+            if (PppaintDistribution.Supports(tool) && !File.Exists(PathSafety.Resolve(directory, "tool.json")))
+                return DetectLegacyPppaint(directory, executable);
             if (!File.Exists(executable))
                 return MissingExecutable(tool, directory, executable);
             var definition = PathSafety.Resolve(directory, "tool.json");
@@ -57,6 +60,23 @@ internal sealed class InstallationDetector(Func<string, InstallationRegistration
         // 既存の導入定義はBOM付きUTF-8／UTF-16も読めていたため、文字コード検出を維持する。
         try { return System.Text.Json.JsonDocument.Parse(File.ReadAllText(path)); }
         catch (System.Text.Json.JsonException error) { throw new IOException("製品定義 tool.json のJSON形式が不正です。配布元へ確認してください。",error); }
+    }
+
+    // tool.json 導入前の公式 0.2.35 は、実行ファイルの固定ハッシュまで一致した場合だけ更新対象に移行する。
+    static InstallationState DetectLegacyPppaint(string directory, string executable)
+    {
+        if (!File.Exists(executable)) return new("確認できない", null, directory, null,
+            Detail: "PPPaint 0.2.35 の移行対象実行ファイルがありません。別製品を上書きしません。");
+        var version = FileVersionInfo.GetVersionInfo(executable);
+        if (version.ProductName != PppaintDistribution.Name || version.FileMajorPart != 0 || version.FileMinorPart != 2 || version.FileBuildPart != 35)
+            return new("確認できない", null, directory, null, Detail: "tool.json がないPPPaintは公式0.2.35だけ移行できます。別の版は上書きしません。");
+        using var stream = File.OpenRead(executable);
+        var hash = Convert.ToHexString(SHA256.HashData(stream));
+        if (!string.Equals(hash, "706F5D9F462636EB5170FAA1CBB02147C0E6341E8116F19CCABBBCB4D8E1E785", StringComparison.Ordinal))
+            return new("確認できない", null, directory, null, Detail: "tool.json がないPPPaint 0.2.35の実行ファイル識別が一致しません。上書きしません。");
+        var uninstaller = PathSafety.Resolve(directory, "unins000.exe");
+        return new("導入済み", "0.2.35", directory, executable, File.Exists(uninstaller) ? uninstaller : null,
+            File.Exists(uninstaller) ? "公式0.2.35を確認しました。設定・履歴を保持して更新できます。" : "公式0.2.35を確認しましたが削除プログラムがありません。");
     }
 
     static InstallationState MissingExecutable(ToolDefinition tool, string directory, string executable)

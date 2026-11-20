@@ -62,6 +62,19 @@ internal static class ActionAvailabilityTests
             states[0] = new("停止処理中"); dashboard.ApplySnapshot(actual, states, releases);
             check(!start.Enabled && !dashboard.Controls.Find("uninstallSelected", true).Single().Enabled, "終了処理中は起動・削除を競合させない");
 
+            var paint = Array.FindIndex(tools, t => t.Id == PppaintDistribution.Id);
+            actual[paint] = new("未導入", null, null, null);
+            exists = false;
+            grid.CurrentCell = grid.Rows[paint].Cells[0];
+            grid.ClearSelection();
+            grid.Rows[paint].Selected = true;
+            dashboard.ApplySnapshot(actual, states, releases);
+            check(install.Enabled && !start.Enabled, "PPPaintの未導入行でインストールを選べる");
+            actual[paint] = installed with { Version = "0.2.36" };
+            exists = true;
+            dashboard.ApplySnapshot(actual, states, releases);
+            check(start.Enabled && !update.Enabled, "PPPaintの導入済み行で手動起動を選べる");
+
             var ss = tools.Single(t => t.Id == "ss-capture"); string execution = "実行中";
             using var advanced = new InstallationForm(new(root), releases: ReleaseDownloader.Load(root),
                 detectInstallation: _ => installed, executionState: _ => Task.FromResult(new ToolState(execution)), fileExists: _ => exists);

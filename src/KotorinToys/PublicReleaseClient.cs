@@ -96,7 +96,10 @@ internal sealed partial class PublicReleaseClient : IDisposable
             var json = await Read(new(manifest.GetProperty("browser_download_url").GetString()!), 32768, token);
             var item = latest.Package(tool, json.Value, installer, fallback, hostUpdate);
             bool prerelease = latest.Prerelease;
-            return Confirmed(item, prerelease, "GitHub公開版・配布台帳照合済み。未署名です。", null, listText, json);
+            string detail = PppaintDistribution.Supports(tool)
+                ? "GitHub公開版・配布台帳照合済み。固定Authenticode署名・時刻印は導入前に照合します。"
+                : "GitHub公開版・配布台帳照合済み。未署名です。";
+            return Confirmed(item, prerelease, detail, null, listText, json);
         }
         catch (Exception ex) when (ex is IOException or HttpRequestException or JsonException or InvalidOperationException or KeyNotFoundException or FormatException or OperationCanceledException or ArgumentException)
         {

@@ -138,6 +138,19 @@
       },
       "length": 13730092,
       "publishedAt": "2026-10-30T08:52:23Z"
+    },
+    {
+      "package": {
+        "id": "pppaint",
+        "name": "PPPaint",
+        "version": "0.2.36",
+        "appId": "KotorinToys.PPPaint",
+        "file": "PPPaint-0.2.36-setup.exe",
+        "sha256": "79f866b2cd41c246d59c959faa5c4153c98ca7bc023114edfa2a416811f274b7",
+        "signature": "authenticode-signed-inno",
+        "kind": "pppaint-signed-inno"
+      },
+      "length": 81894032
     }
   ]
 }

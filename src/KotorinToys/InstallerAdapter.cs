@@ -5,7 +5,8 @@ using System.Text.Json;
 namespace KotorinToys;
 
 internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOnlyList<string>, Task<int>>? execute = null,
-    Func<ToolDefinition,InstallationState>? detectInstallation = null, string? diagnosticDirectory = null)
+    Func<ToolDefinition,InstallationState>? detectInstallation = null, string? diagnosticDirectory = null,
+    Func<string, PinnedAuthenticodeSigner>? authenticodeSignature = null)
 {
     readonly SemaphoreSlim gate = new(1);
     InstallerDiagnostics Diagnostics(ToolDefinition tool, string operation, string? target) => new(
@@ -25,7 +26,9 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
             if (tool.Msix != null) return await MsixInstaller.Create(manager, tool).Install(tool, catalogPath);
             diagnostics = Diagnostics(tool, "install", directory ?? manager.Installation(tool).Directory);
             var package = Load(catalogPath, manager.KnownTools()).Packages.SingleOrDefault(p => p.Id == tool.Id) ?? throw new IOException("対象のローカル配布物がありません。");
-            if (package.Kind != (TranscriptionDistribution.Supports(tool) ? TranscriptionDistribution.Kind : "inno"))
+            var expectedKind = TranscriptionDistribution.Supports(tool) ? TranscriptionDistribution.Kind :
+                PppaintDistribution.Supports(tool) ? PppaintDistribution.Kind : "inno";
+            if (package.Kind != expectedKind)
                 throw new IOException("対象アプリの配布方式が一致しません。");
             if (package.AppId != tool.AppId || package.Name != tool.Name)
                 throw new IOException("登録情報と配布物が一致しません。");
@@ -35,6 +38,13 @@ internal sealed class InstallerAdapter(ToolManager manager, Func<string, IReadOn
             var hash = Convert.ToHexString(await SHA256.HashDataAsync(stream)).ToLowerInvariant();
             if (hash != package.Sha256)
                 throw new IOException("配布物のSHA-256が一致しません。実行しません。");
+            if (PppaintDistribution.Supports(tool))
+            {
+                var signer = (authenticodeSignature ?? PinnedAuthenticodeSignature.Verify)(file);
+                if (!signer.HasTimestamp || signer.Subject != PppaintDistribution.Publisher ||
+                    !string.Equals(signer.Thumbprint, PppaintDistribution.Thumbprint, StringComparison.OrdinalIgnoreCase))
+                    throw new IOException("PPPaintインストーラーの固定Authenticode署名者または時刻印が一致しません。実行しません。");
+            }
             var arguments = new List<string>
             {
                 "/VERYSILENT",

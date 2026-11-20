@@ -678,6 +678,27 @@
       "toolRoot": "tools/ReadingRepair"
     },
     {
+      "id": "pppaint",
+      "name": "PPPaint",
+      "version": "0.2.36",
+      "summary": "スクリーンショットの切り抜き、図形・番号・文字による注釈、不要な情報の目隠しを行う",
+      "category": "画像、編集",
+      "executable": "artifacts/management/PPPaint.exe",
+      "installedExecutable": "PPPaint.exe",
+      "appId": "KotorinToys.PPPaint",
+      "manual": "docs/kotorintoys-integration.md",
+      "readme": "README.md",
+      "shortcuts": "config/shortcuts.json",
+      "icon": "src/PPPaint/Assets/PPPaintIcon.ico",
+      "repositoryUrl": "https://github.com/KotorinChunChun/PPPaint",
+      "distributionStatus": "published",
+      "supportedEnvironment": "windows11-x64",
+      "investigationStatus": "confirmed",
+      "capabilities": ["status", "show", "stop", "start"],
+      "runtimes": [],
+      "toolRoot": "tools/PPPaint"
+    },
+    {
       "id": "transcription-server",
       "name": "TranscriptionServer",
       "version": "0.1.17",

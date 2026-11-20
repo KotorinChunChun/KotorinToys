@@ -9,7 +9,8 @@ internal sealed class ToolInstallationRunner(ToolManager manager,
         tool.Msix != null || tool.DistributionStatus == "published" || TranscriptionDistribution.Supports(tool);
 
     internal static string PackageKind(ToolDefinition tool) => tool.Msix != null ? "msix" :
-        TranscriptionDistribution.Supports(tool) ? TranscriptionDistribution.Kind : "inno";
+        TranscriptionDistribution.Supports(tool) ? TranscriptionDistribution.Kind :
+        PppaintDistribution.Supports(tool) ? PppaintDistribution.Kind : "inno";
 
     internal static string? UnsupportedReason(ToolDefinition tool)
     {

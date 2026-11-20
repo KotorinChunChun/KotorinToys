@@ -80,8 +80,8 @@ internal sealed class PublicReleaseMetadata
         if (fallback != null && System.Version.Parse(fallback.Package.Version) == System.Version.Parse(Version) &&
             (fallback.Package != package || fallback.Length != item.Length))
             throw new IOException("同梱固定版の配布情報が変更されています。同じ版の差し替えは実行しません。");
-        if (installer.TryGetProperty("digest", out var digest) && digest.ValueKind == JsonValueKind.String &&
-            digest.GetString() != "sha256:" + package.Sha256)
+        var hasDigest = installer.TryGetProperty("digest", out var digest) && digest.ValueKind == JsonValueKind.String;
+        if (hasDigest ? digest.GetString() != "sha256:" + package.Sha256 : PppaintDistribution.Supports(tool))
             throw new IOException("GitHubのassetハッシュと配布台帳が一致しません。");
         return item;
     }

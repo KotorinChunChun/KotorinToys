@@ -12,7 +12,7 @@ internal static class RepositoryButtonTests
             ["voice-mixer-spk-router"] = "VoiceMixerSpkRouter", ["voice-mixer-mic-router"] = "VoiceMixerMicRouter", ["every-db"] = "EveryDB", ["capchun-screen"] = "CapchunScreen",
             ["chulip-video"] = "ChulipVideo-CSharp", ["chunap-tool"] = "ChunapTool",
             ["operation-recorder"] = "OperationRecorder", ["md-visualizer"] = "MdVisualizer",
-            ["reading-repair"] = "ReadingRepair", ["chuwitch-window"] = "ChuwitchWindow"
+            ["reading-repair"] = "ReadingRepair", ["chuwitch-window"] = "ChuwitchWindow", ["pppaint"] = "PPPaint"
         };
         int opened = 0; Uri? requested = null;
         using var form = new Dashboard(root, openRepository: uri => { opened++; requested = uri; }, notify: _ => { });

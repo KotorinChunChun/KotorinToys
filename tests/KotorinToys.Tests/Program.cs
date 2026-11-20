@@ -35,6 +35,7 @@ internal static class Program
             if (args.Length == 3 && args[0] == "--operation-recorder-installer-acceptance") return OperationRecorderReleaseAcceptance.Lifecycle(KotorinToys.Program.FindRoot(),args[1],args[2]).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--operation-recorder-public-acceptance") return OperationRecorderReleaseAcceptance.Online(KotorinToys.Program.FindRoot(),args[1]).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--operation-recorder-candidate-acceptance") return OperationRecorderReleaseAcceptance.Candidate(args[1]);
+            if (args.Length is 3 or 4 && args[0] == "--pppaint-install-acceptance") return PPPaintInstallAcceptance.Run(KotorinToys.Program.FindRoot(), args[1], args[2], args.Length == 4 ? args[3] : null).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--operation-recorder-ipc"])) return OperationRecorderIntegrationTests.Run().GetAwaiter().GetResult();
             if (args.SequenceEqual(["--operation-recorder-panel"])) return OperationRecorderIntegrationTests.Panel();
             if (args.SequenceEqual(["--spk-router-ipc"])) return SpkRouterIntegrationTests.Run().GetAwaiter().GetResult();
@@ -417,15 +418,16 @@ internal static class Program
     static void CatalogTests()
     {
         var tools = ToolCatalog.Load(root);
-        Check(tools.Length == 15 && tools.Any(tool => tool.Id == "chuwitch-window"),
-            "schema 2でChuwitchWindowを含む15ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 12, "公開対応12ツールを解決する");
+        Check(tools.Length == 16 && tools.Any(tool => tool.Id == "chuwitch-window") &&
+            tools.Any(tool => tool.Id == "pppaint" && PppaintDistribution.Supports(tool)),
+            "schema 2でPPPaintの手動起動用定義を含む16ツールを解決する");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 13, "公開対応13ツールを解決する");
         Check(tools.Where(t => t.DistributionStatus == "unpublished").Select(t => t.Id).SequenceEqual(
             ["shortcut-key-counter", "http-selector", "chuwitch-window"]), "本体用Inno配布の対象外を区別");
-        Check(tools.All(t => t.Id is "voice-mixer-spk-router" or "chuwitch-window" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0),
+        Check(tools.All(t => t.Id is "voice-mixer-spk-router" or "chuwitch-window" or "pppaint" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0),
             "追加ランタイム不要のツールと他ツールの依存情報を保持");
-        Check(tools.All(t => t.Capabilities?.Contains(t.Id is "md-visualizer" or "chuwitch-window" ? "start" : "silent-start") == true &&
-            t.SupportedEnvironment == "windows11-x64"), "15ツールの確認済み能力と環境");
+        Check(tools.All(t => t.Capabilities?.Contains(t.Id is "md-visualizer" or "chuwitch-window" or "pppaint" ? "start" : "silent-start") == true &&
+            t.SupportedEnvironment == "windows11-x64"), "16ツールの確認済み能力と環境");
         var httpSelector = tools.Single(t => t.Id == "http-selector");
         Check(httpSelector is { AppId: "KotorinToys.HttpSelector", DistributionStatus: "unpublished" } &&
             Version.TryParse(httpSelector.Version, out var httpVersion) && httpVersion.Revision >= 0, "HttpSelectorの4成分版・固定製品識別・配布状態を保持");

@@ -17,6 +17,7 @@ internal static class ReleaseReadinessTests
             {
                 "msix" => (MsixPolicy.FileName(t.Version, t.Id), "signed-msix"),
                 TranscriptionDistribution.Kind => (TranscriptionDistribution.FileName(t.Version), TranscriptionDistribution.Signature),
+                PppaintDistribution.Kind => (PppaintDistribution.FileName(t.Version), PppaintDistribution.Signature),
                 _ => ($"{t.Name}-{t.Version}-setup.exe", "unsigned-public-build")
             };
             return Task.FromResult(new PublicRelease(fallback ?? new(new(t.Id,t.Name,t.Version,t.AppId,file,

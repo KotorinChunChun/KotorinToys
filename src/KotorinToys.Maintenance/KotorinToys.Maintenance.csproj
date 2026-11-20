@@ -13,6 +13,8 @@
     <Compile Include="../KotorinToys/SelfUpdateWorker.cs" Link="SelfUpdateWorker.cs" />
     <Compile Include="../KotorinToys/PackageModels.cs" Link="PackageModels.cs" />
     <Compile Include="../KotorinToys/PackageCatalogReader.cs" Link="PackageCatalogReader.cs" />
+    <Compile Include="../KotorinToys/PppaintDistribution.cs" Link="PppaintDistribution.cs" />
+    <Compile Include="../KotorinToys/PinnedAuthenticodeSignature.cs" Link="PinnedAuthenticodeSignature.cs" />
     <Compile Include="../KotorinToys/MsixPolicy.cs" Link="MsixPolicy.cs" />
     <Compile Include="../KotorinToys/MsixSignature.cs" Link="MsixSignature.cs" />
     <Compile Include="../KotorinToys/MsixPackageVerifier.cs" Link="MsixPackageVerifier.cs" />

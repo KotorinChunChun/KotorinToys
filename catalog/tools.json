@@ -72,6 +72,11 @@
       "definition": "tools/ReadingRepair/tool.json"
     },
     {
+      "id": "pppaint",
+      "name": "PPPaint",
+      "definition": "tools/PPPaint/tool.json"
+    },
+    {
       "id": "chuwitch-window",
       "name": "ChuwitchWindow",
       "definition": "tools/ChuwitchWindow/tool.json"

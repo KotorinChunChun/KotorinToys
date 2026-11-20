@@ -33,6 +33,13 @@ internal static class PackageCatalogReader
                     throw new IOException("TranscriptionServerの配布定義が不正です。");
                 continue;
             }
+            if (package.Id == PppaintDistribution.Id)
+            {
+                if (value.DistributionStatus != "published" || package.Name != product.Name || package.AppId != product.AppId ||
+                    !PppaintDistribution.Valid(package))
+                    throw new IOException("PPPaintの署名付きInno配布定義が不正です。");
+                continue;
+            }
             if (package.Kind == "msix")
             {
                 if (!MsixPolicy.Valid(package) || !System.Text.RegularExpressions.Regex.IsMatch(package.Sha256, "^[a-f0-9]{64}$"))

@@ -136,6 +136,13 @@ foreach ($product in $Products | Select-Object -Unique) {
                     }
                 }
             }
+            $paint = Join-Path $output 'tools/PPPaint'
+            foreach ($document in @('tool.json','README.md','PRIVACY.md','LICENSE','docs','config/shortcuts.json','src/PPPaint/Assets/PPPaintIcon.ico')) {
+                $source = Join-Path $projectRoot "tools/PPPaint/$document"
+                $destination = Join-Path $paint $document
+                New-Item -ItemType Directory -Path (Split-Path $destination -Parent) -Force | Out-Null
+                Copy-Required $source $destination
+            }
         }
         'EveryDB' {
             $toolRoot = Join-Path $projectRoot 'tools/EveryDB'

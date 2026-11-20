@@ -52,3 +52,7 @@
 [submodule "tools/TranscriptionServer"]
 	path = tools/TranscriptionServer
 	url = https://github.com/KotorinChunChun/TranscriptionServer.git
+
+[submodule "tools/PPPaint"]
+	path = tools/PPPaint
+	url = https://github.com/KotorinChunChun/PPPaint.git

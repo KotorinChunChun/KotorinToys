@@ -28,6 +28,7 @@ publish-releases.ps1は固定アカウント・採用ソース・台帳・ハッ
 | VoiceMixerMicRouter／SpkRouter | 各子のdev/scripts/Build-Installer.ps1。C#の発行表へ追加しない |
 | EveryDB | 子のno-bundle Release入口。サンプル・利用条件・第三者表示と共通maintenanceを扱う |
 | OperationRecorder | 親の単独製品指定と子のdocs/release.mdを確認する |
+| PPPaint | 子の `dev/installer/New-PPPaintSetup.ps1` で署名付きInnoを生成する。製品別台帳は `kind: pppaint-signed-inno`、`signature: authenticode-signed-inno` とし、本体はGitHubのdigest、実ファイルのSHA-256、固定開発者署名と時刻印を照合する |
 | HttpSelector・ScriptSync | 各子の署名付きMSIX経路を維持。汎用Innoへ変換しない |
 | ポータブルZIP | [公開情報の検出](../portable-release-publication.md)と正式導入を分離する |
 

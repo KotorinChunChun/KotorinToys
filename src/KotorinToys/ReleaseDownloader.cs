@@ -35,6 +35,7 @@ internal sealed partial class ReleaseDownloader : IDisposable
             {
                 "msix" => "：SHA-256・サイズ一致。MSIX署名・製品識別は導入前に照合します。",
                 TranscriptionDistribution.Kind => "：SHA-256・サイズ一致。",
+                PppaintDistribution.Kind => "：SHA-256・サイズ一致。固定Authenticode署名・時刻印は導入前に照合します。",
                 _ => "：SHA-256・サイズ一致。未署名です。"
             }));
         }
