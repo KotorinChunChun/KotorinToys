@@ -16,7 +16,8 @@ if ((Get-DistributionProduct 'ChulipVideo').Repository -ne 'ChulipVideo-CSharp')
 $every = Get-DistributionProduct 'EveryDB'
 if ($every.Id -ne 'every-db' -or $every.AppId -ne 'KotorinToys.EveryDB' -or $every.Repository -ne 'EveryDB' -or -not $every.Native) { throw 'EveryDBのネイティブ配布識別が不正です。' }
 $recorder = Get-DistributionProduct 'OperationRecorder'
-if ($recorder.Id -ne 'operation-recorder' -or $recorder.AppId -ne 'KotorinToys.OperationRecorder' -or $recorder.Folder -ne 'OperationRecorder' -or $recorder.Repository -ne 'OperationRecorder' -or $recorder.Project -ne 'tools/OperationRecorder/OperationRecorderApp.csproj' -or $recorder.Native -or $recorder.PackagingScript) { throw 'OperationRecorderの共通C#配布識別が不正です。' }
+if ($recorder.Id -ne 'operation-recorder' -or $recorder.AppId -ne 'KotorinToys.OperationRecorder' -or $recorder.Folder -ne 'OperationRecorder' -or $recorder.Repository -ne 'OperationRecorder' -or $recorder.Native -or $recorder.PackagingScript) { throw 'OperationRecorderの共通C#配布識別が不正です。' }
+if ($recorder.Project -ne 'tools/OperationRecorder/src/OperationRecorder/OperationRecorderApp.csproj') { throw "OperationRecorderの配布プロジェクトが採用ソースの配置と一致しません：$($recorder.Project)" }
 $rejected = $false
 try { Get-DistributionProduct 'ShortcutKeyCounter' | Out-Null } catch { $rejected = $true }
 if (-not $rejected) { throw '今回公開しない製品を許可してしまいます。' }
@@ -54,7 +55,7 @@ function Test-RecorderPublishSelection {
     function Publish-Application { param($Project, $Output, $Label, $Extra) $calls.Add(@($Project, $Output, $Label)) }
     function Copy-Required { param($Source, $Destination) }
     & ([scriptblock]::Create($selection.Extent.Text))
-    if ($calls.Count -ne 1 -or $calls[0][0] -ne 'tools/OperationRecorder/OperationRecorderApp.csproj' -or $calls[0][1] -ne $output -or $calls[0][2] -ne $product) { throw 'OperationRecorderが共通C#発行入口へ到達しません。' }
+    if ($calls.Count -ne 1 -or $calls[0][0] -ne $identity.Project -or $calls[0][1] -ne $output -or $calls[0][2] -ne $product) { throw 'OperationRecorderが共通C#発行入口へ到達しません。' }
 }
 Test-RecorderPublishSelection
 
