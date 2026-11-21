@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T09:53:51.4833135+00:00",
+  "generatedAt": "2026-11-21T14:39:37.8752357+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -2236,6 +2236,35 @@
       "name": "TalkRecorder",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.7",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-21T14:37:38Z",
+          "assets": [
+            {
+              "name": "TalkRecorder-0.1.7-setup.exe",
+              "state": "uploaded",
+              "size": 44703480,
+              "digest": "sha256:1c368f5f4c4d64012fc948933a39192fd77b4bcd2d0c4f0af308e61d0e884d8d",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.7/TalkRecorder-0.1.7-setup.exe"
+            },
+            {
+              "name": "TalkRecorder-packages.json",
+              "state": "uploaded",
+              "size": 638,
+              "digest": "sha256:8410a7c28ee51070cfbd3d363c6f099d7b82da231f9ce45e4c4a8a94c4e39ddb",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.7/TalkRecorder-packages.json"
+            },
+            {
+              "name": "TalkRecorder-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:81ffc5081ea8cda3ef84e521a5005dbff8c2785c864a6a07b39a0a490aa87b63",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.7/TalkRecorder-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.2",
           "draft": false,
