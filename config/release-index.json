@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-22T05:10:50.8118891+00:00",
+  "generatedAt": "2026-11-22T09:22:57.9789995+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -1477,147 +1477,31 @@
       "available": true,
       "releases": [
         {
-          "tag_name": "v0.1.16",
-          "draft": false,
-          "prerelease": false,
-          "published_at": "2026-11-22T02:08:58Z",
-          "assets": [
-            {
-              "name": "OperationRecorder-0.1.16-setup.exe",
-              "state": "uploaded",
-              "size": 102227656,
-              "digest": "sha256:0ccb9b7bcec3f19a98bd4e111c4fb94fa5aa7ffea9f0661ad5beb8ca8609d951",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.16/OperationRecorder-0.1.16-setup.exe"
-            },
-            {
-              "name": "OperationRecorder-packages.json",
-              "state": "uploaded",
-              "size": 433,
-              "digest": "sha256:2ca441a7705e5c09f6c30db774a17ce2ccbf7ee4292d1f8df6318a8ddadeef07",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.16/OperationRecorder-packages.json"
-            },
-            {
-              "name": "OperationRecorder-SHA256SUMS.txt",
-              "state": "uploaded",
-              "size": 102,
-              "digest": "sha256:9505d6f37a87683c2fd8a76397b2aaf6555592787b62591935fe700418fb0764",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.16/OperationRecorder-SHA256SUMS.txt"
-            }
-          ]
-        },
-        {
-          "tag_name": "v0.1.15",
+          "tag_name": "v0.1.17",
           "draft": false,
           "prerelease": true,
-          "published_at": "2026-11-20T13:31:50Z",
+          "published_at": "2026-11-22T09:18:26Z",
           "assets": [
             {
-              "name": "OperationRecorder-0.1.15-setup.exe",
+              "name": "OperationRecorder-0.1.17-setup.exe",
               "state": "uploaded",
-              "size": 102217347,
-              "digest": "sha256:4efa7a6a225b05bde48599dc31b4f8e5b1689e8afd87f94f0cd20fb76bd5f86c",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.15/OperationRecorder-0.1.15-setup.exe"
+              "size": 102228654,
+              "digest": "sha256:89476421dcb46a116a5b367e247e2c18505d47c6f2c070bda5cbcf79b2834008",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.17/OperationRecorder-0.1.17-setup.exe"
             },
             {
               "name": "OperationRecorder-packages.json",
               "state": "uploaded",
               "size": 433,
-              "digest": "sha256:24735ab382513b3a881b6516fbe90329c910c4eab960336f357443ee4c6c395f",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.15/OperationRecorder-packages.json"
+              "digest": "sha256:1be0ed8ad1c985bb87dcee9094e8a0d26005ea08c9cd66dbfe632d52dfea63ea",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.17/OperationRecorder-packages.json"
             },
             {
               "name": "OperationRecorder-SHA256SUMS.txt",
               "state": "uploaded",
               "size": 102,
-              "digest": "sha256:ed29d8bff7c438989ec52287c0ea8325c91c633655cf80c0b7ea6dfb54ecbe08",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.15/OperationRecorder-SHA256SUMS.txt"
-            }
-          ]
-        },
-        {
-          "tag_name": "v0.1.10",
-          "draft": false,
-          "prerelease": false,
-          "published_at": "2026-11-18T17:05:26Z",
-          "assets": [
-            {
-              "name": "OperationRecorder-0.1.10-setup.exe",
-              "state": "uploaded",
-              "size": 97778368,
-              "digest": "sha256:4919add52ae1a076cddf5b740d591a37bd8f5a48fb602b15187671b32e910781",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.10/OperationRecorder-0.1.10-setup.exe"
-            },
-            {
-              "name": "OperationRecorder-packages.json",
-              "state": "uploaded",
-              "size": 433,
-              "digest": "sha256:06f0d293e23219b1a02b8264fb16ed29aacc0ddafb2347da6e221c47c9dad6e7",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.10/OperationRecorder-packages.json"
-            },
-            {
-              "name": "OperationRecorder-SHA256SUMS.txt",
-              "state": "uploaded",
-              "size": 101,
-              "digest": "sha256:0caf8fea08dc30f993de719a57dc053c9244c342580abe9cb2feecc80e9d10c4",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.10/OperationRecorder-SHA256SUMS.txt"
-            }
-          ]
-        },
-        {
-          "tag_name": "v0.1.9",
-          "draft": false,
-          "prerelease": false,
-          "published_at": "2026-11-18T16:58:28Z",
-          "assets": [
-            {
-              "name": "OperationRecorder-0.1.9-setup.exe",
-              "state": "uploaded",
-              "size": 97778208,
-              "digest": "sha256:ed98dd307a212004bca704d12f4a8a46f6f3d4da70b58e2fd16f38c9917c09a8",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.9/OperationRecorder-0.1.9-setup.exe"
-            },
-            {
-              "name": "OperationRecorder-packages.json",
-              "state": "uploaded",
-              "size": 431,
-              "digest": "sha256:df2b9bc7dbbafcb3e2e82fad58a28321eb34c4dc11a46dccbac0384c63a1cdb6",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.9/OperationRecorder-packages.json"
-            },
-            {
-              "name": "OperationRecorder-SHA256SUMS.txt",
-              "state": "uploaded",
-              "size": 100,
-              "digest": "sha256:057c9606c3a401fc020197cc7de6fcfe22a2988b95d533cfb9387c7ec9958c61",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.9/OperationRecorder-SHA256SUMS.txt"
-            }
-          ]
-        },
-        {
-          "tag_name": "v0.1.8",
-          "draft": false,
-          "prerelease": false,
-          "published_at": "2026-11-18T16:50:16Z",
-          "assets": [
-            {
-              "name": "OperationRecorder-0.1.8-setup.exe",
-              "state": "uploaded",
-              "size": 97778216,
-              "digest": "sha256:d9b9ed24a6b72cb9da2bb3a90f8c2b2a020bca93f56c5e38678f461e646705a6",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.8/OperationRecorder-0.1.8-setup.exe"
-            },
-            {
-              "name": "OperationRecorder-packages.json",
-              "state": "uploaded",
-              "size": 422,
-              "digest": "sha256:a88d709783f085d2d0ce9c1adc42d10dd36d46bee39b056378d907e0ec906673",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.8/OperationRecorder-packages.json"
-            },
-            {
-              "name": "OperationRecorder-SHA256SUMS.txt",
-              "state": "uploaded",
-              "size": 100,
-              "digest": "sha256:3838807277befea75e15fd004836ebc551504a6dfefb059f879d386377110540",
-              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.8/OperationRecorder-SHA256SUMS.txt"
+              "digest": "sha256:15d6070567c148b00a256d5475160a8d8c735cdb4160f43001e15f78a60a3994",
+              "browser_download_url": "https://github.com/KotorinChunChun/OperationRecorder/releases/download/v0.1.17/OperationRecorder-SHA256SUMS.txt"
             }
           ]
         },
@@ -1714,6 +1598,49 @@
       "name": "PPPaint",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.2.40",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-22T09:21:34Z",
+          "assets": [
+            {
+              "name": "PPPaint-0.2.40-setup.exe",
+              "state": "uploaded",
+              "size": 81905704,
+              "digest": "sha256:17567e998147426cc62b126e519828460f0323ece054253d490c7ee54e4e98ac",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.40/PPPaint-0.2.40-setup.exe"
+            },
+            {
+              "name": "PPPaint-packages.json",
+              "state": "uploaded",
+              "size": 433,
+              "digest": "sha256:9f670817aaece774e3d93a5d539864fd71e3ac47270fde2b6c24e6737cfcabe8",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.40/PPPaint-packages.json"
+            },
+            {
+              "name": "PPPaint-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 92,
+              "digest": "sha256:34d0cac39bcc91683d07593d7c625a5ddf533564092a4a0191564270986d84fd",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.40/PPPaint-SHA256SUMS.txt"
+            },
+            {
+              "name": "PPPaint-v0.2.40-win-x64.zip",
+              "state": "uploaded",
+              "size": 121389279,
+              "digest": "sha256:a73c4b8fe92837a4ac761326e25c8073909b53bb60d3df8e4d48db548c76f11e",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.40/PPPaint-v0.2.40-win-x64.zip"
+            },
+            {
+              "name": "PPPaint-v0.2.40-win-x64.zip.sha256",
+              "state": "uploaded",
+              "size": 94,
+              "digest": "sha256:4a247d3ce912fb2f6fe6e0159ac3763a6d8a7ac4e345243c6d83f6cbdd13a304",
+              "browser_download_url": "https://github.com/KotorinChunChun/PPPaint/releases/download/v0.2.40/PPPaint-v0.2.40-win-x64.zip.sha256"
+            }
+          ]
+        },
         {
           "tag_name": "v0.2.36",
           "draft": false,
