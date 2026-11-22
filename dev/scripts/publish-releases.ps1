@@ -75,6 +75,7 @@ foreach($name in $Products | Select-Object -Unique){
             "$((Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash.ToLowerInvariant())  $(Split-Path $copy -Leaf)" | Add-Content -LiteralPath $shaFile -Encoding utf8
         }
     }
+    $notes += "`n`n[Microsoft Edgeでのダウンロード手順（未署名のインストーラーを含む）](https://github.com/KotorinChunChun/KotorinToys/blob/main/docs/github-release-download-edge.md)"
     & $ghExe release create "v$($package.version)" @releaseAssets --repo "KotorinChunChun/$($identity.Repository)" --target $commit --title "$name $($package.version) 開発版" --notes $notes --prerelease
     if($LASTEXITCODE -ne 0){throw 'Release作成が失敗しました。既存assetの上書き・再公開は自動実行しません。'}
     $published+= [ordered]@{package=$package;length=(Get-Item -LiteralPath $file).Length}

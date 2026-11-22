@@ -49,6 +49,8 @@ dotnet build tests/KotorinToys.Tests/KotorinToys.Tests.csproj --artifacts-path a
 - ScriptSyncの管理用ビルドは子のbuild-debug-ScriptSync-kotorintoys.ps1で行います。単体配布のMSIX識別を変更しません。
 - 子の検証内容と配布方法は、各独立リポジトリの開発者ガイド・管理連携ガイドを参照します。
 
+管理対象アプリのインストーラーを公開するときは、独自の配布手順でも[GitHub Releases本文の共通ルール](distribution.md#github-releasesの本文)に従います。
+
 ## 登録・説明書の同梱
 
 `test-voice-router-registration.ps1`と`test-operation-recorder-registration.ps1`は、専用出力へ本番の説明書同梱処理を実行して内容を確認します。EXEの発行・導入・実音声・実記録の検証ではありません。`--operation-recorder-registration-tests`は定義と操作可否、`--local-catalog-tests`はローカル一覧とキャッシュ保持を確認します。
