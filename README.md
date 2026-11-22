@@ -2,7 +2,7 @@
 
 ## 何のためのソフトか
 
-KotorinToysは、画面の撮影や音声入力、ファイル整理などに使うKotoriChunのWindowsアプリを、ひとつの画面で管理するソフトです。やりたい作業に合うアプリを探し、対応するアプリのインストール・起動・更新をまとめて行えます。
+KotorinToysは、作者のKotoriChunが個人で開発したWindowsアプリを、ひとつの画面で管理するソフトです。画面の撮影、音声入力、ファイル整理など、用途に合うアプリを検索し、対応するアプリのインストール・自動起動・アップデートをまとめて行えます。
 
 ## できること
 
@@ -16,13 +16,13 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 
 やりたい作業からアプリを選べるよう、用途ごとに並べています。「ローカル」の表記があるアプリは開発用の一覧に登録されています。インストールや更新に対応しているかは、KotorinToysの画面で確認できます。
 
-| カテゴリ | アプリ | 何のために使うか |
+| カテゴリ | アプリ名 | 何のために使うか |
 | --- | --- | --- |
-| 撮影 | [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 作業画面を画像や動画で残し、撮影したファイルを整理する |
-| 撮影 | [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PCで行った作業を、画面画像付きの手順書にする |
-| 撮影・配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunScreen) | 操作画面を録画し、キーやマウスの入力をあとから映像と照らし合わせる |
-| 編集 | [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 撮影済みの動画から必要な場面を抜き出し、手順書の画像に使う |
-| 編集 | [PPPaint](https://github.com/KotorinChunChun/PPPaint) | スクリーンショットを切り抜き、図形・番号・文字で注釈を付ける。本体0.1.22以降から導入できる |
+| 撮影・録画 | [SSCapture](https://github.com/KotorinChunChun/SSCapture) | 画面やウィンドウを正確に切り取って撮影し、録画やファイル整理にも使う |
+| 静止画撮影 | [OperationRecorder](https://github.com/KotorinChunChun/OperationRecorder) | PC操作と画面を記録して、画像付きの手順書を作成するツール |
+| 静止画編集 | [PPPaint](https://github.com/KotorinChunChun/PPPaint) | スクリーンショットを切り抜き、レイヤーを分けて図形・番号・文字で注釈を付ける。本体0.1.22以降から導入できる |
+| 動画撮影・配信 | [CapchunWindow](https://github.com/KotorinChunChun/CapchunScreen) | 操作画面を録画し、キーやマウスの入力をあとから映像と照らし合わせる |
+| 動画編集・再生 | [ChulipVideo C#版](https://github.com/KotorinChunChun/ChulipVideo-CSharp) | 撮影済みの動画から必要な場面を抜き出し、手順書の画像に使う |
 | 文書 | [MdVisualizer](https://github.com/KotorinChunChun/MdVisualizer) | Markdownの文書や図表を読み、表示を確認しながら編集する |
 | 学習 | [ShortcutKeyCounter](https://github.com/KotorinChunChun/ShortcutKeyCounter) | よく使うショートカットを把握し、画面共有で押したキーを伝える |
 | デスクトップ整理 | [ChunapTool](https://github.com/KotorinChunChun/ChunapTool) | 指定したウィンドウの位置と大きさを数値で揃える |
@@ -33,14 +33,14 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 | 配信 | [ScriptSync（読みあわせ）](https://github.com/KotorinChunChun/ScriptSync) | 台本の音声を発話ごとに録り直し、採用したテイクを一本の音声にまとめる |
 | 音声 | [EchoType](https://github.com/KotorinChunChun/EchoType) | キーボードで文章を打つ代わりに、話した内容をWindowsアプリへ入力する |
 | 音声 | [ReadingRepair](https://github.com/KotorinChunChun/ReadingRepair) | 日本語の読み上げで誤読される語を見つけ、音声合成用の辞書を直す |
+| 音声 | [TranscriptionServer](https://github.com/KotorinChunChun/TranscriptionServer) | 音声や動画の文字起こしと話者分離を、複数のアプリで使う |
 | 音声 | [TalkRecorder](https://github.com/KotorinChunChun/TalkRecorder) | マイクとスピーカーの音を同時に録り、デバイス別に保存する |
-| 音声、文字起こし | [TranscriptionServer](https://github.com/KotorinChunChun/TranscriptionServer) | 音声・動画の文字起こしと話者分離を共通APIで提供する |
 | 翻訳・文字認識 | [FocusTranslator](https://github.com/KotorinChunChun/FocusTranslator)（ローカル） | コピーできない画面上の文字を取り出し、翻訳や用語の確認に使う |
 | データ管理 | [EveryDB](https://github.com/KotorinChunChun/EveryDB) | 別々のデータに散らばった情報を、一か所から検索する |
 | データ管理 | [HttpSelector](https://github.com/KotorinChunChun/HttpSelector) | リンク先を確認し、仕事用や個人用など、使いたいブラウザーのプロファイルで開く |
 | データ管理 | [SmartPaste](https://github.com/KotorinChunChun/SmartPaste) | エクスプローラーに貼り付けるファイルの名前を、その場で確認して整理する |
-| Office | [OfficeAssist](https://github.com/KotorinChunChun/OfficeAssist) | Excelに画像を貼り付けたり、複数のCSV・TSVをまとめて取り込んだりする |
-| AI利用状況 | [AgentTasktrayViewer](https://github.com/KotorinChunChun/AgentTasktrayViewer) | CodexとClaude Codeの利用枠があとどれだけ残っているかを通知領域で確認する |
+| データ管理 | [OfficeAssist](https://github.com/KotorinChunChun/OfficeAssist) | Excelに画像を貼り付けたり、複数のCSV・TSVをまとめて取り込んだりする |
+| AI管理 | [AgentTasktrayViewer](https://github.com/KotorinChunChun/AgentTasktrayViewer) | CodexとClaude Codeの利用枠があとどれだけ残っているかを通知領域で確認する |
 
 画面を記録するアプリの選び方は[記録ツールの使い分け](docs/recording-tools.md)を参照してください。
 
@@ -48,11 +48,13 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 
 対応環境は **Windows 11・x64** です。ダウンロードと公開版の確認にはインターネット接続を使います。
 
-1. [GitHub Releases](https://github.com/KotorinChunChun/KotorinToys/releases)で、利用するリリースの説明を確認します。
-2. `KotorinToys-<バージョン>-setup.exe`をダウンロードして実行します。
+1. [KotorinToysをダウンロード](https://github.com/KotorinChunChun/KotorinToys/releases)を開き、利用するリリースの説明を確認します。
+2. リリースのAssetsにある `KotorinToys-<バージョン>-setup.exe` をダウンロードして実行します。
 3. インストールしたKotorinToysを開きます。
 
 本体のインストーラーには必要な.NETランタイムを同梱しています。ソースの取得や開発環境の準備は不要です。開発版と表示されるリリースは、その説明と未確認事項も確認してください。
+
+ダウンロードしたファイルは、PowerShellの `Get-FileHash -Algorithm SHA256 <ファイル名>` で計算した値を、同じリリースのSHA-256一覧と照合できます。
 
 ## はじめて使う
 
@@ -64,6 +66,8 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 アプリを終了するときは「停止させる」を押します。起動済みのアプリをもう一度開くと、既存の画面を表示します。操作の詳細は[使い方](docs/USERS_GUIDE.md)をご覧ください。
 
 ## 設定とデータについて
+
+本体の設定、アプリ一覧のキャッシュ、インストールのログは `%LOCALAPPDATA%\KotorinToys` に保存します。アプリ一覧と配布物はGitHubから取得します。インストールのログはPCに保存し、外部へ自動送信しません。子アプリが扱う画面、音声やデータの保存先と外部送信の条件は、各アプリのREADMEで確認してください。
 
 - アップデートや本体からのアンインストールでは、設定・履歴を保持します。
 - 自動起動は「本体設定・自動起動」で設定します。アプリを停止する操作とは別です。
@@ -82,6 +86,12 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 - [説明書の目次](docs/README.md)
 
 開発に参加する方は[開発者ガイド](docs/DEVELOPERS_GUIDE.md)を参照してください。
+
+## 不具合報告と連絡先
+
+一覧や本体経由のインストール・アップデートの不具合は [GitHub Issues](https://github.com/KotorinChunChun/KotorinToys/issues) へお願いします。子アプリの動作に関する不具合は、各アプリのIssuesへお願いします。アプリのバージョン、Windowsのバージョン、再現手順と表示されたエラーを添えてください。ログや画像を添付する前に、ユーザー名、ファイル名、認証情報などが含まれていないか確認してください。
+
+脆弱性は、対象アプリ名を添えて [セキュリティ報告の案内](SECURITY.md) からお知らせください。作者やほかのアプリは [GitHubプロフィール](https://github.com/KotorinChunChun)、一般の連絡や告知は [X](https://x.com/KotorinChunChun) をご覧ください。
 
 ## ライセンス
 
