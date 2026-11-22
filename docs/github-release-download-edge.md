@@ -1,6 +1,6 @@
-# GitHub Releasesからダウンロードする
+# GitHub Releasesからダウンロードする（Microsoft Edge）
 
-KotorinToysや各アプリのインストーラーを、GitHub Releasesから手動で入手する手順です。画面はMicrosoft Edgeで [SSCapture v0.1.10](https://github.com/KotorinChunChun/SSCapture/releases/tag/v0.1.10) を開いたときの例です。
+KotorinToysや各アプリのインストーラーを、Microsoft EdgeでGitHub Releasesからダウンロードする手順です。未署名のWindows用インストーラー（.exe）に対してEdgeが保存の確認を表示した場合の操作も説明します。画面は未署名で公開されたSSCapture v0.1.10の例です。 [SSCapture v0.1.10](https://github.com/KotorinChunChun/SSCapture/releases/tag/v0.1.10)
 
 ## 1. 使いたいアプリのリリースを開く
 
@@ -22,9 +22,9 @@ Edge右上のダウンロードアイコンから進み具合を確認できま�
 
 ![Edgeのダウンロード一覧でSSCaptureのEXEをダウンロード中](assets/github-release-download/03_download_warning.png)
 
-## 3. Edgeで保存の確認が出た場合
+## 3. 未署名のインストーラーにEdgeで保存の確認が出た場合
 
-「一般的にダウンロードされていません」は、Edgeがファイルの安全性を判断できなかったときの警告です。配布元がアプリの公式GitHubリポジトリで、ファイル名とバージョンが説明に合っていることを確認してから進みます。危険なファイルとしてブロックされた場合や、配布元が分からない場合は操作を中止してください。 [香川大学のEdgeダウンロード手順（PDF）](https://eisc.kagawa-u.ac.jp/wp-content/uploads/sites/2/2026/05/Edge_TrustError_DownloadFix_202508.pdf)
+「一般的にダウンロードされていません」は、Edgeがファイルの安全性を判断できなかったときの警告です。アプリの公式GitHubリポジトリのリリース説明に未署名と記載されていて、ファイル名とバージョンが一致する場合に、以下の操作で保存できます。危険なファイルとしてブロックされた場合や、配布元が分からない場合は操作を中止してください。 [香川大学のEdgeダウンロード手順（PDF）](https://eisc.kagawa-u.ac.jp/wp-content/uploads/sites/2/2026/05/Edge_TrustError_DownloadFix_202508.pdf)
 
 ![Edgeのダウンロード一覧に、開く前に信頼できることを確認するよう警告が出ている](assets/github-release-download/04_download_after.png)
 
@@ -32,7 +32,7 @@ Edge右上のダウンロードアイコンから進み具合を確認できま�
 
    ![対象ファイルの三点メニューに「保存」がある](assets/github-release-download/05_more_actions_menu.png)
 
-2. 確認画面でファイル名と発行元の表示を確認します。例のSSCapture v0.1.10はリリース説明に未署名と明記されているため、「発行元: 不明」と表示されています。表示がリリースの説明と合うか確認してください。
+2. 確認画面でファイル名と発行元の表示を確認します。画面の例では未署名のため「発行元: 不明」と表示されています。署名付きと案内されているファイルでこの表示が出た場合は、保存を取り消して配布元を再確認してください。
 
    ![Edgeの確認画面に対象ファイル名、発行元、「キャンセル」と「削除」がある](assets/github-release-download/06_after_save_dialog.png)
 
