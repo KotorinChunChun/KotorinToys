@@ -5,6 +5,7 @@
 | やりたいこと | 説明書 |
 | --- | --- |
 | 導入して使い始める | [README](../README.md) |
+| GitHub Releasesからダウンロードする | [画像付きダウンロード手順](github-release-download.md) |
 | 一覧・ボタン・一括操作を使う | [使い方](USERS_GUIDE.md) |
 | サインイン時にアプリを起動する | [自動起動の設定](startup-settings.md) |
 | KotorinToys本体を更新する | [本体の更新](self-update.md) |

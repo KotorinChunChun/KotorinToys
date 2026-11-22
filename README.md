@@ -52,6 +52,8 @@ KotorinToysは、作者のKotoriChunが個人で開発したWindowsアプリを�
 2. リリースのAssetsにある `KotorinToys-<バージョン>-setup.exe` をダウンロードして実行します。
 3. インストールしたKotorinToysを開きます。
 
+[画像付きダウンロード手順](docs/github-release-download.md)では、Microsoft Edgeで保存の確認が出た場合の操作も案内しています。
+
 本体のインストーラーには必要な.NETランタイムを同梱しています。ソースの取得や開発環境の準備は不要です。開発版と表示されるリリースは、その説明と未確認事項も確認してください。
 
 ダウンロードしたファイルは、PowerShellの `Get-FileHash -Algorithm SHA256 <ファイル名>` で計算した値を、同じリリースのSHA-256一覧と照合できます。
