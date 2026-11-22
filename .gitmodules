@@ -58,10 +58,10 @@
 	url = https://github.com/KotorinChunChun/PPPaint.git
 [submodule "tools/AgentTasktrayViewer"]
 	path = tools/AgentTasktrayViewer
-	update = none
+	url = https://github.com/KotorinChunChun/AgentTasktrayViewer.git
 [submodule "tools/EchoType"]
 	path = tools/EchoType
-	update = none
+	url = https://github.com/KotorinChunChun/EchoType.git
 [submodule "tools/FocusTranslator"]
 	path = tools/FocusTranslator
 	url = https://github.com/KotorinChunChun/FocusTranslator.git

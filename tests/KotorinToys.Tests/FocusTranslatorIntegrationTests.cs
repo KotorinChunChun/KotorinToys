@@ -24,7 +24,7 @@ internal static class FocusTranslatorIntegrationTests
     internal static void Registration(string root, Action<bool, string> check)
     {
         var tool = Load(root);
-        check(tool is { Id: "focus-translator", Name: "FocusTranslator", Version: "0.5.6", DistributionStatus: "unpublished" }, "FocusTranslatorの製品定義と未公開版を確認");
+        check(tool is { Id: "focus-translator", Name: "FocusTranslator", Version: "0.5.8", DistributionStatus: "unpublished" }, "FocusTranslatorの製品定義と未公開版を確認");
         using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "catalog/tools.json")));
         check(catalog.RootElement.GetProperty("tools").EnumerateArray().Count(x => x.GetProperty("id").GetString() == tool.Id && x.GetProperty("definition").GetString() == "tools/FocusTranslator/tool.json") == 1, "ローカルカタログへ重複なく登録");
         check(tool.Capabilities!.SequenceEqual(["status", "show", "stop", "silent-start"]), "管理操作と無表示起動を宣言");

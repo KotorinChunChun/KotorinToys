@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path (Split-Path $PSScriptRoot)
 $child = Join-Path $root 'tools/FocusTranslator'
 $definition = Get-Content (Join-Path $child 'tool.json') -Raw | ConvertFrom-Json
-if ($definition.id -ne 'focus-translator' -or $definition.version -ne '0.5.6') { throw '対象の製品定義が一致しません。' }
+if ($definition.id -ne 'focus-translator' -or $definition.version -ne '0.5.8') { throw '対象の製品定義が一致しません。' }
 $compiler = Join-Path $root 'artifacts/dependencies/inno-7.1.0/ISCC.exe'
 $executable = Join-Path $child $definition.executable
 $product = (Get-Item -LiteralPath $executable).VersionInfo
@@ -17,7 +17,7 @@ foreach ($file in @('tool.json', 'README.md', 'FocusTranslator_icon_32x32.ico'))
 Copy-Item -LiteralPath (Join-Path $child 'docs') -Destination $payload -Recurse
 & $compiler ('/DPayload=' + $payload) ('/DOutputDirectory=' + $run) (Join-Path $child 'packaging/focus-translator-local.iss') | Out-File (Join-Path $run 'build.log')
 if ($LASTEXITCODE) { throw 'ローカル導入用setupの作成に失敗しました。' }
-$installer = Join-Path $run 'FocusTranslator-0.5.6-setup.exe'
+$installer = Join-Path $run 'FocusTranslator-0.5.8-setup.exe'
 if ($PrepareOnly) { Write-Output $installer; return }
 $destination = Join-Path $root '.installed/FocusTranslator'
 $process = Start-Process -FilePath $installer -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/SP-','/NORESTART','/NOCLOSEAPPLICATIONS','/NORESTARTAPPLICATIONS', ('/DIR="' + $destination + '"'), ('/LOG="' + (Join-Path $run 'install.log') + '"')) -WindowStyle Hidden -PassThru -Wait
