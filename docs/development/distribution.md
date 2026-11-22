@@ -22,6 +22,8 @@ publish-releases.ps1は固定アカウント・採用ソース・台帳・ハッ
 
 ## GitHub Releasesの本文
 
+本文の構成とコピー用のMarkdownは[リリースノートの共通テンプレート](release-notes-template.md)を使います。
+
 本体または管理対象アプリのWindows用インストーラー（EXE、MSI、MSIXなど）を公開するときは、通常版・開発版ともに、GitHub Releasesの本文のダウンロード案内に次のリンクを記載します。管理対象アプリが独自の手順で公開する場合も同じです。
 
 ```markdown
