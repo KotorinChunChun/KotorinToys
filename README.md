@@ -33,7 +33,7 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 | 配信 | [ScriptSync（読みあわせ）](https://github.com/KotorinChunChun/ScriptSync) | 台本の音声を発話ごとに録り直し、採用したテイクを一本の音声にまとめる |
 | 音声 | [EchoType](https://github.com/KotorinChunChun/EchoType) | キーボードで文章を打つ代わりに、話した内容をWindowsアプリへ入力する |
 | 音声 | [ReadingRepair](https://github.com/KotorinChunChun/ReadingRepair) | 日本語の読み上げで誤読される語を見つけ、音声合成用の辞書を直す |
-| 音声 | [TalkRecorder](https://github.com/KotorinChunChun/TalkRecorder) | マイクとスピーカーの音を同時に録音し、時間を揃えて音源ごとに保存する |
+| 音声 | [TalkRecorder](https://github.com/KotorinChunChun/TalkRecorder) | マイクとスピーカーの音を同時に録り、デバイス別に保存する |
 | 音声、文字起こし | [TranscriptionServer](https://github.com/KotorinChunChun/TranscriptionServer) | 音声・動画の文字起こしと話者分離を共通APIで提供する |
 | 翻訳・文字認識 | [FocusTranslator](https://github.com/KotorinChunChun/FocusTranslator)（ローカル） | コピーできない画面上の文字を取り出し、翻訳や用語の確認に使う |
 | データ管理 | [EveryDB](https://github.com/KotorinChunChun/EveryDB) | 別々のデータに散らばった情報を、一か所から検索する |
@@ -43,8 +43,6 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 | AI利用状況 | [AgentTasktrayViewer](https://github.com/KotorinChunChun/AgentTasktrayViewer) | CodexとClaude Codeの利用枠があとどれだけ残っているかを通知領域で確認する |
 
 画面を記録するアプリの選び方は[記録ツールの使い分け](docs/recording-tools.md)を参照してください。
-
-各アプリの独自コードと文書にはMITライセンスが適用されます。著作権表示とライセンス本文は各アプリのREADMEから確認できます。第三者のコンポーネントや素材には、それぞれのライセンスが適用されます。
 
 ## インストール
 
@@ -84,5 +82,11 @@ KotorinToysは、画面の撮影や音声入力、ファイル整理などに使
 - [説明書の目次](docs/README.md)
 
 開発に参加する方は[開発者ガイド](docs/DEVELOPERS_GUIDE.md)を参照してください。
+
+## ライセンス
+
+KotorinToys本体の独自コードと文書には[MITライセンス](LICENSE)が適用されます。
+
+各アプリの独自コードと文書にはMITライセンスが適用されます。著作権表示とライセンス本文は各アプリのREADMEから確認できます。同梱の.NETランタイムなど、第三者のコンポーネントや素材には、それぞれのライセンスが適用されます。
 
 作者：KotoriChun

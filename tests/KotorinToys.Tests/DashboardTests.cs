@@ -8,6 +8,7 @@ internal static class DashboardTests
         var catalog = ReleaseDownloader.Load(root);
         var releases = tools.Select(t => new PublicRelease(catalog.Packages.SingleOrDefault(p => p.Package.Id == t.Id), t.DistributionStatus == "published", true, "テスト")).ToArray();
         var installed = tools.Select(t => new InstallationState("導入済み", t.Version, null, "test.exe", "test-uninstaller.exe")).ToArray();
+        installed[2] = installed[2] with { Version = releases[2].Package!.Package.Version };
         var view = ToolVersionView.Create(installed[1] with { Version = "0.1.3" }, releases[1]);
         check(view.CanUpdate && view.Update == "更新あり", "公開版が新しいときだけ更新可能");
         check(ToolVersionView.Create(installed[1], releases[1]).Update == "公開版と同じ", "同一版は更新不要");

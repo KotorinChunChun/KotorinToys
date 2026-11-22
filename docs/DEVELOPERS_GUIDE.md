@@ -4,7 +4,9 @@
 
 アプリを新しく追加する場合は[定義で追加する標準管理製品](development/definition-managed-products.md)を参照してください。「更新」列の表示は4種類に保ちます。「詳細」セルをクリックするか、選択してEnterキーを押すと、理由と対処を確認できます。修復、表示設定の保存、用途別タブ、公開前の検査は[操作改善の設計と検証](development/operation-improvements.md)にまとめています。
 
-## 前提
+- [ソース取得と開発起動](development/getting-started.md)：前提環境、独立Gitの取得、本体／子アプリのビルド、専用設定。
+- [コードの責務](architecture.md)・[本体の構成要素](development/host-components.md)：変更箇所と互換性境界。
+- [管理連携と製品別の検証](development/tool-integration.md)：IPC・起動停止の検証入口と実機受入の区分。
 
 InstallerDiagnosticsは、EXEの導入や削除を実行するたびに診断を保存します。InstallerAdapterはInnoの終了コードを分類し、既存のMSIX診断とは区別します。/LOGは引数リストで渡し、パスに空白や日本語が含まれていても、1つの引数として扱います。
 
@@ -17,24 +19,31 @@ SSCaptureの補助ログは、導入先ハッシュ、root、operation、今回�
 - 本体と各ツールは独立したGitリポジトリとして扱う
 - 未確認の実行ファイル名、引数、インストーラーURL、設定パスを推測して登録しない
 
-## リポジトリの確認
+| 確認すること | 正本 |
+| --- | --- |
+| 起動引数・管理IPC・文書の契約 | [共通契約](../contracts/README.md) |
+| 定義だけで追加できる製品の条件 | [標準管理製品](development/definition-managed-products.md) |
+| 配信用の一覧・並び順・説明 | [GitHub configの運用](online-tool-catalog.md) |
+| 音声モデルの利用先と仕様変更の通知 | [音声モデルを使うアプリと更新通知](development/speech-model-dependencies.md) |
+| ボタンを押せる条件と理由 | [操作可否](development/operation-availability.md) |
+| 自動起動の所有・判定・復旧 | [自動起動の実装](development/startup-settings.md) |
+| 画面タイトル・アイコン | [タイトル規約](window-title-rule.md)・[アイコン規約](app-icon-rule.md) |
 
-```powershell
-Set-Location C:\develop\KotorinToys
-git status --short
-git diff --check
-```
+子の`tool.json`と採用コミット、親の`catalog/tools.json`、配信用`config/tools.json`を区別します。共通契約に適合したアプリの追加・更新は、対応済み本体なら定義とReleaseの更新で反映できます。新しい配布方式・通信・信頼条件には本体側の実装が必要です。
 
-## 資料の配置
+## 検証・配布
 
-- 版に属する要求・計画・進捗・実装報告は `dev/history/vX.Y.Z/`
-- 現行の利用方法・仕様・再現可能な手順は `docs/`
-- 版に属さない調査は `dev/research/<対象>/`
-- テスト動画・生ログ・生成結果は `dev/history/vX.Y.Z/logs/<実行識別子>/`
+- [管理機構の検証](testing.md)：通常回帰と製品別の受入。
+- [AgentTasktrayViewerの開発連携](development/agent-tasktray-viewer.md)：ローカル収録・起動引数・コマンドライン検証。
+- [配布の手順と境界](development/distribution.md)：採用ソース・生成物・公開の区分。
+- [インストーラー作成環境](installer-build.md)：Inno Setupと生成コマンド。
+- [本体自己更新の配布・実装](development/self-update.md)・[MSIXの照合とデータ保持](development/msix-management.md)。
+- [インストーラー診断](development/installer-diagnostics.md)・[公開情報キャッシュ](public-release-cache.md)・[ポータブル公開情報](portable-release-publication.md)。
+- [セキュリティ点検と公開前検査](security.md)。
 
-ログは `.gitignore` によりGit対象外です。報告に必要な結果の要約だけを版別資料へ残します。
+## 資料と進捗
 
-## 新しいツールを登録するとき
+[文書の編集方針](development/documentation-policy.md)に従い、READMEは利用者向け、現行仕様・手順はdocs、版別の要求・計画・結果は`dev/history/vX.Y.Z/`へ置きます。過去の件数・公開作業・PCでの実測は[開発記録の目録](../dev/README.md)から確認してください。
 
 1. 既存ツールのリポジトリ、README、マニュアル、設定、導入経路を実物確認する。
 2. `catalog/` に登録情報を追加し、確認済み・未対応・未調査を区別する。

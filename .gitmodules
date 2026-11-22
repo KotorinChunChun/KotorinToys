@@ -56,3 +56,18 @@
 [submodule "tools/PPPaint"]
 	path = tools/PPPaint
 	url = https://github.com/KotorinChunChun/PPPaint.git
+[submodule "tools/AgentTasktrayViewer"]
+	path = tools/AgentTasktrayViewer
+	url = https://github.com/KotorinChunChun/AgentTasktrayViewer.git
+[submodule "tools/EchoType"]
+	path = tools/EchoType
+	url = https://github.com/KotorinChunChun/EchoType.git
+[submodule "tools/FocusTranslator"]
+	path = tools/FocusTranslator
+	url = https://github.com/KotorinChunChun/FocusTranslator.git
+[submodule "tools/OfficeAssist"]
+	path = tools/OfficeAssist
+	url = https://github.com/KotorinChunChun/OfficeAssist.git
+[submodule "tools/ScriptSync"]
+	path = tools/ScriptSync
+	url = https://github.com/KotorinChunChun/ScriptSync.git

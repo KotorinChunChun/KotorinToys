@@ -6,13 +6,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PlatformTarget>x64</PlatformTarget>
-    <Version>0.1.22</Version>
+    <Version>0.1.23</Version>
     <ApplicationIcon>assets/KotorinToys.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Update="Microsoft.NETCore.App;Microsoft.WindowsDesktop.App.WindowsForms" RuntimeFrameworkVersion="10.0.15" Condition="'$(SelfContained)' == 'true'" />
     <KnownFrameworkReference Update="Microsoft.WindowsDesktop.App;Microsoft.WindowsDesktop.App.WindowsForms" DefaultRuntimeFrameworkVersion="10.0.15" LatestRuntimeFrameworkVersion="10.0.15" Condition="'$(SelfContained)' == 'true'" />
     <EmbeddedResource Include="assets/KotorinToys.ico" LogicalName="KotorinToys.AppIcon.ico" />
+    <None Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="../../catalog/tools.json" Link="catalog/tools.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../config/tools.json" Link="config/tools.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Compile Include="../../contracts/ManagementEndpoint.cs" Link="Integration/ManagementEndpoint.cs" />
