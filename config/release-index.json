@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T23:15:57.1311731+00:00",
+  "generatedAt": "2026-11-22T02:06:17.2878642+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -2266,6 +2266,42 @@
       "available": true,
       "releases": [
         {
+          "tag_name": "v0.1.8",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-22T02:05:26Z",
+          "assets": [
+            {
+              "name": "TalkRecorder-0.1.8-setup.exe",
+              "state": "uploaded",
+              "size": 44703376,
+              "digest": "sha256:0fed90375f247e1f57c4671c0092b192e8908f8a4b68484d154c0142da4a3dbe",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.8/TalkRecorder-0.1.8-setup.exe"
+            },
+            {
+              "name": "TalkRecorder-packages.json",
+              "state": "uploaded",
+              "size": 638,
+              "digest": "sha256:790f01c97a99c36af89ad2333d21093f3b9ff622f3fa0e055882d083625e3b31",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.8/TalkRecorder-packages.json"
+            },
+            {
+              "name": "TalkRecorder-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 304,
+              "digest": "sha256:1dfb4a86d686c974132f98b15d8c1bbc26e8872837ccecf1e066aba50746e8a8",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.8/TalkRecorder-SHA256SUMS.txt"
+            },
+            {
+              "name": "TalkRecorder-v0.1.8-DeepFilterNet3-win-x64.zip",
+              "state": "uploaded",
+              "size": 14149810,
+              "digest": "sha256:5b72bd04f59a4f9073f5036c41f99b09b462784465a2abdf7ddcb2fefe09bfd2",
+              "browser_download_url": "https://github.com/KotorinChunChun/TalkRecorder/releases/download/v0.1.8/TalkRecorder-v0.1.8-DeepFilterNet3-win-x64.zip"
+            }
+          ]
+        },
+        {
           "tag_name": "v0.1.7",
           "draft": false,
           "prerelease": true,
@@ -2380,6 +2416,42 @@
       "name": "TranscriptionServer",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.21",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-22T01:48:24Z",
+          "assets": [
+            {
+              "name": "SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 326,
+              "digest": "sha256:9d5f904ccbd1b581c3d69df102ae765b88215da1d053e2ff6edc34da4fa6750c",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.21/SHA256SUMS.txt"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.21-setup-x64.exe",
+              "state": "uploaded",
+              "size": 6130832,
+              "digest": "sha256:6f94efb07a887450ee53f4dbdad9613718ba984b6e59d5f4b055324f99ea4c23",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.21/TranscriptionServer-v0.1.21-setup-x64.exe"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.21-source.zip",
+              "state": "uploaded",
+              "size": 416204,
+              "digest": "sha256:12e6224a6fbb2b8c2538f4f640e83db8e8f94933f9add6b19c035fda236b0fe0",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.21/TranscriptionServer-v0.1.21-source.zip"
+            },
+            {
+              "name": "TranscriptionServer-v0.1.21-windows-x64.zip",
+              "state": "uploaded",
+              "size": 5806848,
+              "digest": "sha256:0e97d0b2b7537531925bafaa17a5177f4d42cdc4ebe470f662a20ea54a9fac94",
+              "browser_download_url": "https://github.com/KotorinChunChun/TranscriptionServer/releases/download/v0.1.21/TranscriptionServer-v0.1.21-windows-x64.zip"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.20",
           "draft": false,
