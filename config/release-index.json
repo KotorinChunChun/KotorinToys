@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-22T02:13:03.9832243+00:00",
+  "generatedAt": "2026-11-22T03:06:45.0648391+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -233,6 +233,49 @@
       "name": "EveryDB",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.2",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-22T03:05:51Z",
+          "assets": [
+            {
+              "name": "EveryDB-0.1.2-setup.exe",
+              "state": "uploaded",
+              "size": 42864938,
+              "digest": "sha256:fcd105ac41fcce77c5c81fe09862ecb9eaca2c24311ccce761297874cf8c5ac2",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.2/EveryDB-0.1.2-setup.exe"
+            },
+            {
+              "name": "EveryDB-packages.json",
+              "state": "uploaded",
+              "size": 391,
+              "digest": "sha256:4c04c8b37ee02efb17956f875bed900a512a750c9b78d2632a9219421e5aa2a1",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.2/EveryDB-packages.json"
+            },
+            {
+              "name": "EveryDB-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 349,
+              "digest": "sha256:bd80c071507d1c8b6d5332106add7fbd4057da77113867050039d5a9a8aa5f15",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.2/EveryDB-SHA256SUMS.txt"
+            },
+            {
+              "name": "LICENSE.md",
+              "state": "uploaded",
+              "size": 1093,
+              "digest": "sha256:3a718ff5b78b432c75421c53defaf2f054c0d5536797699ce4ee1a579ce8dcb7",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.2/LICENSE.md"
+            },
+            {
+              "name": "THIRD_PARTY_NOTICES.txt",
+              "state": "uploaded",
+              "size": 3685490,
+              "digest": "sha256:c8886e1a3fc2aff3a7fa0dabe8b64ed6154296cf8572462e4d4b245ab2bf0dc2",
+              "browser_download_url": "https://github.com/KotorinChunChun/EveryDB/releases/download/v0.1.2/THIRD_PARTY_NOTICES.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.1",
           "draft": false,
@@ -2916,6 +2959,49 @@
       "name": "VoiceMixerSpkRouter",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v1.0.17",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-22T02:31:14Z",
+          "assets": [
+            {
+              "name": "VoiceMixerSpkRouter-1.0.17-setup.exe",
+              "state": "uploaded",
+              "size": 38731513,
+              "digest": "sha256:c15a9bf3ceaa7ad05738d94e2becf82b6bd929859027596df64ec5cec43d6f47",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.17/VoiceMixerSpkRouter-1.0.17-setup.exe"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-packages.json",
+              "state": "uploaded",
+              "size": 443,
+              "digest": "sha256:6adfe58da12940449042bf9fd8578871284fe9b5f071b7e7b247eaaf9b016ec5",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.17/VoiceMixerSpkRouter-packages.json"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 104,
+              "digest": "sha256:13dccb237a5e2a84b7c53950dbfc0e12a2709838ce930ead0e2b34c6886b3c72",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.17/VoiceMixerSpkRouter-SHA256SUMS.txt"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-v1.0.17-windows-x64.zip",
+              "state": "uploaded",
+              "size": 6913245,
+              "digest": "sha256:814d102afc74db512a0ebe39a268bff72f791ea53c901f7db6a8317b05d76c57",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.17/VoiceMixerSpkRouter-v1.0.17-windows-x64.zip"
+            },
+            {
+              "name": "VoiceMixerSpkRouter-v1.0.17-windows-x64.zip.sha256",
+              "state": "uploaded",
+              "size": 110,
+              "digest": "sha256:9d576144fcf5f20259aae7e3ec9a8553ede1aaec8dde1bbb00261bf6dadeea2c",
+              "browser_download_url": "https://github.com/KotorinChunChun/VoiceMixerSpkRouter/releases/download/v1.0.17/VoiceMixerSpkRouter-v1.0.17-windows-x64.zip.sha256"
+            }
+          ]
+        },
         {
           "tag_name": "v1.0.14",
           "draft": false,
