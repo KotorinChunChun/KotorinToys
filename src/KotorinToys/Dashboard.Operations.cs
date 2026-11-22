@@ -20,15 +20,17 @@ internal sealed partial class Dashboard
         finally { EndOperation(); }
     }
 
-    async Task Execute(DashboardCommand command)
+    async Task Execute(DashboardCommand command, string? toolId = null)
     {
         if (!TryBeginOperation()) return;
         try
         {
-            var index = SelectedIndex;
+            var index = toolId == null ? SelectedIndex : Array.FindIndex(tools, tool => tool.Id == toolId);
             if (index < 0 || index >= tools.Length) return;
             var tool = tools[index]; operationErrors.Remove(tool.Id);
+            if (stateRefresh is { IsCompleted: false } pending) await pending;
             await RefreshStates(true);
+            if (UiClosed) return;
             var availability = Availability(index, command.ToString().ToLowerInvariant(), true);
             if (!availability.Enabled) { ShowOperationFailure(tool.Name + "：" + availability.Reason, tool.Id); return; }
             if (command == DashboardCommand.Manual)
@@ -141,9 +143,12 @@ internal sealed partial class Dashboard
         catch (Exception ex) { ShowOperationFailure("インストールを開始できません：" + ex.Message); }
         finally { EndOperation(); }
     }
+    internal bool CanOperate => !UiClosed && !busy && !refreshingCatalog && !BackgroundUpdateBusy &&
+        !OwnedForms.Any(form => form.Modal && form.Visible);
+
     bool TryBeginOperation()
     {
-        if (busy || refreshingCatalog || IsDisposed || BackgroundUpdateBusy) return false;
+        if (!CanOperate) return false;
         busy = true;
         actions.Enabled = hostActions.Enabled = false;
         UpdateActions();

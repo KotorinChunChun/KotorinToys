@@ -41,6 +41,7 @@ internal sealed partial class Dashboard : BrandedForm
     readonly Func<ToolDefinition,bool,Task<ToolState>> controlExecution;
     readonly IHostSelfUpdateService selfUpdates;
     readonly Action showSelfUpdater;
+    readonly Action? showStartupSettings;
     readonly Func<ToolDefinition, CancellationToken, Task<StartupOverview>> startupCheck;
     Task? startupRefresh;
     Task? releaseRefresh;
@@ -80,6 +81,12 @@ internal sealed partial class Dashboard : BrandedForm
             OpenInstalledLocation, InstalledLocationAvailability()); form.ShowDialog(this); });
         this.selfUpdates = selfUpdates ?? new HostSelfUpdateService(settings?.DirectoryPath ?? HostSettingsStore.DefaultDirectory);
         this.showSelfUpdater = showSelfUpdater ?? (() => { using var form = new HostUpdateForm(this.selfUpdates); form.ShowDialog(this); });
+        if (settings != null && startup != null)
+            showStartupSettings = () =>
+            {
+                using var form = new StartupSettingsForm(settings, startup, manager.KnownTools());
+                form.ShowDialog(this);
+            };
         this.notify = notify ?? (message => MessageBox.Show(this, message, WindowTitle.Create("操作できません"), MessageBoxButtons.OK, MessageBoxIcon.Warning));
         this.startupCheck = startupCheck ?? (startup != null ? new StartupOverviewReader(startup).Read :
             (_, _) => Task.FromResult(new StartupOverview("未確認", "本体設定付きの通常起動で自動起動を照合できます。")));
@@ -109,7 +116,7 @@ internal sealed partial class Dashboard : BrandedForm
         bundledCatalog = bundled;
         bundledPackages = tools.Select(tool => bundled?.Packages.SingleOrDefault(p => p.Package.Id == tool.Id)).ToArray();
         releases = bundledPackages.Select(package => new PublicRelease(package, false, false, "公開未確認・同梱台帳")).ToArray();
-        InitializeLayout(settings, startup);
+        InitializeLayout();
     }
 
     protected override void Dispose(bool disposing)

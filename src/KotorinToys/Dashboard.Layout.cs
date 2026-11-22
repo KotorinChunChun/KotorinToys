@@ -2,7 +2,7 @@ namespace KotorinToys;
 
 internal sealed partial class Dashboard
 {
-    void InitializeLayout(HostSettingsStore? settings, StartupCoordinator? startup)
+    void InitializeLayout()
     {
         Text = WindowTitle.Create(); Size = new(1180, 680); MinimumSize = new(980, 540);
         Font = new("Yu Gothic UI", 11); StartPosition = FormStartPosition.CenterScreen;
@@ -53,11 +53,11 @@ internal sealed partial class Dashboard
         updateAll.Click += async (_, _) => await UpdateTools(all: true); hostActions.Controls.Add(updateAll);
         var refresh = new Button { Text = "状態を更新", Name = "refresh", AutoSize = true };
         refresh.Click += async (_, _) => await RefreshAll(); hostActions.Controls.Add(refresh);
-        if (settings != null && startup != null)
+        if (showStartupSettings != null)
         {
             var button = new Button { Text = "本体設定・自動起動", Name = "hostSettings", AutoSize = true };
-            button.Click += async (_, _) => await OpenStartupSettings(() =>
-            { using var form = new StartupSettingsForm(settings, startup, manager.KnownTools()); form.ShowDialog(this); }); hostActions.Controls.Add(button);
+            button.Click += async (_, _) => await OpenStartupSettings(showStartupSettings);
+            hostActions.Controls.Add(button);
         }
         var installation = new Button { Name = "advancedSettings", Text = "詳細設定", AutoSize = true };
         installation.Click += async (_, _) => await OpenInstallation(false); hostActions.Controls.Add(installation);
@@ -74,7 +74,7 @@ internal sealed partial class Dashboard
         ActionHints.Attach(actions, tooltips); ActionHints.Attach(hostActions, tooltips);
         ActionHints.Attach(layout, tooltips);
         ApplySnapshot(installations, states, releases);
-        Shown += async (_, _) => { RestoreBackgroundUpdate(); timer.Start(); await RefreshAll(); };
+        Shown += async (_, _) => { RestoreBackgroundUpdate(); await RefreshAll(); };
         timer.Tick += async (_, _) => { if (!busy) { RestoreBackgroundUpdate(); await RefreshStates(); } };
     }
 

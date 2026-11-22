@@ -16,7 +16,7 @@ internal sealed partial class Dashboard
             : ActionAvailability.Deny("選択したアプリにアップデートできる公開版がありません。");
     }
 
-    internal async Task UpdateTools(bool all)
+    internal async Task UpdateTools(bool all, bool notifyWhenHidden = false)
     {
         if (UiClosed) return;
         var selected = all ? Enumerable.Range(0, tools.Length).ToArray() : SelectedRows();
@@ -94,6 +94,7 @@ internal sealed partial class Dashboard
             preparingToolUpdates = false;
             if (!UiClosed) UpdateDetails();
             EndOperation();
+            if (notifyWhenHidden && !UiClosed && !Visible) notify(updateStatus.Text);
         }
     }
 

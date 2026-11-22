@@ -147,6 +147,7 @@ internal static class Program
             fixtures = Path.Combine(root, "dev", "history", recordVersion, "logs", "host-test-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(fixtures);
             if (args.SequenceEqual(["--discovery-panel"])) return DashboardDiscoveryPanel.Run(root,fixtures);
+            if (args.SequenceEqual(["--tray-tests"])) { DashboardTrayTests.Run(root, Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--search-tests"])) { DashboardSearchTests.Run(root,fixtures,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--location-tests"])) { ToolLocationTests.Run(root,Check); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.SequenceEqual(["--release-assets-tests"])) { ReleaseTests.Run(root, fixtures, Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
@@ -393,7 +394,7 @@ internal static class Program
             InstallationDiagnosisTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             InstallerDiagnosticsTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             var previousContext = SynchronizationContext.Current;
-            try { InstallationSummaryTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); DashboardInstallationTests.Run(root, Check); MsixDashboardTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); StartupOverviewDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
+            try { InstallationSummaryTests.Run(root, Check); InstallationFormWorkflowTests.Run(root, Check); DashboardTests.Run(root, Check); DashboardTrayTests.Run(root, Check); DashboardRefreshTests.Run(root, Check); DashboardInstallationTests.Run(root, Check); MsixDashboardTests.Run(root, Check); OnlineCatalogDashboardTests.Run(root, fixtures, Check); StartupOverviewDashboardTests.Run(root, fixtures, Check); HostUpdateFormTests.Run(root, Check); IconTests.FormsAndDefinitions(root, fixtures, Check); }
             finally { SynchronizationContext.SetSynchronizationContext(previousContext); }
             ReleaseTests.Run(root,fixtures,Check).GetAwaiter().GetResult();
             ToolInstallationRunnerTests.Run(root, Check).GetAwaiter().GetResult();

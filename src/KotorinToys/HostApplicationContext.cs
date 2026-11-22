@@ -25,6 +25,13 @@ internal sealed class HostApplicationContext : ApplicationContext
         var coordinator=new StartupCoordinator(settings,new TaskSchedulerGateway(),manager,Environment.ProcessPath!);
         var updateService = new HostSelfUpdateService(settings.DirectoryPath);
         dashboard = new Dashboard(root,settings,coordinator, toolManager: manager, selfUpdates: updateService,
+            notify: message =>
+            {
+                if (exiting) return;
+                if (dashboard!.Visible)
+                    MessageBox.Show(dashboard, message, WindowTitle.Create("操作できません"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                else Notify(message);
+            },
             showSelfUpdater: () =>
             {
                 updates!.ManualInteraction();
@@ -36,19 +43,18 @@ internal sealed class HostApplicationContext : ApplicationContext
             if (!exiting && args.CloseReason == CloseReason.UserClosing) { args.Cancel = true; dashboard.Hide(); }
         };
         dashboard.Resize += (_, _) => HideMinimized(dashboard);
-        var menu = new ContextMenuStrip();
-        menu.Items.Add("管理画面を開く", null, (_, _) => ShowDashboard());
-        menu.Items.Add("KotorinToysを終了", null, (_, _) => ExitThread());
+        var menu = dashboard.CreateTrayMenu(ShowDashboard, ExitThread);
         tray = new NotifyIcon { Text = "KotorinToys", Icon = icon, ContextMenuStrip = menu, Visible = true };
         tray.MouseDoubleClick += (_, _) => ShowDashboard();
         management = new("dashboard", dispatcher, ShowDashboard, ExitThread);
-        updates = new(updateService, () => !exiting && !dashboard.IsDisposed && dashboard.Visible && !dashboard.UpdatingTools && !dashboard.OwnedForms.OfType<HostUpdateForm>().Any(),
+        updates = new(updateService, () => !exiting && dashboard.Visible && dashboard.CanOperate && !dashboard.UpdatingTools,
             (release, channel) =>
             {
                 using var form = new HostUpdateForm(updateService, initialRelease: release, initialChannel: channel);
                 form.ShowDialog(dashboard);
             }, Notify, receipt => SelfUpdateFiles.Write(PathSafety.Resolve(settings.DirectoryPath, "updates/gui-check.json"), receipt));
         initialization = InitializeTargets();
+        dashboard.StartMonitoring();
         if (!startup) { if (!hidden) ShowDashboard(); }
         else if (!hidden && settings.Load().ShowDashboardAtLogon) ShowDashboard();
 
