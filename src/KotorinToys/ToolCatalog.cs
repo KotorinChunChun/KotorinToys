@@ -68,7 +68,11 @@ internal static class ToolCatalog
                     throw new IOException("登録IDとツール定義が一致しません。");
                 tool = tool with
                 {
-                    ToolRoot = Path.GetRelativePath(root, Path.GetDirectoryName(path)!)
+                    ToolRoot = Path.GetRelativePath(root, Path.GetDirectoryName(path)!),
+                    // 独立リポジトリの開発用定義をローカル一覧に読み込む。公開状態はオンライン一覧で確認する。
+                    DistributionStatus = tool is { Id: "operation-recorder", DistributionStatus: "development" }
+                        ? "unpublished"
+                        : tool.DistributionStatus
                 };
             }
             else

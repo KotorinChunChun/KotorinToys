@@ -428,9 +428,9 @@ internal static class Program
         Check(tools.Length == 21 && tools.Any(tool => tool.Id == "chuwitch-window") &&
             tools.Any(tool => tool.Id == "pppaint" && PppaintDistribution.Supports(tool)),
             "schema 2でPPPaintの手動起動用定義を含む21ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 14, "公開対応14ツールを解決する");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 13, "ローカル定義から公開対応13ツールを解決する");
         Check(tools.Where(t => t.DistributionStatus == "unpublished").Select(t => t.Id).SequenceEqual(
-            ["shortcut-key-counter", "http-selector", "chuwitch-window", "script-sync", "agent-tasktray-viewer", "focus-translator", "echo-type"]),
+            ["shortcut-key-counter", "http-selector", "operation-recorder", "chuwitch-window", "script-sync", "agent-tasktray-viewer", "focus-translator", "echo-type"]),
             "ローカル一覧の未公開定義を区別");
         Check(tools.All(t => t.Id is "voice-mixer-spk-router" or "chuwitch-window" or "pppaint" or "focus-translator" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0),
             "追加ランタイム不要のツールと他ツールの依存情報を保持");
