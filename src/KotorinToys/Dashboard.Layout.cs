@@ -44,6 +44,7 @@ internal sealed partial class Dashboard
         actions.Controls.Add(new Label { Text = "選択中アプリ：", AutoSize = true, Margin = new(3, 8, 8, 0) });
         hostActions.Controls.Add(new Label { Text = "本体全体：", AutoSize = true, Margin = new(3, 8, 8, 0) });
         foreach (var (label, command, name) in new[] { ("起動 / 設定を開く", DashboardCommand.Start, "start"),
+            ("管理者として起動", DashboardCommand.StartAdmin, "startadmin"),
             ("停止させる", DashboardCommand.Stop, "stop"), ("使い方を開く", DashboardCommand.Manual, "manual") })
         {
             var button = new Button { Text = label, AutoSize = true, Name = name };

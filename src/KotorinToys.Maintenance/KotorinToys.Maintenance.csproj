@@ -40,6 +40,7 @@
     <Compile Include="../KotorinToys/PathSafety.cs" Link="PathSafety.cs" />
     <Compile Include="../KotorinToys/ToolExecutionModels.cs" Link="ToolExecutionModels.cs" />
     <Compile Include="../KotorinToys/ToolManager.*.cs" Link="%(Filename)%(Extension)" />
+    <Compile Include="../KotorinToys/WindowsToolProcess.cs" Link="WindowsToolProcess.cs" />
     <Compile Include="../KotorinToys/InstallationRegistration.cs" Link="InstallationRegistration.cs" />
     <Compile Include="../KotorinToys/RuntimeDetector.cs" Link="RuntimeDetector.cs" />
     <Compile Include="../KotorinToys/HostSettingsModels.cs" Link="HostSettingsModels.cs" />

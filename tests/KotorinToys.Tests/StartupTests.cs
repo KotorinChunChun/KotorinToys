@@ -72,6 +72,11 @@ internal static class StartupTests
         ensure.StartViaTargets().GetAwaiter().GetResult();
         check(requested.Order().SequenceEqual(new[]{tools[0].Id,tools[1].Id}.Order()) && store.LastAttempt!.Items.All(i=>i.Pid==12345),
             "本体起動時の確認はToys経由の設定対象だけを既存の非重複起動処理へ渡す");
+        var elevated = new StartupCoordinator(store,gateway,manager,Environment.ProcessPath!,allowDevelopment:true,
+            startTarget:(_,_)=>Task.FromResult(new ToolState("実行中",12345,ToolManager.AdministratorRunningNotice,IsAdministrator:true)));
+        elevated.StartViaTargets().GetAwaiter().GetResult();
+        check(store.LastAttempt!.Items.Length == 2 && store.LastAttempt.Items.All(i=>i.Result=="見送り" && i.Detail.Contains("管理者として")),
+            "管理者実行中のアプリを自動起動の準備完了として記録しない");
         var shared=store.Load().OwnedTasks["host"];
         gateway.Tasks[shared.Name]=gateway.Tasks[shared.Name] with{Xml=shared.Xml.Replace("PT0S","PT72H")};
         coordinator.StartViaTargets().GetAwaiter().GetResult();

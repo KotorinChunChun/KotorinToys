@@ -22,6 +22,7 @@ internal sealed partial class Dashboard
 
     async Task Execute(DashboardCommand command, string? toolId = null)
     {
+        if (command == DashboardCommand.StartAdmin && SelectedRows().Length != 1) return;
         if (!TryBeginOperation()) return;
         try
         {
@@ -35,6 +36,12 @@ internal sealed partial class Dashboard
             if (!availability.Enabled) { ShowOperationFailure(tool.Name + "：" + availability.Reason, tool.Id); return; }
             if (command == DashboardCommand.Manual)
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(PathSafety.Resolve(manager.DocumentRoot(tool), tool.Manual)) { UseShellExecute = true });
+            else if (command == DashboardCommand.StartAdmin)
+            {
+                RowFor(index).Cells["state"].Value = "起動処理中";
+                var state = await manager.StartAsAdministrator(tool, lifetime.Token);
+                if (state.State == "確認できない") ShowOperationFailure(tool.Name + "：" + state.Detail, tool.Id);
+            }
             else
             {
                 RowFor(index).Cells["state"].Value = command == DashboardCommand.Start ? "起動処理中" : "停止処理中";
@@ -163,5 +170,5 @@ internal sealed partial class Dashboard
         UpdateActions();
     }
 
-    enum DashboardCommand { Start, Stop, Manual }
+    enum DashboardCommand { Start, StartAdmin, Stop, Manual }
 }

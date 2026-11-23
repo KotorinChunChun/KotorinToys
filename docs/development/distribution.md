@@ -20,6 +20,20 @@
 
 publish-releases.ps1は固定アカウント・採用ソース・台帳・ハッシュを確認します。既存Releaseやassetは上書きせず、新しい配布物は新しい版へ進めます。
 
+## GitHub Releasesの本文
+
+本文の構成とコピー用のMarkdownは[リリースノートの共通テンプレート](release-notes-template.md)を使います。
+
+本体または管理対象アプリのWindows用インストーラー（EXE、MSI、MSIXなど）を公開するときは、通常版・開発版ともに、GitHub Releasesの本文のダウンロード案内に次のリンクを記載します。管理対象アプリが独自の手順で公開する場合も同じです。
+
+```markdown
+[Microsoft Edgeでのダウンロード手順（未署名のインストーラーを含む）](https://github.com/KotorinChunChun/KotorinToys/blob/main/docs/github-release-download-edge.md)
+```
+
+未署名のEXEを配布する場合は、リリース本文にも未署名であることを明記します。手順書の警告への対処は、公式リリースが未署名と説明しているEXE向けです。
+
+共通の `publish-releases.ps1` はこのリンクを本文に追加します。個別の公開スクリプトや手動公開では、公開前に本文にリンクがあり、最新版の手順書を開けることを確認します。
+
 ## 製品固有の入口
 
 | 製品・方式 | 正本と注意 |

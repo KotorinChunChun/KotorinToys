@@ -25,6 +25,12 @@ internal static class ToolActionPolicy
         if (busy) return ActionAvailability.Deny("処理中です。完了するまでお待ちください。");
         bool Capability(string name) => tool.Capabilities?.Contains(name) == true;
         if (operation == "manual") return documentExists ? ActionAvailability.Allow("選択したアプリの使い方を開きます。") : ActionAvailability.Deny("使い方のファイルがありません。GitHubの説明を確認してください。");
+        if (execution.IsAdministrator && operation != "manual")
+            return ActionAvailability.Deny("管理者として実行中です。この操作の前にアプリ側で終了してください。");
+        if (operation == "startadmin")
+            return ToolManager.AdministratorLaunchRestriction(tool, installed, execution, executableExists) is { } restriction
+                ? ActionAvailability.Deny(restriction)
+                : ActionAvailability.Allow("選択したアプリを管理者として起動します。Windowsの確認画面で承認してください。");
         if (operation == "start")
         {
             if (Transition(execution)) return ActionAvailability.Deny("状態を確認中、または起動・停止の処理中です。");

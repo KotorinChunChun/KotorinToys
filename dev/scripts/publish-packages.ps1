@@ -160,7 +160,7 @@ foreach ($product in $Products | Select-Object -Unique) {
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/licenses') $output
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/LICENSE') $output
             Copy-Required (Join-Path $projectRoot 'tools/LiveTextMarker/source/THIRD-PARTY-NOTICES.md') $output
-            Assert-Files $output @('tessdata/jpn.traineddata','tessdata/eng.traineddata','x64/tesseract50.dll','x64/leptonica-1.82.0.dll')
+            Assert-Files $output @('LiveTextMarker.exe','LiveTextMarker.dll','LICENSE','THIRD-PARTY-NOTICES.md')
         }
         'SmartPaste' {
             Publish-Application 'tools/SmartPaste/SmartPaste/SmartPaste.csproj' $output $product

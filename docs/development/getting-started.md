@@ -68,11 +68,9 @@ pwsh -NoProfile -File dev/scripts/start.ps1 -LocalCatalog
 
 引数なしのstart.ps1は通常の配信用一覧を使います。開発時の隔離と製品の通常起動を混同しません。
 
-EchoTypeはローカル開発一覧の「すべて」に表示されます。定義を含むEchoTypeのソースを `tools/EchoType` に配置し、子のビルド手順に従って実行ファイルを生成すると、本体の一覧から起動と停止ができます。利用手順は「使い方を開く」で確認できます。
+EchoTypeのソースを `tools/EchoType` に用意し、子リポジトリの手順でビルドします。ローカル開発一覧の「すべて」から、生成した実行ファイルの起動・停止と使い方の確認ができます。開発用ビルドはWindowsに導入した .NET 10 Desktop Runtime（x64）を使用します。 [EchoTypeの開発ガイド](https://github.com/KotorinChunChun/EchoType/blob/main/docs/DEVELOPERS_GUIDE.md)
 
-未公開のEchoTypeを導入検証する場合は、`dev/scripts/publish-packages.ps1 -Products EchoType` で配布候補を生成し、出力先を `dev/scripts/build-installers.ps1 -PackageDirectory <配布候補の出力先> -Products EchoType` に渡します。本体をローカル開発一覧で起動し、「一括インストール」の「開発者向け」で生成された `packages.json` を選択します。
-
-EchoTypeの配布候補はPCに導入された .NET 10 Desktop Runtime（x64）を使います。セットアップは不足時にMicrosoft公式の取得先を案内します。発話検出で使うVisual C++の再配布用x64 DLLは、Visual Studioの `VC/Redist/MSVC/<版>/x64/Microsoft.VC143.CRT` から同梱します。署名とコピー前後のSHA-256を確認し、発行時の版別ログに出所とファイル版を記録します。 [Microsoftの再配布手順](https://learn.microsoft.com/ja-jp/cpp/windows/determining-which-dlls-to-redistribute)
+本体からのインストールを確認する場合は、通常の一覧からEchoTypeを選び、GitHub Releasesの公開版を取得します。EchoTypeのインストーラーは子リポジトリの配布物です。対応するセットアップ・配布台帳・SHA-256一覧を同じリリースで確認してください。 [EchoTypeの公開リリース](https://github.com/KotorinChunChun/EchoType/releases)
 
 ## 検証へ進む
 
