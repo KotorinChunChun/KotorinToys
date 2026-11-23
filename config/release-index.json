@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-23T09:05:19.7415365+00:00",
+  "generatedAt": "2026-11-23T16:18:49.4935744+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -626,6 +626,35 @@
       "name": "KotorinToys",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.25",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-23T13:03:13Z",
+          "assets": [
+            {
+              "name": "KotorinToys-0.1.25-setup.exe",
+              "state": "uploaded",
+              "size": 91547587,
+              "digest": "sha256:3cf7751eb973265d94536d6285ea6a1569f4986c7fa64e1d42a2022d6f5cb27a",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.25/KotorinToys-0.1.25-setup.exe"
+            },
+            {
+              "name": "KotorinToys-packages.json",
+              "state": "uploaded",
+              "size": 389,
+              "digest": "sha256:05a5f887abd1f12586b927f3d6b0992ac95e9ec4a548b3eda83e741cd1ab2423",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.25/KotorinToys-packages.json"
+            },
+            {
+              "name": "KotorinToys-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 96,
+              "digest": "sha256:69a70ab33bff3e2cd3335dd4815ab9374d9836cc8538c5e9982648f003401b54",
+              "browser_download_url": "https://github.com/KotorinChunChun/KotorinToys/releases/download/v0.1.25/KotorinToys-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.24",
           "draft": false,
@@ -2026,6 +2055,35 @@
       "name": "SSCapture",
       "available": true,
       "releases": [
+        {
+          "tag_name": "v0.1.12",
+          "draft": false,
+          "prerelease": true,
+          "published_at": "2026-11-23T16:17:05Z",
+          "assets": [
+            {
+              "name": "SSCapture-0.1.12-setup.exe",
+              "state": "uploaded",
+              "size": 73058733,
+              "digest": "sha256:c6bc9bfc47988f7002491db41560844042118a7b59152c93bab226681cf05d7b",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.12/SSCapture-0.1.12-setup.exe"
+            },
+            {
+              "name": "SSCapture-packages.json",
+              "state": "uploaded",
+              "size": 401,
+              "digest": "sha256:de4b5c5a256c3dfcf39156357bde696baa131b9276d9139890913bf5b58ecdbe",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.12/SSCapture-packages.json"
+            },
+            {
+              "name": "SSCapture-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 94,
+              "digest": "sha256:0da00b80c4445a7696c272f85543a2b964ef72356123dd98b9ddf1b3c961011f",
+              "browser_download_url": "https://github.com/KotorinChunChun/SSCapture/releases/download/v0.1.12/SSCapture-SHA256SUMS.txt"
+            }
+          ]
+        },
         {
           "tag_name": "v0.1.11",
           "draft": false,
