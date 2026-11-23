@@ -38,6 +38,36 @@ internal static class ActionAvailabilityTests
         check(!Rule("ffmpeg", "実行中").Enabled && Rule("ffmpeg").Enabled, "FFmpegは正式導入・停止中だけ可能");
         check(!ToolActionPolicy.Evaluate("start", tool with { Capabilities = [] }, installed, new("停止中"), executableExists: true).Enabled, "未対応の起動能力を有効にしない");
 
+        check(Rule("startadmin").Enabled && !Rule("startadmin", exists: false).Enabled && !Rule("startadmin", busy: true).Enabled,
+            "正式導入済み・停止中・EXEありの場合に管理者起動を許可");
+        foreach (var state in new[] { "実行中", "確認中", "確認できない", "起動処理中", "停止処理中" })
+            check(!Rule("startadmin", state).Enabled, state + "は管理者として二重起動しない");
+        check(!ToolActionPolicy.Evaluate("startadmin", tool, new("未導入", null, null, null), new("停止中"), executableExists: true).Enabled,
+            "開発配置のEXEを管理者起動に使わない");
+        var msix = tools.First(t => t.Msix != null);
+        check(!ToolActionPolicy.Evaluate("startadmin", msix, installed, new("停止中"), executableExists: true).Enabled,
+            "MSIXのパッケージ起動をrunasへ置き換えない");
+        foreach (var operation in new[] { "startadmin", "start", "stop", "update", "uninstall" })
+            check(!ToolActionPolicy.Evaluate(operation, tool, installed, new("実行中", 123, IsAdministrator: true), release,
+                executableExists: true, uninstallerExists: true).Enabled, "管理者実行中は別権限から" + operation + "を行わない");
+
+        var launchPath = Path.Combine(root, "Test App", "test.exe");
+        var request = ToolManager.RequestAdministratorLaunch(launchPath, start =>
+        {
+            check(start.UseShellExecute && start.Verb == "runas" && start.FileName == launchPath &&
+                start.WorkingDirectory == Path.GetDirectoryName(launchPath) && start.ArgumentList.Count == 0,
+                "選んだEXEだけを作業フォルダー指定・引数なしのrunasでWindowsに渡す");
+            return 123;
+        });
+        check(request.State == "起動処理中" && request.Pid == 123, "Shellの起動依頼をアプリの準備完了と区別する");
+        var canceled = ToolManager.RequestAdministratorLaunch(launchPath, _ => throw new System.ComponentModel.Win32Exception(1223));
+        var failed = ToolManager.RequestAdministratorLaunch(launchPath, _ => throw new System.ComponentModel.Win32Exception(5));
+        check(canceled.State == "取消" && failed.State == "確認できない" && failed.Detail.Contains("Windowsエラー 5"),
+            "UACの取り消しと起動エラーを区別する");
+        var inspected = WindowsToolProcess.Read(Environment.ProcessId);
+        check(string.Equals(inspected.Path, Environment.ProcessPath, StringComparison.OrdinalIgnoreCase),
+            "実プロセスのパスとトークンを限定された権限で取得する");
+
         var previous = SynchronizationContext.Current;
         try
         {
@@ -59,6 +89,13 @@ internal static class ActionAvailabilityTests
             actual[0] = installed;
             exists = true; dashboard.ApplySnapshot(actual, states, releases);
             check(start.Enabled && !dashboard.Controls.Find("stop", true).Single().Enabled, "実フォームは復旧したEXEと停止状態を反映");
+            var startAdmin = (Button)dashboard.Controls.Find("startadmin", true).Single();
+            check(startAdmin.Enabled, "選択した停止中の正式導入EXEに管理者起動ボタンが使える");
+            states[0] = new("実行中", 123, ToolManager.AdministratorRunningNotice, IsAdministrator: true);
+            dashboard.ApplySnapshot(actual, states, releases);
+            check(!startAdmin.Enabled && !start.Enabled && !dashboard.Controls.Find("stop", true).Single().Enabled &&
+                startAdmin.AccessibleDescription!.Contains("アプリ側") &&
+                (string?)grid.Rows[0].Cells["state"].Value == "管理者として実行中", "実フォームは管理者実行中と操作できない理由を表示");
             states[0] = new("停止処理中"); dashboard.ApplySnapshot(actual, states, releases);
             check(!start.Enabled && !dashboard.Controls.Find("uninstallSelected", true).Single().Enabled, "終了処理中は起動・削除を競合させない");
 

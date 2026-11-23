@@ -13,7 +13,8 @@ internal sealed partial class Dashboard
             row.Cells["installed"].Value = version.Installed;
             row.Cells["update"].Value = DashboardText.Update(tools[i], actual[i], published[i]);
             row.Cells["update"].ToolTipText = version.Published + "\n" + version.Update + "\n" + ReleaseProblems.Explanation(published[i]);
-            row.Cells["state"].Value = actual[i].State == "未導入" ? "-" : execution[i].State;
+            row.Cells["state"].Value = actual[i].State == "未導入" ? "-" :
+                execution[i] is { State: "実行中", IsAdministrator: true } ? "管理者として実行中" : execution[i].State;
         }
         UpdateDetails(); ApplyView(); UpdateActions();
     }
@@ -79,7 +80,7 @@ internal sealed partial class Dashboard
         ActionHints.Apply(github, busy || refreshingCatalog ? ActionAvailability.Deny("処理中です。完了するまでお待ちください。") :
             selected.Length > 1 ? ActionAvailability.Deny("この操作はアプリを1件だけ選択してください。") :
             repository != null ? ActionAvailability.Allow(repository.AbsoluteUri) : ActionAvailability.Deny("GitHub公開先が未設定、またはツールが未選択です。"), tooltips);
-        foreach (var name in new[] { "start", "stop", "manual" })
+        foreach (var name in new[] { "start", "startadmin", "stop", "manual" })
             if (actions.Controls.Find(name, false).SingleOrDefault() is Button button)
                 ActionHints.Apply(button, SingleAction(name), tooltips);
         bool repair = i >= 0 && i < installations.Length && installations[i].State == "修復が必要";

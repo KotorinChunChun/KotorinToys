@@ -20,6 +20,8 @@ internal sealed partial class ToolManager
             var state = await Status(tool, cancellation);
             if (state.State == "実行中")
             {
+                if (showWindow && state.IsAdministrator)
+                    return state with { State = "確認できない" };
                 if (showWindow)
                     await Show(tool, state, cancellation);
                 return state;
@@ -57,6 +59,8 @@ internal sealed partial class ToolManager
                     state = await Status(tool, deadline.Token);
                     if (state.State == "実行中")
                     {
+                        if (showWindow && state.IsAdministrator)
+                            return state with { State = "確認できない" };
                         if (showWindow)
                             await Show(tool, state, deadline.Token);
                         return state;
@@ -93,7 +97,7 @@ internal sealed partial class ToolManager
         try
         {
             var state = await Status(tool, cancellation);
-            if (state.State is not ("実行中" or "停止処理中"))
+            if (state.IsAdministrator || state.State is not ("実行中" or "停止処理中"))
                 return state;
             var reply = await Send(tool, "stop", state.Pid, cancellation);
             if (reply.Result != "accepted")

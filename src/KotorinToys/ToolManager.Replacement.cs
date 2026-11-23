@@ -6,7 +6,7 @@ namespace KotorinToys;
 
 internal sealed partial class ToolManager
 {
-    sealed record ReplacementProcess(int Pid, string Executable, DateTime StartedAtUtc);
+    sealed record ReplacementProcess(int Pid, string Executable, DateTime StartedAtUtc, bool IsAdministrator);
 
     static ReplacementProcess[] ReplacementProcesses(ToolDefinition tool)
     {
@@ -22,8 +22,12 @@ internal sealed partial class ToolManager
                 foreach (var process in processes)
                 {
                     if (process.SessionId != Process.GetCurrentProcess().SessionId) continue;
-                    var path = PathSafety.LocalExecutable(process.MainModule?.FileName);
-                    found[process.Id] = new(process.Id, path, process.StartTime.ToUniversalTime());
+                    var (running, elevated) = tool.Msix == null
+                        ? WindowsToolProcess.Read(process.Id)
+                        : (process.MainModule?.FileName, false);
+                    var path = PathSafety.LocalExecutable(running);
+                    bool differentPrivilege = elevated && !WindowsToolProcess.CurrentElevation.Value;
+                    found[process.Id] = new(process.Id, path, differentPrivilege ? default : process.StartTime.ToUniversalTime(), differentPrivilege);
                 }
             }
             finally { foreach (var process in processes) process.Dispose(); }
@@ -44,6 +48,9 @@ internal sealed partial class ToolManager
                 return state.State == "停止中" ? state : new("確認できない", Detail: state.Detail.Length == 0 ? "実行中のアプリを照合できません。" : state.Detail);
             }
             var process = processes[0];
+            if (process.IsAdministrator)
+                return new("確認できない", process.Pid, "管理者として実行中です。アプリ側で終了してから再実行してください。",
+                    RunningExecutable: process.Executable, IsAdministrator: true);
             var reply = await Send(tool, "status", process.Pid, cancellation);
             if (reply.ProtocolVersion < 2 || !reply.Ready || tool.Capabilities?.Contains("stop") != true)
                 return new("確認できない", process.Pid, "実行中のアプリが正常終了の管理連携に対応していません。アプリ側で終了してから再実行してください。",

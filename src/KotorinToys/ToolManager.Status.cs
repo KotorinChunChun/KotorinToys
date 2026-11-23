@@ -41,6 +41,7 @@ internal sealed partial class ToolManager
 
         bool inaccessible = false;
         var matches = new List<int>();
+        var administrators = new List<ToolState>();
         foreach (var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(path)))
         {
             using (process)
@@ -49,14 +50,30 @@ internal sealed partial class ToolManager
                 {
                     if (process.SessionId != Process.GetCurrentProcess().SessionId)
                         continue;
-                    if (string.Equals(process.MainModule?.FileName, path, StringComparison.OrdinalIgnoreCase))
-                        matches.Add(process.Id);
+                    var (running, elevated) = tool.Msix == null
+                        ? WindowsToolProcess.Read(process.Id)
+                        : (process.MainModule?.FileName, false);
+                    bool expected = string.Equals(running, path, StringComparison.OrdinalIgnoreCase);
+                    if (expected) matches.Add(process.Id);
+                    if (elevated && !WindowsToolProcess.CurrentElevation.Value)
+                        administrators.Add(new(expected ? "実行中" : "確認できない", process.Id,
+                            expected ? AdministratorRunningNotice : "別の配置のアプリが管理者として実行中です。アプリ側で終了してください。",
+                            RunningExecutable: running, ExpectedExecutable: path, IsAdministrator: true));
                 }
                 catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
                 {
                     inaccessible = true;
                 }
             }
+        }
+
+        if (administrators.Count > 0)
+        {
+            var administrator = administrators[0];
+            return administrators.Count == 1 && !inaccessible && (matches.Count == 0 ||
+                matches.Count == 1 && matches[0] == administrator.Pid)
+                ? administrator
+                : new("確認できない", Detail: "管理者として動作している同名アプリを一意に確認できません。アプリ側で終了してください。");
         }
 
         if (TranscriptionDistribution.Supports(tool))
