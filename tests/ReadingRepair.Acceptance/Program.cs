@@ -26,34 +26,36 @@ internal static class Program
         {
             var definitions=OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root,"config/tools.json")),root);
             var tool=definitions.Single(t=>t.Id=="reading-repair");
-            Require(tool is {Name:"ReadingRepair",Version:"0.0.3",AppId:"KotorinToys.ReadingRepair",DistributionStatus:"published"},"ReadingRepairの公開定義と固定製品識別");
+            Require(tool is {Name:"ReadingRepair",AppId:"KotorinToys.ReadingRepair",DistributionStatus:"published"},"ReadingRepairの公開定義と固定製品識別");
             Require(ProductIdentity.FromTool(tool)?.Repository=="ReadingRepair","標準の定義ベース管理で配布先を照合");
+            var expectedVersion=tool.Version;
             if(args[0]=="validate")return 0;
             var source=new ToolCatalogSource(root,Path.Combine(output,"catalog-cache"));
             var refreshed=await source.Refresh();
             Require(refreshed.Accepted,"公開mainの一覧を本体の取得・検証経路で採用");
             tool=refreshed.Tools.Single(t=>t.Id=="reading-repair");
+            Require(tool.Version==expectedVersion,"公開mainとローカルの対象版が一致");
             using var client=new PublicReleaseClient(cache:new PublicReleaseCache());
             var release=await client.Check(tool,null);
-            Require(release.Confirmed && release.Package?.Package.Version=="0.0.3","公開情報一覧・製品別台帳・GitHub digest照合: "+release.Detail);
+            Require(release.Confirmed && release.Package?.Package.Version==expectedVersion,"公開情報一覧・製品別台帳・GitHub digest照合: "+release.Detail);
             var catalog=new ReleaseCatalog(1,[release.Package!]);
             Require(ToolInstallationRunner.PublicReason(tool,catalog,release)==null,"KotorinToysのインストール操作が許可される");
             await File.WriteAllTextAsync(Path.Combine(output,"publication.json"),JsonSerializer.Serialize(release,ToolCatalog.Json));
-            foreach(var previousVersion in new[]{"0.0.1","0.0.2"})
+            foreach(var previousVersion in new[]{"0.0.3","0.0.4"})
             {
                 var previous=new InstallationState("導入済み",previousVersion,null,null);
                 var updateText=ReleaseDisplay.Confirmation([tool],"install",_=>previous,catalog,null);
-                Require(updateText.Contains(previousVersion+" → 0.0.3") && !updateText.Contains("実行不可"),"既存"+previousVersion+"から0.0.3への更新対象表示");
+                Require(updateText.Contains(previousVersion+" → "+expectedVersion) && !updateText.Contains("実行不可"),"既存"+previousVersion+"から"+expectedVersion+"への更新対象表示");
             }
             var freshText=ReleaseDisplay.Confirmation([tool],"install",_=>new InstallationState("未導入",null,null,null),catalog,null);
-            Require(freshText.Contains("未導入 → 0.0.3") && !freshText.Contains("実行不可"),"未導入PCの0.0.3新規導入対象表示");
+            Require(freshText.Contains("未導入 → "+expectedVersion) && !freshText.Contains("実行不可"),"未導入PCの"+expectedVersion+"新規導入対象表示");
             if(args[0]=="online")return 0;
             if(args[0]=="download")
             {
                 using var downloader=new ReleaseDownloader();
                 var path=await downloader.Prepare(catalog,[tool with {Version=release.Package!.Package.Version}],Path.Combine(output,"download"));
                 var package=PackageCatalogReader.Load(path,[tool]).Packages.Single();
-                Require(package.Version=="0.0.3" && package.Name=="ReadingRepair","本体の匿名ダウンロード・容量・SHA-256検証経路で0.0.3を取得");
+                Require(package.Version==expectedVersion && package.Name=="ReadingRepair","本体の匿名ダウンロード・容量・SHA-256検証経路で"+expectedVersion+"を取得");
                 await File.WriteAllTextAsync(Path.Combine(output,"download-result.json"),JsonSerializer.Serialize(new{catalog=path,package,installationExecuted=false},ToolCatalog.Json));
                 return 0;
             }
@@ -62,10 +64,11 @@ internal static class Program
             var hostSettings=Path.Combine(HostSettingsStore.DefaultDirectory,"settings.json");var hostBefore=Hash(hostSettings);
             var manager=new ToolManager(root,(_,start)=>{start.ArgumentList.Add("--settings");start.ArgumentList.Add(Path.Combine(output,"app-settings.json"));},source);
             Require((await manager.Status(tool)).State=="停止中","導入前に通常インスタンスが正常停止済み");
-            var results=await new ToolInstallationRunner(manager).Run([tool],"install",catalog,null);
+            var operation=manager.Installation(tool).State=="導入済み" ? "update" : "install";
+            var results=await new ToolInstallationRunner(manager).Run([tool],operation,catalog,null);
             Require(results.Single().State=="成功","本体と同じ匿名取得・容量/SHA検査・setup実行・正式登録: "+results.Single().Detail);
             var installed=manager.Installation(tool);
-            Require(installed.State=="導入済み" && installed.Version=="0.0.3","HKCU登録・tool.json・EXE製品名と版を検出");
+            Require(installed.State=="導入済み" && installed.Version==expectedVersion,"HKCU登録・tool.json・EXE製品名と版を検出");
             var state=await manager.Start(tool,false,"host_manual");
             Require(state.State=="実行中" && state.Pid.HasValue,"正式導入先から無表示起動・ready・PID/実行パス照合");
             using var process=Process.GetProcessById(state.Pid!.Value);process.Refresh();
