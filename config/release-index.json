@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-28T10:27:32.3049790+00:00",
+  "generatedAt": "2026-11-28T16:12:16.1206136+00:00",
   "repositories": [
     {
       "name": "CapchunScreen",
@@ -189,6 +189,151 @@
               "size": 96,
               "digest": "sha256:baaa254f15be771baa4e2b59251aa9d45805af27e6fc9dfb7aca88d24bf40383",
               "browser_download_url": "https://github.com/KotorinChunChun/ChunapTool/releases/download/v0.1.1/SHA256SUMS.txt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ChuwitchWindow",
+      "available": true,
+      "releases": [
+        {
+          "tag_name": "v0.2.2",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-11-28T16:09:13Z",
+          "assets": [
+            {
+              "name": "ChuwitchWindow-0.2.2-setup.exe",
+              "state": "uploaded",
+              "size": 5822859,
+              "digest": "sha256:1364b28e3f40c912332b473bfd2379c66a50d34a3291b5c987d90d8d456c7f03",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.2.2/ChuwitchWindow-0.2.2-setup.exe"
+            },
+            {
+              "name": "ChuwitchWindow-packages.json",
+              "state": "uploaded",
+              "size": 419,
+              "digest": "sha256:822588be00d52990d27f78ee5211327015a93e277dcfd4593243091976b5fd7d",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.2.2/ChuwitchWindow-packages.json"
+            },
+            {
+              "name": "ChuwitchWindow-SHA256SUMS.txt",
+              "state": "uploaded",
+              "size": 98,
+              "digest": "sha256:3baaadb4c327bdaa395e410b3ea5708f09c09a99b77f0b260d9bf67b08b3712f",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.2.2/ChuwitchWindow-SHA256SUMS.txt"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.2.1",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-06-21T11:48:30Z",
+          "assets": [
+            {
+              "name": "ChuwitchWindow_v0.2.1.zip",
+              "state": "uploaded",
+              "size": 3652047,
+              "digest": "sha256:bd2b3ceff9c244620518dd5bd080bf8fff8c224ac2a5e30f4ffc840c5ff8f98c",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.2.1/ChuwitchWindow_v0.2.1.zip"
+            },
+            {
+              "name": "ChuwitchWindow_v0.2.1_Setup.exe",
+              "state": "uploaded",
+              "size": 2620387,
+              "digest": "sha256:521893951efc173611ead36b83a5a91b18a8eed42cdbe61a3ccb93a83bac581e",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.2.1/ChuwitchWindow_v0.2.1_Setup.exe"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.2.0",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-03-01T14:54:47Z",
+          "assets": [
+            {
+              "name": "ChuwitchWindow_v0.2.0.zip",
+              "state": "uploaded",
+              "size": 3663159,
+              "digest": "sha256:c4145a1fa8b09b2b9b4d0e12b180d9d3adb7a2ec84dec7dcaf40ac5de55fe63e",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.2.0/ChuwitchWindow_v0.2.0.zip"
+            },
+            {
+              "name": "ChuwitchWindow_v0.2.0_Setup.exe",
+              "state": "uploaded",
+              "size": 2629375,
+              "digest": "sha256:a9a6a6a49ee5437a75aba95cac79687577af84b769195e9586aba439d248dc58",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.2.0/ChuwitchWindow_v0.2.0_Setup.exe"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.2",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-02-25T16:06:19Z",
+          "assets": [
+            {
+              "name": "ChuwitchWindow_v0.1.2.zip",
+              "state": "uploaded",
+              "size": 3318329,
+              "digest": "sha256:0c3e97d15368a02894f2d260f57aeb9f21e3b152a9032180c2f9a56c6d638eef",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.1.2/ChuwitchWindow_v0.1.2.zip"
+            },
+            {
+              "name": "ChuwitchWindow_v0.1.2_Setup.exe",
+              "state": "uploaded",
+              "size": 2381852,
+              "digest": "sha256:518f9f3516b287a199fb21965977a671f1406b6177f58b64b8c74f7bffe65d24",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.1.2/ChuwitchWindow_v0.1.2_Setup.exe"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.1",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-02-22T05:53:28Z",
+          "assets": [
+            {
+              "name": "ChuwitchWindow_v0.1.1.zip",
+              "state": "uploaded",
+              "size": 3315822,
+              "digest": "sha256:ccc917a1412a252434c4b216ce8d34d6b82c295760f1a36c3c659249c0cc56ec",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.1.1/ChuwitchWindow_v0.1.1.zip"
+            },
+            {
+              "name": "ChuwitchWindow_v0.1.1_Setup.exe",
+              "state": "uploaded",
+              "size": 2381390,
+              "digest": "sha256:5bb541306f19e60a8de8e23e4f98c69e8bfdafabd9aa7e617ac11b1ba2553ce4",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.1.1/ChuwitchWindow_v0.1.1_Setup.exe"
+            }
+          ]
+        },
+        {
+          "tag_name": "v0.1.0",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-02-21T16:44:59Z",
+          "assets": [
+            {
+              "name": "ChuwitchWindow_v0.1.0.zip",
+              "state": "uploaded",
+              "size": 3352728,
+              "digest": "sha256:f0e82acf7f72849ee6497b9ae793344f4cda811647bd46217b9ad8cbdd5d5622",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.1.0/ChuwitchWindow_v0.1.0.zip"
+            },
+            {
+              "name": "ChuwitchWindow_v0.1.0_Setup.exe",
+              "state": "uploaded",
+              "size": 2417657,
+              "digest": "sha256:9b143c46d15bda677014d1aa644c52c0291c57e3b9b1f9f1032740fe928ad6ae",
+              "browser_download_url": "https://github.com/KotorinChunChun/ChuwitchWindow/releases/download/v0.1.0/ChuwitchWindow_v0.1.0_Setup.exe"
             }
           ]
         }
