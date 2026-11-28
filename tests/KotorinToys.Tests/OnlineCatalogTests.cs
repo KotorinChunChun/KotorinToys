@@ -29,7 +29,7 @@ internal static class OnlineCatalogTests
         var localIds = ToolCatalog.Load(root).Select(t => t.Id).ToArray();
         var bundledIds = bundled.Select(t => t.Id).ToArray();
         const string transcriptionId = "transcription-server";
-        string[] localOnly = ["agent-tasktray-viewer", "chuwitch-window", "focus-translator", "script-sync"];
+        string[] localOnly = ["agent-tasktray-viewer", "focus-translator", "script-sync"];
         string[] bundledOnly = ["talk-recorder", transcriptionId];
         string[] localDevelopment = ["office-assist", "echo-type"];
         check(localIds.Except(bundledIds).Order().SequenceEqual(localOnly) &&
@@ -37,6 +37,12 @@ internal static class OnlineCatalogTests
             bundledIds.Except(bundledOnly.Concat(localDevelopment)).SequenceEqual(localIds.Except(localOnly.Concat(localDevelopment))) &&
             localDevelopment.All(id => bundledIds.Contains(id) && localIds.Contains(id)),
             "共通ツールの順序と開発・配布専用ツールを区別");
+        var chuwitch = bundled.Single(t => t.Id == "chuwitch-window");
+        check(ToolActionPolicy.InstallEntry(chuwitch).Enabled &&
+            ToolInstallationRunner.PackageKind(chuwitch) == "inno" &&
+            ProductIdentity.FromTool(chuwitch)?.Repository == "ChuwitchWindow" &&
+            chuwitch.Capabilities!.Contains("silent-start"),
+            "ChuwitchWindowは固定配布元から正式導入でき、管理起動を非表示で行う");
         var transcription = bundled.Single(t => t.Id == transcriptionId);
         check(ToolRepository.Find(transcription)?.AbsoluteUri == "https://github.com/KotorinChunChun/TranscriptionServer" &&
             ToolActionPolicy.InstallEntry(transcription).Enabled &&

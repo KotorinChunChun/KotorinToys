@@ -134,7 +134,7 @@ internal static class PublicReleaseTests
     {
         var tools = OnlineToolCatalog.Parse(File.ReadAllBytes(Path.Combine(root, OnlineToolCatalog.RelativePath)), root);
         var tool = tools.Single(t => t.Id == toolId);
-        var fallback = ReleaseDownloader.Load(root, tools).Packages.Single(p => p.Package.Id == tool.Id);
+        var fallback = ReleaseDownloader.Load(root, tools).Packages.SingleOrDefault(p => p.Package.Id == tool.Id);
         using var client = new PublicReleaseClient(new RecordedIndexHandler(File.ReadAllText(indexPath)));
         var result = await client.Check(tool, fallback);
         if (!result.Confirmed || result.Package == null) throw new IOException(tool.Name + "の公開情報を照合できません：" + result.Detail);

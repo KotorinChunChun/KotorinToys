@@ -8,7 +8,7 @@ internal static class AddedToolIntegrationTests
 {
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool IsWindowVisible(IntPtr window);
+    internal static extern bool IsWindowVisible(IntPtr window);
     delegate bool EnumWindowsCallback(IntPtr window, IntPtr parameter);
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -20,7 +20,7 @@ internal static class AddedToolIntegrationTests
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     static extern int GetWindowText(IntPtr window, StringBuilder text, int maximumCount);
 
-    static IntPtr FindWindow(Process process, string expectedTitle)
+    internal static IntPtr FindWindow(Process process, string expectedTitle)
     {
         var found = IntPtr.Zero;
         EnumWindowsCallback callback = (window, parameter) =>

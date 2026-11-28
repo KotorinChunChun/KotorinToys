@@ -25,6 +25,8 @@ internal static class Program
         {
             if (args is ["--tool-update-job", var workerSettings, var jobId])
                 return ToolUpdateJob.Run(workerSettings, jobId).GetAwaiter().GetResult();
+            if (args is ["--chuwitch-install-acceptance", var chuwitchCatalog, var chuwitchRun])
+                return ChuwitchInstallAcceptance.Run(KotorinToys.Program.FindRoot(), chuwitchCatalog, chuwitchRun).GetAwaiter().GetResult();
             if (args.SequenceEqual(["--local-installed-catalog-tests"])) { LocalInstalledCatalogTests.Run(KotorinToys.Program.FindRoot(), Path.Combine(KotorinToys.Program.FindRoot(), "dev/history/v0.1.18/logs/focus-local-" + Guid.NewGuid().ToString("N")), Check).GetAwaiter().GetResult(); Console.WriteLine($"PASS: {count} 件"); return 0; }
             if (args.Length == 3 && args[0] == "--local-startup-readiness") return LocalStartupReadiness.Run(args[1], args[2]).GetAwaiter().GetResult();
             if (args.Length == 3 && args[0] == "--local-startup-reapply") return LocalStartupReadiness.Reapply(args[1], args[2]).GetAwaiter().GetResult();
@@ -428,9 +430,9 @@ internal static class Program
         Check(tools.Length == 21 && tools.Any(tool => tool.Id == "chuwitch-window") &&
             tools.Any(tool => tool.Id == "pppaint" && PppaintDistribution.Supports(tool)),
             "schema 2でPPPaintの手動起動用定義を含む21ツールを解決する");
-        Check(tools.Count(t => t.DistributionStatus == "published") == 13, "ローカル定義から公開対応13ツールを解決する");
+        Check(tools.Count(t => t.DistributionStatus == "published") == 14, "ローカル定義から公開対応14ツールを解決する");
         Check(tools.Where(t => t.DistributionStatus == "unpublished").Select(t => t.Id).SequenceEqual(
-            ["shortcut-key-counter", "http-selector", "operation-recorder", "chuwitch-window", "script-sync", "agent-tasktray-viewer", "focus-translator", "echo-type"]),
+            ["shortcut-key-counter", "http-selector", "operation-recorder", "script-sync", "agent-tasktray-viewer", "focus-translator", "echo-type"]),
             "ローカル一覧の未公開定義を区別");
         Check(tools.All(t => t.Id is "voice-mixer-spk-router" or "chuwitch-window" or "pppaint" or "focus-translator" ? t.Runtimes is { Length: 0 } : t.Runtimes?.Length > 0),
             "追加ランタイム不要のツールと他ツールの依存情報を保持");
